@@ -1,0 +1,51 @@
+<c-col xs="12">
+    <c-card class="mb-4">
+        <c-card-header ngPreserveWhitespaces>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Nueva</strong> <small>Cotización</small>
+                </div>
+                <div style="text-align: right;">
+                    {{ currentDate | date: 'dd MMM yyyy' }}
+                </div>
+            </div>
+        </c-card-header>
+        <c-card-body>
+            <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
+                <input cFormControl formControlName="budgetId" style="display: none;" />
+                <c-col md="6">
+                    <label cLabel for="budgetName">Nombre para la cotización (Te servira para identificarla luego :)*</label>
+                    <input cFormControl formControlName="budgetName" />
+                </c-col>
+                <c-col md="6">
+                    <label cLabel for="customerId">Cliente*</label>                    
+                    <select aria-label="Default select example" cFormControl cSelect formControlName="customerId">                        
+                        <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
+                      </select>
+                </c-col>
+                <c-col md="9">
+                   <!-- Empty -->
+                </c-col>
+                <c-col md="3">
+                    <label cLabel for="amount">Total*</label>
+                    <input cFormControl formControlName="amount" readonly />
+                </c-col>
+
+                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
+                    Nombre de la cotización es obligatorio
+            </p>
+
+            <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
+                    {{msjError}}
+            </p>
+
+
+                <c-col xs="12">
+                    <button cButton type="submit">
+                        {{ budgetForm.get('budgetId')?.value >0 ? 'Actualizar' : 'Guardar' }}
+                    </button>
+                </c-col>
+            </form>
+        </c-card-body>
+    </c-card>
+</c-col>

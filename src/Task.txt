@@ -1,0 +1,8 @@
+unificar swervices de proxy 
+garantizar que al generar un 500 o no encontrar server salga error o nio ? 
+
+en AuthService tomar la url de forma segura o constnates seguras etc o por ambiente 
+Crear cerrar session
+Definir Admin y user en las paginas para que no salga lo mismo 
+organizar ubicacion del login y auth genreal 
+centrarlizar todas la UR en un solo sitio para evitar estar haceindo llamdaos dobles etc 

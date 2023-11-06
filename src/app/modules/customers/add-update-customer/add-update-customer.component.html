@@ -1,0 +1,47 @@
+<c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header ngPreserveWhitespaces>
+                <strong>Nuevo</strong> <small>Cliente</small>
+            </c-card-header>
+            <c-card-body>
+                    <form cForm class="row g-3" [formGroup]="customerForm" (ngSubmit)="onAddUpdateCustomer()">
+                    <!-- Id del customer -->
+                        <input cFormControl  formControlName="customerId" style="display: none;"/>
+                            <c-col md="6">
+                                <label cLabel for="customerName">Nombre*</label>
+                                <input cFormControl  formControlName="customerName" />
+                            </c-col>
+                            <c-col md="6">
+                                <label cLabel for="customId">NIT o CC</label>
+                                <input cFormControl formControlName="customId" />
+                            </c-col>
+
+                        <c-col md="6">
+                            <label cLabel for="email">Email</label>
+                            <input cFormControl type="email" formControlName="email" />
+                        </c-col>
+                        <c-col md="6">
+                            <label cLabel for="other">Otro</label>
+                            <input cFormControl />
+                        </c-col>
+                        <c-col xs="12">
+                            <label cLabel for="address">Dirección</label>
+                            <input cFormControl placeholder="Carr 90 N 10" formControlName="address" />
+                        </c-col>
+                        <p class="text-medium-emphasis small" *ngIf="customerForm.get('customerName')?.invalid && (customerForm.get('customerName')?.touched || customerForm.get('customerName')?.dirty)" class="text-danger">
+                                Nombre del cliente es obligatorio
+                        </p>
+
+                        <p class="text-medium-emphasis small" *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.touched || customerForm.get('email')?.dirty)" class="text-danger">
+                                Email no es es valido
+                        </p>
+
+
+                        <c-col xs="12">
+                            <button cButton type="submit">{{ customerForm.get('customerId')?.value ? 'Actualizar' : 'Guardar' }}</button>
+                        </c-col>
+                    </form>
+        
+            </c-card-body>
+        </c-card>
+    </c-col>

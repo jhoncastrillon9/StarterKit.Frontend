@@ -1,0 +1,40 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AddUpdateBudgetComponent } from './add-update-budget/add-update-budget.component';
+import { ListBudgetComponent } from './list-budget/list-budget.component';
+
+import { BudgetsRoutingModule } from './budgets-routing.module';
+import { IconModule } from '@coreui/icons-angular';
+import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, SharedModule } from '@coreui/angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+
+
+
+
+@NgModule({
+  declarations: [
+    ListBudgetComponent,
+    AddUpdateBudgetComponent
+  ],
+  imports: [
+    CommonModule,
+    BudgetsRoutingModule,
+    
+    
+    CardModule,
+    FormModule,
+    GridModule,
+    FormsModule,
+    ButtonModule,
+    ReactiveFormsModule,
+    FormModule,
+    ButtonModule,
+    ButtonGroupModule,
+    DropdownModule,
+    SharedModule,
+    ListGroupModule,
+    IconModule  
+  ]
+})
+export class BudgetsModule { }
