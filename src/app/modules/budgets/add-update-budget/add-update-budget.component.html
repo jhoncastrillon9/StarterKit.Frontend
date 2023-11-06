@@ -42,16 +42,16 @@
                     <tbody formArrayName="budgetDetailsDto">
                         <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
                             <td>
-                                <input cFormControl formControlName="description" placeholder="Descripción" />
+                                <input cFormControl formControlName="description" placeholder="Descripción" type=""/>
                             </td>
                             <td>
-                                <input cFormControl formControlName="quantity" placeholder="Cantidad" />
+                                <input cFormControl formControlName="quantity" placeholder="Cantidad"  type="number" />
                             </td>
                             <td>
-                                <input cFormControl formControlName="price" placeholder="Precio" />
+                                <input cFormControl formControlName="price" placeholder="Precio"  type="number"/>
                             </td>
                             <td>
-                                <input cFormControl formControlName="price" placeholder="Precio" />
+                                <input cFormControl  placeholder="0" readonly  type="number"/>
                             </td>
                             <td>                                
                                  <button cButton color="danger" variant="outline" (click)="removeBudgetDetail(i)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
