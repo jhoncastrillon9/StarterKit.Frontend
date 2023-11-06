@@ -35,6 +35,7 @@
                             <th>Descripción</th>
                             <th>Cantidad</th>
                             <th>Precio</th>
+                            <th>Subtotal</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -50,7 +51,9 @@
                                 <input cFormControl formControlName="price" placeholder="Precio" />
                             </td>
                             <td>
-                                
+                                <input cFormControl formControlName="price" placeholder="Precio" />
+                            </td>
+                            <td>                                
                                  <button cButton color="danger" variant="outline" (click)="removeBudgetDetail(i)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
                             </td>
                         </tr>
@@ -72,8 +75,8 @@
                     <!-- Espacio en blanco -->
                  </c-col>
                  <c-col md="3">
-                     <label cLabel for="amount">Total*</label>
-                     <input cFormControl formControlName="amount" readonly  style="display: block;"/>
+                     <label cLabel for="amount">Total</label>
+                     <input cFormControl formControlName="amount" readonly  style="display: none;"/>
                  </c-col>
 
 
