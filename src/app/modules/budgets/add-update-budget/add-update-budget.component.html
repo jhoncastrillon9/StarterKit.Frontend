@@ -8,46 +8,88 @@
                 <div style="text-align: right;">
                     {{ currentDate | date: 'dd MMM yyyy' }}
                 </div>
-                
             </div>
         </c-card-header>
         <c-card-body>
             <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
                 <input cFormControl formControlName="budgetId" style="display: none;" />
                 <c-col md="6">
-                    <label cLabel for="budgetName">Nombre para la cotización (Te servira para identificarla luego :)*</label>
+                    <label cLabel for="budgetName">Nombre para la cotización (Te servirá para identificarla luego)*</label>
                     <input cFormControl formControlName="budgetName" />
                 </c-col>
                 <c-col md="6">
-                    <label cLabel for="customerId">Cliente*</label>                    
-                    <select aria-label="Default select example" cFormControl cSelect formControlName="customerId">                        
+                    <label cLabel for="customerId">Cliente*</label>
+                    <select aria-label="Default select example" cFormControl cSelect formControlName="customerId">
                         <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
-                      </select>
+                    </select>
                 </c-col>
-                <c-col md="9">
-                   <!-- Empty -->
 
-                </c-col>
-                <c-col md="3">
-                    <label cLabel for="amount">Total*</label>
-                    <input cFormControl formControlName="amount" readonly />
-                </c-col>
 
                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
                     Nombre de la cotización es obligatorio
-            </p>
+                </p>               
 
-            <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody formArrayName="budgetDetailsDto">
+                        <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
+                            <td>
+                                <input cFormControl formControlName="description" placeholder="Descripción" />
+                            </td>
+                            <td>
+                                <input cFormControl formControlName="quantity" placeholder="Cantidad" />
+                            </td>
+                            <td>
+                                <input cFormControl formControlName="price" placeholder="Precio" />
+                            </td>
+                            <td>
+                                
+                                 <button cButton color="danger" variant="outline" (click)="removeBudgetDetail(i)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+               
+
+
+
+                <c-col xs="5">
+                    
+                </c-col>
+                <c-col xs="7">
+                    <button cButton color="secondary" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
+                </c-col>
+
+
+                <c-col md="9">
+                    <!-- Espacio en blanco -->
+                 </c-col>
+                 <c-col md="3">
+                     <label cLabel for="amount">Total*</label>
+                     <input cFormControl formControlName="amount" readonly  style="display: block;"/>
+                 </c-col>
+
+
+
+                <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
                     {{msjError}}
-            </p>
+                </p>
 
 
                 <c-col xs="12">
                     <button cButton type="submit">
-                        {{ budgetForm.get('budgetId')?.value >0 ? 'Actualizar' : 'Guardar' }}
+                        {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
                     </button>
                 </c-col>
             </form>
         </c-card-body>
     </c-card>
 </c-col>
+
