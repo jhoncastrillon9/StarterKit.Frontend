@@ -19,6 +19,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   customers: CustomerModel[] = [];
   showErrors: boolean = false;
   msjError: string = "";
+  total: number = 0; 
 
   constructor(
     private fb: FormBuilder,
@@ -32,7 +33,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetId: ['0'],
       userId: ['0', [Validators.required]],
       customerId: ['0', [Validators.required]],
-      amount: ['0', [Validators.required]],
+      amount: [this.total, [Validators.required]],
       date: [new Date()],
       budgetName: ['', [Validators.required]],
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
@@ -69,15 +70,19 @@ export class AddUpdateBudgetComponent implements OnInit {
     const budgetDetailGroup = this.fb.group({
       budgetDetailId: [0],
       budgetId: [0],
-      description: [''],
-      quantity: [''],
-      price: ['']
+      description: ['', [Validators.required]],
+      quantity: [null, [Validators.required, Validators.pattern(/^\d+$/)]], // Validación para números enteros
+      price: [null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Validación para números con o sin decimales
+      // No se requieren enviar al back
+      subtotal: [0],
     });
     this.budgetDetails.push(budgetDetailGroup);
+    this.updateTotal();
   }
 
   removeBudgetDetail(index: number) {
     this.budgetDetails.removeAt(index);
+    this.updateTotal();
   }
 
   get budgetDetails() {
@@ -87,6 +92,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   onAddUpdateBudget() {
     if (this.budgetForm.valid) {
       this.budgetForm.get('date')?.setValue(this.currentDate);
+      this.budgetForm.get('amount')?.setValue(this.total);
       const formData = this.budgetForm.value;
 console.log(formData);
       if (this.budgetId) {
@@ -105,14 +111,39 @@ console.log(formData);
             this.router.navigate(['/budgets/budgets']);
           },
           (error) => {
-            this.showErrors = true;
-            this.msjError = error;
+            this.showErrors = true;            
+            this.msjError = "Error inesperado, revisa la información del formulario";
           }
         );
       }
     } else {
       this.showErrors = true;
-      this.msjError = "Campos Nombre de la cotización y Cliente son obligatorios";
+      this.msjError = "Uppp!!! Parece que faltan campos por completar";
     }
   }
+
+  calculateSubtotal(index: number) {
+    const quantity = this.budgetDetails.at(index).get('quantity')?.value;
+    const price = this.budgetDetails.at(index).get('price')?.value;
+    if (quantity !== null && price !== null) {
+      const subtotal = quantity * price;
+      this.budgetDetails.at(index).get('subtotal')?.setValue(subtotal.toLocaleString());
+      this.updateTotal();
+
+    }
+  }
+
+  updateTotal() {
+    this.total = 0; // Reinicializa el total    
+    this.budgetDetails.controls.forEach((control) => {
+      const subtotal = control.get('subtotal')?.value;
+
+      if (subtotal !== null) {
+        this.total += parseFloat(subtotal
+          .replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '')
+        .replace('.','').replace('.','').replace('.','').replace('.','').replace('.','').replace('.','').replace('.','')); // Convierte la cadena con separadores de miles en número
+      }
+    });
+  }
+
 }

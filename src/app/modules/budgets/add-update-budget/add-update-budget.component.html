@@ -43,15 +43,31 @@
                         <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
                             <td>
                                 <input cFormControl formControlName="description" placeholder="Descripción" type=""/>
+                                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)" class="text-danger">
+                                    La descripción es obligatoria.
+                                </p>
                             </td>
                             <td>
-                                <input cFormControl formControlName="quantity" placeholder="Cantidad"  type="number" />
+                                <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotal(i)" (blur)="calculateSubtotal(i)" (input)="calculateSubtotal(i)" />
+                                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
+                                    La Cantidad es obligatorio.
+                                </p>
                             </td>
                             <td>
-                                <input cFormControl formControlName="price" placeholder="Precio"  type="number"/>
+                                <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotal(i)" (blur)="calculateSubtotal(i)" (input)="calculateSubtotal(i)" />
+                                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
+                                    El precio es obligatorio.
+                                </p>
+                                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
+                                    El precio debe ser un número válido.
+                                </p>
+
+                                <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
+                                    La cantidad debe ser un número válido.
+                                </p>
                             </td>
                             <td>
-                                <input cFormControl  placeholder="0" readonly  type="number"/>
+                                <input cFormControl formControlName="subtotal" placeholder="0" readonly name="subtotal" />
                             </td>
                             <td>                                
                                  <button cButton color="danger" variant="outline" (click)="removeBudgetDetail(i)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
@@ -67,30 +83,42 @@
                     
                 </c-col>
                 <c-col xs="7">
-                    <button cButton color="secondary" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
+                    <button cButton color="info" variant="outline" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
                 </c-col>
 
 
-                <c-col md="9">
+                <c-col md="6">
                     <!-- Espacio en blanco -->
                  </c-col>
-                 <c-col md="3">
-                     <label cLabel for="amount">Total</label>
-                     <input cFormControl formControlName="amount" readonly  style="display: none;"/>
+
+
+
+                 <c-col md="3">                     
+                     <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
+                 </c-col>
+
+                 <c-col md="3"  class="text-end">
+                    <h5><strong>Total: {{total.toLocaleString()}}</strong></h5>
                  </c-col>
 
 
-
+                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('email')?.invalid && (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)" class="text-danger">
+                    Email no es es valido
+            </p>
                 <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
                     {{msjError}}
                 </p>
 
 
-                <c-col xs="12">
-                    <button cButton type="submit">
-                        {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
+                <c-col xs="12" class="text-end">
+                    <button cButton type="submit" size="lg" style="margin-right: 10px;">
+                      {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
                     </button>
-                </c-col>
+                    <a cButton type="button" size="lg" variant="outline" [routerLink]="'/budgets/budgets'">
+                      Regresar
+                    </a>
+                  </c-col>
+                  
             </form>
         </c-card-body>
     </c-card>
