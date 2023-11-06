@@ -45,18 +45,39 @@ export class AddUpdateBudgetComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.budgetId = params.get('id')!;
-
+  
       if (this.budgetId) {
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
           console.log(budget);
           this.budgetForm.patchValue(budget);
+  
+          // Agrega el código aquí para cargar los detalles del presupuesto
+          if (budget && budget.budgetDetailsDto) {
+            const detailsArray = this.budgetForm.get('budgetDetailsDto') as FormArray;
+            detailsArray.clear(); // Limpia los detalles existentes si los hubiera
+  
+            budget.budgetDetailsDto.forEach((detail: any) => {
+              const budgetDetailGroup = this.fb.group({
+                budgetDetailId: detail.budgetDetailId,
+                budgetId: detail.budgetId,
+                description: detail.description,
+                quantity: detail.quantity,
+                price: detail.price,
+                subtotal: detail.quantity * detail.price,
+              });
+              detailsArray.push(budgetDetailGroup);
+            });
+  
+            // Actualiza el total después de cargar los detalles
+            this.updateTotal();
+          }
         });
-      }else{
+      } else {
         console.log("test addBudgetDetail");
         //this.addBudgetDetail();
       }
     });
-
+  
     this.loadCustomers();
   }
 
@@ -94,7 +115,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.total);
       const formData = this.budgetForm.value;
-console.log(formData);
+      console.log(formData);
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(
           (response: any) => {
@@ -137,13 +158,17 @@ console.log(formData);
     this.total = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
       const subtotal = control.get('subtotal')?.value;
-
+      console.log('subtotal: ' + subtotal);
+  
       if (subtotal !== null) {
-        this.total += parseFloat(subtotal
-          .replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '').replace(',', '')
-        .replace('.','').replace('.','').replace('.','').replace('.','').replace('.','').replace('.','').replace('.','')); // Convierte la cadena con separadores de miles en número
+        // Convierte el valor en una cadena de texto y luego realiza el reemplazo
+        const sanitizedSubtotal = String(subtotal).replace(/,/g, '').replace(/\./g, '');
+  
+        // Convierte la cadena sin separadores de miles en número
+        this.total += parseFloat(sanitizedSubtotal);
       }
     });
   }
+  
 
 }
