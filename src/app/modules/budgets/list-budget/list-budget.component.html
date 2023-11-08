@@ -25,7 +25,9 @@
           <td>{{ budget.budgetName }}</td>
           <td>{{ budget.customerDto.customerName }}</td>
           <td>$ {{ budget.amount.toLocaleString() }}</td>
-          <td>            
+          <td>     
+            <button cButton color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]"><svg cIcon class="me-2" name="cilPencil"></svg> Ver</button>
+            <span style="margin-right: 10px;"></span>       
             <button cButton color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]"><svg cIcon class="me-2" name="cilPencil"></svg> Editar</button>
             <span style="margin-right: 10px;"></span>
             <button cButton color="danger" variant="outline" (click)="deleteBudget(budget)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>

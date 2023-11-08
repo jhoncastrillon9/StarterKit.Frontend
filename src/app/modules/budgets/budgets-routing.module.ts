@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AddUpdateBudgetComponent } from './add-update-budget/add-update-budget.component';
 import { ListBudgetComponent } from './list-budget/list-budget.component';
+import { ReadBudgetComponent } from './read-budget/read-budget.component';
 
 
 const routes: Routes = [
@@ -35,6 +36,13 @@ const routes: Routes = [
           component: AddUpdateBudgetComponent,
           data: {
             title: 'Editar'
+          }
+        },
+        {
+          path: 'read/:id',   
+          component: ReadBudgetComponent,
+          data: {
+            title: 'Ver'
           }
         },
       ]

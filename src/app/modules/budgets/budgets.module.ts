@@ -7,6 +7,7 @@ import { BudgetsRoutingModule } from './budgets-routing.module';
 import { IconModule } from '@coreui/icons-angular';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, SharedModule } from '@coreui/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReadBudgetComponent } from './read-budget/read-budget.component';
 
 
 
@@ -15,7 +16,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     ListBudgetComponent,
-    AddUpdateBudgetComponent
+    AddUpdateBudgetComponent,
+    ReadBudgetComponent
   ],
   imports: [
     CommonModule,

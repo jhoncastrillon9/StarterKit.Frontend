@@ -1,0 +1,37 @@
+
+<div #content id="content">
+    <!-- Contenido de la factura -->
+    <p>read-budget works!</p>
+
+    <div>
+        <h1>Factura</h1>
+        <p>Número de Factura: 1</p>
+        <p>Fecha: 1</p>
+        <p>Cliente: 1</p>
+      
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr >
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <p>Total: 1</p>
+      </div>
+
+      
+  </div>
+  
+<button (click)="generatePDF()">Generar PDF de Factura</button>
