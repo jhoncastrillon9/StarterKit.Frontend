@@ -157,8 +157,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   updateTotal() {
     this.total = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
-      const subtotal = control.get('subtotal')?.value;
-      console.log('subtotal: ' + subtotal);
+      const subtotal = control.get('subtotal')?.value;     
   
       if (subtotal !== null) {
         // Convierte el valor en una cadena de texto y luego realiza el reemplazo
