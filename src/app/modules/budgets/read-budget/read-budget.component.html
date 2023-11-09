@@ -1,37 +1,232 @@
 
-<div #content id="content">
-    <!-- Contenido de la factura -->
-    <p>read-budget works!</p>
 
-    <div>
-        <h1>Factura</h1>
-        <p>Número de Factura: 1</p>
-        <p>Fecha: 1</p>
-        <p>Cliente: 1</p>
-      
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio unitario</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr >
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-            </tr>
-          </tbody>
-        </table>
-      
-        <p>Total: 1</p>
-      </div>
 
+  <!-- factura.component.html -->
+<div #content id="content" class="container" style="font-size: 23px; background-color: #ffffff;">  
+  <svg id="eWSbQtuNDFH1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 200" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" width="1200" height="200"><path d="M-24.519836,-6.398085L55.725392,54.012104h1119.754772v-60.410189q-1201.161934.290484-1200,0Z" transform="translate(24.519836 6.398085)" fill="#3882ca" stroke="#fff" stroke-width="4.4"/><path d="M-24.519836,-6.398085L55.725392,54.012104h792.344741l103.062284,56.464411h96.770113v-116.874601q-1073.5843.290485-1072.422366.000001Z" transform="translate(151.129703 27.499736)" fill="#3882ca" stroke="#fff" stroke-width="4.4"/></svg>
+
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="width: 25%;">
+      <!-- Contenido de la primera parte -->
+      <img  src="../../../../assets/img/logos/Alturas.png" alt="Logo" style="float: left;">
+    </div>
+    <div style="width: 30%;  text-align: center;">
+      <!-- Contenido de la segunda parte -->
+      <h1>Cotización</h1>
+    </div>
+    <div style="width: 45%; text-align: center;">
+      <!-- Contenido de la tercera parte -->
+      <p>CONSTRUCTORA ALTURAS VERTICALES SAS <br>
+        NIT: 901063659 <br>
+        ACABADOS Y REVESTIMIENTOS PARA OBRA CIVIL
+      </p>  
       
+      <p>COTIZACIÓN N°: 1234 <br>
+        FECHA: 1234 </p>      
+    </div>
   </div>
   
-<button (click)="generatePDF()">Generar PDF de Factura</button>
+<br><br>
+<div>
+  <p>Señores <br>
+    <strong>RESERVA DEL PRADO ETAPA 2</strong></p>
+    <p>Obra <br>
+       <strong>Mantenimiento terrazas</strong>
+      </p>
+      <p>
+        Cordial saludo <br>
+        Atendiendo su amable solicitud, le estamos cotizando lo siguiente:
+      </p>
+</div>
+
+  <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <thead>
+      <tr style="background-color: #7e8386; color: #201f1f;">
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;  font-size: 18px;">Descripción</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Unidad</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Cantidad</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Precio Unitario</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>     
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style=" padding: 10px; text-align: left;"></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>Subtotal</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$159.000</td>
+      </tr>
+      <tr>     
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style=" padding: 10px; text-align: left;"></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>AIU</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$59.000</td>
+      </tr>
+      <tr>     
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style=" padding: 10px; text-align: left;"></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>IVA AIU</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+      </tr>
+      <tr>     
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style="padding: 10px; text-align: left;"></td>
+        <td style=" padding: 10px; text-align: left;"></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>TOTAL</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$320.000</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div>
+    <p><strong>FORMA DE PAGO:</strong>  <br>
+      50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra</p>
+      <p><strong>TIEMPO DE ENTREGA:</strong> <br>
+        4 meses.
+        </p>
+        <p>
+          <strong>VALIDEZ DE LA OFERTA:</strong> <br>
+          30 días.
+        </p>
+        <br>
+        <p>Agradecemos el habernos tenido en cuenta. Estaremos a la espera de su respuesta.</p>
+  </div>
+
+  <div class="footer" style="background-color: #2196F3; color: #fff; padding: 10px; margin-top: 20px; text-align: center;">
+    <p>Gracias por su compra</p>
+  </div>
+
+  
+</div>
+<button style="background-color: #2196F3; color: #fff; padding: 10px; border: none; cursor: pointer;" (click)="generatePDF()">Descargar PDF</button>
