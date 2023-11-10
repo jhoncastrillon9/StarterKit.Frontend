@@ -13,6 +13,11 @@ import { IconSetService } from '@coreui/icons-angular';
 })
 
 export class AddUpdateBudgetComponent implements OnInit {
+  wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
+  deliveryTimeDefault: string = "1 Mes";
+  validityOfferDefault: string = "30 días";  
+  
+
   budgetForm: FormGroup;
   budgetId?: string;
   currentDate: Date = new Date();
@@ -36,6 +41,10 @@ export class AddUpdateBudgetComponent implements OnInit {
       amount: [this.total, [Validators.required]],
       date: [new Date()],
       budgetName: ['', [Validators.required]],
+      wayToPay: [this.wayToPayDefault],
+      deliveryTime: [this.deliveryTimeDefault],
+      validityOffer: [this.validityOfferDefault],
+      note: [''],
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
 

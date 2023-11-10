@@ -14,7 +14,7 @@
             <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
                 <input cFormControl formControlName="budgetId" style="display: none;" />
                 <c-col md="6">
-                    <label cLabel for="budgetName">Nombre para la cotización (Te servirá para identificarla luego)*</label>
+                    <label cLabel for="budgetName">Nombre de la Obra*</label>
                     <input cFormControl formControlName="budgetName" />
                 </c-col>
                 <c-col md="6">
@@ -23,7 +23,26 @@
                         <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
                     </select>
                 </c-col>
+                <c-col md="3">
+                    <label cLabel for="wayToPay">Forma de pago</label>
+                    <input cFormControl formControlName="wayToPay" />
+                </c-col>
+                <c-col md="3">
+                    <label cLabel for="validityOffer">Validez de la oferta</label>
+                    <input cFormControl formControlName="validityOffer" />
+                </c-col>
 
+                 <c-col md="3">
+                    <!-- DeliveryTime-->
+                    <label cLabel for="deliveryTime">Plazo de entrega</label>
+                    <input cFormControl formControlName="deliveryTime" />
+                 </c-col>
+
+                 <c-col md="3">
+                    <!-- Note-->
+                    <label cLabel for="note">Nota</label>
+                    <input cFormControl formControlName="note" />
+                 </c-col>
 
                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
                     Nombre de la cotización es obligatorio
@@ -86,13 +105,15 @@
                     <button cButton color="info" variant="outline" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
                 </c-col>
 
+             
+
+ 
+
+
 
                 <c-col md="6">
                     <!-- Espacio en blanco -->
                  </c-col>
-
-
-
                  <c-col md="3">                     
                      <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
                  </c-col>
