@@ -3,7 +3,7 @@ import { BudgetModel } from '../models/budget.Model';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle } from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom} from '@coreui/icons';
 
 @Component({
   selector: 'app-list-budget',
@@ -13,7 +13,7 @@ import { cilPencil, cilXCircle } from '@coreui/icons';
 export class ListBudgetComponent implements OnInit {
   budgets: BudgetModel[] = [];
   constructor(private budgetService: BudgetService,public iconSet: IconSetService,  private router: Router) {
-    iconSet.icons = {  cilPencil,cilXCircle };
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom };
   }
 
 

@@ -1,6 +1,8 @@
 
-
-
+<div class="" style="text-align: right;">
+  <button cButton color="info" variant="outline" type="button" (click)="generatePDF()">Descargar PDF</button>
+</div>
+<br>
   <!-- factura.component.html -->
 <div #content id="content" class="container" style="font-size: 23px; background-color: #ffffff;">  
   <svg id="eKXDLOWbZe41" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1280 200" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" width="1280" height="200"><path d="M-24.519836,-6.398085L55.725392,54.012104h1269.754772v-60.410189q-1351.161934.290484-1280,0Z" transform="translate(24.519836 6.398085)" fill="#3882ca" stroke="#fff" stroke-width="4.4"/><path d="M-24.519836,-6.398085L55.725392,54.012104l943.312508.000001l103.062284,56.464411h96.770113v-116.874601q-1224.552067.290484-1223.390133,0Z" transform="translate(151.129703 27.499736)" fill="#3882ca" stroke="#fff" stroke-width="4.4"/></svg>
@@ -56,14 +58,8 @@
         <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Total</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">ProductoProductoProducto  ProductoProducto ProductoProducto  Producto Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
+    <tbody>     
+    
       <tr>
         <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
         <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
@@ -71,118 +67,7 @@
         <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
         <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
       </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
-      </tr>
+      
     </tbody>
     <tfoot>
       <tr>     
@@ -242,4 +127,4 @@
 
     </svg>
 </div>
-<button style="background-color: #2196F3; color: #fff; padding: 10px; border: none; cursor: pointer;" (click)="generatePDF()">Descargar PDF</button>
+

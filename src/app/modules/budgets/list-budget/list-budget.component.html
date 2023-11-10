@@ -12,7 +12,7 @@
         <tr>
           <th scope="col">Cod</th>
           <th scope="col">Fecha</th>
-          <th scope="col">Nombre Cotización</th>
+          <th scope="col">Obra / Nombre</th>
           <th scope="col">Cliente</th>
           <th scope="col">Total</th>
           <th scope="col">Opciones</th>
@@ -26,7 +26,7 @@
           <td>{{ budget.customerDto.customerName }}</td>
           <td>$ {{ budget.amount.toLocaleString() }}</td>
           <td>     
-            <button cButton color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]"><svg cIcon class="me-2" name="cilPencil"></svg> Ver</button>
+            <button cButton color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]"><svg cIcon class="me-2" name="cilZoom"></svg> Ver</button>
             <span style="margin-right: 10px;"></span>       
             <button cButton color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]"><svg cIcon class="me-2" name="cilPencil"></svg> Editar</button>
             <span style="margin-right: 10px;"></span>
