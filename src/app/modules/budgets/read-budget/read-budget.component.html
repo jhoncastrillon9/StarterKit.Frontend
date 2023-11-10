@@ -30,17 +30,19 @@
         ACABADOS Y REVESTIMIENTOS PARA OBRA CIVIL
       </p>  
       
-      <p>COTIZACIÓN N°: 1234 <br>
-        FECHA: 1234 </p>      
+      <p>Cotización N°: {{this.budgetDto?.budgetId}} <br>
+        Fecha: {{this.budgetDto?.date | date:'dd MMMM yyyy' || 'dd MM yyyy'}} </p>
+    
+         
     </div>
   </div>
   
 <br><br>
 <div>
   <p>Señores <br>
-    <strong>RESERVA DEL PRADO ETAPA 2</strong></p>
+    <strong>{{this.budgetDto?.customerDto?.customerName}}</strong></p>
     <p>Obra <br>
-       <strong>Mantenimiento terrazas</strong>
+       <strong>{{this.budgetDto?.budgetName}}</strong>
       </p>
       <p>
         Cordial saludo <br>
@@ -103,11 +105,26 @@
 <br>
   <div>
       <p>
-        <strong>FORMA DE PAGO:</strong>  50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra
+
+        <span *ngIf="this.budgetDto?.wayToPay && this.budgetDto?.wayToPay?.trim() !== ''">
+          <strong>FORMA DE PAGO:</strong> {{this.budgetDto?.wayToPay}}
+      </span>
         <br>
-        <strong>TIEMPO DE ENTREGA:</strong> 4 meses.
+        <span *ngIf="this.budgetDto?.deliveryTime && this.budgetDto?.deliveryTime?.trim() !== ''">
+          <strong>TIEMPO DE ENTREGA:</strong> {{this.budgetDto?.deliveryTime}}
+      </span>
+ 
         <br>
-        <strong>VALIDEZ DE LA OFERTA:</strong> 30 días.
+
+        <span *ngIf="this.budgetDto?.validityOffer && this.budgetDto?.validityOffer?.trim() !== ''">
+          <strong>VALIDEZ DE LA OFERTA:</strong> {{this.budgetDto?.validityOffer}}
+      </span>
+      <br>
+
+      <span *ngIf="this.budgetDto?.note && this.budgetDto?.note?.trim() !== ''">
+        <strong>NOTA:</strong> {{this.budgetDto?.note}}
+    </span>
+       
         <br>
         </p>
 

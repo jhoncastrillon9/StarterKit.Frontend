@@ -4,6 +4,11 @@ export class BudgetModel {
     customerId: number=0;
     userId: number=0;
     budgetName: string ="";
+    wayToPay: string ="";
+    validityOffer: string ="";
+    deliveryTime: string ="";
+    note: string ="";
+
     amount: number =0;
     date: Date = new Date;
     budgetDetailsDto: BudgetDetailModel[] = [];
