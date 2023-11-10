@@ -8,6 +8,7 @@ import { IconModule } from '@coreui/icons-angular';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, SharedModule } from '@coreui/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReadBudgetComponent } from './read-budget/read-budget.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 
 
@@ -22,8 +23,7 @@ import { ReadBudgetComponent } from './read-budget/read-budget.component';
   imports: [
     CommonModule,
     BudgetsRoutingModule,
-    
-    
+    NgxSpinnerModule,    
     CardModule,
     FormModule,
     GridModule,

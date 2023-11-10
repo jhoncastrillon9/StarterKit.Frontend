@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import {jsPDF} from 'jspdf';import { BudgetService } from '../services/budget.service';
 import { BudgetDetailModel, BudgetModel } from '../models/budget.Model';
-;
+import { NgxSpinnerService } from "ngx-spinner";
 
 @Component({
   selector: 'app-read-budget',
@@ -26,6 +26,7 @@ export class ReadBudgetComponent  implements OnInit{
     private router: Router,
     private route: ActivatedRoute,
     private budgetService: BudgetService,
+    private spinner: NgxSpinnerService
   ) {
     
   }
@@ -59,18 +60,23 @@ return budgetDetailsDto.quantity*budgetDetailsDto.price;
 }
 
 
-  generatePDF() {
-    const content = this.content.nativeElement;
+generatePDF = () => {
+  this.spinner.show();
+  const content = this.content.nativeElement;
+  const nameFile = 'cotizacion' + this.budgetId;
+  
+  html2canvas(content, {
+    allowTaint: true,
+    useCORS: true,
+    scale: 5 // Ajusta la escala según sea necesario
+  }).then((canvas) => {
+    var img = canvas.toDataURL("image/png");
+    var doc = new jsPDF();
+    doc.addImage(img, 'PNG', 0, 0, 210, 297);
+    doc.save(nameFile);
 
-    html2canvas(content, {
-      allowTaint: true,
-      useCORS: true,
-      scale: 5 // Ajusta la escala según sea necesario
-    }).then(function (canvas) {
-      var img = canvas.toDataURL("image/png");
-      var doc = new jsPDF();
-      doc.addImage(img, 'PNG', 0, 0, 210, 297);
-      doc.save('factura.pdf');
-    });
-  }
+    // Ocultar el spinner después de guardar el PDF
+    this.spinner.hide();
+  });
+}
 }
