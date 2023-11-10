@@ -45,7 +45,7 @@
                  </c-col>
 
                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
-                    Nombre de la cotización es obligatorio
+                    Nombre de la obra es obligatorio
                 </p>               
 
                 <table class="table">
@@ -67,13 +67,13 @@
                                 </p>
                             </td>
                             <td>
-                                <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotal(i)" (blur)="calculateSubtotal(i)" (input)="calculateSubtotal(i)" />
+                                <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" />
                                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
                                     La Cantidad es obligatorio.
                                 </p>
                             </td>
                             <td>
-                                <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotal(i)" (blur)="calculateSubtotal(i)" (input)="calculateSubtotal(i)" />
+                                <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" />
                                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
                                     El precio es obligatorio.
                                 </p>
@@ -98,30 +98,21 @@
 
 
 
-                <c-col xs="5">
-                    
-                </c-col>
-                <c-col xs="7">
+  
+                <c-col xs="12"  class="text-center">
                     <button cButton color="info" variant="outline" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
                 </c-col>
 
-             
-
- 
-
-
-
-                <c-col md="6">
-                    <!-- Espacio en blanco -->
-                 </c-col>
                  <c-col md="3">                     
                      <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
                  </c-col>
 
-                 <c-col md="3"  class="text-end">
-                    <h5><strong>Total: {{total.toLocaleString()}}</strong></h5>
+                 <c-col md="9"  class="text-end">
+                    <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
+                    <h5><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
+                    <h5><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
+                    <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
                  </c-col>
-
 
                  <p class="text-medium-emphasis small" *ngIf="budgetForm.get('email')?.invalid && (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)" class="text-danger">
                     Email no es es valido

@@ -32,8 +32,6 @@
       
       <p>Cotización N°: {{this.budgetDto?.budgetId}} <br>
         Fecha: {{this.budgetDto?.date | date:'dd MMMM yyyy' || 'dd MM yyyy'}} </p>
-    
-         
     </div>
   </div>
   
@@ -53,21 +51,20 @@
   <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
     <thead>
       <tr style="background-color: #7e8386; color: #201f1f;">
-        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;  font-size: 18px;">Descripción</th>
-        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Unidad</th>
-        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Cantidad</th>
-        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Precio Unitario</th>
-        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Total</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;  font-size: 18px; text-align: center;">Descripción</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Unidad</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Cantidad</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Precio Unitario</th>
+        <th style="border: 1px solid #ddd; padding: 10px; text-align: left; text-align: center;">Total</th>
       </tr>
     </thead>
-    <tbody>     
-    
-      <tr>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">Producto 1</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">UN</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">5</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$100.00</td>        
+    <tbody>
+      <tr *ngFor="let budgetDetailsDto of this.budgetDto?.budgetDetailsDto; let i = index">
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">{{budgetDetailsDto.description}}</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Un</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">{{budgetDetailsDto.quantity.toLocaleString()}}</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{budgetDetailsDto.price.toLocaleString()}}</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{getSubtotalDetail(budgetDetailsDto).toLocaleString()}}</td>        
       </tr>
       
     </tbody>
@@ -76,29 +73,29 @@
         <td style="padding: 10px; text-align: left;"></td>
         <td style="padding: 10px; text-align: left;"></td>
         <td style=" padding: 10px; text-align: left;"></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>Subtotal</strong></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$159.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;"><strong>Subtotal</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">$ {{this.budgetDto?.amount?.toLocaleString()}}</td>
       </tr>
       <tr>     
         <td style="padding: 10px; text-align: left;"></td>
         <td style="padding: 10px; text-align: left;"></td>
         <td style=" padding: 10px; text-align: left;"></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>AIU</strong></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$59.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;"><strong>AIU</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">$ {{this.aiu.toLocaleString()}}</td>
       </tr>
       <tr>     
         <td style="padding: 10px; text-align: left;"></td>
         <td style="padding: 10px; text-align: left;"></td>
         <td style=" padding: 10px; text-align: left;"></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>IVA AIU</strong></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$20.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;"><strong>IVA AIU</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">$ {{this.iva.toLocaleString()}}</td>
       </tr>
       <tr>     
         <td style="padding: 10px; text-align: left;"></td>
         <td style="padding: 10px; text-align: left;"></td>
         <td style=" padding: 10px; text-align: left;"></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;"><strong>TOTAL</strong></td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">$320.000</td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;"><strong>TOTAL</strong></td>
+        <td style="border: 1px solid #ddd; padding: 10px; text-align: left; text-align: right;">$ {{this.total.toLocaleString()}}</td>
       </tr>
     </tfoot>
   </table>

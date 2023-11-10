@@ -16,15 +16,18 @@ export class AddUpdateBudgetComponent implements OnInit {
   wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
   validityOfferDefault: string = "30 días";  
-  
-
   budgetForm: FormGroup;
   budgetId?: string;
   currentDate: Date = new Date();
   customers: CustomerModel[] = [];
   showErrors: boolean = false;
   msjError: string = "";
-  total: number = 0; 
+  
+  //Campos calculados
+  amount: number = 0;  
+  aiu: number = 0;
+  iva: number = 0;
+  total: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -38,7 +41,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetId: ['0'],
       userId: ['0', [Validators.required]],
       customerId: ['0', [Validators.required]],
-      amount: [this.total, [Validators.required]],
+      amount: [this.amount, [Validators.required]],
       date: [new Date()],
       budgetName: ['', [Validators.required]],
       wayToPay: [this.wayToPayDefault],
@@ -78,7 +81,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             });
   
             // Actualiza el total después de cargar los detalles
-            this.updateTotal();
+            this.updateAmount();
           }
         });
       } else {
@@ -107,12 +110,12 @@ export class AddUpdateBudgetComponent implements OnInit {
       subtotal: [0],
     });
     this.budgetDetails.push(budgetDetailGroup);
-    this.updateTotal();
+    this.updateAmount();
   }
 
   removeBudgetDetail(index: number) {
     this.budgetDetails.removeAt(index);
-    this.updateTotal();
+    this.updateAmount();
   }
 
   get budgetDetails() {
@@ -122,7 +125,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   onAddUpdateBudget() {
     if (this.budgetForm.valid) {
       this.budgetForm.get('date')?.setValue(this.currentDate);
-      this.budgetForm.get('amount')?.setValue(this.total);
+      this.budgetForm.get('amount')?.setValue(this.amount);
       const formData = this.budgetForm.value;
       console.log(formData);
       if (this.budgetId) {
@@ -152,19 +155,18 @@ export class AddUpdateBudgetComponent implements OnInit {
     }
   }
 
-  calculateSubtotal(index: number) {
+  calculateSubtotalForDetails(index: number) {
     const quantity = this.budgetDetails.at(index).get('quantity')?.value;
     const price = this.budgetDetails.at(index).get('price')?.value;
     if (quantity !== null && price !== null) {
       const subtotal = quantity * price;
       this.budgetDetails.at(index).get('subtotal')?.setValue(subtotal.toLocaleString());
-      this.updateTotal();
-
+      this.updateAmount();
     }
   }
 
-  updateTotal() {
-    this.total = 0; // Reinicializa el total    
+  updateAmount() {
+    this.amount = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
       const subtotal = control.get('subtotal')?.value;     
   
@@ -173,10 +175,18 @@ export class AddUpdateBudgetComponent implements OnInit {
         const sanitizedSubtotal = String(subtotal).replace(/,/g, '').replace(/\./g, '');
   
         // Convierte la cadena sin separadores de miles en número
-        this.total += parseFloat(sanitizedSubtotal);
+        this.amount += parseFloat(sanitizedSubtotal);
       }
     });
+
+    this.setCalculatesTotals()
   }
+
+  setCalculatesTotals() {
+    this.aiu = this.amount * 0.1; // Calculas el AIU
+    this.iva = this.aiu * 0.19; // Calculas el IVA
+    this.total = this.amount + this.iva; // Calculas el total
+}
   
 
 }

@@ -44,5 +44,12 @@ export class ListBudgetComponent implements OnInit {
 
   }
 
+  getTotal(amount:number){
+    var aiu = (amount * 0.1);
+    var iva = aiu * 0.19;
+    var total = amount + iva;
+    return total
+  }
+
 
   }

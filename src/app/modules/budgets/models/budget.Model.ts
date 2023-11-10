@@ -8,7 +8,6 @@ export class BudgetModel {
     validityOffer: string ="";
     deliveryTime: string ="";
     note: string ="";
-
     amount: number =0;
     date: Date = new Date;
     budgetDetailsDto: BudgetDetailModel[] = [];
