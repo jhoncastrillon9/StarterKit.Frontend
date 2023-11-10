@@ -6,6 +6,7 @@ import { CustomerModel } from '../../customers/models/customer.Model';
 import { CustomerService } from '../../customers/services/customer.service';
 import { cilPencil, cilXCircle } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
+import { NgxSpinnerService } from 'ngx-spinner';
 @Component({
   selector: 'app-add-update-budget',
   templateUrl: './add-update-budget.component.html',
@@ -36,6 +37,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     private budgetService: BudgetService,
     private customerService: CustomerService,
     public iconSet: IconSetService,
+    private spinner: NgxSpinnerService
   ) {
     this.budgetForm = this.fb.group({
       budgetId: ['0'],
@@ -57,9 +59,9 @@ export class AddUpdateBudgetComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.budgetId = params.get('id')!;
-  
+      this.spinner.show();
       if (this.budgetId) {
-        this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
+        this.budgetService.getById(this.budgetId).subscribe((budget: any) => {          
           console.log(budget);
           this.budgetForm.patchValue(budget);
   
@@ -82,7 +84,10 @@ export class AddUpdateBudgetComponent implements OnInit {
   
             // Actualiza el total después de cargar los detalles
             this.updateAmount();
+            this.spinner.hide();
           }
+        },(error)=> {
+          this.spinner.hide();
         });
       } else {
         console.log("test addBudgetDetail");
@@ -94,8 +99,13 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   loadCustomers() {
+    this.spinner.show();
     this.customerService.get().subscribe(customers => {
       this.customers = customers;
+      this.spinner.hide();
+    },(error)=>{
+      console.error('Error al cargar Budget', error);
+      this.spinner.hide();
     });
   }
 
@@ -124,6 +134,7 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   onAddUpdateBudget() {
     if (this.budgetForm.valid) {
+      this.spinner.show();
       this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.amount);
       const formData = this.budgetForm.value;
@@ -132,20 +143,24 @@ export class AddUpdateBudgetComponent implements OnInit {
         this.budgetService.update(formData).subscribe(
           (response: any) => {
             this.router.navigate(['/budgets/budgets']);
+            this.spinner.hide();
           },
           (error) => {
             this.showErrors = true;
             this.msjError = error;
+            this.spinner.hide();
           }
         );
       } else {
         this.budgetService.add(formData).subscribe(
           (response: any) => {
             this.router.navigate(['/budgets/budgets']);
+            this.spinner.hide();
           },
           (error) => {
             this.showErrors = true;            
             this.msjError = "Error inesperado, revisa la información del formulario";
+            this.spinner.hide();
           }
         );
       }
