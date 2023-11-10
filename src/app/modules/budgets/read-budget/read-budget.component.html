@@ -1,7 +1,9 @@
 
-<div class="" style="text-align: right;">
-  <button cButton color="info" variant="outline" type="button" (click)="generatePDF()">Descargar PDF</button>
+<div style="display: flex; justify-content: space-between;">
+  <button  cButton color="primary"  type="button" [routerLink]="['/budgets/budgets']" style="margin-right: 20px;">Regresar</button>
+  <button cButton color="info" variant="outline" type="button" (click)="generatePDF()"><svg cIcon class="me-2" name="cilCloudDownload"></svg>Descargar PDF</button>
 </div>
+
 <br>
   <!-- factura.component.html -->
 <div #content id="content" class="container" style="font-size: 23px; background-color: #ffffff;">  
