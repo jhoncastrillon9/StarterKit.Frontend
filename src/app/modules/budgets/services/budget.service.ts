@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
   })
   export class BudgetService {
-    private apiUrl = 'https://localhost:7072';
+    private apiUrl = 'https://cotizaweb.azurewebsites.net';
   
     constructor(private http: HttpClient, private router: Router) { }
   

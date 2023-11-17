@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://localhost:7072'; // Reemplaza con la URL real del endpoint
+  private apiUrl = 'https://cotizaweb.azurewebsites.net'; // Reemplaza con la URL real del endpoint
 
   constructor(private http: HttpClient) { }
 
