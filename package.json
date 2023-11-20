@@ -11,7 +11,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "http-server -p 4200 -c-1 dist/coreui-free-angular-admin-template",
     "build": "ng build --pro",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -42,6 +42,7 @@
     "@types/jspdf": "^2.0.0",
     "chart.js": "^3.9.1",
     "html2canvas": "^1.4.1",
+    "http-server": "^14.1.1",
     "jspdf": "^2.5.1",
     "lodash-es": "^4.17.21",
     "ngx-scrollbar": "^13.0.3",
