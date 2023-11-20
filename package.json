@@ -11,7 +11,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "http-server -p 4200 -c-1 dist/coreui-free-angular-admin-template",
+    "start": "http-server -p $PORT dist/coreui-free-angular-admin-template",
     "build": "ng build --pro",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
