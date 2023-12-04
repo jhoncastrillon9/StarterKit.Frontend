@@ -4,6 +4,7 @@ import { AuthService } from '../../../auth/auth.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -11,7 +12,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-
+  messageModal: string = "";
+  public visible = false;
   constructor(private fb: FormBuilder, 
     private authService: AuthService, 
     private router: Router,
@@ -20,6 +22,17 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
+  }
+
+
+
+
+  toggleLiveDemo() {
+    this.visible = !this.visible;
+  }
+
+  handleLiveDemoChange(event: any) {
+    this.visible = event;
   }
 
   onLogin() {
@@ -43,6 +56,8 @@ export class LoginComponent {
           // Maneja errores y muestra un mensaje al usuario
           console.error('Error al iniciar sesión', error);
           this.spinner.hide();
+          this.toggleLiveDemo();
+          this.messageModal = 'Error al iniciar sesión' + error
           // Puedes mostrar una alerta aquí
         }
       );

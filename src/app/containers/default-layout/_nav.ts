@@ -231,29 +231,29 @@ export const navItems: INavData[] = [
   //     }
   //   ]
   // },
-  // {
-  //   name: 'Notifications',
-  //   url: '/notifications',
-  //   iconComponent: { name: 'cil-bell' },
-  //   children: [
-  //     {
-  //       name: 'Alerts',
-  //       url: '/notifications/alerts'
-  //     },
-  //     {
-  //       name: 'Badges',
-  //       url: '/notifications/badges'
-  //     },
-  //     {
-  //       name: 'Modal',
-  //       url: '/notifications/modal'
-  //     },
-  //     {
-  //       name: 'Toast',
-  //       url: '/notifications/toasts'
-  //     }
-  //   ]
-  // },
+  {
+    name: 'Notifications',
+    url: '/notifications',
+    iconComponent: { name: 'cil-bell' },
+    children: [
+      {
+        name: 'Alerts',
+        url: '/notifications/alerts'
+      },
+      {
+        name: 'Badges',
+        url: '/notifications/badges'
+      },
+      {
+        name: 'Modal',
+        url: '/notifications/modal'
+      },
+      {
+        name: 'Toast',
+        url: '/notifications/toasts'
+      }
+    ]
+  },
   // {
   //   name: 'Widgets',
   //   url: '/widgets',
