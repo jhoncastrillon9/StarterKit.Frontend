@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
   })
   export class CustomerService {
-    private apiUrl = 'http://jhoncastrillonsp-001-site1.ctempurl.com';
+    private apiUrl = 'https://jhoncastrillonsp-001-site1.ctempurl.com';
   
     constructor(private http: HttpClient, private router: Router) { }
   
