@@ -3,39 +3,41 @@
       <c-card-header ngPreserveWhitespaces>
         <strong>Listado</strong> <small>Clientes</small>
       </c-card-header>
-      <c-card-body>
-
-
+      <c-card-body>        
+        <c-col xs="12">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Cod</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Obra / Nombre</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let budget of budgets; let i = index">
+                  <th scope="row">{{ budget.budgetId }}</th>
+                  <td>{{ budget.date  | date: 'dd MMM yyyy' }}</td>
+                  <td>{{ budget.budgetName }}</td>
+                  <td>{{ budget.customerDto.customerName }}</td>
+                  <td style="text-align: right;">$ {{ (getTotal(budget.amount)).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+          
+                  <td>     
+                    <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span>
+                    <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
+                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudget(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                  
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+        </c-col>
 <div class="container">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th scope="col">Cod</th>
-          <th scope="col">Fecha</th>
-          <th scope="col">Obra / Nombre</th>
-          <th scope="col">Cliente</th>
-          <th scope="col">Total</th>
-          <th scope="col">Opciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let budget of budgets; let i = index">
-          <th scope="row">{{ budget.budgetId }}</th>
-          <td>{{ budget.date  | date: 'dd MMM yyyy' }}</td>
-          <td>{{ budget.budgetName }}</td>
-          <td>{{ budget.customerDto.customerName }}</td>
-          <td style="text-align: right;">$ {{ (getTotal(budget.amount)).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
-
-          <td>     
-            <button cButton color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]"><svg cIcon class="me-2" name="cilZoom"></svg> Ver</button>
-            <span style="margin-right: 10px;"></span>       
-            <button cButton color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]"><svg cIcon class="me-2" name="cilPencil"></svg> Editar</button>
-            <span style="margin-right: 10px;"></span>
-            <button cButton color="danger" variant="outline" (click)="deleteBudget(budget)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+   
   </div>
 
 

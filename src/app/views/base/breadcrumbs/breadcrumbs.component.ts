@@ -14,12 +14,12 @@ export class BreadcrumbsComponent implements OnInit {
       { label: 'Home', url: '/', attributes: { title: 'Home' } },
       { label: 'Library', url: '/' },
       { label: 'Data', url: '/dashboard/' },
-      { label: 'CoreUI', url: '/' }
+      { label: 'CotizaConstructor', url: '/' }
     ];
 
     setTimeout(() => {
       this.items = [
-        { label: 'CoreUI', url: '/' },
+        { label: 'CotizaConstructor', url: '/' },
         { label: 'Data', url: '/dashboard/' },
         { label: 'Library', url: '/' },
         { label: 'Home', url: '/', attributes: { title: 'Home' } }

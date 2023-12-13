@@ -6,34 +6,35 @@
       <c-card-body>
 
 
-<div class="container">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th scope="col">Cod</th>
-          <th scope="col">NIT</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Email</th>
-          <th scope="col">Dirección</th>
-          <th scope="col">Opciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let customer of customers; let i = index">
-          <th scope="row">{{ customer.customerId }}</th>
-          <td>{{ customer.customId }}</td>
-          <td>{{ customer.customerName }}</td>
-          <td>{{ customer.email }}</td>
-          <td>{{ customer.address }}</td>
-          <td>            
-            <button cButton color="primary" variant="outline" [routerLink]="['/customers/update', customer.customerId]"><svg cIcon class="me-2" name="cilPencil"></svg> Editar</button>
-            <span style="margin-right: 10px;"></span>
-            <button cButton color="danger" variant="outline" (click)="deleteCustomer(customer)" ><svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Cod</th>
+                <th scope="col">NIT</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Email</th>
+                <th scope="col">Dirección</th>
+                <th scope="col">Opciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let customer of customers; let i = index">
+                <th scope="row">{{ customer.customerId }}</th>
+                <td>{{ customer.customId }}</td>
+                <td>{{ customer.customerName }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.address }}</td>
+                <td>            
+                  <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/customers/update', customer.customerId]" title="Ver Cliente"><svg cIcon class="me-2" name="cilPencil"></svg></span>
+                  
+                  <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteCustomer(customer)" title="Eliminar Cliente Cotización"><svg cIcon class="me-2" name="cilXCircle"></svg></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
 
 
 </c-card-body>
