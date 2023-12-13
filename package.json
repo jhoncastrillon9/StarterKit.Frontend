@@ -1,5 +1,5 @@
 {
-  "name": "coreui-free-angular-admin-template",
+  "name": "cotiza-constructor",
   "version": "4.5.27",
   "copyright": "Copyright 2023 creativeLabs Łukasz Holeczek",
   "license": "MIT",
@@ -10,8 +10,8 @@
     "coreui_library_docs_url": "https://coreui.io/angular/docs/"
   },
   "scripts": {
-    "ng": "ng",
-    "start": "http-server -p $PORT dist/coreui-free-angular-admin-template",
+    "ng": "ng",    
+    "start": "http-server -p $PORT dist/cotiza-constructor",
     "build": "ng build --pro",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

@@ -1,4 +1,4 @@
-### [coreui-free-angular-admin-template](https://coreui.io/angular/) changelog
+### [ccotiza-constructor](https://coreui.io/angular/) changelog
 
 ---
 
