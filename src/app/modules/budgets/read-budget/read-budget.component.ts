@@ -68,11 +68,11 @@ generatePDF = () => {
   html2canvas(content, {
     allowTaint: true,
     useCORS: true,
-    scale: 5 // Ajusta la escala según sea necesario
+    scale: 4 // Ajusta la escala según sea necesario
   }).then((canvas) => {
-    var img = canvas.toDataURL("image/png");
+    var img = canvas.toDataURL("image/jpeg");
     var doc = new jsPDF();
-    doc.addImage(img, 'PNG', 0, 0, 210, 297);
+    doc.addImage(img, 'JPEG', 0, 0, 210, 297);
     doc.save(nameFile);
 
     // Ocultar el spinner después de guardar el PDF
