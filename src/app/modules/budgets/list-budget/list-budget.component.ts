@@ -3,7 +3,7 @@ import { BudgetModel } from '../models/budget.Model';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle, cilZoom, cilCloudDownload} from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -13,16 +13,29 @@ import { NgxSpinnerService } from 'ngx-spinner';
 }) 
 export class ListBudgetComponent implements OnInit {
   budgets: BudgetModel[] = [];
+  messageModal: string = "¿Estas Seguro de eliminar este registro?";
+  public visible = false;
+  public budgetToDelete: BudgetModel | null = null;
+
   constructor(private budgetService: BudgetService,
     public iconSet: IconSetService,  
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload};
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd};
   }
 
 
   ngOnInit() {
     this.loadBudgets();
+  }
+
+  
+  ClosedOpenModal() {
+    this.visible = !this.visible;
+  }
+
+  handleLiveDemoChange(event: any) {
+    this.visible = event;
   }
 
   loadBudgets(){
@@ -36,9 +49,16 @@ export class ListBudgetComponent implements OnInit {
     });
   }
 
-  deleteBudget(customerModel: BudgetModel){    
+
+deleteBudgetWithComfirm(budgetModel: BudgetModel){ 
+  this.budgetToDelete = budgetModel;
+  this.ClosedOpenModal();
+}
+
+  deleteBudget(){      
+   if(this.budgetToDelete!=null){
     this.spinner.show()    
-      this.budgetService.delete(customerModel.budgetId).subscribe(
+      this.budgetService.delete(this.budgetToDelete?.budgetId).subscribe(
         (response: any) => {
           console.log("Budget delete is OK");      
           this.loadBudgets();           
@@ -50,7 +70,11 @@ export class ListBudgetComponent implements OnInit {
           // Puedes mostrar una alerta aquí
           this.spinner.hide();
         }
-      );
+      );      
+   }
+   this.ClosedOpenModal();
+   this.budgetToDelete = null;
+    
   }
 
 

@@ -1,8 +1,15 @@
 <c-col xs="12">
     <c-card class="mb-4">
       <c-card-header ngPreserveWhitespaces>
-        <strong>Listado</strong> <small>Clientes</small>
-      </c-card-header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>Listado</strong> <small>Clientes</small>
+            </div>
+            <div style="text-align: right;">
+              <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nueva Cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Nueva Cotización</span>
+            </div>
+        </div>
+    </c-card-header>
       <c-card-body>        
         <c-col xs="12">
           <div class="table-responsive">
@@ -29,7 +36,7 @@
                     <span style="cursor: pointer; color: blueviolet;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilZoom" ></svg></span>
                     <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span> -->
                     <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
-                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudget(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
+                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
                     <!-- <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                   -->
               
                   </td>
@@ -47,5 +54,25 @@
 </c-card-body>
 </c-card>
 </c-col>
-  
+
+
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Upppsss</h5>
+    <button (click)="ClosedOpenModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>{{messageModal}}</c-modal-body>
+  <c-modal-footer>
+    <button (click)="deleteBudget()" cButton color="primary">
+      Si, Eliminar
+    </button> 
+    <button (click)="ClosedOpenModal()" cButton color="secondary">
+      Cerrar
+    </button>     
+  </c-modal-footer>
+</c-modal>
+
 <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
+
+
+
