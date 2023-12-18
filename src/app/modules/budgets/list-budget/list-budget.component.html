@@ -26,9 +26,12 @@
                   <td style="text-align: right;">$ {{ (getTotal(budget.amount)).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
           
                   <td>     
-                    <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span>
+                    <span style="cursor: pointer; color: blueviolet;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilZoom" ></svg></span>
+                    <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span> -->
                     <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
-                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudget(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                  
+                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudget(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
+                    <!-- <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                   -->
+              
                   </td>
                 </tr>
               </tbody>

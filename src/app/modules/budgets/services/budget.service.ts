@@ -82,4 +82,13 @@ import { Observable } from 'rxjs';
         })
       );
     }
+
+    download(budgetId: number): Observable<Blob> {
+      const headers = this.getHeaders();
+  
+      return this.http.get(`${this.apiUrl}/api/Budget/budgetPdf/${budgetId}`, {
+        headers,
+        responseType: 'blob',
+      });
+    }
   }

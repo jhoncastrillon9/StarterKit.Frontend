@@ -4,11 +4,20 @@ import html2canvas from 'html2canvas';
 import {jsPDF} from 'jspdf';import { BudgetService } from '../services/budget.service';
 import { BudgetDetailModel, BudgetModel } from '../models/budget.Model';
 import { NgxSpinnerService } from "ngx-spinner";
+import { DatePipe, registerLocaleData } from '@angular/common';
+import { LOCALE_ID } from '@angular/core';
+import localeEs from '@angular/common/locales/es';
 
+// Registra el locale español
+registerLocaleData(localeEs);
 @Component({
   selector: 'app-read-budget',
   templateUrl: './read-budget.component.html',
-  styleUrls: ['./read-budget.component.scss']
+  styleUrls: ['./read-budget.component.scss'],
+  providers: [
+    DatePipe,
+    { provide: LOCALE_ID, useValue: 'es' }
+  ]
 })
 export class ReadBudgetComponent  implements OnInit{
   @ViewChild('content', { static: false }) content!: ElementRef;
