@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://jhoncastrillonsp-001-site1.ctempurl.com'; // Reemplaza con la URL real del endpoint
+  private apiUrl = environment.apiUrl; // Reemplaza con la URL real del endpoint
 
   constructor(private http: HttpClient) { }
 

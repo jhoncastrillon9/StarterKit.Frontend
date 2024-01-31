@@ -9,6 +9,7 @@ export class BudgetModel {
     deliveryTime: string ="";
     note: string ="";
     amount: number =0;
+    total: number =0;
     date: Date = new Date;
     budgetDetailsDto: BudgetDetailModel[] = [];
     customerDto: CustomerModel = new CustomerModel;

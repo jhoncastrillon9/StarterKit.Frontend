@@ -27,21 +27,26 @@
                     <label cLabel for="wayToPay">Forma de pago</label>
                     <input cFormControl formControlName="wayToPay" />
                 </c-col>
-                <c-col md="3">
+                <c-col md="2">
                     <label cLabel for="validityOffer">Validez de la oferta</label>
                     <input cFormControl formControlName="validityOffer" />
                 </c-col>
 
-                 <c-col md="3">
+                 <c-col md="2">
                     <!-- DeliveryTime-->
                     <label cLabel for="deliveryTime">Plazo de entrega</label>
                     <input cFormControl formControlName="deliveryTime" />
                  </c-col>
 
-                 <c-col md="3">
+                 <c-col md="4">
                     <!-- Note-->
                     <label cLabel for="note">Nota</label>
                     <input cFormControl formControlName="note" />
+                 </c-col>
+                 <c-col md="1">
+                    <!-- Note-->
+                    <label cLabel for="note">Sumar AIU</label>                   
+                         <input cFormCheckInput type="checkbox" cFormControl formControlName="sumAIU" (change)="updateAmount()" (blur)="updateAmount()" (input)="updateAmount()" />
                  </c-col>
 
                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">

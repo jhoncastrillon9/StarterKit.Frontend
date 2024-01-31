@@ -16,12 +16,12 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class AddUpdateBudgetComponent implements OnInit {
   wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
-  validityOfferDefault: string = "30 días";  
+  validityOfferDefault: string = "30 días";     
   budgetForm: FormGroup;
   budgetId?: string;
   currentDate: Date = new Date();
   customers: CustomerModel[] = [];
-  showErrors: boolean = false;
+  showErrors: boolean = false;  
   msjError: string = "";
   
   //Campos calculados
@@ -50,6 +50,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       deliveryTime: [this.deliveryTimeDefault],
       validityOffer: [this.validityOfferDefault],
       note: [''],
+      sumAIU: [true],
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
 
@@ -62,7 +63,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.spinner.show();
       if (this.budgetId) {
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {          
-          console.log(budget);
+          
           this.budgetForm.patchValue(budget);
   
           // Agrega el código aquí para cargar los detalles del presupuesto
@@ -139,6 +140,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetForm.get('amount')?.setValue(this.amount);
       const formData = this.budgetForm.value;
       console.log(formData);
+      
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(
           (response: any) => {
@@ -200,7 +202,14 @@ export class AddUpdateBudgetComponent implements OnInit {
   setCalculatesTotals() {
     this.aiu = this.amount * 0.1; // Calculas el AIU
     this.iva = this.aiu * 0.19; // Calculas el IVA
-    this.total = this.amount + this.iva; // Calculas el total
+    const sumAIU = this.budgetForm.get('sumAIU')?.value;
+    console.log(sumAIU);
+    if(sumAIU){
+      this.total = this.amount + this.iva + this.aiu; // Calculas el total
+    } else{
+      this.total = this.amount + this.iva; // Calculas el total
+    }
+   
 }
   
 

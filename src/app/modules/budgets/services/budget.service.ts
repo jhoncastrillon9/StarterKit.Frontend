@@ -3,13 +3,14 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router'; // Importa el módulo Router
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environment';
 
 
 @Injectable({
     providedIn: 'root'
   })
   export class BudgetService {
-    private apiUrl = 'https://jhoncastrillonsp-001-site1.ctempurl.com';
+    private apiUrl = environment.apiUrl;
   
     constructor(private http: HttpClient, private router: Router) { }
   
