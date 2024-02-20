@@ -56,17 +56,17 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Descripción</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Subtotal</th>
-                            <th>Acciones</th>
+                            <th style="width: 60%;">Descripción</th>
+                            <th style="width: 10%;">Cantidad</th>
+                            <th style="width: 10%;">Precio</th>
+                            <th style="width: 10%;">Subtotal</th>
+                            <th style="width: 10%;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody formArrayName="budgetDetailsDto">
                         <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
                             <td>
-                                <input cFormControl formControlName="description" placeholder="Descripción" type=""/>
+                                <textarea  cFormControl formControlName="description" placeholder="Descripción" style="min-height: 50px;resize: vertical; max-height: 200px; width: 100%;" rows="5"></textarea>
                                 <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)" class="text-danger">
                                     La descripción es obligatoria.
                                 </p>
