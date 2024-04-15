@@ -71,6 +71,18 @@ import { environment } from 'src/environment';
         })
       );
     }
+
+    setInvoice(data: any) {
+      const headers = this.getHeaders();
+      return this.http.put(`${this.apiUrl}/api/Budget/setInvoice`, data, { headers, observe: 'response' }).pipe(
+        map((response: HttpResponse<any>) => {
+          if (response.status === 401) {
+            this.router.navigate(['/login']);
+          }
+          return response.body;
+        })
+      );
+    }
   
     delete(data: any) {
       const headers = this.getHeaders();

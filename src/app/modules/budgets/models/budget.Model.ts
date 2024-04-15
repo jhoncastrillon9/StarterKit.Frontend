@@ -7,6 +7,7 @@ export class BudgetModel {
     wayToPay: string ="";
     validityOffer: string ="";
     deliveryTime: string ="";
+    isInvoice: boolean = false;
     note: string ="";
     amount: number =0;
     total: number =0;

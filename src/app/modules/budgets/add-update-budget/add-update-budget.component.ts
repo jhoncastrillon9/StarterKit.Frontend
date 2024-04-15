@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { CustomerService } from '../../customers/services/customer.service';
-import { cilPencil, cilXCircle } from '@coreui/icons';
+import { cilPencil, cilXCircle, cilMoney } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 @Component({
@@ -54,7 +54,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
 
-    iconSet.icons = {  cilPencil,cilXCircle };
+    iconSet.icons = {  cilPencil,cilXCircle, cilMoney};
   }
 
   ngOnInit() {

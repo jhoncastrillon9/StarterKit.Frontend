@@ -1,5 +1,5 @@
 <c-col xs="12">
-    <c-card class="mb-4">
+    <c-card class="TEAST">
       <c-card-header ngPreserveWhitespaces>
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
@@ -28,7 +28,9 @@
                 <tr *ngFor="let budget of budgets; let i = index">
                   <th scope="row">{{ budget.budgetId }}</th>
                   <td>{{ budget.date  | date: 'dd MMM yyyy' }}</td>
-                  <td>{{ budget.budgetName }}</td>
+                  <td>{{ budget.budgetName }}  
+                    <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
+                  </td>
                   <td>{{ budget.customerDto.customerName }}</td>
                   <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
           
@@ -37,8 +39,9 @@
                     <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span> -->
                     <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
                     <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
+                    <span style="cursor: pointer; color: green;" color="danger" variant="outline" (click)="convertToBillWithComfirm(budget)" title="Convertir en Factura"><svg cIcon class="me-2" name="cilMoney" ></svg></span>                                          
                     <!-- <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                   -->
-              
+                    
                   </td>
                 </tr>
               </tbody>
@@ -63,7 +66,10 @@
   </c-modal-header>
   <c-modal-body>{{messageModal}}</c-modal-body>
   <c-modal-footer>
-    <button (click)="deleteBudget()" cButton color="primary">
+    <button  *ngIf="isModalForSetInvoice" (click)="convertToBill()" cButton color="primary">
+      Si, convertir en Factura
+    </button> 
+    <button  *ngIf="isModalForDelete" (click)="deleteBudget()" cButton color="primary">
       Si, Eliminar
     </button> 
     <button (click)="ClosedOpenModal()" cButton color="secondary">

@@ -3,8 +3,9 @@ import { BudgetModel } from '../models/budget.Model';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd} from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
+
 
 @Component({
   selector: 'app-list-budget',
@@ -14,14 +15,19 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class ListBudgetComponent implements OnInit {
   budgets: BudgetModel[] = [];
   messageModal: string = "¿Estas Seguro de eliminar este registro?";
+  isModalForDelete: boolean = false;
+  isModalForSetInvoice: boolean = false;
+
   public visible = false;
   public budgetToDelete: BudgetModel | null = null;
+  public budgetToSetInvoice: BudgetModel | null = null;
+
 
   constructor(private budgetService: BudgetService,
     public iconSet: IconSetService,  
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd};
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney};
   }
 
 
@@ -31,7 +37,13 @@ export class ListBudgetComponent implements OnInit {
 
   
   ClosedOpenModal() {
+ 
     this.visible = !this.visible;
+
+    if(!this.visible){
+      this.isModalForDelete = false;
+      this.isModalForSetInvoice = false;   
+    }
   }
 
   handleLiveDemoChange(event: any) {
@@ -51,11 +63,14 @@ export class ListBudgetComponent implements OnInit {
 
 
 deleteBudgetWithComfirm(budgetModel: BudgetModel){ 
+  this.isModalForDelete = true;
   this.budgetToDelete = budgetModel;
-  this.ClosedOpenModal();
+  this.messageModal = "¿Estas Seguro de eliminar este registro?";
+  this.ClosedOpenModal();  
 }
 
   deleteBudget(){      
+
    if(this.budgetToDelete!=null){
     this.spinner.show()    
       this.budgetService.delete(this.budgetToDelete?.budgetId).subscribe(
@@ -76,6 +91,38 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
    this.budgetToDelete = null;
     
   }
+
+  convertToBillWithComfirm(budgetModel: BudgetModel){ 
+    this.isModalForSetInvoice = true;    
+    this.budgetToSetInvoice = budgetModel;
+    this.messageModal = "¿Estas seguro de convertir esta cotización en una factura?";
+    this.ClosedOpenModal();    
+  }
+
+  convertToBill(){   
+
+    if(this.budgetToSetInvoice!=null){
+     this.spinner.show()
+     this.budgetToSetInvoice.isInvoice = true;
+     
+       this.budgetService.setInvoice(this.budgetToSetInvoice).subscribe(
+         (response: any) => {
+           console.log("SET Invoice OK");      
+           this.loadBudgets();           
+           this.spinner.hide();
+         },
+         (error) => {
+           // Maneja errores y muestra un mensaje al usuario
+           console.error('Error al SET Invoice', error);
+           // Puedes mostrar una alerta aquí
+           this.spinner.hide();
+         }
+       );      
+    }
+    this.ClosedOpenModal();
+    this.budgetToSetInvoice = null;
+     
+   }
 
 
   downloadBudget(customerModel: BudgetModel) {
