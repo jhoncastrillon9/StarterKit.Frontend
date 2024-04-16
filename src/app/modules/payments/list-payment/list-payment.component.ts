@@ -15,7 +15,7 @@ import { PaymentGroupModel, PaymentModel } from '../models/payment.Model';
 })
 export class ListPaymentComponent {
 
-  PaymentGroups: PaymentGroupModel[] = [];
+  paymentsGroup: PaymentGroupModel[] = [];
   messageModal: string = "¿Estas Seguro de eliminar este registro?";
   isModalForDelete: boolean = false;
 
@@ -23,7 +23,7 @@ export class ListPaymentComponent {
   public visible = false;
   public paymentToDelete: PaymentModel | null = null;
   public paymentToSetInvoice: PaymentModel | null = null;
-
+  selectedAccordion: number | null = null;
   constructor(private paymentService: PaymentService,
     public iconSet: IconSetService,  
     private router: Router,
@@ -48,7 +48,7 @@ export class ListPaymentComponent {
   loadPayments(){
     this.spinner.show()    
     this.paymentService.get().subscribe(payments => {
-      this.PaymentGroups = payments;
+      this.paymentsGroup = payments;
       this.spinner.hide();
     },(error)=>{
       console.error('Error al cargar payments', error);
@@ -56,6 +56,15 @@ export class ListPaymentComponent {
     });
   }
 
+  toggleAccordion(index: number) {
+    if (this.selectedAccordion === index) {
+      // Si el mismo acordeón está seleccionado, lo deseleccionamos
+      this.selectedAccordion = null;
+    } else {
+      // De lo contrario, seleccionamos el acordeón con el índice proporcionado
+      this.selectedAccordion = index;
+    }
+  }
 
 deletePaymentWithComfirm(paymentModel: PaymentModel){ 
   this.isModalForDelete = true;
@@ -70,13 +79,13 @@ deletePaymentWithComfirm(paymentModel: PaymentModel){
     this.spinner.show()    
       this.paymentService.delete(this.paymentToDelete?.budgetId).subscribe(
         (response: any) => {
-          console.log("Budget delete is OK");      
+          console.log("payment delete is OK");      
           this.loadPayments();           
           this.spinner.hide();
         },
         (error) => {
           // Maneja errores y muestra un mensaje al usuario
-          console.error('Error al eliminar Budget', error);
+          console.error('Error al eliminar payment', error);
           // Puedes mostrar una alerta aquí
           this.spinner.hide();
         }

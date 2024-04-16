@@ -2,8 +2,8 @@ import {BudgetModel} from '../../budgets/models/budget.Model';
 
 export class PaymentGroupModel {
     budgetId: number =0;
-    Payments: PaymentModel[] = [];
-    Budget: BudgetModel = new BudgetModel;    
+    payments: PaymentModel[] = [];
+    budget: BudgetModel = new BudgetModel;    
     totalAmount: number=0;
     differenceAmount: number=0;
 }

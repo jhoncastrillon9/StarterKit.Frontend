@@ -1,1 +1,93 @@
-<p>list-payment works!</p>
+<c-col xs="12">
+    <c-card class="">
+      <c-card-header ngPreserveWhitespaces>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>Estado de cuenta</strong> <small> </small>
+            </div>
+            <div style="text-align: right;">
+              <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nueva Cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Registrar Nuevo Pago</span>
+            </div>
+        </div>
+    </c-card-header>
+        <c-card-body>        
+            <c-col xs="12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="text-align: center;">Cod</th>
+                            <th scope="col" style="text-align: center;">Fecha</th>
+                            <th scope="col" style="text-align: center;">Obra / Nombre</th>
+                            <th scope="col" style="text-align: center;">Cliente</th>
+                            <th scope="col" style="text-align: center;">Valor Factura</th>
+                            <th scope="col" style="text-align: center;">Total Abonado</th>
+                            <th scope="col" style="text-align: center;">Saldo</th>
+                            <th scope="col" style="text-align: center;">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let paymentGroup of paymentsGroup; let i = index">
+
+                            <tr>                            
+                                <th scope="row">{{ paymentGroup.budgetId }}</th>                            
+                                <td>{{ paymentGroup.budget.date  | date: 'dd MMM yyyy' }}</td>
+                                <td>{{ paymentGroup.budget.budgetName }}  </td>
+                                <td>{{ paymentGroup.budget.customerDto.customerName }} </td>
+                                <td style="text-align: right;">$ {{ paymentGroup.budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+                                <td style="text-align: right;">$ {{ paymentGroup.totalAmount.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+                                <td style="text-align: right;">${{ paymentGroup.differenceAmount.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
+                                <td>
+                                    <span style="cursor: pointer; color: blueviolet;" color="danger" variant="outline" title="VER DETALLE" (click)="toggleAccordion(i)">
+                                        <svg cIcon class="me-2" name="cilZoom"></svg>Ver Detalle
+                                    </span>                 
+                                </td>                            
+                            </tr>
+                            <Tr  *ngIf="selectedAccordion === i">
+                                <td [attr.colspan]="8">
+                                    <table class="table table-bordered">
+                                        <!-- Aquí va el detalle de Budget.Payments -->
+                                        <!-- Puedes agregar tu lógica aquí -->
+                                        <thead>
+                                            <tr >
+                                                <th scope="col" style="text-align: center;">Pago Id</th>
+                                                <th scope="col" style="text-align: center;">Fecha</th>
+                                                <th scope="col" style="text-align: center;">Cuenta</th>
+                                                <th scope="col" style="text-align: center;">Nota</th>                                                                                            
+                                                <th scope="col" style="text-align: center;">Valor</th>
+                                                <th scope="col" style="text-align: center;">Opciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let payment of paymentGroup.payments; let e = index">                            
+                                                <th scope="row" style="text-align: center;">{{ payment.paymentId }}</th>                            
+                                                <td>{{ payment.paymentDate  | date: 'dd MMM yyyy' }}</td>
+                                                <td>{{ payment.paymentType }}  </td>
+                                                <td>{{ payment.note }} </td>
+                                                <td style="text-align: right;">$ {{ payment.amountPaid.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>                                                
+                                                <td>
+                                                    <span style="cursor: pointer; color: blueviolet;" color="danger" variant="outline" title="VER DETALLE" (click)="toggleAccordion(i)">
+                                                        <svg cIcon class="me-2" name="cilZoom"></svg>Ver Detalle
+                                                    </span>                 
+                                                </td>  
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </Tr>
+
+                        </ng-container>
+ 
+                    </tbody>
+                    </table>
+                </div>
+            
+            </c-col>
+        </c-card-body>
+    </c-card>
+</c-col>
+
+
+
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
