@@ -1,0 +1,51 @@
+<c-col xs="12">
+    <c-card class="mb-4">
+        <c-card-header ngPreserveWhitespaces>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Nuevo</strong> <small>Pago</small>
+                </div>
+                <div style="text-align: right;">
+                    {{ currentDate | date: 'dd MMM yyyy' }}
+                </div>
+            </div>
+        </c-card-header>
+        <c-card-body>
+            <form cForm class="row g-3" [formGroup]="paymentForm" (ngSubmit)="onAddUpdateBudget()">
+                <input cFormControl formControlName="budgetId" style="display: none;" />
+                <c-col md="3">
+                    <label cLabel for="paymentType">Tipo de Transacción, Efectivo Consignación etc...*</label>
+                    <input cFormControl formControlName="paymentType" />
+                </c-col>      
+                <c-col md="3">
+                    <label cLabel for="amountPaid">Valor Abono</label>
+                    <input cFormControl formControlName="amountPaid" />
+                </c-col>
+                <c-col md="2">
+                    <label cLabel for="note">Nota</label>
+                    <input cFormControl formControlName="note" />
+                </c-col>
+
+
+                <p class="text-medium-emphasis small" *ngIf="paymentForm.get('amountPaid')?.invalid && (paymentForm.get('amountPaid')?.touched || paymentForm.get('amountPaid')?.dirty)" class="text-danger">
+                    Valor de abono debe ser mayor a 0
+                </p>
+                <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
+                    {{msjError}}
+                </p>
+
+                    <c-col xs="12" class="text-end">
+                        <button cButton type="submit" size="lg" style="margin-right: 10px;">
+                        {{ paymentForm.get('paymentId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
+                        </button>
+                        <a cButton type="button" size="lg" variant="outline" [routerLink]="'/payments'">
+                        Regresar
+                        </a>
+                  </c-col>
+                  
+            </form>
+        </c-card-body>
+    </c-card>
+</c-col>
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>

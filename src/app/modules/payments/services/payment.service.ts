@@ -47,7 +47,7 @@ export class PaymentService {
   
   getByPaymentId(data: any) {
     const headers = this.getHeaders();
-    return this.http.get(`${this.apiUrl}/api/payment/${data}`, { headers, observe: 'response' }).pipe(
+    return this.http.get(`${this.apiUrl}/api/payment/payment/${data}`, { headers, observe: 'response' }).pipe(
       map((response: HttpResponse<any>) => {
         if (response.status === 401) {
           this.router.navigate(['/login']);

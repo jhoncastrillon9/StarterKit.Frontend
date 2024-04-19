@@ -7,12 +7,14 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule, SharedModule } from '@coreui/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconModule } from '@coreui/icons-angular';
+import { AddUpdateComponent } from './add-update/add-update.component';
 
 
 
 @NgModule({
   declarations: [
-    ListPaymentComponent
+    ListPaymentComponent,
+    AddUpdateComponent
   ],
   imports: [
     CommonModule,

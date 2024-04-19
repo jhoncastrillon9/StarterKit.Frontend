@@ -56,6 +56,11 @@ export class ListPaymentComponent {
     });
   }
 
+  handleLiveDemoChange(event: any) {
+    this.visible = event;
+  }
+
+
   toggleAccordion(index: number) {
     if (this.selectedAccordion === index) {
       // Si el mismo acordeón está seleccionado, lo deseleccionamos
@@ -77,7 +82,7 @@ deletePaymentWithComfirm(paymentModel: PaymentModel){
 
    if(this.paymentToDelete!=null){
     this.spinner.show()    
-      this.paymentService.delete(this.paymentToDelete?.budgetId).subscribe(
+      this.paymentService.delete(this.paymentToDelete?.paymentId).subscribe(
         (response: any) => {
           console.log("payment delete is OK");      
           this.loadPayments();           

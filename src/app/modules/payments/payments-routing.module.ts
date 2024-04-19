@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ListPaymentComponent } from './list-payment/list-payment.component';
+import { AddUpdateComponent } from './add-update/add-update.component';
 
 
 const routes: Routes = [
   {
     path: '',
     data: {
-      title: 'Cotizaciones'
+      title: 'Pagos'
     },
     children: [
       {
@@ -21,8 +22,21 @@ const routes: Routes = [
         data: {
           title: 'Listado'
         }
-      }
-
+      },
+      {
+        path: 'add/:budgetId',
+        component: AddUpdateComponent,
+        data: {
+          title: 'Nuevo'
+        }
+      },
+      {
+        path: 'update/:id',          
+        component: AddUpdateComponent,
+        data: {
+          title: 'Editar'
+        }
+      },
     ]
   }
 ];
