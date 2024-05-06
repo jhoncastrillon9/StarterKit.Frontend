@@ -12,7 +12,7 @@
   "scripts": {
     "ng": "ng",    
     "start": "http-server -p $PORT dist/cotiza-constructor",
-    "build": "ng build --pro",
+    "build": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "heroku-postbuild": "ng build --configuration=production"
