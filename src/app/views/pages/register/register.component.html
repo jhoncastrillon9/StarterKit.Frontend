@@ -1,17 +1,19 @@
-<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+<div class="bg-light min-vh-100 d-flex flex-row align-items-center" style="background-image: url('../../../../assets/images/BackLogin.jpg'); background-size: cover;">
   <c-container>
     <c-row class="justify-content-center">
       <c-col lg="7" md="9" xl="6">
         <c-card class="mx-4">
           <c-card-body class="p-4">
             <form cForm>
-              <h1>Register</h1>
-              <p class="text-medium-emphasis">Create your account</p>
+              <div class="text-center"> <!-- Nuevo div para centrar -->
+                <h1>Registrarse</h1>
+                <p class="text-medium-emphasis">Crear cuenta</p>
+              </div>
               <c-input-group class="mb-3">
                 <span cInputGroupText>
                   <svg cIcon name="cilUser"></svg>
                 </span>
-                <input autoComplete="name" cFormControl placeholder="Username" />
+                <input autoComplete="name" cFormControl placeholder="Empresa" />
               </c-input-group>
               <c-input-group class="mb-3">
                 <span cInputGroupText>@</span>
@@ -21,17 +23,23 @@
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
-                <input autoComplete="new-password" cFormControl placeholder="Password" type="password" />
+                <input autoComplete="new-password" cFormControl placeholder="Contraseña" type="password" />
               </c-input-group>
               <c-input-group class="mb-4">
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
-                <input autoComplete="new-password" cFormControl placeholder="Repeat password" type="password" />
+                <input autoComplete="new-password" cFormControl placeholder="Repetir Contraseña" type="password" />
               </c-input-group>
-              <div class="d-grid">
-                <button cButton color="success">Create Account</button>
+              <div class="d-flex justify-content-center"> <!-- Modificación para alinear los botones en una misma línea -->
+                <button cButton class="mt-3 me-2" color="primary" routerLink="/register">
+                  ¡Crear Cuenta!
+                </button>     
+                <button  cButton class="mt-3" color="primary" routerLink="/login">
+                  Regresar
+                </button>               
               </div>
+              
             </form>
           </c-card-body>
         </c-card>
