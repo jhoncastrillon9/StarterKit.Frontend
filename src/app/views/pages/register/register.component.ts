@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -22,8 +22,8 @@ export class RegisterComponent {
   ) {
     this.registerForm = fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
-      passwordconfirmation: ['', [Validators.required]],
+      password: ['', [Validators.required]],      
+      passwordconfirmation: ['', [Validators.required, this.validatePasswordConfirmation.bind(this)]], // Aplicando la función de validación personalizada
       companyName: ['', [Validators.required]],
     });
    }
@@ -71,5 +71,13 @@ export class RegisterComponent {
     }
   }
 
+  validatePasswordConfirmation(control: AbstractControl): { [key: string]: any } | null {    
+    
+    const passwordControl = control.parent?.get('password')?.value;
+    console.log(passwordControl);
+    const confirmPassword = control.value;
+    console.log(confirmPassword);
+    return passwordControl === confirmPassword ? null : { 'passwordMismatch': true };
+  }
 
 }
