@@ -14,6 +14,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   messageModal: string = "";
   public visible = false;
+  
   constructor(private fb: FormBuilder, 
     private authService: AuthService, 
     private router: Router,
@@ -24,7 +25,7 @@ export class LoginComponent {
     });
   }
 
-
+ 
 
 
   toggleLiveDemo() {
