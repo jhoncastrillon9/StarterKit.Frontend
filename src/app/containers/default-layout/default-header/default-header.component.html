@@ -76,7 +76,7 @@
       </c-avatar>
     </button>
     <ul cDropdownMenu class="pt-0 pr-5 w-auto">
-      <li>
+      <!-- <li>
         <h6 cDropdownHeader class="bg-light fw-semibold py-2">Cuenta</h6>
       </li>
       <li>
@@ -87,8 +87,8 @@
             42
           </c-badge>
         </a>
-      </li>
-      <li>
+      </li> -->
+      <!-- <li>
         <a routerLink="./" cDropdownItem>
           <svg cIcon class="me-2" name="cilEnvelopeOpen"></svg>
           Mensajes
@@ -114,7 +114,7 @@
             42
           </c-badge>
         </a>
-      </li>
+      </li> -->
       <li>
         <h6 cDropdownHeader class="bg-light fw-semibold py-2">Settings</h6>
       </li>
@@ -131,7 +131,7 @@
           Configuraciones
         </a>
       </li>
-      <li>
+      <!-- <li>
         <a routerLink="./" cDropdownItem>
           <svg cIcon class="me-2" name="cilCreditCard"></svg>
           Pagos
@@ -147,13 +147,14 @@
           <c-badge class="ms-2 float-end" color="primary">
             42
           </c-badge>
-        </a>
-      </li>
+        </a>        
+      </li> -->
+
       <li>
         <hr cDropdownDivider/>
       </li>
       <li>
-        <a routerLink="./" cDropdownItem>
+        <a routerLink="./" (click)="signoff()" cDropdownItem>
           <svg cIcon class="me-2" name="cilLockLocked"></svg>
           Salir
         </a>

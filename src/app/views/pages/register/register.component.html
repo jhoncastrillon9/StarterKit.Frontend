@@ -14,28 +14,45 @@
                   <svg cIcon name="cilUser"></svg>
                 </span>
                 <input autoComplete="name" cFormControl placeholder="Empresa" formControlName="companyName"/>
-              </c-input-group>
+              </c-input-group>             
+
               <c-input-group class="mb-3">
                 <span cInputGroupText>@</span>
                 <input autoComplete="email" cFormControl placeholder="Email" formControlName="email"/>
               </c-input-group>
+
               <c-input-group class="mb-3">
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
                 <input autoComplete="new-password" cFormControl placeholder="Contraseña" type="password" formControlName="password"/>
               </c-input-group>
+
               <c-input-group class="mb-4">
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
                 <input autoComplete="new-password" cFormControl placeholder="Repetir Contraseña" type="password" formControlName="passwordconfirmation"/>
               </c-input-group>
+              
+              
+              <div *ngIf="registerForm.get('companyName')?.invalid && (registerForm.get('companyName')?.touched || registerForm.get('companyName')?.dirty)" class="text-danger">
+                Campo compañia es obligatorio.
+              </div> 
+              <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)" class="text-danger">
+                Campo email es obligatorio.
+              </div> 
+              <div *ngIf="registerForm.get('password')?.errors?.['required'] && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)" class="text-danger">
+                Campo password es obligatorio.
+              </div>
               <div *ngIf="registerForm.get('passwordconfirmation')?.invalid && (registerForm.get('passwordconfirmation')?.touched || registerForm.get('passwordconfirmation')?.dirty)" class="text-danger">
                 Las contraseñas no son iguales.
               </div> 
-              <div class="d-flex justify-content-center"> <!-- Modificación para alinear los botones en una misma línea -->
-                <button cButton class="mt-3 me-2" color="primary" type="submit">
+              
+
+
+              <div class="d-flex justify-content-center"> 
+                <button cButton class="mt-3 me-2" color="primary" type="submit" >
                   ¡Crear Cuenta!
                 </button>     
                 <button  cButton class="mt-3" color="primary" routerLink="/login">
@@ -49,3 +66,19 @@
     </c-row>
   </c-container>
 </div>
+
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Upppss!!!</h5>
+    <button (click)="toggleLiveDemo()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>{{messageModal}}</c-modal-body>
+  <c-modal-footer>
+    <button (click)="toggleLiveDemo()" cButton color="secondary">
+      Cerrar
+    </button>    
+  </c-modal-footer>
+</c-modal>
+
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>

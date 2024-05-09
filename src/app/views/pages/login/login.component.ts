@@ -54,18 +54,19 @@ export class LoginComponent {
           this.router.navigate(['/']);
         },
         (error) => {
-          // Maneja errores y muestra un mensaje al usuario
-          console.error('Error al iniciar sesión', error);
+          // Maneja errores y muestra un mensaje al usuario          
           this.spinner.hide();
           this.toggleLiveDemo();
-          this.messageModal = 'Error al iniciar sesión' + error
+          this.messageModal = 'Error al iniciar sesión: ' + error.error.error
           // Puedes mostrar una alerta aquí
         }
       );
     } else {
-      // El formulario no es válido, muestra un mensaje de error o realiza alguna acción adicional.
-      console.log('El formulario no es válido. Por favor, complete los campos correctamente.');
+      // El formulario no es válido, muestra un mensaje de error o realiza alguna acción adicional.      
       this.spinner.hide();
+      Object.values(this.loginForm.controls).forEach(control => {
+        control.markAsTouched();
+      }); 
     }
   }
 }

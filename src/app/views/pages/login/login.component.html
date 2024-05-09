@@ -21,10 +21,6 @@
                     placeholder="Email"
                   />
                 </c-input-group>
-                <div *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)" class="text-danger">
-                  Email no válido.
-                </div>
-
                 <!-- Campo de contraseña -->
                 <c-input-group class="mb-4">
                   <span cInputGroupText>
@@ -38,10 +34,15 @@
                     type="password"
                   />
                 </c-input-group>
+
+                <div *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)" class="text-danger">
+                  Email no válido.
+                </div>
+                
                 <div *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)" class="text-danger">
                   La contraseña es obligatoria.
                 </div>
-
+                <div style="margin-bottom: 1rem;"></div> <!-- Espacio vertical -->
                 <c-row>
                   <c-col xs="6">
                     <button cButton class="px-4" color="primary" type="submit">
@@ -59,7 +60,7 @@
 
                 <c-row>
                   <c-col xs="12">
-                    <span>Versión: 08.05.2024</span>
+                    <span>Versión: 09.05.2024</span>
                   </c-col>
                   
                   
@@ -88,9 +89,6 @@
   </c-container>
 </div>
 
-
-
-
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
   <c-modal-header>
     <h5 cModalTitle>Upppss!!!</h5>
@@ -98,7 +96,7 @@
   </c-modal-header>
   <c-modal-body>{{messageModal}}</c-modal-body>
   <c-modal-footer>
-    <button (click)="toggleLiveDemo()" cButton color="secondary">
+    <button (click)="toggleLiveDemo()" cButton color="primary">
       Cerrar
     </button>    
   </c-modal-footer>

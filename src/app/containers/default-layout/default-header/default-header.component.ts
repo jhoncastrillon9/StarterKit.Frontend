@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { ClassToggleService, HeaderComponent } from '@coreui/angular';
 
@@ -17,7 +18,9 @@ export class DefaultHeaderComponent extends HeaderComponent implements OnInit {
 
   public userEmail?: string;
 
-  constructor(private classToggler: ClassToggleService) {
+  constructor(private classToggler: ClassToggleService,
+    private router: Router,
+  ) {
     super();
   }
 
@@ -28,4 +31,14 @@ export class DefaultHeaderComponent extends HeaderComponent implements OnInit {
       this.userEmail = tokenData.Email;
     }
   }
+
+  signoff() {
+    // Limpiar datos de usuario en el almacenamiento local
+    localStorage.removeItem('tokenData');
+    // Redirigir a la página de inicio de sesión
+    this.router.navigate(['/login']);    
+  }
+
+
+
 }
