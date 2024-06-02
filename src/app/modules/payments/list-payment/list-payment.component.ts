@@ -5,7 +5,7 @@ import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { PaymentService } from '../services/payment.service';
 import { PaymentGroupModel, PaymentModel } from '../models/payment.Model';
-
+import * as _ from 'lodash';
 
 
 @Component({
@@ -48,7 +48,13 @@ export class ListPaymentComponent {
   loadPayments(){
     this.spinner.show()    
     this.paymentService.get().subscribe(payments => {
-      this.paymentsGroup = payments;
+      this.paymentsGroup = payments;      
+      // Iterar sobre cada PaymentGroupModel
+      this.paymentsGroup.forEach(paymentGroup => {
+        // Ordenar los elementos de payments por la fecha paymentDate
+        paymentGroup.payments = _.orderBy(paymentGroup.payments, ['paymentDate'], ['desc']);
+      });
+
       this.spinner.hide();
     },(error)=>{
       console.error('Error al cargar payments', error);

@@ -3,7 +3,7 @@ import { CustomerModel } from '../models/customer.Model';
 import { CustomerService } from '../services/customer.service';
 import { cilEnvelopeOpen, flagSet } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
-import { cilPencil, cilXCircle } from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney} from '@coreui/icons';
 import { Router } from '@angular/router';
  
 
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class ListcustomerComponent implements OnInit {
   customers: CustomerModel[] = [];
   constructor(private customerService: CustomerService,public iconSet: IconSetService,  private router: Router) {
-    iconSet.icons = {  cilPencil,cilXCircle };
+    iconSet.icons = {  cilPencil,cilXCircle,  cilZoom, cilCloudDownload, cilNoteAdd, cilMoney };
   }
 
 

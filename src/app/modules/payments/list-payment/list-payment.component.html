@@ -15,9 +15,9 @@
                     <thead>
                         <tr>
                             <th scope="col" style="text-align: center;">Cod</th>
-                            <th scope="col" style="text-align: center;">Fecha</th>
-                            <th scope="col" style="text-align: center;">Obra / Nombre</th>
+                            <th scope="col" style="text-align: center;">Fecha</th>                           
                             <th scope="col" style="text-align: center;">Cliente</th>
+                            <th scope="col" style="text-align: center;">Obra / Nombre</th>
                             <th scope="col" style="text-align: center;">Valor Factura</th>
                             <th scope="col" style="text-align: center;">Total Abonado</th>
                             <th scope="col" style="text-align: center;">Saldo</th>
@@ -29,9 +29,9 @@
 
                             <tr>                            
                                 <th scope="row">{{ paymentGroup.budgetId }}</th>                            
-                                <td>{{ paymentGroup.budget.date  | date: 'dd MMM yyyy' }}</td>
-                                <td>{{ paymentGroup.budget.budgetName }}  </td>
+                                <td>{{ paymentGroup.budget.date  | date: 'dd MMM yyyy' }}</td>                                
                                 <td>{{ paymentGroup.budget.customerDto.customerName }} </td>
+                                <td>{{ paymentGroup.budget.budgetName }}  </td>
                                 <td style="text-align: right;">$ {{ paymentGroup.budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
                                 <td style="text-align: right;">$ {{ paymentGroup.totalAmount.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
                                 <td style="text-align: right;">${{ paymentGroup.differenceAmount.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
@@ -63,10 +63,10 @@
                                             <table class="table table-bordered">                                                
                                                 <thead>
                                                     <tr >
-                                                        <th scope="col" style="text-align: center;">Pago Id</th>
-                                                        <th scope="col" style="text-align: center;">Fecha</th>
+                                                        <th scope="col" style="text-align: center;">Pago Id</th>                                                        
                                                         <th scope="col" style="text-align: center;">Cuenta</th>
-                                                        <th scope="col" style="text-align: center;">Nota</th>                                                                                            
+                                                        <th scope="col" style="text-align: center;">Nota</th>    
+                                                        <th scope="col" style="text-align: center;">Fecha</th>                                                                                        
                                                         <th scope="col" style="text-align: center;">Valor</th>
                                                         <th scope="col" style="text-align: center;">Opciones</th>
                                                     </tr>
@@ -74,9 +74,10 @@
                                                 <tbody>
                                                     <tr *ngFor="let payment of paymentGroup.payments; let e = index">                            
                                                         <th scope="row" style="text-align: center;">{{ payment.paymentId }}</th>                            
-                                                        <td>{{ payment.paymentDate  | date: 'dd MMM yyyy' }}</td>
+                                                       
                                                         <td>{{ payment.paymentType }}  </td>
                                                         <td>{{ payment.note }} </td>
+                                                        <td>{{ payment.paymentDate  | date: 'dd MMM yyyy' }}</td>
                                                         <td style="text-align: right;">$ {{ payment.amountPaid.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>                                                
                                                         <td>
                                                             <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/payments/update', payment.paymentId]" title="Editar Pago">

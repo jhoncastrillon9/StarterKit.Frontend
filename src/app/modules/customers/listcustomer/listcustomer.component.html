@@ -1,11 +1,18 @@
 <c-col xs="12">
     <c-card class="mb-4">
       <c-card-header ngPreserveWhitespaces>
-        <strong>Listado</strong> <small>Clientes</small>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>Listado</strong> <small>Clientes</small>
+          </div>
+          <div style="text-align: right;">
+            <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/customers/add']" title="Nuevo cliente"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Agregar Cliente</span>
+          </div>          
+      </div>
       </c-card-header>
+
+
       <c-card-body>
-
-
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
