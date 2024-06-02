@@ -4,68 +4,58 @@
             <strong>Actualizar</strong> <small>Datos de la compañia</small>
         </c-card-header>
         <c-card-body>
-                <form cForm class="row g-3" [formGroup]="companyForm" (ngSubmit)="updateCompany()">
+            <form cForm class="row g-3" [formGroup]="companyForm" (ngSubmit)="updateCompany()">
                 <!-- Id del customer -->
-                    <input cFormControl  formControlName="companyId" style="display: none;"/>
-                    <c-col md="6">
-                        <label cLabel for="companyName">Nombre Empresa*</label>
-                        <input cFormControl  formControlName="companyName" />
-                    </c-col>
-                    <c-col md="6">
-                        <label cLabel for="document">NIT o CC</label>
-                        <input cFormControl formControlName="document" />
-                    </c-col>
-
-                    <c-col md="6">
-                        <label cLabel for="telephones">Telefonos</label>
-                        <input cFormControl type="telephones" formControlName="telephones" />
-                    </c-col>
-
-                    <c-col md="6">
-                        <label cLabel for="email">Email</label>
-                        <input cFormControl type="email" formControlName="email" />
-                    </c-col>
-           
-                    <c-col xs="12">
-                        <label cLabel for="address">Dirección</label>
-                        <input cFormControl placeholder="Carr 90 N 10" formControlName="address" />
-                    </c-col>
-
-                    <c-col xs="6">                        
-                        <label cLabel for="urlImageLogo">Imagen del Logo</label>
-                        <input cFormControl placeholder="Cargar Imagen" formControlName="urlImageLogo"  type="file" />
-                    </c-col>
-
-                    <p class="text-medium-emphasis small" *ngIf="companyForm.get('customerName')?.invalid && (companyForm.get('customerName')?.touched || companyForm.get('customerName')?.dirty)" class="text-danger">
-                            Nombre de la empresa es obligatorio
-                    </p>
-
-                    <p class="text-medium-emphasis small" *ngIf="companyForm.get('email')?.invalid && (companyForm.get('email')?.touched || companyForm.get('email')?.dirty)" class="text-danger">
-                            Email no es es valido
-                    </p>
-
-
-                    <c-col xs="12">
-                        <button cButton type="submit">Actualizar</button>
-                    </c-col>
-                </form>
-    
+                <input cFormControl formControlName="companyId" style="display: none;" />
+                <c-col md="6">
+                    <label cLabel for="companyName">Nombre Empresa*</label>
+                    <input cFormControl formControlName="companyName" />
+                </c-col>
+                <c-col md="6">
+                    <label cLabel for="document">NIT o CC</label>
+                    <input cFormControl formControlName="document" />
+                </c-col>
+                <c-col md="6">
+                    <label cLabel for="telephones">Teléfonos</label>
+                    <input cFormControl type="telephones" formControlName="telephones" />
+                </c-col>
+                <c-col md="6">
+                    <label cLabel for="email">Email</label>
+                    <input cFormControl type="email" formControlName="email" />
+                </c-col>
+                <c-col xs="12">
+                    <label cLabel for="address">Dirección</label>
+                    <input cFormControl placeholder="Carr 90 N 10" formControlName="address" />
+                </c-col>
+                <c-col xs="6">
+                    <label cLabel for="urlImageLogo">Imagen del Logo</label>
+                    <input cFormControl placeholder="Cargar Imagen" formControlName="urlImageLogo" type="file" />
+                </c-col>
+                <p class="text-medium-emphasis small" *ngIf="companyForm.get('companyName')?.invalid && (companyForm.get('companyName')?.touched || companyForm.get('companyName')?.dirty)" class="text-danger">
+                    Nombre de la empresa es obligatorio
+                </p>
+                <p class="text-medium-emphasis small" *ngIf="companyForm.get('email')?.invalid && (companyForm.get('email')?.touched || companyForm.get('email')?.dirty)" class="text-danger">
+                    Email no es válido
+                </p>
+                <c-col xs="12">
+                    <button cButton type="submit">Actualizar</button>
+                </c-col>
+            </form>
         </c-card-body>
     </c-card>
 </c-col>
 
-
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
     <c-modal-header>
-      <h5 cModalTitle>¡Actualización Completada!</h5>
-      <button (click)="ClosedOpenModal()" cButtonClose></button>
+        <h5 cModalTitle>¡Actualización Completada!</h5>
+        <button (click)="hideModal()" cButtonClose></button>
     </c-modal-header>
-    <c-modal-body>{{messageModal}}</c-modal-body>
+    <c-modal-body>{{ messageModal }}</c-modal-body>
     <c-modal-footer>
-      <button (click)="ClosedOpenModal()" cButton color="success" style="color: white;">
-        Salir
-      </button>     
+        <button (click)="hideModal()" cButton color="success" style="color: white;">Salir</button>
     </c-modal-footer>
-  </c-modal>
+</c-modal>
 
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
+    <p style="color: white"> Cargando... </p>
+</ngx-spinner>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '../services/company.service';
@@ -20,13 +20,11 @@ export class CompanyConfigComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private companyService: CompanyService,
-    private spinner: NgxSpinnerService
-  ) {
-
-  }
+    private spinner: NgxSpinnerService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-
     this.companyForm = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
       companyName: ['', [Validators.required]],
@@ -38,63 +36,53 @@ export class CompanyConfigComponent implements OnInit {
     });
 
     this.spinner.show();
-    this.companyService.getCompanyByUser().subscribe((company: any) => {
-      console.log(company);
-      this.companyForm.patchValue(company);
-      this.spinner.hide();
-    },
-    (error: any) => {
-      // Maneja errores y muestra un mensaje al usuario
-      console.error('Error al consultar empresa', error);
-      this.spinner.hide();
-      // Puedes mostrar una alerta aquí
-    });
-
+    this.companyService.getCompanyByUser().subscribe(
+      (company: any) => {
+        console.log(company);
+        this.companyForm.patchValue(company);
+        this.spinner.hide();
+      },
+      (error: any) => {
+        console.error('Error al consultar empresa', error);
+        this.spinner.hide();
+      }
+    );
   }
 
-
- updateCompany() {
- 
+  updateCompany() {
     if (this.companyForm.valid) {
       this.spinner.show();
       const formData = this.companyForm.value;  
-        this.companyService.updateCompanyByUser(formData).subscribe(
-          (response: any) => {
-            console.log("Company is OK");          
-            this.router.navigate(['/configurations']);
-            this.spinner.hide();
-            this.messageModal = "Información de la empresa actualizada.";
-            this.ClosedOpenModal();
-          },
-          (error: any) => {            
-            console.error('Error al actualizar empresa', error);
-            this.spinner.hide();
-            this.messageModal = "Hubo un error al actualizar la información de la empresa.";
-            this.ClosedOpenModal();
-          }
-        );
-
+      this.companyService.updateCompanyByUser(formData).subscribe(
+        (response: any) => {
+          console.log("Company is OK");
+          this.spinner.hide();
+          this.messageModal = "Información de la empresa actualizada.";
+          this.showModal();
+        },
+        (error: any) => {
+          console.error('Error al actualizar empresa', error);
+          this.spinner.hide();
+          this.messageModal = "Hubo un error al actualizar la información de la empresa.";
+          this.showModal();
+        }
+      );
     } else {
-
       console.log('El formulario no es válido. Por favor, complete los campos correctamente.');
     }
   }
 
+  showModal() {
+    this.visible = true;
+    this.cdr.detectChanges();
+  }
 
-    
-  ClosedOpenModal() {
-    console.log("visibles antes: " + this.visible);
-    this.visible = !this.visible;
-    console.log("visibles despues : " + this.visible);
-
+  hideModal() {
+    this.visible = false;
+    this.cdr.detectChanges();
   }
 
   handleLiveDemoChange(event: any) {
     this.visible = event;
   }
-
-
-
 }
-
-
