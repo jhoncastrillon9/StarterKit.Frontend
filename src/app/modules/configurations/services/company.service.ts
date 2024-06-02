@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
 
 
-
 @Injectable({
     providedIn: 'root'
   })
@@ -34,8 +33,8 @@ import { environment } from '../../../../environment';
         })
       );
     }  
-
-    updateCompanyByUser(data: any) {
+  
+    updateCompanyByUser(data: FormData) {
       const headers = this.getHeaders();
       return this.http.put(`${this.apiUrl}/api/Company/updateCompanyByUser`, data, { headers, observe: 'response' }).pipe(
         map((response: HttpResponse<any>) => {
@@ -46,5 +45,5 @@ import { environment } from '../../../../environment';
         })
       );
     }  
-
   }
+  

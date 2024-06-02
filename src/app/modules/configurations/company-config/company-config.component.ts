@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '../services/company.service';
@@ -10,21 +10,19 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./company-config.component.scss']
 })
 export class CompanyConfigComponent implements OnInit {
-  companyForm: FormGroup = new FormGroup({});
+  companyForm: FormGroup;
   companyId?: string = '0';
   messageModal: string = "Información de la empresa actualizada.";
-  public visible = false;
+  visible = false;
+  selectedFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private companyService: CompanyService,
-    private spinner: NgxSpinnerService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
+    private spinner: NgxSpinnerService
+  ) {
     this.companyForm = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
       companyName: ['', [Validators.required]],
@@ -34,11 +32,12 @@ export class CompanyConfigComponent implements OnInit {
       telephones: [''],
       urlImageLogo: [''],
     });
+  }
 
+  ngOnInit() {
     this.spinner.show();
     this.companyService.getCompanyByUser().subscribe(
       (company: any) => {
-        console.log(company);
         this.companyForm.patchValue(company);
         this.spinner.hide();
       },
@@ -49,13 +48,30 @@ export class CompanyConfigComponent implements OnInit {
     );
   }
 
+  onFileSelected(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+    }
+  }
+
   updateCompany() {
     if (this.companyForm.valid) {
       this.spinner.show();
-      const formData = this.companyForm.value;  
+      const formData = new FormData();
+      formData.append('email', this.companyForm.get('email')?.value);
+      formData.append('companyName', this.companyForm.get('companyName')?.value);
+      formData.append('address', this.companyForm.get('address')?.value);
+      formData.append('companyId', this.companyForm.get('companyId')?.value);
+      formData.append('document', this.companyForm.get('document')?.value);
+      formData.append('telephones', this.companyForm.get('telephones')?.value);
+      
+      if (this.selectedFile) {
+        formData.append('urlImageLogo', this.selectedFile);
+      }
+
       this.companyService.updateCompanyByUser(formData).subscribe(
         (response: any) => {
-          console.log("Company is OK");
+          this.router.navigate(['/configurations']);
           this.spinner.hide();
           this.messageModal = "Información de la empresa actualizada.";
           this.showModal();
@@ -74,12 +90,10 @@ export class CompanyConfigComponent implements OnInit {
 
   showModal() {
     this.visible = true;
-    this.cdr.detectChanges();
   }
 
-  hideModal() {
+  closeModal() {
     this.visible = false;
-    this.cdr.detectChanges();
   }
 
   handleLiveDemoChange(event: any) {
