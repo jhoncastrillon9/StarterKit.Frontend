@@ -12,8 +12,10 @@ import {
   FormModule,
   GridModule,
   ListGroupModule,
+  ModalModule,
   SharedModule
 } from '@coreui/angular';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 @NgModule({
   declarations: [
@@ -22,6 +24,7 @@ import {
   imports: [
     CommonModule,
     ConfigurationsRoutingModule,
+    NgxSpinnerModule,    
     CardModule,
     FormModule,
     GridModule,
@@ -34,7 +37,8 @@ import {
     DropdownModule,
     SharedModule,
     ListGroupModule,
-    IconModule  
+    IconModule,
+    ModalModule  
   ],
   providers: [IconSetService]
 })
