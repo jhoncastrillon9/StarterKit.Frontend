@@ -80,6 +80,8 @@ export class CompanyConfigComponent implements OnInit {
       formData.append('companyId', this.companyForm.get('companyId')?.value);
       formData.append('document', this.companyForm.get('document')?.value);
       formData.append('telephones', this.companyForm.get('telephones')?.value);
+      formData.append('urlWeb', this.companyForm.get('urlWeb')?.value);
+
 
       if (this.selectedFile) {
         formData.append('urlImageLogo', this.selectedFile);
