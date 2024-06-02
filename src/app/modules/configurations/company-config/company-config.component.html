@@ -27,9 +27,13 @@
             <label cLabel for="address">Dirección</label>
             <input cFormControl placeholder="Carr 90 N 10" formControlName="address" />
           </c-col>
-          <c-col xs="6">
-            <label cLabel for="urlImageLogo">Imagen del Logo</label>
-            <input cFormControl placeholder="Cargar Imagen" formControlName="urlImageLogo" type="file" (change)="onFileSelected($event)" />
+          <c-col xs="12" *ngIf="urlImageLogo">
+            <label cLabel for="urlImageLogo">Imagen del Logo Actual</label>
+            <img [src]="urlImageLogo" alt="Logo" class="img-thumbnail mb-3" />
+          </c-col>
+          <c-col xs="12">
+            <label cLabel for="urlImageLogo">Actualizar Imagen del Logo</label>
+            <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" />
           </c-col>
           <p class="text-medium-emphasis small" *ngIf="companyForm.get('companyName')?.invalid && (companyForm.get('companyName')?.touched || companyForm.get('companyName')?.dirty)" class="text-danger">
             Nombre de la empresa es obligatorio

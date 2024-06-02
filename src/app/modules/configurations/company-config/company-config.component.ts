@@ -15,6 +15,7 @@ export class CompanyConfigComponent implements OnInit {
   messageModal: string = "Información de la empresa actualizada.";
   visible = false;
   selectedFile: File | null = null;
+  urlImageLogo: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -30,7 +31,7 @@ export class CompanyConfigComponent implements OnInit {
       companyId: [''],
       document: [''],
       telephones: [''],
-      urlImageLogo: [''],
+      urlImageLogo: ['']
     });
   }
 
@@ -38,7 +39,17 @@ export class CompanyConfigComponent implements OnInit {
     this.spinner.show();
     this.companyService.getCompanyByUser().subscribe(
       (company: any) => {
-        this.companyForm.patchValue(company);
+        if (company) {
+          this.companyForm.patchValue({
+            email: company.email || '',
+            companyName: company.companyName || '',
+            address: company.address || '',
+            companyId: company.companyId || '',
+            document: company.document || '',
+            telephones: company.telephones || ''
+          });
+          this.urlImageLogo = company.urlImageLogo || '';
+        }
         this.spinner.hide();
       },
       (error: any) => {
@@ -50,7 +61,12 @@ export class CompanyConfigComponent implements OnInit {
 
   onFileSelected(event: any) {
     if (event.target.files.length > 0) {
-      this.selectedFile = event.target.files[0];
+      const file = event.target.files[0];
+      if (file.type.startsWith('image/')) {
+        this.selectedFile = file;
+      } else {
+        alert('Solo se pueden cargar imágenes.');
+      }
     }
   }
 
@@ -64,9 +80,11 @@ export class CompanyConfigComponent implements OnInit {
       formData.append('companyId', this.companyForm.get('companyId')?.value);
       formData.append('document', this.companyForm.get('document')?.value);
       formData.append('telephones', this.companyForm.get('telephones')?.value);
-      
+
       if (this.selectedFile) {
         formData.append('urlImageLogo', this.selectedFile);
+      } else if (this.urlImageLogo) {
+        formData.append('urlImageLogo', this.urlImageLogo);
       }
 
       this.companyService.updateCompanyByUser(formData).subscribe(
