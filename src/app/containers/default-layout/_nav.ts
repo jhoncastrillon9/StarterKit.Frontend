@@ -63,6 +63,17 @@ export const navItems: INavData[] = [
       }
     ]
   },
+  {
+    name: 'Configuraciones',
+    url: '/configurations',
+    iconComponent: { name: 'cil-puzzle' },
+    children: [
+      {
+        name: 'Empresa',
+        url: '/configurations/companyConfig'
+      }
+    ]
+  },
   // {
   //   title: true,
   //   name: 'Theme'
