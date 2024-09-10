@@ -31,7 +31,8 @@ export class CompanyConfigComponent implements OnInit {
       companyId: [''],
       document: [''],
       telephones: [''],
-      urlImageLogo: ['']
+      urlImageLogo: [''],
+      urlWeb: ['']
     });
   }
 
@@ -46,7 +47,8 @@ export class CompanyConfigComponent implements OnInit {
             address: company.address || '',
             companyId: company.companyId || '',
             document: company.document || '',
-            telephones: company.telephones || ''
+            telephones: company.telephones || '',
+            urlWeb: company.urlWeb || ''
           });
           this.urlImageLogo = company.urlImageLogo || '';
         }

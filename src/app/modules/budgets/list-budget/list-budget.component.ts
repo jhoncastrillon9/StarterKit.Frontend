@@ -3,7 +3,7 @@ import { BudgetModel } from '../models/budget.Model';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney} from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 
@@ -27,7 +27,7 @@ export class ListBudgetComponent implements OnInit {
     public iconSet: IconSetService,  
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney};
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney,cilCopy };
   }
 
 
@@ -122,6 +122,24 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     this.ClosedOpenModal();
     this.budgetToSetInvoice = null;
      
+   }
+
+   
+   copybudget(budgetModel: BudgetModel){      
+     this.spinner.show()     
+       this.budgetService.copyBudget(budgetModel).subscribe(
+         (response: any) => {
+           console.log("COPY Budget OK");      
+           this.loadBudgets();           
+           this.spinner.hide();
+         },
+         (error) => {
+           // Maneja errores y muestra un mensaje al usuario
+           console.error('Error al COPY Budget', error);
+           // Puedes mostrar una alerta aquí
+           this.spinner.hide();
+         }
+       ); 
    }
 
 

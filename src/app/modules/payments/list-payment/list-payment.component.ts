@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { cilCloudDownload, cilMoney, cilNoteAdd, cilPencil, cilXCircle, cilZoom } from '@coreui/icons';
+import { cilCloudDownload, cilMoney, cilNoteAdd, cilPencil, cilXCircle, cilZoom, cilCopy } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { PaymentService } from '../services/payment.service';
@@ -28,7 +28,7 @@ export class ListPaymentComponent {
     public iconSet: IconSetService,  
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney};
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilCopy};
   }
 
   

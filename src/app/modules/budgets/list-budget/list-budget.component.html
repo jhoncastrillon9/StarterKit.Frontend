@@ -40,8 +40,9 @@
                     <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span> -->
                     <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
                     <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
-                    <span style="cursor: pointer; color: green;" color="danger" variant="outline" (click)="convertToBillWithComfirm(budget)" title="Convertir en Factura"><svg cIcon class="me-2" name="cilMoney" ></svg></span>                                          
-                    <!-- <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                   -->
+                    <!-- <span style="cursor: pointer; color: green;" color="danger" variant="outline" (click)="convertToBillWithComfirm(budget)" title="Convertir en Factura"><svg cIcon class="me-2" name="cilMoney" ></svg></span>    -->
+                    <span style="cursor: pointer; color: green;" color="green" variant="outline" (click)="copybudget(budget)" title="Duplicar Cotización"><svg cIcon class="me-2" name="cilCopy" ></svg></span>  
+                    <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                  
                     
                   </td>
                 </tr>
