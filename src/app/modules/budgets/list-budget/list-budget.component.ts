@@ -13,6 +13,7 @@ import { TableModule } from 'primeng/table';
   styleUrls: ['./list-budget.component.scss']
 }) 
 export class ListBudgetComponent implements OnInit {
+  loading: boolean = true;
   budgets: BudgetModel[] = [];
   messageModal: string = "¿Estas Seguro de eliminar este registro?";
   isModalForDelete: boolean = false;
@@ -52,12 +53,15 @@ export class ListBudgetComponent implements OnInit {
 
   loadBudgets(){
     this.spinner.show()    
+    this.loading = true;
     this.budgetService.get().subscribe(customers => {
       this.budgets = customers;
       this.spinner.hide();
+      this.loading = false;
     },(error)=>{
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
+      this.loading = false;
     });
   }
 
@@ -72,18 +76,21 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
   deleteBudget(){      
 
    if(this.budgetToDelete!=null){
+    this.loading = true;
     this.spinner.show()    
       this.budgetService.delete(this.budgetToDelete?.budgetId).subscribe(
         (response: any) => {
           console.log("Budget delete is OK");      
           this.loadBudgets();           
           this.spinner.hide();
+          this.loading = false;
         },
         (error) => {
           // Maneja errores y muestra un mensaje al usuario
           console.error('Error al eliminar Budget', error);
           // Puedes mostrar una alerta aquí
           this.spinner.hide();
+          this.loading = false;
         }
       );      
    }
@@ -102,6 +109,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
   convertToBill(){   
 
     if(this.budgetToSetInvoice!=null){
+      this.loading = true;
      this.spinner.show()
      this.budgetToSetInvoice.isInvoice = true;
      
@@ -110,12 +118,14 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
            console.log("SET Invoice OK");      
            this.loadBudgets();           
            this.spinner.hide();
+           this.loading = false;
          },
          (error) => {
            // Maneja errores y muestra un mensaje al usuario
            console.error('Error al SET Invoice', error);
            // Puedes mostrar una alerta aquí
            this.spinner.hide();
+           this.loading = false;
          }
        );      
     }
@@ -126,18 +136,21 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
 
    
    copybudget(budgetModel: BudgetModel){      
-     this.spinner.show()     
+     this.spinner.show()   
+     this.loading = true;  
        this.budgetService.copyBudget(budgetModel).subscribe(
          (response: any) => {
            console.log("COPY Budget OK");      
            this.loadBudgets();           
            this.spinner.hide();
+           this.loading = false;
          },
          (error) => {
            // Maneja errores y muestra un mensaje al usuario
            console.error('Error al COPY Budget', error);
            // Puedes mostrar una alerta aquí
            this.spinner.hide();
+           this.loading = false;
          }
        ); 
    }
@@ -145,18 +158,20 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
 
   downloadBudget(customerModel: BudgetModel) {
     this.spinner.show();
-
+    this.loading = true;
     this.budgetService.download(customerModel.budgetId).subscribe(
       (data: Blob) => {
         console.log("Descarga de Budget exitosa");
         this.descargarPDF(data,customerModel);
         this.spinner.hide();
+        this.loading = false;
       },
       (error) => {
         // Maneja errores y muestra un mensaje al usuario
         console.error('Error al descargar Budget', error);
         // Puedes mostrar una alerta aquí
         this.spinner.hide(); // Asegúrate de ocultar el spinner en caso de error
+        this.loading = false;
       }
     );
   }
