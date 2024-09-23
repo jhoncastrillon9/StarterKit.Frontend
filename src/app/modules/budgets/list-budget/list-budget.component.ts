@@ -5,7 +5,9 @@ import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule} from 'primeng/table';
+
+
 
 @Component({
   selector: 'app-list-budget',
@@ -13,12 +15,13 @@ import { TableModule } from 'primeng/table';
   styleUrls: ['./list-budget.component.scss']
 }) 
 export class ListBudgetComponent implements OnInit {
+  searchValue: string | undefined;
   loading: boolean = true;
   budgets: BudgetModel[] = [];
   messageModal: string = "¿Estas Seguro de eliminar este registro?";
   isModalForDelete: boolean = false;
   isModalForSetInvoice: boolean = false;
-
+  
   public visible = false;
   public budgetToDelete: BudgetModel | null = null;
   public budgetToSetInvoice: BudgetModel | null = null;
@@ -36,6 +39,10 @@ export class ListBudgetComponent implements OnInit {
     this.loadBudgets();
   }
 
+  clear(table: Table) {
+    table.clear();
+    this.searchValue = ''
+}
   
   ClosedOpenModal() {
  

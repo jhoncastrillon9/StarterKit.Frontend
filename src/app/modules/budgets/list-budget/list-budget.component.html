@@ -12,29 +12,44 @@
         </div>
       </div>
     </c-card-header>
-    <c-card-body>
+    <c-card-body >
 
       <p-table #dt 
+        class="p-datatable-sm" 
+        styleClass="p-datatable-gridlines"        
         [value]="budgets" 
         [paginator]="true" 
-        [rows]="10" 
+        [rows]="20"         
         [filterDelay]="500" 
         [loading]="loading" 
         sortField="date" 
         [sortOrder]="-1"
-        [rowsPerPageOptions]="[10, 25, 50]">
+        [rowsPerPageOptions]="[20, 40, 60, 100]"
+        [globalFilterFields]="['budgetId', 'date', 'budgetName', 'customerDto.customerName', 'total']"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        >
 
 
+
+      <ng-template pTemplate="caption" >
+        <div style="display: flex; justify-content: space-between; align-items: center;" >
+            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" />
+            </span>
+        </div>
+    </ng-template>
 
         <ng-template pTemplate="header">
           <tr>
-              <th style="min-width:15rem">
+              <th style="min-width:5rem">
                   <div pSortableColumn="budgetId" class="flex align-items-center">
                       Cod
                       <p-sortIcon field="budgetId" />
                   </div>
               </th>
-              <th  pSortableColumn="date" style="min-width:15rem">
+              <th  pSortableColumn="date" style="min-width:10rem">
                   <div class="flex align-items-center">
                       Fecha
                       <p-sortIcon field="date" />
@@ -72,13 +87,13 @@
 
 
         <ng-template pTemplate="body" let-budget>
-          <tr>
+          <tr >
             <td>{{ budget.budgetId }}</td>
             <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
-            <td>{{ budget.budgetName }} 
+            <td>{{ budget.budgetName  | capitalize | truncate:50}} 
               <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
             </td>
-            <td>{{ budget.customerDto.customerName }}</td>
+            <td>{{ budget.customerDto.customerName | capitalize | truncate:30}}</td>
             <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
             <td>
               <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blueviolet;">
