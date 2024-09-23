@@ -15,6 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 
 
+
 @NgModule({
   declarations: [
     ListBudgetComponent,
@@ -39,6 +40,7 @@ import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
     ListGroupModule,
     IconModule,
     ModalModule,
+    TableModule
     
     ]
 })

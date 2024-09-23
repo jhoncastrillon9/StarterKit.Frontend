@@ -1,86 +1,53 @@
 <c-col xs="12">
-    <c-card class="">
-      <c-card-header ngPreserveWhitespaces>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <strong>Listado</strong> <small>Cotizaciones</small>
-            </div>
-            <div style="text-align: right;">
-              <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nueva Cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Agregar Cotización</span>
-            </div>
-
+  <c-card class="">
+    <c-card-header ngPreserveWhitespaces>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>Listado</strong> <small>Cotizaciones</small>
         </div>
+        <div style="text-align: right;">
+          <span style="cursor: pointer; color: blueviolet;" [routerLink]="['/budgets/add']" title="Nueva Cotización">
+            <i class="pi pi-plus"></i> Agregar Cotización
+          </span>
+        </div>
+      </div>
     </c-card-header>
-      <c-card-body>        
-        <c-col xs="12">
-          <div class="table-responsive">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th scope="col">Cod</th>
-                  <th scope="col">Fecha</th>
-                  <th scope="col">Obra / Nombre</th>
-                  <th scope="col">Cliente</th>
-                  <th scope="col">Total</th>
-                  <th scope="col">Opciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let budget of budgets; let i = index">
-                  <th scope="row">{{ budget.budgetId }}</th>
-                  <td>{{ budget.date  | date: 'dd MMM yyyy' }}</td>
-                  <td>{{ budget.budgetName }}  
-                    <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
-                  </td>
-                  <td>{{ budget.customerDto.customerName }}</td>
-                  <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
-          
-                  <td>     
-                    <span style="cursor: pointer; color: blueviolet;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilZoom" ></svg></span>
-                    <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/read', budget.budgetId]" title="Ver Cotización"><svg cIcon class="me-2" name="cilZoom" ></svg></span> -->
-                    <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización"><svg cIcon class="me-2" name="cilPencil" ></svg></span>
-                    <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización"><svg cIcon class="me-2" name="cilXCircle" ></svg></span>                                          
-                    <!-- <span style="cursor: pointer; color: green;" color="danger" variant="outline" (click)="convertToBillWithComfirm(budget)" title="Convertir en Factura"><svg cIcon class="me-2" name="cilMoney" ></svg></span>    -->
-                    <span style="cursor: pointer; color: green;" color="green" variant="outline" (click)="copybudget(budget)" title="Duplicar Cotización"><svg cIcon class="me-2" name="cilCopy" ></svg></span>  
-                    <span style="cursor: pointer; color: blue;" color="danger" variant="outline" (click)="downloadBudget(budget)" title="Descargar PDF"><svg cIcon class="me-2" name="cilCloudDownload" ></svg></span>                  
-                    
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-        </c-col>
-<div class="container">
-   
-  </div>
+    <c-card-body>
+
+      <p-table #dt [value]="budgets" [paginator]="true" [rows]="10" [filterDelay]="500">
+
+        <ng-template pTemplate="body" let-budget>
+          <tr>
+            <td>{{ budget.budgetId }}</td>
+            <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
+            <td>{{ budget.budgetName }} 
+              <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
+            </td>
+            <td>{{ budget.customerDto.customerName }}</td>
+            <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+            <td>
+              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blueviolet;">
+                <svg cIcon class="me-2" name="cilZoom"></svg>
+              </span>
+              <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet;">
+                <svg cIcon class="me-2" name="cilPencil"></svg>
+              </span>
+              <span (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización" style="cursor: pointer; color: red;">
+                <svg cIcon class="me-2" name="cilXCircle"></svg>
+              </span>
+              <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: green;">
+                <svg cIcon class="me-2" name="cilCopy"></svg>
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
 
 
-</c-card-body>
-</c-card>
+
+
+
+    </c-card-body>
+  </c-card>
 </c-col>
-
-
-<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
-  <c-modal-header>
-    <h5 cModalTitle>Upppsss</h5>
-    <button (click)="ClosedOpenModal()" cButtonClose></button>
-  </c-modal-header>
-  <c-modal-body>{{messageModal}}</c-modal-body>
-  <c-modal-footer>
-    <button  *ngIf="isModalForSetInvoice" (click)="convertToBill()" cButton color="primary">
-      Si, convertir en Factura
-    </button> 
-    <button  *ngIf="isModalForDelete" (click)="deleteBudget()" cButton color="primary">
-      Si, Eliminar
-    </button> 
-    <button (click)="ClosedOpenModal()" cButton color="secondary">
-      Cerrar
-    </button>     
-  </c-modal-footer>
-</c-modal>
-
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
-
-
-

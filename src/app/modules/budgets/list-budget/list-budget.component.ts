@@ -5,7 +5,7 @@ import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
-
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-list-budget',
