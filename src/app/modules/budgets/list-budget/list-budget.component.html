@@ -14,7 +14,54 @@
     </c-card-header>
     <c-card-body>
 
-      <p-table #dt [value]="budgets" [paginator]="true" [rows]="10" [filterDelay]="500" [loading]="loading">
+      <p-table #dt [value]="budgets" [paginator]="true" [rows]="10" [filterDelay]="500" [loading]="loading" [rowsPerPageOptions]="[10, 25, 50]">
+
+
+
+        <ng-template pTemplate="header">
+          <tr>
+              <th style="min-width:15rem">
+                  <div class="flex align-items-center">
+                      Cod
+             
+                  </div>
+              </th>
+              <th style="min-width:15rem">
+                  <div class="flex align-items-center">
+                      Fecha
+                   
+                  </div>
+              </th>   
+              <th style="min-width:15rem">
+                <div class="flex align-items-center">
+                    Obra
+                   
+                </div>
+            </th>  
+              <th style="min-width:10rem">
+                  <div class="flex align-items-center">
+                      Cliente
+                      <p-columnFilter type="date" field="budget.date" display="menu" />
+                  </div>
+              </th>
+              <th style="min-width:10rem">
+                  <div class="flex align-items-center">
+                      Total
+                    
+                  </div>
+              </th>
+              <th style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Opciones
+                  
+                </div>
+            </th>
+
+          </tr>
+      </ng-template>
+
+
+
 
         <ng-template pTemplate="body" let-budget>
           <tr>
