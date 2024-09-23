@@ -32,8 +32,8 @@
 
 
       <ng-template pTemplate="caption" >
-        <div style="display: flex; justify-content: space-between; align-items: center;" >
-            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" />
+        <div style="display: flex; justify-content: space-between; align-items: center;" >          
+            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" class="ContainerButtonClear"/>
             <span class="p-input-icon-left ml-auto">
                 <i class="pi pi-search"></i>
             <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" />
@@ -42,7 +42,7 @@
     </ng-template>
 
         <ng-template pTemplate="header">
-          <tr>
+          <tr class="TableCustomCotiza">
               <th style="min-width:5rem">
                   <div pSortableColumn="budgetId" class="flex align-items-center">
                       Cod
@@ -86,8 +86,8 @@
 
 
 
-        <ng-template pTemplate="body" let-budget>
-          <tr >
+        <ng-template pTemplate="body" let-budget >
+          <tr  class="TableCustomCotiza">
             <td>{{ budget.budgetId }}</td>
             <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
             <td>{{ budget.budgetName  | capitalize | truncate:50}} 

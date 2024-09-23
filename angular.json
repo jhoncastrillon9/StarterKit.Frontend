@@ -36,12 +36,12 @@
               "src/favicon.ico",
               "src/assets"
             ],
-            "styles": [
-              "src/scss/styles.scss",
-              "node_modules/ngx-spinner/animations/square-jelly-box.css",
-              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+            "styles": [              
               "node_modules/primeng/resources/primeng.min.css",              
-              "node_modules/primeicons/primeicons.css"
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/ngx-spinner/animations/square-jelly-box.css",
+              "src/scss/styles.scss"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
@@ -108,7 +108,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/scss/styles.scss"              
+                    
             ],
             "scripts": []
           }
