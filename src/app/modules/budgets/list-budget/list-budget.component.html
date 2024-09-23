@@ -21,33 +21,33 @@
         <ng-template pTemplate="header">
           <tr>
               <th style="min-width:15rem">
-                  <div class="flex align-items-center">
+                  <div pSortableColumn="budgetId" class="flex align-items-center">
                       Cod
-             
+                      <p-sortIcon field="budgetId" />
                   </div>
               </th>
-              <th style="min-width:15rem">
+              <th  pSortableColumn="date" style="min-width:15rem">
                   <div class="flex align-items-center">
                       Fecha
-                   
+                      <p-sortIcon field="date" />
                   </div>
               </th>   
-              <th style="min-width:15rem">
+              <th pSortableColumn="budgetName" style="min-width:15rem">
                 <div class="flex align-items-center">
                     Obra
-                   
+                    <p-sortIcon field="budgetName" />
                 </div>
             </th>  
-              <th style="min-width:10rem">
+              <th  pSortableColumn="customerDto.customerName" style="min-width:10rem">
                   <div class="flex align-items-center">
-                      Cliente
-                      <p-columnFilter type="date" field="budget.date" display="menu" />
+                      Cliente   
+                      <p-sortIcon field="customerDto.customerName" />                  
                   </div>
               </th>
-              <th style="min-width:10rem">
+              <th  pSortableColumn="total" style="min-width:10rem">
                   <div class="flex align-items-center">
                       Total
-                    
+                      <p-sortIcon field="total" />
                   </div>
               </th>
               <th style="min-width:10rem">
