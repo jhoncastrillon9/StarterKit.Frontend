@@ -14,7 +14,15 @@
     </c-card-header>
     <c-card-body>
 
-      <p-table #dt [value]="budgets" [paginator]="true" [rows]="10" [filterDelay]="500" [loading]="loading" [rowsPerPageOptions]="[10, 25, 50]">
+      <p-table #dt 
+        [value]="budgets" 
+        [paginator]="true" 
+        [rows]="10" 
+        [filterDelay]="500" 
+        [loading]="loading" 
+        sortField="date" 
+        [sortOrder]="-1"
+        [rowsPerPageOptions]="[10, 25, 50]">
 
 
 
