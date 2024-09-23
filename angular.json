@@ -38,7 +38,10 @@
             ],
             "styles": [
               "src/scss/styles.scss",
-              "node_modules/ngx-spinner/animations/square-jelly-box.css" 
+              "node_modules/ngx-spinner/animations/square-jelly-box.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",              
+              "node_modules/primeicons/primeicons.css"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
@@ -76,10 +79,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "cotiza-constructor:build:production"
+              "buildTarget": "cotiza-constructor:build:production"
             },
             "development": {
-              "browserTarget": "cotiza-constructor:build:development"
+              "buildTarget": "cotiza-constructor:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -87,7 +90,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cotiza-constructor:build"
+            "buildTarget": "cotiza-constructor:build"
           }
         },
         "test": {

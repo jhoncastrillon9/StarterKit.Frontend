@@ -1,8 +1,77 @@
-unificar swervices de proxy 
-garantizar que al generar un 500 o no encontrar server salga error o nio ? 
+//*******Tareas PARA SALIR********//
 
-en AuthService tomar la url de forma segura o constnates seguras etc o por ambiente 
-Crear cerrar session
-Definir Admin y user en las paginas para que no salga lo mismo 
-organizar ubicacion del login y auth genreal 
-centrarlizar todas la UR en un solo sitio para evitar estar haceindo llamdaos dobles etc 
+4.2 Implementar Recordar contraseña BACKEND **por validar 
+8.2 Envio de cotizacion por email BACKEND **por validar 
+15 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
+3.2 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
+25.10 Agregar manejo de la unida de trabajo BACKEND OK  POR VALIDAR 
+
+
+3.3 iocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT
+3.1 Implementar el color de la empresa FRONT
+2.2 Imnplenatr logo subirlo y dejarlo default FRONT
+4.1 Implementar Recordar contraseña FRONT
+7 ene l front ocultar lo que no sirva dle menu del foto del suuario  FRONT
+1.2 Implementar APU BAsico FRONT 
+6 Ocultar dasboard el inico ene l FRONT
+8.1 Envio de cotizacion por email FRONT
+10 ocultar dinero del menu FRONT
+12 Camabir links del front que apunten a alturas pornueva FRONT
+13 implementar boton de wasap  FRONT
+14 Dejar emnsdaje de bienvenida en el basboard diciendo que actualicen los datos FRONT
+11 Quitar lo que esta quemado para eso implemetar guardado de imagenes FRONT
+24 Implementar Datatables FRONT
+
+
+
+16 Compar dominio 
+17 subir a la nube
+18 Marketing 
+
+19
+
+
+revisar CustomerRepository puede que retorne todos los clientes
+
+//*******Otros modulos********//
+Modulo de cunetas por cobrar 
+Modulo de APU
+Implementar datatables 
+
+
+//*******Detallitos********//
+Crear endpoint que retorne dasboiard de la empresa
+Dejar logs de Crear eleimnar todo NMormal 
+
+Logs Modulko de logs con lo que la gente ahce muy basico 
+Poner seguridad a password 
+Validar Inputs DTOS
+Crear aplication services contractas para guardar dtos interfaces etc...
+
+
+//*******OK********//
+25.9 Capar metodos como el byid que son vulnerables BACKEND OK S POSIBLE QUE NOS FALT ALGUNO S CAPAN EN EL RPORISOTY INDIVIDIUAL 
+
+
+11 Quitar lo que esta quemado para eso implemetar guardado de imagenes BACKEND OK
+
+2.1 Imnplenatr logo subirlo y dejarlo default BACKEND OK
+11.1 Agregar clase que suba y retorne URLS BACKEND En  OK 
+1.1 Implementar APU BAsico Backend OK 
+5 Email de bienvenidad OK
+9 Envio de emails
+1 Al crear usuario crear cliente Geenral
+Implementar Proyecto de DB
+Garantizar que siempre sea el userId coectado el que sea qcree el registro  17 10 2023
+Validar que solo se retorne información del usuario en session  17 10 2023
+budgetConfig debe ser por id de company 17 10 2023
+Crearmetodo para aceder al userId cocnectado 16 10 2023
+Configurar Logger Swerilog 16 10 2023
+mover los 10 minutos del token 15 10 2023
+Corregir nombre de metodos por ASIyn 15 10 2023
+Crear servicios 15 10 2023
+Crearbase service 
+Crear DTOS 
+Configurar Login y regisger 
+Configurar Mapper 11.10.2023
+
