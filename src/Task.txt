@@ -16,7 +16,6 @@
 4.1 Implementar Recordar contraseña FRONT
 7 ene l front ocultar lo que no sirva dle menu del foto del suuario  FRONT
 1.2 Implementar APU BAsico FRONT 
-6 Ocultar dasboard el inico ene l FRONT
 8.1 Envio de cotizacion por email FRONT
 
 13 implementar boton de wasap  FRONT
@@ -52,6 +51,8 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+6 Ocultar dasboard el inico ene l FRONT
+
 10 ocultar dinero del menu FRONT
 24 Implementar Datatables FRONT     ok
 25.9 Capar metodos como el byid que son vulnerables BACKEND OK S POSIBLE QUE NOS FALT ALGUNO S CAPAN EN EL RPORISOTY INDIVIDIUAL 
