@@ -19,9 +19,9 @@ jobs:
         with:
           submodules: true
           lfs: false
-
+          
       - name: Install dependencies
-        run: npm install --force  # Comando modificado para forzar la instalación
+        run: npm install --legacy-peer-deps   # Comando modificado para forzar la instalación
 
       - name: Build And Deploy
         id: builddeploy
