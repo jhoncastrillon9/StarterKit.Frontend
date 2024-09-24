@@ -1,11 +1,19 @@
 .TableCustomCotiza td {
-    padding: 0.5rem 1rem !important;
+    padding: 0.2rem 0.5rem !important;
 }
 
 .TableCustomCotiza th {
-    padding: 0.5rem 1rem !important;
+    padding: 0.4rem 0.5rem !important;
 }
 
-p-button *:first-child {
-    border-radius: 10px !important;
+.ButtonClear.p-button {
+    border-radius: 6px !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.8rem !important;
+}
+
+
+.ButtonSearchValue {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 2rem !important;
 }

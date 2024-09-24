@@ -6,13 +6,15 @@ import { Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Table, TableModule} from 'primeng/table';
+import { ViewEncapsulation } from '@angular/core';
 
 
 
 @Component({
   selector: 'app-list-budget',
   templateUrl: './list-budget.component.html',
-  styleUrls: ['./list-budget.component.scss']
+  styleUrls: ['./list-budget.component.scss'],
+  encapsulation: ViewEncapsulation.None
 }) 
 export class ListBudgetComponent implements OnInit {
   searchValue: string | undefined;

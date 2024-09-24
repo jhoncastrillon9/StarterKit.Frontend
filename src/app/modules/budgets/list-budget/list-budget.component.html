@@ -33,10 +33,10 @@
 
       <ng-template pTemplate="caption" >
         <div style="display: flex; justify-content: space-between; align-items: center;" >          
-            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" class="ContainerButtonClear"/>
+            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
             <span class="p-input-icon-left ml-auto">
                 <i class="pi pi-search"></i>
-            <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" />
+            <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
             </span>
         </div>
     </ng-template>
