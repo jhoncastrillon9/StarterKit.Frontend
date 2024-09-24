@@ -38,8 +38,17 @@
 
 
                         <c-col xs="12">
-                            <button cButton type="submit">{{ customerForm.get('customerId')?.value ? 'Actualizar' : 'Guardar' }}</button>
                         </c-col>
+
+                        <c-col xs="12" class="text-end">
+                            <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/customers/customers'">Regresar</a>
+                            
+                            <button cButton type="submit"  class="me-md-2" style="margin-right: 10px;">
+                                {{ customerForm.get('customerId')?.value ? 'Actualizar' : 'Guardar' }}
+                            </button>                
+                     
+                          </c-col>
+
                     </form>
         
             </c-card-body>

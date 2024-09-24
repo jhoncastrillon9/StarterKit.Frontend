@@ -20,11 +20,14 @@
         [value]="budgets" 
         [paginator]="true" 
         [rows]="20"         
-        [filterDelay]="500" 
+        [filterDelay]="3" 
         [loading]="loading" 
+        
+        [rowHover]="true"
         sortField="date" 
         [sortOrder]="-1"
         [rowsPerPageOptions]="[20, 40, 60, 100]"
+        currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
         [globalFilterFields]="['budgetId', 'date', 'budgetName', 'customerDto.customerName', 'total']"
         [tableStyle]="{ 'min-width': '50rem' }"
         >

@@ -164,10 +164,11 @@
           </p>
 
           <c-col xs="12" class="text-end">
-            <button cButton type="submit" size="lg" style="margin-right: 10px;">
+            <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/budgets/budgets'">Regresar</a>
+            <button cButton type="submit" class="me-md-2" style="margin-right: 10px;">
               {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
             </button>
-            <a cButton type="button" size="lg" variant="outline" [routerLink]="'/budgets/budgets'">Regresar</a>
+     
           </c-col>
         </form>
       </c-card-body>
