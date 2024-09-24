@@ -5,6 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgScrollbarModule } from 'ngx-scrollbar';
+import { cilAddressBook, cilSpeedometer, cilPuzzle } from '@coreui/icons';
 
 // Import routing module
 import { AppRoutingModule } from './app-routing.module';
@@ -45,7 +46,10 @@ const APP_CONTAINERS = [
 ];
 
 @NgModule({ declarations: [AppComponent, ...APP_CONTAINERS],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent], 
+    
+    
+    imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         AvatarModule,
@@ -70,11 +74,13 @@ const APP_CONTAINERS = [
         BadgeModule,
         ListGroupModule,
         CardModule,
-        NgScrollbarModule], providers: [
+        NgScrollbarModule], 
+        providers: [
         {
             provide: LocationStrategy,
             useClass: HashLocationStrategy
         },
+        
         IconSetService,
         Title,
         provideHttpClient(withInterceptorsFromDi())
