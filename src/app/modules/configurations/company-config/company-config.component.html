@@ -49,9 +49,17 @@
           <p class="text-medium-emphasis small" *ngIf="companyForm.get('email')?.invalid && (companyForm.get('email')?.touched || companyForm.get('email')?.dirty)" class="text-danger">
             Email no es válido
           </p>
-          <c-col xs="12">
-            <button cButton type="submit">Actualizar</button>
+
+          
+          <c-col xs="12" class="text-end">
+            <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/'">Salir</a>
+            <button cButton type="submit" class="me-md-2" style="margin-right: 10px;">
+              Actualizar
+            </button>
+     
           </c-col>
+
+ 
         </form>
       </c-card-body>
     </c-card>

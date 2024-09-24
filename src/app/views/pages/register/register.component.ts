@@ -51,7 +51,7 @@ export class RegisterComponent {
           localStorage.setItem('tokenData', JSON.stringify(tokenData));
           localStorage.setItem('token', token);
           this.spinner.hide();          
-          this.router.navigate(['/']);
+          this.router.navigate(['/configurations/companyConfig']);
         },
         (error) => {
           // Maneja errores y muestra un mensaje al usuario          

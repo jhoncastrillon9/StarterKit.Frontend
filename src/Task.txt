@@ -1,6 +1,5 @@
 //*******Tareas PARA SALIR********//
 
-12 Camabir links del front que apunten a alturas pornueva FRONT
 
 
 4.2 Implementar Recordar contraseña BACKEND **por validar 
@@ -12,7 +11,7 @@
 
 3.3 iocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT
 3.1 Implementar el color de la empresa FRONT
-2.2 Imnplenatr logo subirlo y dejarlo default FRONT
+
 4.1 Implementar Recordar contraseña FRONT
 7 ene l front ocultar lo que no sirva dle menu del foto del suuario  FRONT
 1.2 Implementar APU BAsico FRONT 
@@ -26,6 +25,7 @@
 
 
 16 Compar dominio 
+12 Camabir links del front que apunten a alturas pornueva FRONT
 17 subir a la nube
 18 Marketing 
 
@@ -51,7 +51,8 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
-6 Ocultar dasboard el inico ene l FRONT
+2.2 Imnplenatr logo subirlo y dejarlo default FRONT OK
+6 Ocultar dasboard el inico ene l FRONT OK
 
 10 ocultar dinero del menu FRONT
 24 Implementar Datatables FRONT     ok
