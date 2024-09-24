@@ -3,7 +3,7 @@ import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@a
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 // Import routing module
@@ -44,46 +44,40 @@ const APP_CONTAINERS = [
   DefaultLayoutComponent
 ];
 
-@NgModule({
-  declarations: [AppComponent, ...APP_CONTAINERS],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    AvatarModule,
-    BreadcrumbModule,
-    FooterModule,
-    DropdownModule,
-    GridModule,
-    HeaderModule,
-    SidebarModule,
-    IconModule,
-    NavModule,
-    ButtonModule,
-    FormModule,
-    UtilitiesModule,
-    ButtonGroupModule,
-    ReactiveFormsModule,
-    SidebarModule,
-    SharedModule,
-    TabsModule,
-    ListGroupModule,
-    ProgressModule,
-    BadgeModule,
-    ListGroupModule,
-    CardModule,
-    NgScrollbarModule,
-    HttpClientModule,    
-  ],
-  providers: [
-    {
-      provide: LocationStrategy,
-      useClass: HashLocationStrategy
-    },
-    IconSetService,
-    Title
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [AppComponent, ...APP_CONTAINERS],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        AvatarModule,
+        BreadcrumbModule,
+        FooterModule,
+        DropdownModule,
+        GridModule,
+        HeaderModule,
+        SidebarModule,
+        IconModule,
+        NavModule,
+        ButtonModule,
+        FormModule,
+        UtilitiesModule,
+        ButtonGroupModule,
+        ReactiveFormsModule,
+        SidebarModule,
+        SharedModule,
+        TabsModule,
+        ListGroupModule,
+        ProgressModule,
+        BadgeModule,
+        ListGroupModule,
+        CardModule,
+        NgScrollbarModule], providers: [
+        {
+            provide: LocationStrategy,
+            useClass: HashLocationStrategy
+        },
+        IconSetService,
+        Title,
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
 }
