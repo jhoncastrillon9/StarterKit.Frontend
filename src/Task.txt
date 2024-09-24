@@ -1,5 +1,8 @@
 //*******Tareas PARA SALIR********//
 
+12 Camabir links del front que apunten a alturas pornueva FRONT
+
+
 4.2 Implementar Recordar contraseña BACKEND **por validar 
 8.2 Envio de cotizacion por email BACKEND **por validar 
 15 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
@@ -15,12 +18,11 @@
 1.2 Implementar APU BAsico FRONT 
 6 Ocultar dasboard el inico ene l FRONT
 8.1 Envio de cotizacion por email FRONT
-10 ocultar dinero del menu FRONT
-12 Camabir links del front que apunten a alturas pornueva FRONT
+
 13 implementar boton de wasap  FRONT
 14 Dejar emnsdaje de bienvenida en el basboard diciendo que actualicen los datos FRONT
 11 Quitar lo que esta quemado para eso implemetar guardado de imagenes FRONT
-24 Implementar Datatables FRONT
+
 
 
 
@@ -50,6 +52,8 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+10 ocultar dinero del menu FRONT
+24 Implementar Datatables FRONT     ok
 25.9 Capar metodos como el byid que son vulnerables BACKEND OK S POSIBLE QUE NOS FALT ALGUNO S CAPAN EN EL RPORISOTY INDIVIDIUAL 
 
 

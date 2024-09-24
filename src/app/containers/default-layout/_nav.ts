@@ -44,25 +44,25 @@ export const navItems: INavData[] = [
       }
     ]
   },
-  {
-    name: 'Dinero',
-    url: '/payments',
-    iconComponent: { name: 'cil-star' },
-    children: [
-      {
-        name: 'Caja y Bancos',
-        url: '/Banks'
-      },
-      {
-        name: 'Registrar Movimiento',
-        url: '/MovementBank'
-      },
-      {
-        name: 'Estado de Cuenta',
-        url: '/payments/payments'
-      }
-    ]
-  },
+  // {
+  //   name: 'Dinero',
+  //   url: '/payments',
+  //   iconComponent: { name: 'cil-star' },
+  //   children: [
+  //     {
+  //       name: 'Caja y Bancos',
+  //       url: '/Banks'
+  //     },
+  //     {
+  //       name: 'Registrar Movimiento',
+  //       url: '/MovementBank'
+  //     },
+  //     {
+  //       name: 'Estado de Cuenta',
+  //       url: '/payments/payments'
+  //     }
+  //   ]
+  // },
   {
     name: 'Configuraciones',
     url: '/configurations',
