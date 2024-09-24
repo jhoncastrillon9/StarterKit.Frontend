@@ -109,22 +109,15 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AutoFocusModule } from 'primeng/autofocus';
-
-
-import {TruncatePipe} from '../../pipes/truncate.pipe';
-import {CapitalizePipe } from '../../pipes/capitalize.pipe';
-
-
+import { SharedModule as CustomSharedModule } from '../../shared.module'; 
 
 @NgModule({
   declarations: [
     ListBudgetComponent,
     AddUpdateBudgetComponent,
-    ReadBudgetComponent,
-    TruncatePipe,
-    CapitalizePipe
-  ],
+    ReadBudgetComponent  ],
   imports: [
+    CustomSharedModule,
     CommonModule,
     BudgetsRoutingModule,
     NgxSpinnerModule,    
