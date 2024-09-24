@@ -32,6 +32,7 @@ export class CompanyConfigComponent implements OnInit {
       document: [''],
       telephones: [''],
       urlImageLogo: [''],
+      fileLogo: [''],
       urlWeb: ['']
     });
   }
@@ -76,24 +77,24 @@ export class CompanyConfigComponent implements OnInit {
     if (this.companyForm.valid) {
       this.spinner.show();
       const formData = new FormData();
-      formData.append('email', this.companyForm.get('email')?.value);
-      formData.append('companyName', this.companyForm.get('companyName')?.value);
-      formData.append('address', this.companyForm.get('address')?.value);
-      formData.append('companyId', this.companyForm.get('companyId')?.value);
-      formData.append('document', this.companyForm.get('document')?.value);
-      formData.append('telephones', this.companyForm.get('telephones')?.value);
-      formData.append('urlWeb', this.companyForm.get('urlWeb')?.value);
+      formData.append('Email', this.companyForm.get('email')?.value);
+      formData.append('CompanyName', this.companyForm.get('companyName')?.value);
+      formData.append('Address', this.companyForm.get('address')?.value);
+      formData.append('CompanyId', this.companyForm.get('companyId')?.value);
+      formData.append('Document', this.companyForm.get('document')?.value);
+      formData.append('Telephones', this.companyForm.get('telephones')?.value);
+      formData.append('UrlWeb', this.companyForm.get('urlWeb')?.value);
+      formData.append('UrlImageLogo', '22');
+
 
 
       if (this.selectedFile) {
-        formData.append('urlImageLogo', this.selectedFile);
-      } else if (this.urlImageLogo) {
-        formData.append('urlImageLogo', this.urlImageLogo);
-      }
+        formData.append('FileLogo', this.selectedFile);
+      } 
 
       this.companyService.updateCompanyByUser(formData).subscribe(
         (response: any) => {
-          this.router.navigate(['/configurations']);
+          this.ngOnInit();
           this.spinner.hide();
           this.messageModal = "Información de la empresa actualizada.";
           this.showModal();
