@@ -1,10 +1,15 @@
 
-HOLA
-<c-col xs="12">Hola</c-col>
-<!-- <c-col xs="12">
+
+<c-col xs="12">
+    <c-card class="mb-4">
+        Hola
+    </c-card>
+    
+    </c-col>
+ <c-col xs="12">
     <c-card class="mb-4">
 
-HOLA TES
+
       <p-table #dt 
       class="p-datatable-sm" 
       styleClass="p-datatable-gridlines"        
@@ -117,17 +122,24 @@ HOLA TES
 
       <ng-template pTemplate="body" let-apu >
         <tr  class="TableCustomCotiza">
-          <td>{{ apu.UnitPriceAnalysisId }}</td>
-          <td>{{ apu.ChapterCode }}</td>
-          <td>{{ apu.ChapterName }}</td>
-          <td>{{ apu.SubChapterCode }}</td>
-          <td>{{ apu.SubChapterName }}</td>
-          <td>{{ apu.ItemCode }}</td>
-          <td>{{ apu.ItemName }}</td>
-          <td>{{ apu.UnitMeasurement }}</td>
-          <td>$ {{ apu.LaborCost.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
-          <td>$ {{ apu.TotalPrice.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
-       
+          <td>{{ apu.unitPriceAnalysisId }}</td>
+          <td>{{ apu.chapterCode }}</td>
+          <td>{{ apu.chapterName }}</td>
+          <td>{{ apu.subChapterCode }}</td>
+          <td>{{ apu.subChapterName }}</td>
+          <td>{{ apu.itemCode }}</td>
+          <td>{{ apu.itemName }}</td>
+          <td>{{ apu.unitMeasurement }}</td>
+          <!-- <td>$ {{ apu.LaborCost.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
+          <td>$ {{ apu.TotalPrice.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td> -->
+          <td>
+            
+          </td>
+
+          <td>
+            
+          </td>
+
           <td>
             
           </td>
@@ -137,6 +149,6 @@ HOLA TES
 
 </c-card>
 </c-col>
-   -->
+   
 
 
