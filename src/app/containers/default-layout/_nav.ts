@@ -26,6 +26,19 @@ export const navItems: INavData[] = [
       
     ]
   },
+  {
+    name: 'APU',
+    url: '/apus',
+    iconComponent: { name: 'cil-notes' },
+    children: [
+      {
+        name: 'Ver APU',
+        url: '/apus/apus',
+        icon: 'nav-icon-bullet'
+      },
+      
+    ]
+  },
 
   {
     name: 'Clientes',

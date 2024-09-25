@@ -33,6 +33,12 @@ const routes: Routes = [
           canActivate: [AuthGuard]
       },
       {
+        path: 'apus',
+        loadChildren: () =>
+          import('./modules/apus/apus-routing.module').then((m) => m.ApusRoutingModule),          
+          canActivate: [AuthGuard]
+      },
+      {
         path: 'configurations',
         loadChildren: () =>
           import('./modules/configurations/configurations.module').then((m) => m.ConfigurationsModule),          
