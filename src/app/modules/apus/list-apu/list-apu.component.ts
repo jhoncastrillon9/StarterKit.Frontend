@@ -26,11 +26,13 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 
 
+
+
 @Component({
   selector: 'app-list-apu',
   standalone: true,
   imports: [
-
+    SharedModule,
      CommonModule,    
      RouterModule,
      NgxSpinnerModule,    
@@ -42,7 +44,6 @@ import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
      ReactiveFormsModule,
      FormModule,
      PrimeButtonModule,
-    // ButtonGroupModule,
      DropdownModule,
     SharedModule,
     ListGroupModule,
@@ -79,7 +80,6 @@ export class ListApuComponent {
   }
 
   loadApus(){
-    console.log('Hola testttt');
     this.apuService.get().subscribe(apus => {
       this.apus = apus;
       this.loading =false;

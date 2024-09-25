@@ -15,16 +15,15 @@
       styleClass="p-datatable-gridlines"        
       [value]="apus" 
       [paginator]="true" 
-      [rows]="20"         
+      [rows]="50"         
       [filterDelay]="3" 
-      [loading]="loading" 
-      
+      [loading]="loading"       
       [rowHover]="true"
-      sortField="date" 
+      sortField="itemName" 
       [sortOrder]="-1"
-      [rowsPerPageOptions]="[20, 40, 60, 100]"
+      [rowsPerPageOptions]="[25, 50, 100, 500]"
       currentPageReportTemplate="{first} al {last} de {totalRecords}"
-      [globalFilterFields]="['ItemName']"
+      [globalFilterFields]="['itemName','subChapterName']"
       [tableStyle]="{ 'min-width': '50rem' }"
       >
 
@@ -45,68 +44,45 @@
       <ng-template pTemplate="header">
         <tr class="TableCustomCotiza">
             <th style="min-width:5rem">
-                <div pSortableColumn="UnitPriceAnalysisId" class="flex align-items-center">
+                <div pSortableColumn="unitPriceAnalysisId" class="flex align-items-center">
                     Cod
-                    <p-sortIcon field="UnitPriceAnalysisId" />
+                    <p-sortIcon field="unitPriceAnalysisId" />
                 </div>
             </th>
-            <th  pSortableColumn="ChapterCode" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Cod Capitulo
-                    <p-sortIcon field="ChapterCode" />
-                </div>
-            </th>   
-            <th pSortableColumn="ChapterName" style="min-width:15rem">
+
+            <th pSortableColumn="subChapterName" >
               <div class="flex align-items-center">
                   Capitulo
-                  <p-sortIcon field="ChapterName" />
+                  <p-sortIcon field="subChapterName" />
               </div>
           </th>  
-            <th  pSortableColumn="SubChapterCode" style="min-width:10rem">
+
+
+            <th  pSortableColumn="itemName">
                 <div class="flex align-items-center">
-                    Cod SubCapitulo   
-                    <p-sortIcon field="SubChapterCode" />                  
-                </div>
-            </th>
-            <th  pSortableColumn="SubChapterName" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    SubCapitulo
-                    <p-sortIcon field="SubChapterName" />
+                    Item
+                    <p-sortIcon field="itemName" />
                 </div>
             </th>
 
-            <th  pSortableColumn="ItemCode" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Cod 
-                    <p-sortIcon field="ItemCode" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="ItemName" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Nombre
-                    <p-sortIcon field="ItemName" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="UnitMeasurement" style="min-width:10rem">
+            <th  pSortableColumn="unitMeasurement" style="min-width:10rem">
                 <div class="flex align-items-center">
                     Und
-                    <p-sortIcon field="UnitMeasurement" />
+                    <p-sortIcon field="unitMeasurement" />
                 </div>
             </th>
 
-            <th  pSortableColumn="LaborCost" style="min-width:10rem">
+            <th  pSortableColumn="laborCost" style="min-width:10rem">
                 <div class="flex align-items-center">
                     Mano de Obra
-                    <p-sortIcon field="LaborCost" />
+                    <p-sortIcon field="laborCost" />
                 </div>
             </th>
 
-            <th  pSortableColumn="TotalPrice" style="min-width:10rem">
+            <th  pSortableColumn="totalPrice" style="min-width:10rem">
                 <div class="flex align-items-center">
                     Valor Total
-                    <p-sortIcon field="TotalPrice" />
+                    <p-sortIcon field="totalPrice" />
                 </div>
             </th>
 
@@ -122,27 +98,14 @@
 
       <ng-template pTemplate="body" let-apu >
         <tr  class="TableCustomCotiza">
-          <td>{{ apu.unitPriceAnalysisId }}</td>
-          <td>{{ apu.chapterCode }}</td>
-          <td>{{ apu.chapterName }}</td>
-          <td>{{ apu.subChapterCode }}</td>
-          <td>{{ apu.subChapterName }}</td>
-          <td>{{ apu.itemCode }}</td>
-          <td>{{ apu.itemName }}</td>
+          <td>{{ apu.unitPriceAnalysisId }}</td>   
+          <td>{{ apu.subChapterName  | capitalize | truncate:50}} </td>
+          <td>{{ apu.itemName  | capitalize }} </td>
           <td>{{ apu.unitMeasurement }}</td>
-          <!-- <td>$ {{ apu.LaborCost.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td>
-          <td>$ {{ apu.TotalPrice.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td> -->
-          <td>
-            
-          </td>
+          <!-- <td>$ {{ apu.laborCost.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td> -->
+          <td>$ {{ apu.laborCost.toLocaleString() }} </td>
+          <td>$ {{ apu.totalPrice.toLocaleString('es-ES') }} </td>
 
-          <td>
-            
-          </td>
-
-          <td>
-            
-          </td>
         </tr>
       </ng-template>
     </p-table>
