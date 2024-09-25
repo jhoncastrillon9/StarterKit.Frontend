@@ -21,6 +21,7 @@ export class BudgetDetailModel {
     budgetDetailId: number=0;
     budgetId: number=0;
     description: string ="";
+    unitMeasurement: string ="";
     quantity: number=0;
     price: number=0;
 }

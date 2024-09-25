@@ -1,20 +1,19 @@
 //*******Tareas PARA SALIR********//
-4.2 Implementar Recordar contraseña BACKEND **por validar 
-8.2 Envio de cotizacion por email BACKEND **por validar 
-15 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
-3.2 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
-25.10 Agregar manejo de la unida de trabajo BACKEND OK  POR VALIDAR 
-
-
-3.1 Implementar el color de la empresa FRONT
-4.1 Implementar Recordar contraseña FRONT
-1.2 Implementar APU BAsico FRONT 
-8.1 Envio de cotizacion por email FRONT
-13 implementar boton de wasap  FRONT
+1 Implementar Recordar contraseña BACKEND **por validar 
+2 Envio de cotizacion por email BACKEND **por validar 
+3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
+4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
+6 Implementar el color de la empresa FRONT
+7 Implementar Recordar contraseña FRONT
+8 Envio de cotizacion por email FRONT
+9 implementar boton de wasap  FRONT
+10 Permiter al apu agregar items al 
 
 
 
 ####Bugs####
+Resposive
+Organizar cotizacion que se esta dañando en algunas aprtes 
 Cuando me registro la cotizacion que se crea esta mala sin dertalle
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
 
@@ -45,6 +44,8 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+5 Agregar manejo de la unida de trabajo BACKEND OK  POR VALIDAR 
+1.2 Implementar APU BAsico FRONT 
 11 Quitar lo que esta quemado para eso implemetar guardado de imagenes FRONT
 7 ene l front ocultar lo que no sirva dle menu del foto del suuario  FRONT
 14 Dejar emnsdaje de bienvenida en el basboard diciendo que actualicen los datos FRONT

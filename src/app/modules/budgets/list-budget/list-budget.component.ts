@@ -47,7 +47,7 @@ export class ListBudgetComponent implements OnInit {
 }
   
   ClosedOpenModal() {
- 
+ console.log('Hola');
     this.visible = !this.visible;
 
     if(!this.visible){

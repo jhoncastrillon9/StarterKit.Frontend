@@ -11,7 +11,7 @@
         [loading]="loading" 
         
         [rowHover]="true"
-        sortField="date" 
+        sortField="date,budgetId" 
         [sortOrder]="-1"
         [rowsPerPageOptions]="[20, 40, 60, 100]"
         currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
@@ -37,25 +37,25 @@
 
         <ng-template pTemplate="header">
           <tr class="TableCustomCotiza">
-              <th style="min-width:5rem">
+              <th >
                   <div pSortableColumn="budgetId" class="flex align-items-center">
                       Cod
                       <p-sortIcon field="budgetId" />
                   </div>
               </th>
-              <th  pSortableColumn="date" style="min-width:10rem">
+              <th  pSortableColumn="date">
                   <div class="flex align-items-center">
                       Fecha
                       <p-sortIcon field="date" />
                   </div>
               </th>   
-              <th pSortableColumn="budgetName" style="min-width:15rem">
+              <th pSortableColumn="budgetName" >
                 <div class="flex align-items-center">
                     Obra
                     <p-sortIcon field="budgetName" />
                 </div>
             </th>  
-              <th  pSortableColumn="customerDto.customerName" style="min-width:10rem">
+              <th  pSortableColumn="customerDto.customerName" >
                   <div class="flex align-items-center">
                       Cliente   
                       <p-sortIcon field="customerDto.customerName" />                  
@@ -109,3 +109,29 @@
 
   </c-card>
 </c-col>
+
+
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Upppsss</h5>
+    <button (click)="ClosedOpenModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>{{messageModal}}</c-modal-body>
+  <c-modal-footer>
+    <button  *ngIf="isModalForSetInvoice" (click)="convertToBill()" cButton color="primary">
+      Si, convertir en Factura
+    </button> 
+    <button  *ngIf="isModalForDelete" (click)="deleteBudget()" cButton color="primary">
+      Si, Eliminar
+    </button> 
+    <button (click)="ClosedOpenModal()" cButton color="secondary">
+      Cerrar
+    </button>     
+  </c-modal-footer>
+</c-modal>
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
+
+
+
+

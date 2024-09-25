@@ -76,6 +76,7 @@ export class AddUpdateBudgetComponent implements OnInit {
                 budgetDetailId: detail.budgetDetailId,
                 budgetId: detail.budgetId,
                 description: detail.description,
+                unitMeasurement: detail.unitMeasurement,
                 quantity: detail.quantity,
                 price: detail.price,
                 subtotal: detail.quantity * detail.price,
@@ -114,6 +115,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     const budgetDetailGroup = this.fb.group({
       budgetDetailId: [0],
       budgetId: [0],
+      unitMeasurement: ['Und'],
       description: ['', [Validators.required]],
       quantity: [null, [Validators.required, Validators.pattern(/^\d+$/)]], // Validación para números enteros
       price: [null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Validación para números con o sin decimales
