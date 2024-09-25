@@ -24,42 +24,42 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
-import { ApusRoutingModule } from '../apus-routing.module';
+
 
 @Component({
   selector: 'app-list-apu',
   standalone: true,
-  imports: [SharedModule,
-    ApusRoutingModule,
-    CommonModule,    
-    RouterModule,
-    NgxSpinnerModule,    
-    CardModule,
-    FormModule,
-    GridModule,
-    FormsModule,
-    ButtonModule,
-    ReactiveFormsModule,
-    FormModule,
-    PrimeButtonModule,
-    ButtonGroupModule,
-    DropdownModule,
-    SharedModule,
-    ListGroupModule,
-    IconModule,
-    ModalModule,
-    TableModule,
-    InputTextModule,
-    InputIconModule,
-    IconFieldModule,
-    StyleClassModule,
-    InputMaskModule,
-    InputSwitchModule,
-    InputNumberModule,
-    InputTextareaModule,
-    InputGroupAddonModule,
-    InputGroupModule,
-    InputOtpModule,
+  imports: [
+
+    // CommonModule,    
+    // RouterModule,
+    // NgxSpinnerModule,    
+     CardModule,
+     FormModule,
+     GridModule,
+     FormsModule,
+     ButtonModule,
+     ReactiveFormsModule,
+     FormModule,
+    // PrimeButtonModule,
+    // ButtonGroupModule,
+     DropdownModule,
+    // SharedModule,
+    // ListGroupModule,
+    // IconModule,
+    // ModalModule,
+    // TableModule,
+    // InputTextModule,
+    // InputIconModule,
+    // IconFieldModule,
+    // StyleClassModule,
+    // InputMaskModule,
+    // InputSwitchModule,
+    // InputNumberModule,
+    // InputTextareaModule,
+    // InputGroupAddonModule,
+    // InputGroupModule,
+    // InputOtpModule,
     ],
   templateUrl: './list-apu.component.html',
   styleUrl: './list-apu.component.scss',
@@ -74,12 +74,12 @@ export class ListApuComponent {
   }
 
 
-
   ngOnInit() {
-    this.loadCustomers();
+    this.loadApus();
   }
 
-  loadCustomers(){
+  loadApus(){
+    console.log('Hola testttt');
     this.apuService.get().subscribe(apus => {
       this.apus = apus;
       this.loading =false;
