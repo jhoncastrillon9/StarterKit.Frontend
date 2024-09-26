@@ -9,12 +9,14 @@ import { Page500Component } from './page500/page500.component';
 import { ButtonModule, CardModule, FormModule, GridModule, ModalBodyComponent, ModalComponent, ModalContentComponent, ModalDialogComponent, ModalFooterComponent, ModalHeaderComponent, ModalModule } from '@coreui/angular';
 import { IconModule } from '@coreui/icons-angular';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { RecoveryPasswordComponent } from './recovery-password/recovery-password.component';
 
 
 @NgModule({
   declarations: [
     LoginComponent,
     RegisterComponent,
+    RecoveryPasswordComponent,
     Page404Component,
     Page500Component
   ],

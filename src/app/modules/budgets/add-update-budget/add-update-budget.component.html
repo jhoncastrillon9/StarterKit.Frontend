@@ -187,7 +187,10 @@
           </p>
 
           <c-col xs="12" class="text-end">
+            
             <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/budgets/budgets'">Regresar</a>
+            
+            
             <button cButton type="submit" class="me-md-2" style="margin-right: 10px;">
               {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
             </button>

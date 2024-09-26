@@ -17,4 +17,8 @@ export class AuthService {
   register(data: any) {
     return this.http.post(`${this.apiUrl}/api/Auth/register`, data);
   }
+
+  recoveryPassword(data: any) {
+    return this.http.post(`${this.apiUrl}/api/Auth/recoveryPassword`, data);
+  }
 }

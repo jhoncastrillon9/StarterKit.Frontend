@@ -4,17 +4,18 @@
 3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
 4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 6 Implementar el color de la empresa FRONT
-7 Implementar Recordar contraseña FRONT
 8 Envio de cotizacion por email FRONT
 9 implementar boton de wasap  FRONT
 10 Permiter al apu agregar items al 
+
+
+7 Implementar Recordar contraseña FRONT OK
 
 
 
 ####Bugs####
 Resposive
 Organizar cotizacion que se esta dañando en algunas aprtes 
-Cuando me registro la cotizacion que se crea esta mala sin dertalle
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
 
 16 Compar dominio 
@@ -44,6 +45,7 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+Cuando me registro la cotizacion que se crea esta mala sin dertalle
 5 Agregar manejo de la unida de trabajo BACKEND OK  POR VALIDAR 
 1.2 Implementar APU BAsico FRONT 
 11 Quitar lo que esta quemado para eso implemetar guardado de imagenes FRONT
