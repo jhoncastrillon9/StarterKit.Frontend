@@ -43,8 +43,6 @@ export class RecoveryPasswordComponent {
       this.authService.recoveryPassword(formData).subscribe(
         (response: any) => {
           console.log("onRecoverPassword is OK");
-          const { token  } = response;          
-          const tokenData = JSON.parse(atob(token.split('.')[1]));  
           this.spinner.hide();          
           this.router.navigate(['/login']);
         },
