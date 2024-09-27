@@ -7,6 +7,7 @@ import { LoginComponent } from './views/pages/login/login.component';
 import { RegisterComponent } from './views/pages/register/register.component';
 import {AuthGuard} from './auth.guard'
 import { RecoveryPasswordComponent } from './views/pages/recovery-password/recovery-password.component';
+import { LoginCodeComponent } from './views/pages/login-code/login-code.component';
 
 const routes: Routes = [
   {
@@ -144,6 +145,13 @@ const routes: Routes = [
   {
     path: 'recoveryPassword',
     component: RecoveryPasswordComponent,
+    data: {
+      title: 'Recover Password Page'
+    }
+  },
+  {
+    path: 'loginCode/:id',
+    component: LoginCodeComponent,
     data: {
       title: 'Recover Password Page'
     }

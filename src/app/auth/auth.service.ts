@@ -14,6 +14,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/api/Auth/login`, data);
   }
 
+  validateCodePasword(data: any) {
+    return this.http.post(`${this.apiUrl}/api/Auth/validateCodePassword`, data);
+  }
+
   register(data: any) {
     return this.http.post(`${this.apiUrl}/api/Auth/register`, data);
   }

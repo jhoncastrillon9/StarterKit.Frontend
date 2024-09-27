@@ -10,6 +10,7 @@ import { ButtonModule, CardModule, FormModule, GridModule, ModalBodyComponent, M
 import { IconModule } from '@coreui/icons-angular';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { RecoveryPasswordComponent } from './recovery-password/recovery-password.component';
+import { LoginCodeComponent } from './login-code/login-code.component';
 
 
 @NgModule({
@@ -17,6 +18,7 @@ import { RecoveryPasswordComponent } from './recovery-password/recovery-password
     LoginComponent,
     RegisterComponent,
     RecoveryPasswordComponent,
+    LoginCodeComponent,
     Page404Component,
     Page500Component
   ],

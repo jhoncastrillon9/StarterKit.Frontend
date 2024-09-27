@@ -5,7 +5,7 @@ import { Page500Component } from './page500/page500.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { RecoveryPasswordComponent } from './recovery-password/recovery-password.component';
-
+import { LoginCodeComponent } from './login-code/login-code.component';
 
 const routes: Routes = [
   {
@@ -41,7 +41,14 @@ const routes: Routes = [
     component: RecoveryPasswordComponent,
     data: {
       title: 'recovery Password Page'
-    }    
+    },       
+  },
+  {
+    path: 'loginCode/:id',
+    component: LoginCodeComponent,
+    data: {
+      title: 'loginCode Page'
+    },       
   }
 ];
 
