@@ -6,6 +6,8 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { RecoveryPasswordComponent } from './recovery-password/recovery-password.component';
 import { LoginCodeComponent } from './login-code/login-code.component';
+import { ChangePasswordComponent } from './change-password/change-password.component';
+
 
 const routes: Routes = [
   {
@@ -48,6 +50,13 @@ const routes: Routes = [
     component: LoginCodeComponent,
     data: {
       title: 'loginCode Page'
+    },       
+  },
+  {
+    path: 'changepassword/:id',
+    component: ChangePasswordComponent,
+    data: {
+      title: 'ChangePassword Page'
     },       
   }
 ];

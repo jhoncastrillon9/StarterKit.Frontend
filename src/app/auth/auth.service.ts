@@ -22,6 +22,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/api/Auth/register`, data);
   }
 
+  changePassword(data: any) {
+    return this.http.post(`${this.apiUrl}/api/Auth/changePassword`, data);
+  }
+
   recoveryPassword(data: any) {
     return this.http.post(`${this.apiUrl}/api/Auth/recoveryPassword`, data);
   }

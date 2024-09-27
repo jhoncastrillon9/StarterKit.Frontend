@@ -10,6 +10,12 @@
 
 
 7 Implementar Recordar contraseña FRONT OK
+7.1 implentar cambiod e ocntraseña 
+7.2 cambiar url del template 
+7.3 localhost:4200/#/loginCode/GX4TNtHLRT1oujyZApgcCoZzoGvKwLMtgR1K0ZAIaMEE7mcmePrSAsQWKb149Ch7
+7.4 investigar sobre #
+7.5 llevar al usuario cal cambio de contraseña 
+
 
 
 
@@ -17,6 +23,10 @@
 Resposive
 Organizar cotizacion que se esta dañando en algunas aprtes 
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
+
+###Podemso salir sin eso 
+Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
+
 
 16 Compar dominio 
 12 Camabir links del front que apunten a alturas pornueva FRONT

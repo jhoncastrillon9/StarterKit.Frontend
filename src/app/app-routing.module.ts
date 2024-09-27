@@ -8,6 +8,7 @@ import { RegisterComponent } from './views/pages/register/register.component';
 import {AuthGuard} from './auth.guard'
 import { RecoveryPasswordComponent } from './views/pages/recovery-password/recovery-password.component';
 import { LoginCodeComponent } from './views/pages/login-code/login-code.component';
+import { ChangePasswordComponent } from './views/pages/change-password/change-password.component';
 
 const routes: Routes = [
   {
@@ -154,6 +155,13 @@ const routes: Routes = [
     component: LoginCodeComponent,
     data: {
       title: 'Recover Password Page'
+    }
+  },
+  {
+    path: 'changepassword/:id',
+    component: ChangePasswordComponent,
+    data: {
+      title: 'changepassword Page'
     }
   },
   {path: '**', redirectTo: 'dashboard'}

@@ -43,21 +43,13 @@ export class LoginCodeComponent {
       this.authService.validateCodePasword(this.validateCodeModel).subscribe(
         (response: any) => {
           console.log("login is OK");
-          const { token  } = response;          
-          const tokenData = JSON.parse(atob(token.split('.')[1]));           
-          // Almacena el token y los datos del usuario en el almacenamiento local          
-          localStorage.setItem('tokenData', JSON.stringify(tokenData));
-          localStorage.setItem('token', token);
           this.spinner.hide();
-          // Realiza redirección o acciones adicionales si es necesario
-          this.router.navigate(['/']);
+          this.router.navigate(['/changepassword']);
         },
         (error) => {
-          // Maneja errores y muestra un mensaje al usuario          
           this.spinner.hide();
           this.toggleLiveDemo();
-          this.messageModal = 'Error al iniciar sesión: ' + error.error.error
-          // Puedes mostrar una alerta aquí
+          this.messageModal = 'Error al iniciar sesión: Codigo expirado'          
           this.router.navigate(['/']);
         }
       );    
