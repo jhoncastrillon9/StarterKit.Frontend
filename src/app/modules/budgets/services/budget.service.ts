@@ -95,6 +95,18 @@ import { environment } from 'src/environment';
         })
       );
     }
+
+    sendEmailBudget(data: any) {
+      const headers = this.getHeaders();
+      return this.http.post(`${this.apiUrl}/api/Budget/sendBudgetPdf`, data, { headers, observe: 'response' }).pipe(
+        map((response: HttpResponse<any>) => {
+          if (response.status === 401) {
+            this.router.navigate(['/login']);
+          }
+          return response.body;
+        })
+      );
+    }
   
     delete(data: any) {
       const headers = this.getHeaders();

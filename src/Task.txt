@@ -1,22 +1,14 @@
 //*******Tareas PARA SALIR********//
+8 Envio de cotizacion por email FRONT
+
+
 1 Implementar Recordar contraseña BACKEND **por validar 
 2 Envio de cotizacion por email BACKEND **por validar 
 3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
 4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 6 Implementar el color de la empresa FRONT
-8 Envio de cotizacion por email FRONT
 9 implementar boton de wasap  FRONT
 10 Permiter al apu agregar items al 
-
-
-7 Implementar Recordar contraseña FRONT OK
-7.1 implentar cambiod e ocntraseña 
-7.2 cambiar url del template 
-7.3 localhost:4200/#/loginCode/GX4TNtHLRT1oujyZApgcCoZzoGvKwLMtgR1K0ZAIaMEE7mcmePrSAsQWKb149Ch7
-7.4 investigar sobre #
-7.5 llevar al usuario cal cambio de contraseña 
-
-
 
 
 ####Bugs####
@@ -55,6 +47,13 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+
+7.5 llevar al usuario cal cambio de contraseña 
+7.4 investigar sobre #
+7 Implementar Recordar contraseña FRONT OK
+7.1 implentar cambiod e ocntraseña 
+7.2 cambiar url del template 
+7.3 localhost:4200/#/loginCode/GX4TNtHLRT1oujyZApgcCoZzoGvKwLMtgR1K0ZAIaMEE7mcmePrSAsQWKb149Ch7
 Cuando me registro la cotizacion que se crea esta mala sin dertalle
 5 Agregar manejo de la unida de trabajo BACKEND OK  POR VALIDAR 
 1.2 Implementar APU BAsico FRONT 

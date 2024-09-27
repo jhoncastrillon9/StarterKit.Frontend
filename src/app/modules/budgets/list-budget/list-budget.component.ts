@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { BudgetModel } from '../models/budget.Model';
+import { SendBudgetPdfRequest } from '../models/sendBudgetRequest';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy} from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer} from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Table, TableModule} from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
@@ -33,7 +34,7 @@ export class ListBudgetComponent implements OnInit {
     public iconSet: IconSetService,  
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney,cilCopy };
+    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney,cilCopy,cilContact, cibMailchimp, cibMailRu, cibMinutemailer};
   }
 
 
@@ -142,6 +143,29 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     this.budgetToSetInvoice = null;
      
    }
+
+
+   sendEmailbudget(budgetModel: BudgetModel){      
+    this.spinner.show()   
+    this.loading = true;  
+
+      var request = new SendBudgetPdfRequest(budgetModel);
+      this.budgetService.sendEmailBudget(request).subscribe(
+        (response: any) => {
+          console.log("send Budget OK");      
+          this.loadBudgets();           
+          this.spinner.hide();
+          this.loading = false;
+        },
+        (error) => {
+          // Maneja errores y muestra un mensaje al usuario
+          console.error('Error al COPY Budget', error);
+          // Puedes mostrar una alerta aquí
+          this.spinner.hide();
+          this.loading = false;
+        }
+      ); 
+  }
 
    
    copybudget(budgetModel: BudgetModel){      
