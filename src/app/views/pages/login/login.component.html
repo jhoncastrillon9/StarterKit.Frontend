@@ -59,7 +59,7 @@
                 </c-row>
                 <c-row>
                   <c-col xs="12">
-                    <span>Versión: 27.09.2024-1</span>
+                    <span>Versión: 28.09.2024-1</span>
                   </c-col>
                   
                   
@@ -74,7 +74,9 @@
               <div>
                 <h2>Registrarse</h2>
                 <p>
-                  Únete a la mejor plataforma para constructores y crea cotizaciones GRATIS!
+                  ¡Únete a la mejor plataforma para constructores!
+                  <br>
+                  Crea cotizaciones de manera GRATIS y simplifica tu trabajo. ¡Regístrate ahora y descubre todo lo que podemos ofrecerte!
                 </p>
                 <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register">
                   ¡Regístrate Ahora!
@@ -88,16 +90,18 @@
   </c-container>
 </div>
 
+
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
   <c-modal-header>
-    <h5 cModalTitle>Upppss!!!</h5>
+    <h5 cModalTitle>{{titleModal}}</h5>
     <button (click)="toggleLiveDemo()" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>{{messageModal}}</c-modal-body>
   <c-modal-footer>
-    <button (click)="toggleLiveDemo()" cButton color="primary">
+
+    <button (click)="toggleLiveDemo()" cButton color="primary"  variant="outline">
       Cerrar
-    </button>    
+    </button>     
   </c-modal-footer>
 </c-modal>
 

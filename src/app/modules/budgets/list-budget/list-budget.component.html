@@ -1,6 +1,10 @@
+<c-col xs="12">  
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Cotizaciones</span>    
+    <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm">Nueva Cotización</a>    
+  </div>
+</c-col>
 <c-col xs="12">
-    <c-card >
-
       <p-table #dt 
         class="p-datatable-sm" 
         styleClass="p-datatable-gridlines"        
@@ -25,7 +29,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center;" >          
             <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
 
-            <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nuevoa cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Nueva Cotización</span>
+            <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nuevoa cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Nueva Cotización</span> -->
 
 
             <span class="p-input-icon-left ml-auto">
@@ -111,9 +115,7 @@
             </td>
           </tr>
         </ng-template>
-      </p-table> 
-
-  </c-card>
+      </p-table>  
 </c-col>
 
 

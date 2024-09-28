@@ -1,0 +1,38 @@
+.table-responsive {
+    overflow-x: auto;
+  }
+
+  .table-responsive table {
+    width: 100%;
+    min-width: 600px;
+  }
+
+  /* Estilos para dispositivos móviles */
+  @media (max-width: 767px) {
+    .table-responsive table {
+      min-width: 800px; /* Ajusta este valor según tus necesidades */
+    }
+
+    .table-responsive table th,
+    .table-responsive table td {
+      white-space: nowrap;
+    }
+  }
+
+  /* Estilos para pantallas más grandes */
+  @media (min-width: 768px) {
+    .table-responsive table th.descripcion {
+      width: 40%;
+    }
+    .table-responsive table th.cantidad,
+    .table-responsive table th.und,
+    .table-responsive table th.precio,
+    .table-responsive table th.subtotal,
+    .table-responsive table th.acciones {
+      width: 15%;
+    }
+  }
+
+  .colo-frayforTable{
+    color:  #424446 ;
+  }

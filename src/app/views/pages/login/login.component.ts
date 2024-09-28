@@ -13,7 +13,9 @@ import { NgxSpinnerService } from 'ngx-spinner';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  messageModal: string = "";
+  messageModal: string = "Parece que el usuario o la contraseña que has ingresado son incorrectos. A veces, hasta los teclados se confunden.";
+  titleModal: string = "¡Ups! Algo salió mal ⚠️";
+
   public visible = false;
   
   constructor(private fb: FormBuilder, 
@@ -58,8 +60,7 @@ export class LoginComponent {
           // Maneja errores y muestra un mensaje al usuario          
           this.spinner.hide();
           this.toggleLiveDemo();
-          this.messageModal = 'Error al iniciar sesión: ' + error.error.error
-          // Puedes mostrar una alerta aquí
+          console.log(error.error);   
         }
       );
     } else {

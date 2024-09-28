@@ -1,120 +1,61 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tabla Responsiva</title>
-  <style>
-    .table-responsive {
-      overflow-x: auto;
-    }
+<c-col xs="12">  
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Nueva Cotización</span>    
+    <div >
+      {{ currentDate | date: 'dd MMM yyyy' }}
+    </div>
+  </div>
+</c-col>
 
-    .table-responsive table {
-      width: 100%;
-      min-width: 600px;
-    }
-
-    /* Estilos para dispositivos móviles */
-    @media (max-width: 767px) {
-      .table-responsive table {
-        min-width: 800px; /* Ajusta este valor según tus necesidades */
-      }
-
-      .table-responsive table th,
-      .table-responsive table td {
-        white-space: nowrap;
-      }
-    }
-
-    /* Estilos para pantallas más grandes */
-    @media (min-width: 768px) {
-      .table-responsive table th.descripcion {
-        width: 40%;
-      }
-      .table-responsive table th.cantidad,
-      .table-responsive table th.und,
-      .table-responsive table th.precio,
-      .table-responsive table th.subtotal,
-      .table-responsive table th.acciones {
-        width: 15%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <c-col xs="12">
-    <c-card class="mb-4">
-      <c-card-header ngPreserveWhitespaces>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>Nueva</strong> <small>Cotización</small>
-          </div>
-          <div style="text-align: right;">
-            {{ currentDate | date: 'dd MMM yyyy' }}
-          </div>
-        </div>
-      </c-card-header>
-      <c-card-body>
+<c-col xs="12">
+ 
         <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
           <input cFormControl formControlName="budgetId" style="display: none;" />
-          <c-col md="6">
-            <label cLabel for="budgetName">Nombre de la Obra*</label>
-            <input cFormControl formControlName="budgetName" />
+          <c-col md="5">
+            <label cLabel for="budgetName">Nombre de la Obra o cotización:*</label>
+            <input cFormControl formControlName="budgetName" class="form-control-sm"/>
           </c-col>
-          <c-col md="6">
-            <label cLabel for="customerId">Cliente*</label>
-            <select aria-label="Default select example" cFormControl cSelect formControlName="customerId">
-              <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
-            </select>
-          </c-col>
-          <c-col md="3">
-            <label cLabel for="wayToPay">Forma de pago</label>
-            <input cFormControl formControlName="wayToPay" />
-          </c-col>
-          <c-col md="2">
-            <label cLabel for="validityOffer">Validez de la oferta</label>
-            <input cFormControl formControlName="validityOffer" />
-          </c-col>
-          <c-col md="2">
-            <label cLabel for="deliveryTime">Plazo de entrega</label>
-            <input cFormControl formControlName="deliveryTime" />
-          </c-col>
-          <c-col md="4">
-            <label cLabel for="note">Nota</label>
-            <input cFormControl formControlName="note" />
-          </c-col>
-          <c-col md="1">
-            <label cLabel for="note">Sumar AIU</label>
-            <input cFormCheckInput type="checkbox" cFormControl formControlName="sumAIU" (change)="updateAmount()" (blur)="updateAmount()" (input)="updateAmount()" />
-          </c-col>
-
           <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
             Nombre de la obra es obligatorio
           </p>
 
+          <c-col md="5">
+            <label cLabel for="customerId">Cliente:*</label>
+            <select aria-label="Default select example" cFormControl cSelect formControlName="customerId" class="form-select-sm form-control-sm">
+              <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
+            </select>
+          </c-col>
+          <c-col md="2">
+            <label cLabel for="note">Sumar AIU</label>
+            <input cFormCheckInput type="checkbox" cFormControl formControlName="sumAIU" (change)="updateAmount()" (blur)="updateAmount()" (input)="updateAmount()"/>
+          </c-col>
+
+
+          
+
           <div class="table-responsive">
-            <table class="table table-bordered">
+            <table class="table">
               <thead>
                 <tr>
-                  <th class="descripcion">Descripción</th>
-                  <th class="und">Und</th>
-                  <th class="cantidad">Cantidad</th>
-                  <th class="precio">Precio</th>
-                  <th class="subtotal">Subtotal</th>
-                  <th class="acciones">Acciones</th>
+                  <th class="descripcion colo-frayforTable">Descripción</th>
+                  <th class="und colo-frayforTable">Und</th>
+                  <th class="cantidad colo-frayforTable">Cantidad</th>
+                  <th class="precio colo-frayforTable">Precio</th>
+                  <th class="subtotal colo-frayforTable">Subtotal</th>
+                  <th class="acciones colo-frayforTable">Acciones</th>
                 </tr>
               </thead>
               <tbody formArrayName="budgetDetailsDto">
                 <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
-                  <td>
-                    <textarea cFormControl formControlName="description" placeholder="Descripción" style="min-height: 50px; resize: vertical; max-height: 200px; width: 100%;" rows="3"></textarea>
+                  <td >
+                    <textarea cFormControl formControlName="description" placeholder="Descripción" style="min-height: 50px; resize: vertical; max-height: 200px; width: 100%;" rows="2"></textarea>
                     <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)" class="text-danger">
                       La descripción es obligatoria.
                     </p>
                   </td>
-                  <td>
+                  <td class="align-middle">
 
-                    <select class="form-select form-select-sm" aria-label="Und" cFormControl formControlName="unitMeasurement">
+                    <select class="form-select form-select-sm" aria-label="Und" cFormControl formControlName="unitMeasurement" >
                       <option value="Und" selected>Und</option>
                       <option value="M2">M2</option>
                       <option value="M3">M3</option>
@@ -133,14 +74,14 @@
 
                     </select>    
                   </td>
-                  <td>
-                    <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" />
+                  <td class="align-middle">
+                    <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
                     <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
                       La Cantidad es obligatoria.
                     </p>
                   </td>
-                  <td>
-                    <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" />
+                  <td class="align-middle">
+                    <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" class="form-control-sm"/>
                     <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
                       El precio es obligatorio.
                     </p>
@@ -151,13 +92,11 @@
                       La cantidad debe ser un número válido.
                     </p>
                   </td>
-                  <td>
-                    <input cFormControl formControlName="subtotal" placeholder="0" readonly name="subtotal" />
+                  <td class="align-middle">
+                    <input cFormControl formControlName="subtotal" placeholder="0" readonly name="subtotal" class="form-control-sm" />
                   </td>
-                  <td>
-                    <button cButton color="danger" variant="outline" (click)="removeBudgetDetail(i)">
-                      <svg cIcon class="me-2" name="cilXCircle"></svg> Eliminar
-                    </button>
+                  <td class="align-middle">
+                    <a style="color:  #dc3545 ; cursor: pointer;" (click)="removeBudgetDetail(i)">                      <svg cIcon class="me-2" name="cilXCircle"></svg>                     </a>
                   </td>
                 </tr>
               </tbody>
@@ -165,18 +104,49 @@
           </div>
 
           <c-col xs="12" class="text-center">
-            <button cButton color="info" variant="outline" type="button" (click)="addBudgetDetail()">Agregar Fila</button>
+            <button cButton color="info" variant="outline" type="button" class="btn-sm" (click)="addBudgetDetail()">Agregar Fila</button>
           </c-col>
 
           <c-col md="3">
             <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
           </c-col>
 
-          <c-col md="9" class="text-end">
-            <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
-            <h5><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
-            <h5><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
-            <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
+          <c-col md="12">
+            <div class="row">
+              <c-col md="9">
+                <div class="row">
+                  <c-col md="8">
+                    <label cLabel for="wayToPay">Forma de pago:</label>
+                    <input cFormControl formControlName="wayToPay" class="form-control-sm"/>
+                  </c-col>
+                  <c-col md="2">
+                    <label cLabel for="deliveryTime">Plazo de entrega:</label>
+                    <input cFormControl formControlName="deliveryTime" class="form-control-sm" />
+                  </c-col>
+                  <c-col md="2">
+                    <label cLabel for="validityOffer">Validez de oferta:</label>
+                    <input cFormControl formControlName="validityOffer" class="form-control-sm"/>
+                  </c-col>
+                </div>
+                <div class="row">
+                  <c-col md="8">
+                    <label cLabel for="note">Nota:</label>                    
+                    <textarea cFormControl formControlName="note" placeholder="Escribe una nota para el cliente o detalles importantes"rows="2"></textarea>
+
+                  </c-col>
+                </div>
+               
+
+              </c-col>
+              
+              <c-col md="3" class="text-end">
+                <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
+                <h5><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
+                <h5><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
+                <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
+              </c-col>
+            </div>
+
           </c-col>
 
           <p class="text-medium-emphasis small" *ngIf="budgetForm.get('email')?.invalid && (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)" class="text-danger">
@@ -188,21 +158,19 @@
 
           <c-col xs="12" class="text-end">
             
-            <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/budgets/budgets'">Regresar</a>
+            <a cButton type="button" class="me-md-2 btn-sm" variant="outline" [routerLink]="'/budgets/budgets'" >Regresar</a>
             
             
-            <button cButton type="submit" class="me-md-2" style="margin-right: 10px;">
+            <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
               {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
             </button>
      
           </c-col>
         </form>
-      </c-card-body>
-    </c-card>
+
   </c-col>
 
   <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
     <p style="color: white"> Cargando... </p>
   </ngx-spinner>
-</body>
-</html>
+

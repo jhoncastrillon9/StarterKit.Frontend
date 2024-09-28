@@ -1,5 +1,5 @@
 <!--<c-header class="mb-4 d-print-none" position="sticky">-->
-<ng-container>
+<ng-container class="containerHeaderMain" style="padding-bottom: 10px!important;">
   <c-container [fluid]="true">
     <button
       toggle="visible"
@@ -45,15 +45,16 @@
         </a>
       </c-nav-item>
     </c-header-nav>
+
     <c-header-nav class="ms-3">
       <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
     </c-header-nav>
 
   </c-container>
-  <c-header-divider></c-header-divider>
-  <c-container [fluid]="true">
-    <c-breadcrumb-router class="ms-2"></c-breadcrumb-router>
-  </c-container>
+
+  
+
+
 </ng-container>
 <!--</c-header>-->
 

@@ -1,56 +1,63 @@
+<c-col xs="12">  
+    <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+      <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 550;" color="primary" class="cui-primary">Clientes</span>    
+      <a cButton type="button" [routerLink]="'/customers/add'" class="btn btn-primary btn-sm">Nuevo Cliente</a>    
+    </div>
+  </c-col>
+  
+
 <c-col xs="12">
-        <c-card class="mb-4">
-            <c-card-header ngPreserveWhitespaces>
-                <strong>Nuevo</strong> <small>Cliente</small>
-            </c-card-header>
-            <c-card-body>
-                    <form cForm class="row g-3" [formGroup]="customerForm" (ngSubmit)="onAddUpdateCustomer()">
-                    <!-- Id del customer -->
-                        <input cFormControl  formControlName="customerId" style="display: none;"/>
-                            <c-col md="6">
-                                <label cLabel for="customerName">Nombre*</label>
-                                <input cFormControl  formControlName="customerName" />
-                            </c-col>
-                            <c-col md="6">
-                                <label cLabel for="customId">NIT o CC</label>
-                                <input cFormControl formControlName="customId" />
-                            </c-col>
-
-                        <c-col md="6">
-                            <label cLabel for="email">Email</label>
-                            <input cFormControl type="email" formControlName="email" />
-                        </c-col>
-                        <c-col md="6">
-                            <label cLabel for="other">Otro</label>
-                            <input cFormControl />
-                        </c-col>
-                        <c-col xs="12">
-                            <label cLabel for="address">Dirección</label>
-                            <input cFormControl placeholder="Carr 90 N 10" formControlName="address" />
-                        </c-col>
-                        <p class="text-medium-emphasis small" *ngIf="customerForm.get('customerName')?.invalid && (customerForm.get('customerName')?.touched || customerForm.get('customerName')?.dirty)" class="text-danger">
-                                Nombre del cliente es obligatorio
-                        </p>
-
-                        <p class="text-medium-emphasis small" *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.touched || customerForm.get('email')?.dirty)" class="text-danger">
-                                Email no es es valido
-                        </p>
-
-
-                        <c-col xs="12">
-                        </c-col>
-
-                        <c-col xs="12" class="text-end">
-                            <a cButton type="button" class="me-md-2" variant="outline" [routerLink]="'/customers/customers'">Regresar</a>
-                            
-                            <button cButton type="submit"  class="me-md-2" style="margin-right: 10px;">
-                                {{ customerForm.get('customerId')?.value ? 'Actualizar' : 'Guardar' }}
-                            </button>                
-                     
-                          </c-col>
-
-                    </form>
-        
-            </c-card-body>
-        </c-card>
-    </c-col>
+    <form cForm class="row g-3" [formGroup]="customerForm" (ngSubmit)="onAddUpdateCustomer()">
+        <!-- Id del customer (oculto) -->
+        <input cFormControl formControlName="customerId" style="display: none;" />
+      
+        <!-- Nombre del cliente -->
+        <c-col md="6">
+          <label cLabel for="customerName">Nombre*</label>
+          <input cFormControl formControlName="customerName" class="form-control-sm" placeholder="Nombre completo o Razón Social" />
+        </c-col>
+      
+        <!-- NIT o CC -->
+        <c-col md="6">
+          <label cLabel for="customId">NIT o CC</label>
+          <input cFormControl formControlName="customId" class="form-control-sm" placeholder="Ejemplo: 123456789-0" />
+        </c-col>
+      
+        <!-- Email del cliente -->
+        <c-col md="6">
+          <label cLabel for="email">Email</label>
+          <input cFormControl type="email" formControlName="email" class="form-control-sm" placeholder="correo@ejemplo.com" />
+        </c-col>
+      
+        <!-- Otro (campo adicional) -->
+        <c-col md="6">
+          <label cLabel for="other">Otro</label>
+          <input cFormControl formControlName="other" class="form-control-sm" placeholder="Información adicional (opcional)" />
+        </c-col>
+      
+        <!-- Dirección -->
+        <c-col xs="6">
+          <label cLabel for="address">Dirección</label>
+          <input cFormControl formControlName="address" class="form-control-sm" placeholder="Ej: Calle 123, Nº 45-67, Piso 2, Bogotá" />
+        </c-col>
+      
+        <!-- Mensaje de error por nombre obligatorio -->
+        <p class="text-medium-emphasis small text-danger" *ngIf="customerForm.get('customerName')?.invalid && (customerForm.get('customerName')?.touched || customerForm.get('customerName')?.dirty)">
+          Nombre del cliente es obligatorio
+        </p>
+      
+        <!-- Mensaje de error por email inválido -->
+        <p class="text-medium-emphasis small text-danger" *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.touched || customerForm.get('email')?.dirty)">
+          Email no es válido
+        </p>
+      
+        <!-- Botones de acción -->
+        <c-col xs="12" class="text-end">
+            <a cButton type="button" class="me-md-2 btn-sm" variant="outline" [routerLink]="'/customers/customers'">Regresar</a>
+            <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
+              {{ customerForm.get('customerId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
+            </button>
+          </c-col>
+      </form>
+      
+</c-col>

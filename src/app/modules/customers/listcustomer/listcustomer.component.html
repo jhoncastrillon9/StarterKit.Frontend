@@ -1,7 +1,11 @@
+<c-col xs="12">  
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 550;" color="primary" class="cui-primary">Clientes</span>    
+    <a cButton type="button" [routerLink]="'/customers/add'" class="btn btn-primary btn-sm">Nuevo Cliente</a>    
+  </div>
+</c-col>
+
 <c-col xs="12">
-    <c-card class="mb-4">
-
-
       <p-table #dt 
       class="p-datatable-sm" 
       styleClass="p-datatable-gridlines"        
@@ -25,7 +29,6 @@
     <ng-template pTemplate="caption" >
       <div style="display: flex; justify-content: space-between; align-items: center;" >          
           <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
-          <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/customers/add']" title="Nuevo cliente"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Agregar Cliente</span>
 
           <span class="p-input-icon-left ml-auto">
               <i class="pi pi-search"></i>
@@ -90,8 +93,4 @@
         </tr>
       </ng-template>
     </p-table>
-
-</c-card>
 </c-col>
-  
-
