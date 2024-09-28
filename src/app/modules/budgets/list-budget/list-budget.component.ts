@@ -21,12 +21,18 @@ export class ListBudgetComponent implements OnInit {
   searchValue: string | undefined;
   loading: boolean = true;
   budgets: BudgetModel[] = [];
-  messageModal: string = "¿Estas Seguro de eliminar este registro?";
+  messageModal: string = "¿Listo para deshacerte de este registro? ¡Asegúrate antes de dar el paso!";
+  titleModal: string = "¡Espera un momento! ⏳";
+
+  isModalWithError: boolean = false;
   isModalForDelete: boolean = false;
   isModalForSetInvoice: boolean = false;
+  isModalForSendEmailBudget: boolean = false;
   
   public visible = false;
   public budgetToDelete: BudgetModel | null = null;
+  public budgetToSendEmail: BudgetModel = new BudgetModel;
+
   public budgetToSetInvoice: BudgetModel | null = null;
 
 
@@ -48,12 +54,14 @@ export class ListBudgetComponent implements OnInit {
 }
   
   ClosedOpenModal() {
- console.log('Hola');
     this.visible = !this.visible;
 
     if(!this.visible){
       this.isModalForDelete = false;
-      this.isModalForSetInvoice = false;   
+      this.isModalForSetInvoice = false;  
+      this.isModalForSendEmailBudget = false;
+      this.isModalWithError = false;
+ 
     }
   }
 
@@ -72,14 +80,23 @@ export class ListBudgetComponent implements OnInit {
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
       this.loading = false;
+      this.openModalError();
     });
+  }
+
+  openModalError(){ 
+    this.isModalWithError = true;
+    this.messageModal = "Parece que hemos encontrado un pequeño obstáculo. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico. ¡Prometemos que no es nada personal!";
+    this.titleModal = "¡Ups! Algo salió mal ⚠️";
+    this.ClosedOpenModal();  
   }
 
 
 deleteBudgetWithComfirm(budgetModel: BudgetModel){ 
   this.isModalForDelete = true;
-  this.budgetToDelete = budgetModel;
-  this.messageModal = "¿Estas Seguro de eliminar este registro?";
+  this.budgetToDelete = budgetModel;  
+  this.messageModal = "¿Listo para deshacerte de este registro? ¡Asegúrate antes de dar el paso!";
+  this.titleModal = "¡Espera un momento! ⏳";
   this.ClosedOpenModal();  
 }
 
@@ -101,6 +118,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
           // Puedes mostrar una alerta aquí
           this.spinner.hide();
           this.loading = false;
+          this.openModalError();
         }
       );      
    }
@@ -136,6 +154,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
            // Puedes mostrar una alerta aquí
            this.spinner.hide();
            this.loading = false;
+           this.openModalError();
          }
        );      
     }
@@ -145,11 +164,18 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
    }
 
 
-   sendEmailbudget(budgetModel: BudgetModel){      
+   sendEmailBudgetWithComfirm(budgetModel: BudgetModel){ 
+    this.isModalForSendEmailBudget = true;
+    this.budgetToSendEmail = budgetModel;
+    this.titleModal = "¡Cotización en camino! 📬";
+    this.messageModal = "Tu cotización se enviará a los siguientes correos electrónicos: "+ budgetModel.customerDto.email+"";
+    this.ClosedOpenModal();  
+  }
+
+   sendEmailbudget(){      
     this.spinner.show()   
     this.loading = true;  
-
-      var request = new SendBudgetPdfRequest(budgetModel);
+      var request = new SendBudgetPdfRequest(this.budgetToSendEmail);
       this.budgetService.sendEmailBudget(request).subscribe(
         (response: any) => {
           console.log("send Budget OK");      
@@ -163,8 +189,11 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
           // Puedes mostrar una alerta aquí
           this.spinner.hide();
           this.loading = false;
+          this.openModalError();
         }
       ); 
+      this.ClosedOpenModal();
+      this.budgetToSendEmail = new BudgetModel;;
   }
 
    
@@ -184,6 +213,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
            // Puedes mostrar una alerta aquí
            this.spinner.hide();
            this.loading = false;
+           this.openModalError();
          }
        ); 
    }
@@ -205,6 +235,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
         // Puedes mostrar una alerta aquí
         this.spinner.hide(); // Asegúrate de ocultar el spinner en caso de error
         this.loading = false;
+        this.openModalError();
       }
     );
   }
@@ -219,10 +250,6 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
-
-
-
-
 
   getTotal(amount:number){
     var aiu = (amount * 0.1);

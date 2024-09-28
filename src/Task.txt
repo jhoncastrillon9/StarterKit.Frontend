@@ -1,9 +1,9 @@
 //*******Tareas PARA SALIR********//
-8 Envio de cotizacion por email FRONT
 
 
-1 Implementar Recordar contraseña BACKEND **por validar 
-2 Envio de cotizacion por email BACKEND **por validar 
+
+
+
 3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
 4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 6 Implementar el color de la empresa FRONT
@@ -18,6 +18,9 @@ Organizar cotizacion que se esta dañando en algunas aprtes
 
 ###Podemso salir sin eso 
 Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
+¡Aquí tienes tu cotización solicitada! quitar tanto texto
+poder agregar mas emails al ciente para el envio de cotizaciones
+
 
 
 16 Compar dominio 
@@ -47,7 +50,10 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
-
+2 Envio de cotizacion por email BACKEND **por validar 
+1 Implementar Recordar contraseña BACKEND **por validar 
+8 Envio de cotizacion por email FRONT
+8 Envio de cotizacion por email FRONT
 7.5 llevar al usuario cal cambio de contraseña 
 7.4 investigar sobre #
 7 Implementar Recordar contraseña FRONT OK

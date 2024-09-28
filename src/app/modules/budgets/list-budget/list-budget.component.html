@@ -102,7 +102,7 @@
               <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: green;">
                 <svg cIcon class="me-2" name="cilCopy"></svg>
               </span>
-              <span (click)="sendEmailbudget(budget)" title="Enviar Cotización" style="cursor: pointer; color: rgb(0, 100, 128);">
+              <span (click)="sendEmailBudgetWithComfirm(budget)" title="Enviar Cotización" style="cursor: pointer; color: rgb(0, 100, 128);">
                 <svg cIcon class="me-2" name="cibMinutemailer"></svg>
               </span>
       
@@ -119,7 +119,7 @@
 
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
   <c-modal-header>
-    <h5 cModalTitle>Upppsss</h5>
+    <h5 cModalTitle>{{titleModal}}</h5>
     <button (click)="ClosedOpenModal()" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>{{messageModal}}</c-modal-body>
@@ -127,12 +127,18 @@
     <button  *ngIf="isModalForSetInvoice" (click)="convertToBill()" cButton color="primary">
       Si, convertir en Factura
     </button> 
+    <button  *ngIf="isModalForSendEmailBudget" (click)="sendEmailbudget()" cButton color="primary">
+      Si, Enviar Cotización
+    </button> 
+
+    <button (click)="ClosedOpenModal()" cButton color="primary"  variant="outline">
+      Cerrar
+    </button> 
+
     <button  *ngIf="isModalForDelete" (click)="deleteBudget()" cButton color="primary">
       Si, Eliminar
     </button> 
-    <button (click)="ClosedOpenModal()" cButton color="secondary">
-      Cerrar
-    </button>     
+    
   </c-modal-footer>
 </c-modal>
 
