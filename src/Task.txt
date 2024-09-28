@@ -1,12 +1,8 @@
 //*******Tareas PARA SALIR********//
-
-
-
-
-
 3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
 4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 6 Implementar el color de la empresa FRONT
+
 9 implementar boton de wasap  FRONT
 10 Permiter al apu agregar items al 
 
@@ -68,14 +64,10 @@ Cuando me registro la cotizacion que se crea esta mala sin dertalle
 14 Dejar emnsdaje de bienvenida en el basboard diciendo que actualicen los datos FRONT
 2.2 Imnplenatr logo subirlo y dejarlo default FRONT OK
 6 Ocultar dasboard el inico ene l FRONT OK
-
 10 ocultar dinero del menu FRONT
 24 Implementar Datatables FRONT     ok
 25.9 Capar metodos como el byid que son vulnerables BACKEND OK S POSIBLE QUE NOS FALT ALGUNO S CAPAN EN EL RPORISOTY INDIVIDIUAL 
-
-
 11 Quitar lo que esta quemado para eso implemetar guardado de imagenes BACKEND OK
-
 2.1 Imnplenatr logo subirlo y dejarlo default BACKEND OK
 11.1 Agregar clase que suba y retorne URLS BACKEND En  OK 
 1.1 Implementar APU BAsico Backend OK 

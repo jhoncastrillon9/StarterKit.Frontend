@@ -92,8 +92,11 @@ export class AddUpdateBudgetComponent implements OnInit {
           this.spinner.hide();
         });
       } else {
-        console.log("test addBudgetDetail");
-        //this.addBudgetDetail();
+        //Add empty row 
+        this.addBudgetDetail();
+    
+
+
       }
     });
   

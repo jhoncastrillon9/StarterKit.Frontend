@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CompanyConfigComponent } from './company-config/company-config.component';
+import { BudgetConfigComponent } from './budget-config/budget-config.component';
+
 
 
 const routes: Routes = [
@@ -27,6 +29,13 @@ const routes: Routes = [
         component: CompanyConfigComponent,
         data: {
           title: 'Empresa'
+        }
+      },
+      {
+        path: 'budgetConfig',
+        component: BudgetConfigComponent,
+        data: {
+          title: 'Cotizaciones'
         }
       }
     ]

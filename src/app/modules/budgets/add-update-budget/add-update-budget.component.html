@@ -12,7 +12,7 @@
         <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
           <input cFormControl formControlName="budgetId" style="display: none;" />
           <c-col md="5">
-            <label cLabel for="budgetName">Nombre de la Obra o cotización:*</label>
+            <label cLabel for="budgetName" >Nombre de la Obra o cotización:*</label>
             <input cFormControl formControlName="budgetName" class="form-control-sm"/>
           </c-col>
           <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">

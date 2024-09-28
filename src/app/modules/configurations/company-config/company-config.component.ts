@@ -12,7 +12,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class CompanyConfigComponent implements OnInit {
   companyForm: FormGroup;
   companyId?: string = '0';
-  messageModal: string = "Información de la empresa actualizada.";
+  messageModal: string = "¡Los datos de tu empresa han sido actualizados con éxito!";
   visible = false;
   selectedFile: File | null = null;
   urlImageLogo: string = '';

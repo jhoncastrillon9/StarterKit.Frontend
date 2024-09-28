@@ -70,6 +70,11 @@ export const navItems: INavData[] = [
         icon: 'nav-icon-bullet'
       },
       {
+        name: 'Formato cotizaciones',
+        url: '/configurations/budgetConfig',
+        icon: 'nav-icon-bullet'
+      },
+      {
         name: 'Mi Perfil',
         url: '/configurations/companyConfig',
         icon: 'nav-icon-bullet'
