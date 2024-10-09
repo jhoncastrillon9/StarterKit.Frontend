@@ -16,10 +16,12 @@ import {
   SharedModule
 } from '@coreui/angular';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { BudgetConfigComponent } from './budget-config/budget-config.component';
 
 @NgModule({
   declarations: [
-    CompanyConfigComponent
+    CompanyConfigComponent,
+    BudgetConfigComponent
   ],
   imports: [
     CommonModule,

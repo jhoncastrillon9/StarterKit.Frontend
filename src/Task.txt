@@ -1,10 +1,9 @@
 //*******Tareas PARA SALIR********//
 3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
-4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 6 Implementar el color de la empresa FRONT
-
 9 implementar boton de wasap  FRONT
 10 Permiter al apu agregar items al 
+Mostar cotixacion con los nuevos cambios 
 
 
 ####Bugs####
@@ -46,6 +45,7 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 2 Envio de cotizacion por email BACKEND **por validar 
 1 Implementar Recordar contraseña BACKEND **por validar 
 8 Envio de cotizacion por email FRONT

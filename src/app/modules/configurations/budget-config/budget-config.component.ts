@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetConfigurationService } from '../services/budgetConfiguration.service';
+import { BudgetTemplateService } from '../services/budgetTemplate.service';
+import { BudgetTemplate } from '../models/budgetTemplate.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -14,20 +16,25 @@ export class BudgetConfigComponent implements OnInit{
   companyForm: FormGroup;
   companyId?: string = '0';
   messageModal: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
-    visible = false;
+  visible = false;
   selectedFile: File | null = null;
   urlImageLogo: string = '';
+  selectedOption: number = 0;  
+  budgetTemplates: BudgetTemplate[] = [];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private budgetConfigService: BudgetConfigurationService,
+    private budgetTemplateService: BudgetTemplateService,
     private spinner: NgxSpinnerService
   ) {
     this.companyForm = this.fb.group({
       budgetConfigId: [''],
+      companyId: [''],
       templateId: [''],
+      budgetTemplateId: [''],
       primaryColor: [''],
       secondaryColor: [''],
       introduction: [''],
@@ -41,14 +48,9 @@ export class BudgetConfigComponent implements OnInit{
     this.budgetConfigService.getBudgetConfigByCompanyId().subscribe(
       (budgetConfig: any) => {
         if (budgetConfig) {
-          this.companyForm.patchValue({
-            budgetConfigId: budgetConfig.budgetConfigId || '',   
-            templateId: budgetConfig.templateId || '',
-            primaryColor: budgetConfig.primaryColor || '',
-            secondaryColor: budgetConfig.secondaryColor || '',
-            introduction: budgetConfig.introduction || '',
-            urlImageExample: budgetConfig.urlImageExample || ''
-          });   
+          this.companyForm.patchValue(budgetConfig);
+          this.selectedOption = budgetConfig.budgetTemplateId ? budgetConfig.budgetTemplateId : 0;  
+
         }
         this.spinner.hide();
       },
@@ -57,22 +59,27 @@ export class BudgetConfigComponent implements OnInit{
         this.spinner.hide();
       }
     );
+
+    this.loadTemplates();
+
+  }
+
+  loadTemplates() {
+    this.spinner.show();
+    this.budgetTemplateService.getbudgetTemplates().subscribe(templates => {
+      this.budgetTemplates = templates;
+      this.spinner.hide();
+    },(error)=>{
+      console.error('Error al cargar templates', error);
+      this.spinner.hide();
+    });
   }
 
   
   updateBudgetConfig() {
     if (this.companyForm.valid) {
       this.spinner.show();
-      const formData = new FormData();
-      formData.append('budgetConfigId', this.companyForm.get('budgetConfigId')?.value);
-      formData.append('templateId', this.companyForm.get('templateId')?.value);
-      formData.append('primaryColor', this.companyForm.get('primaryColor')?.value);
-      formData.append('secondaryColor', this.companyForm.get('secondaryColor')?.value);
-      formData.append('introduction', this.companyForm.get('introduction')?.value);
-      formData.append('urlImageExample', this.companyForm.get('urlImageExample')?.value);
-      
-
-
+      const formData = this.companyForm.value;  
       this.budgetConfigService.updateBudgetConfigByUser(formData).subscribe(
         (response: any) => {
           this.ngOnInit();
@@ -104,5 +111,15 @@ export class BudgetConfigComponent implements OnInit{
     this.visible = event;
   }
 
+
+
+  selectOption(option: number) {
+    this.selectedOption = option;
+
+    this.companyForm.patchValue({
+      budgetTemplateId: option
+    });
+
+  }
 
 }

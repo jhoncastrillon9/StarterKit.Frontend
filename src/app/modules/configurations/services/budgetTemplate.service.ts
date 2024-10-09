@@ -9,7 +9,7 @@ import { environment } from '../../../../environment';
 @Injectable({
     providedIn: 'root'
   })
-  export class BudgetConfigurationService {
+  export class BudgetTemplateService {
     private apiUrl = environment.apiUrl;
   
     constructor(private http: HttpClient, private router: Router) { }
@@ -22,9 +22,9 @@ import { environment } from '../../../../environment';
       return headers;
     } 
   
-    getBudgetConfigByCompanyId() {
+    getbudgetTemplates() {
       const headers = this.getHeaders();
-      return this.http.get(`${this.apiUrl}/api/BudgetConfig/getBudgetConfigByCompanyId`, { headers, observe: 'response' }).pipe(
+      return this.http.get(`${this.apiUrl}/api/BudgetTemplate/budgetTemplate`, { headers, observe: 'response' }).pipe(
         map((response: HttpResponse<any>) => {
           if (response.status === 401) {
             this.router.navigate(['/login']);
@@ -34,16 +34,6 @@ import { environment } from '../../../../environment';
       );
     }  
   
-    updateBudgetConfigByUser(data: any) {
-      const headers = this.getHeaders();
-      return this.http.put(`${this.apiUrl}/api/BudgetConfig/budgetConfig`, data, { headers, observe: 'response' }).pipe(
-        map((response: HttpResponse<any>) => {
-          if (response.status === 401) {
-            this.router.navigate(['/login']);
-          }
-          return response.body;
-        })
-      );
-    }  
+ 
   }
   

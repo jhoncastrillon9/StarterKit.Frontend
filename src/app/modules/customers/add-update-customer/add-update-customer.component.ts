@@ -32,11 +32,9 @@ export class AddUpdateCustomerComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       this.customerId = params.get('id')!;
-console.log(this.customerId);
 
       if (this.customerId) {
-        this.customerService.getById(this.customerId).subscribe((customer: any) => {
-          console.log(customer);
+        this.customerService.getById(this.customerId).subscribe((customer: any) => {   
           this.customerForm.patchValue(customer);
         });
       }

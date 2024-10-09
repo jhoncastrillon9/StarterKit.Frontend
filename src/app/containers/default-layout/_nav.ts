@@ -27,12 +27,12 @@ export const navItems: INavData[] = [
     ]
   },
   {
-    name: 'APU',
+    name: 'Analisis precios unitarios',
     url: '/apus',
     iconComponent: { name: 'cil-notes' },
     children: [
       {
-        name: 'Ver APU',
+        name: 'Analisis precios unitarios',
         url: '/apus/apus',
         icon: 'nav-icon-bullet'
       },
