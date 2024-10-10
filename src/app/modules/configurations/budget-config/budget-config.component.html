@@ -9,20 +9,28 @@
   
   <!-- Formulario principal -->
   <c-col xs="12">
+    <c-col xs="12">
+      <label cLabel for="telephones"><strong>Selecionar formato</strong></label>  
+
+    </c-col>
+
+    <br>
     <form cForm class="row g-3" [formGroup]="companyForm" (ngSubmit)="updateBudgetConfig()">
   
       <!-- IDs de la empresa (ocultos) -->
       <input cFormControl formControlName="companyId" style="display: none;" />
       <input cFormControl formControlName="budgetConfigId" style="display: none;" />
+      <input cFormControl formControlName="budgetTemplateId" style="display: none;" />
+
   
       <!-- Tarjetas de selección responsivas -->
       <div class="row justify-content-center"> <!-- Centra las tarjetas horizontalmente -->
         
-        <c-col xs="12" sm="6" md="4" class="mb-3" *ngFor="let template of budgetTemplates">
+        <c-col xs="12" sm="6" md="4" lg="2" class="mb-3" *ngFor="let template of budgetTemplates">
             <div class="form-check form-check-inline">
                 <div class="card" [ngClass]="{'selected-card': selectedOption === template.budgetTemplateId}">
                     <div class="card-body text-center">
-                        <p class="card-text">Seleccionar {{template.budgetTemplateName}}</p>
+                        <p class="card-text">{{template.budgetTemplateName}}</p>
                         <input 
                             class="form-check-input" 
                             type="radio" 
@@ -32,70 +40,26 @@
                             (change)="selectOption(template.budgetTemplateId)" 
                             style="display: none;">
                         <label class="form-check-label" for="inlineRadio{{template.budgetTemplateId}}">
-                            <img src="https://cotizaconstructorstorage.blob.core.windows.net/logos/54848062-0039-4a1c-b2c0-4029aabb395d.jpg" class="card-img-top" alt="Opción {{template.budgetTemplateId}}" style="max-width: 300px;">
+                            <img src="{{template.urlImageExample}}" class="card-img-top" alt="Opción {{template.budgetTemplateId}}" style="max-width: 300px;">
                         </label>
                     </div>
                 </div>
             </div>
-        </c-col>
-        
-
-        <!-- <c-col xs="12" sm="6" md="4" class="mb-3"> 
-          <div class="form-check form-check-inline">
-            <div class="card" [ngClass]="{'selected-card': selectedOption === '1'}">
-              <div class="card-body text-center">
-                <p class="card-text">Seleccionar</p>
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1" (change)="selectOption('1')" style="display: none;">
-                <label class="form-check-label" for="inlineRadio1">
-                  <img src="https://cotizaconstructorstorage.blob.core.windows.net/logos/54848062-0039-4a1c-b2c0-4029aabb395d.jpg" class="card-img-top" alt="Opción 1" style="max-width: 300px;">
-                </label>
-              </div>
-            </div>
-          </div>
-        </c-col>
-  
-        <c-col xs="12" sm="6" md="4" class="mb-3">
-          <div class="form-check form-check-inline">
-            <div class="card" [ngClass]="{'selected-card': selectedOption === '2'}">
-              <div class="card-body text-center">
-                <p class="card-text">Seleccionar</p>
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="2" (change)="selectOption('2')" style="display: none;">
-                <label class="form-check-label" for="inlineRadio2">
-                  <img src="https://cotizaconstructorstorage.blob.core.windows.net/logos/54848062-0039-4a1c-b2c0-4029aabb395d.jpg" class="card-img-top" alt="Opción 2" style="max-width: 300px;">
-                </label>
-              </div>
-            </div>
-          </div>
-        </c-col>
-  
-        <c-col xs="12" sm="6" md="4" class="mb-3">
-          <div class="form-check form-check-inline">
-            <div class="card" [ngClass]="{'selected-card': selectedOption === '3'}">
-              <div class="card-body text-center">
-                <p class="card-text">Seleccionar</p>
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="3" (change)="selectOption('3')" style="display: none;">
-                <label class="form-check-label" for="inlineRadio3">
-                  <img src="https://cotizaconstructorstorage.blob.core.windows.net/logos/54848062-0039-4a1c-b2c0-4029aabb395d.jpg" class="card-img-top" alt="Opción 3" style="max-width: 300px;">
-                </label>
-              </div>
-            </div>
-          </div>
-        </c-col> -->
-  
+        </c-col>  
       </div>
   
       <!-- Inputs para Template y Introducción -->
       <div class="row">
+
         <c-col xs="12" md="6" class="mb-3">
-          <label cLabel for="document">Template</label>
-          <input cFormControl formControlName="budgetTemplateId" placeholder="Ej: 123456789" class="form-control form-control-sm" />
-        </c-col>
-  
-        <c-col xs="12" md="6" class="mb-3">
-          <label cLabel for="telephones">Introducción</label>
-          <input cFormControl type="text" formControlName="introduction" placeholder="Ej: 3001234567" class="form-control form-control-sm" />
+          <label cLabel for="telephones"><strong>Introducción</strong></label>       
+          <textarea cFormControl type="text" formControlName="introduction" placeholder="Ej: 3001234567" class="form-control form-control-sm" rows="3"></textarea>
+
         </c-col>
       </div>
+
+      <!-- Textarea con row de 3 -->
+
   
       <!-- Botones de acción -->
       <c-col xs="12" class="text-end">
