@@ -31,7 +31,8 @@ export class AddUpdateBudgetComponent implements OnInit {
   searchTerm = '';
   selectedItems: ApuModel[] = [];
   apuModels: ApuModel[] = [];
- 
+  private localStorageKey = 'apuModelsData';
+  private expiryKey = 'apuModelsExpiry'; 
 
 
   
@@ -125,14 +126,31 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   loadApus() {
-   
-    this.apuService.get().subscribe(apu => {
-      this.apuModels = apu;
-      
-    },(error)=>{
-      console.error('Error al cargar apus', error);
-      
-    });
+    const storedData = localStorage.getItem(this.localStorageKey);
+    const storedExpiry = localStorage.getItem(this.expiryKey);
+
+    const now = new Date().getTime();
+    const sixHours = 6 * 60 * 60 * 1000; // Seis horas en milisegundos
+
+    // Verificamos si hay datos almacenados y si no han caducado
+    if (storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours)) {
+      console.log('Usando datos de LocalStorage');
+      this.apuModels = JSON.parse(storedData);
+    } else {
+      // Si no hay datos o han caducado, cargamos desde la API
+      console.log('Consultando datos de la API');
+      this.apuService.get().subscribe(
+        apu => {
+          this.apuModels = apu;
+          // Guardamos los datos en LocalStorage y registramos el timestamp actual
+          localStorage.setItem(this.localStorageKey, JSON.stringify(this.apuModels));
+          localStorage.setItem(this.expiryKey, now.toString());
+        },
+        error => {
+          console.error('Error al cargar apus', error);
+        }
+      );
+    }
   }
 
   addBudgetDetail() {
@@ -252,6 +270,21 @@ closeModal() {
 
 
 addBudgetDetailFromAPU() {
+  // Verificamos si la lista está vacía o nula, o si los datos en localStorage han caducado
+  const storedData = localStorage.getItem(this.localStorageKey);
+  const storedExpiry = localStorage.getItem(this.expiryKey);
+
+  const now = new Date().getTime();
+  const sixHours = 6 * 60 * 60 * 1000; // Seis horas en milisegundos
+
+  const isLocalDataValid = storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours);
+
+  // Si la lista está vacía o nula, o los datos son inválidos, llamamos a la API
+  if (!this.apuModels || this.apuModels.length === 0 || !isLocalDataValid) {
+    this.loadApus(); // Cargar datos desde la API si es necesario
+  }
+
+  // Mostrar el modal
   this.showModal();
 }
 
