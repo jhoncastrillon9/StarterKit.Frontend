@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
     <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Nueva Cotización</span>    
     <div >
-      {{ currentDate | date: 'dd MMM yyyy' }}
+      <span style="color:  #6610f2 ;">Fecha: </span> {{ currentDate | date: 'dd MMM yyyy' }}
     </div>
   </div>
 </c-col>
@@ -104,8 +104,17 @@
           </div>
 
           <c-col xs="12" class="text-center">
-            <button cButton color="info" variant="outline" type="button" class="btn-sm" (click)="addBudgetDetail()">Agregar Fila</button>
+            <!-- Botón Agregar Item nuevo con margen derecho -->
+            <button cButton color="primary"  type="button" class="btn-sm me-3" (click)="addBudgetDetail()">
+              Agregar Item nuevo
+            </button>
+            
+            <!-- Botón Agregar Item desde APU -->
+            <button cButton color="primary"  type="button" class="btn-sm" (click)="addBudgetDetailFromAPU()">
+              Agregar Item desde APU
+            </button>
           </c-col>
+          
 
           <c-col md="3">
             <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
@@ -158,7 +167,9 @@
 
           <c-col xs="12" class="text-end">
             
-            <a cButton type="button" class="me-md-2 btn-sm" variant="outline" [routerLink]="'/budgets/budgets'" >Regresar</a>
+            <a cButton type="button" class="me-3 btn-sm" variant="outline" [routerLink]="'/budgets/budgets'">
+              Regresar
+            </a>
             
             
             <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
@@ -169,6 +180,61 @@
         </form>
 
   </c-col>
+
+<!-- Modal de confirmación -->
+<!-- Modal de confirmación -->
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)"  class="modal-lg">
+  <div class="modal-dialog " style="max-width: 80vw; width: 100%;"> <!-- Forzar ancho a 80% del viewport -->
+    <div class="modal-content text-center" style="border: none;"> <!-- Contenido centrado y sin bordes -->
+
+      <!-- Título con icono centrado y botón de cerrar -->
+      <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;"> <!-- Sin línea separadora -->
+        <h5 cModalTitle>
+          <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i> <!-- Ícono antes del título -->
+          <span class="cui-primary" style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item desde APU!</span>   
+        </h5>
+
+        <!-- Botón de cierre 'X' en la esquina superior derecha -->
+        <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
+          <i class="bi bi-x"></i> <!-- Ícono de cerrar -->
+        </button>
+      </div>
+
+      <!-- Mensaje centrado -->
+      <div class="modal-body">
+        <!-- Campo de búsqueda -->
+        <div class="mb-3">
+          <input type="text" [(ngModel)]="searchTerm" class="form-control" placeholder="Buscar item..." />
+        </div>
+
+        <!-- Select con filtro -->
+        <div class="mb-3">
+          <select [(ngModel)]="selectedItems" class="form-select" multiple>
+            <option *ngFor="let apu of apuModels | filterBy: searchTerm" [ngValue]="apu">
+              {{ apu.itemName  | capitalize }} - {{ apu.unitMeasurement }} - $ {{ apu.totalPrice.toLocaleString('es-ES') }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Botón para añadir los seleccionados -->
+
+      </div>
+
+      <!-- Botón centrado para salir -->
+      <div class="modal-footer justify-content-center" style="border-top: none;"> <!-- Sin línea separadora -->
+
+        <button (click)="closeModal()" cButton  variant="outline" class="btn-sm">Salir</button>
+        <button (click)="addToList(selectedItems)" cButton color="primary" style="color: white;" class="btn-sm">
+          Agregar Seleccionados
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</c-modal>
+
+
+
 
   <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
     <p style="color: white"> Cargando... </p>

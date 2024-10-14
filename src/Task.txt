@@ -1,14 +1,9 @@
 //*******Tareas PARA SALIR********//
-3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
-6 Implementar el color de la empresa FRONT
-9 implementar boton de wasap  FRONT
-10 Permiter al apu agregar items al 
-Mostar cotixacion con los nuevos cambios 
+9 implementar boton de wasap  FRONT 
 
 
 ####Bugs####
 Resposive
-Organizar cotizacion que se esta dañando en algunas aprtes 
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
 
 ###Podemso salir sin eso 
@@ -35,6 +30,7 @@ Implementar datatables
 
 
 //*******Detallitos********//
+3 cuando piongamos el color actualizar la creacion de la empresa para que tenga un color por default BACKEND **Por validar
 Crear endpoint que retorne dasboiard de la empresa
 Dejar logs de Crear eleimnar todo NMormal 
 
@@ -45,6 +41,9 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+Organizar cotizacion que se esta dañando en algunas aprtes  y hacerla dinamica OK
+10 Permiter al apu agregar items al  OK
+6 Implementar el color de la empresa FRONT
 4 Implementar el color de la empresa BACKEND *Por vlaidar plantilla
 2 Envio de cotizacion por email BACKEND **por validar 
 1 Implementar Recordar contraseña BACKEND **por validar 

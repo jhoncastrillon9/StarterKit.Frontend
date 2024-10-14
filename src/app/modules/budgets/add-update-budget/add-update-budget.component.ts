@@ -7,6 +7,8 @@ import { CustomerService } from '../../customers/services/customer.service';
 import { cilPencil, cilXCircle, cilMoney } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ApuModel } from '../../apus/models/apu.Model';
+import { ApuService } from '../../apus/services/apu.service';
 @Component({
   selector: 'app-add-update-budget',
   templateUrl: './add-update-budget.component.html',
@@ -23,6 +25,15 @@ export class AddUpdateBudgetComponent implements OnInit {
   customers: CustomerModel[] = [];
   showErrors: boolean = false;  
   msjError: string = "";
+  visible = false;
+  messageModal: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
+
+  searchTerm = '';
+  selectedItems: ApuModel[] = [];
+  apuModels: ApuModel[] = [];
+ 
+
+
   
   //Campos calculados
   amount: number = 0;  
@@ -36,6 +47,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     private route: ActivatedRoute,
     private budgetService: BudgetService,
     private customerService: CustomerService,
+    private apuService: ApuService,
     public iconSet: IconSetService,
     private spinner: NgxSpinnerService
   ) {
@@ -94,13 +106,11 @@ export class AddUpdateBudgetComponent implements OnInit {
       } else {
         //Add empty row 
         this.addBudgetDetail();
-    
-
-
       }
     });
   
     this.loadCustomers();
+    this.loadApus();
   }
 
   loadCustomers() {
@@ -111,6 +121,17 @@ export class AddUpdateBudgetComponent implements OnInit {
     },(error)=>{
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
+    });
+  }
+
+  loadApus() {
+   
+    this.apuService.get().subscribe(apu => {
+      this.apuModels = apu;
+      
+    },(error)=>{
+      console.error('Error al cargar apus', error);
+      
     });
   }
 
@@ -216,6 +237,52 @@ export class AddUpdateBudgetComponent implements OnInit {
     }
    
 }
-  
+
+handleLiveDemoChange(event: any) {
+  this.visible = event;
+}
+
+showModal() {
+  this.visible = true;
+}
+
+closeModal() {
+  this.visible = false;
+}
+
+
+addBudgetDetailFromAPU() {
+  this.showModal();
+}
+
+
+addToList(selectedItems: ApuModel[]) {
+  this.closeModal();
+  this.spinner.show();
+  selectedItems.forEach(item => {
+    const budgetDetailGroup = this.fb.group({
+      budgetDetailId: [0],
+      budgetId: [0],
+      unitMeasurement: [item.unitMeasurement || 'Und'], // Se toma la unidad del item seleccionado o 'Und' por defecto
+      description: [item.itemName, [Validators.required]], // Descripción con el nombre del ítem
+      quantity: [1, [Validators.required, Validators.pattern(/^\d+$/)]], // Cantidad inicial por defecto en 1
+      price: [item.totalPrice, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Precio del ítem seleccionado
+      subtotal: [item.totalPrice], // Subtotal es el precio por defecto
+    });
+
+    // Agregar al array de detalles
+    this.budgetDetails.push(budgetDetailGroup);
+  });
+
+  // Después de agregar los elementos, actualizar el monto total
+  this.updateAmount();
+
+
+
+  this.spinner.hide();
+
+}
+
+
 
 }
