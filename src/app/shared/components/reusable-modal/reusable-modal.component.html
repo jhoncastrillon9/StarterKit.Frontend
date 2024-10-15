@@ -1,0 +1,33 @@
+<!-- Modal de confirmación -->
+<c-modal  [visible]="visible" [alignment]="alignmentModal">
+    <div class="modal-dialog modal-dialog-centered"> <!-- Clase para centrar el modal verticalmente -->
+      <div class="modal-content text-center" style="border: none;"> <!-- Contenido centrado y sin bordes -->
+  
+        <!-- Título con icono centrado y botón de cerrar -->
+        <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;"> <!-- Sin línea separadora -->
+          <h5 cModalTitle>
+            <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i> <!-- Ícono antes del título -->
+            <span *ngIf="!isModalError" class="cui-primary" style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">{{title}}</span>    
+            <span *ngIf="isModalError" class="cui-primary" style="color: #f21054; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">{{title}}</span>               
+
+          </h5>
+          <!-- Botón de cierre 'X' en la esquina superior derecha -->
+          <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
+            <i class="bi bi-x"></i> <!-- Ícono de cerrar -->
+          </button>
+        </div>
+  
+        <!-- Mensaje centrado -->
+        <div class="modal-body">
+          <p style="color: #202021; font-size: 1rem; font-weight: 600;">{{messageModal}}</p>
+        </div>
+  
+        <!-- Botón centrado -->
+        <div class="modal-footer justify-content-center" style="border-top: none;"> <!-- Sin línea separadora -->
+          <button *ngIf="!isModalError" (click)="closeModal()" cButton color="primary" style="color: white;" class="btn-md">Salir</button>
+          <button *ngIf="isModalError" (click)="closeModal()" cButton color="danger" style="color: white;" class="btn-md">Salir</button>
+        </div>
+      </div>
+    </div>
+  </c-modal>
+  

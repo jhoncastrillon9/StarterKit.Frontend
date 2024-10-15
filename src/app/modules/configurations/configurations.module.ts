@@ -17,6 +17,7 @@ import {
 } from '@coreui/angular';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { BudgetConfigComponent } from './budget-config/budget-config.component';
+import { CustomSharedModule} from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { BudgetConfigComponent } from './budget-config/budget-config.component';
     SharedModule,
     ListGroupModule,
     IconModule,
-    ModalModule  
+    ModalModule,
+    CustomSharedModule
   ],
   providers: [IconSetService]
 })
