@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '../services/company.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
 @Component({
   selector: 'app-company-config',
@@ -10,12 +11,23 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./company-config.component.scss']
 })
 export class CompanyConfigComponent implements OnInit {
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  isModalError: boolean = false;
+  
   companyForm: FormGroup;
-  companyId?: string = '0';
-  messageModal: string = "¡Los datos de tu empresa han sido actualizados con éxito!";
-  visible = false;
+  companyId?: string = '0';  
   selectedFile: File | null = null;
   urlImageLogo: string = '';
+
+  private readonly successMessage: string = "¡Los datos de tu empresa han sido actualizados con éxito!";
+  private readonly successTitle: string = "¡Actualización Completada!";
+  private readonly errorTitle: string = "Oops, ocurrió un error.";
+  private readonly errorformTitle: string = "Oops, Faltan datos";
+  private readonly loadDataError: string = "Algo falló al obtener los datos, refresca la página F5.";  
+  private readonly updateErrorMessage: string = "Algo falló al actualizar la info de tu empresa. Intenta de nuevo, que a la segunda va la vencida.";
+  private readonly formInvalidMessage: string = "El formulario necesita un poco más de amor. Completa los campos correctamente y listo. 🚀";
+  title: string = this.successTitle;
+  messageModal: string = this.successMessage;
 
   constructor(
     private fb: FormBuilder,
@@ -55,8 +67,8 @@ export class CompanyConfigComponent implements OnInit {
         }
         this.spinner.hide();
       },
-      (error: any) => {
-        console.error('Error al consultar empresa', error);
+      (error: any) => {        
+        this.handleError('Error al consultar empresa', this.loadDataError, this.errorTitle);
         this.spinner.hide();
       }
     );
@@ -92,31 +104,30 @@ export class CompanyConfigComponent implements OnInit {
       this.companyService.updateCompanyByUser(formData).subscribe(
         (response: any) => {
           this.ngOnInit();
-          this.spinner.hide();
-          this.messageModal = "Información de la empresa actualizada.";
-          this.showModal();
+          this.spinner.hide();  
+          this.showModal(false,this.successMessage,this.title);
         },
         (error: any) => {
-          console.error('Error al actualizar empresa', error);
-          this.spinner.hide();
-          this.messageModal = "Hubo un error al actualizar la información de la empresa.";
-          this.showModal();
+          this.spinner.hide();     
+          this.showModal(true,this.updateErrorMessage,this.errorTitle);
         }
       );
     } else {
-      console.log('El formulario no es válido. Por favor, complete los campos correctamente.');
+      this.showModal(true,this.formInvalidMessage,this.errorformTitle);
     }
   }
+ 
 
-  showModal() {
-    this.visible = true;
+  private handleError(consoleMessage: string, messageError: string, errorTitleError: string) {
+    console.error(consoleMessage);
+    this.showModal(true, messageError, errorTitleError);
   }
 
-  closeModal() {
-    this.visible = false;
+  showModal(isError: boolean, message: string, title: string = this.errorTitle) {
+    this.isModalError = isError;
+    this.title = title;
+    this.messageModal = message;
+    this.confirmationModal.openModal();
   }
 
-  handleLiveDemoChange(event: any) {
-    this.visible = event;
-  }
 }

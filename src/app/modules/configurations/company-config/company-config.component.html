@@ -68,18 +68,14 @@
   </form>
 </c-col>
 
-<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
-  <c-modal-header>
-    <h5 cModalTitle>¡Actualización Completada!</h5>
-    <button (click)="closeModal()" cButtonClose></button>
-  </c-modal-header>
-  <c-modal-body>{{messageModal}}</c-modal-body>
-  <c-modal-footer>
-    <button (click)="closeModal()" cButton color="primary" style="color: white;">
-      Salir
-    </button>
-  </c-modal-footer>
-</c-modal>
+<!-- Modal de confirmación -->
+<app-confirmation-modal 
+#confirmationModal  
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'">
+</app-confirmation-modal>
 
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
   <p style="color: white">Cargando...</p>
