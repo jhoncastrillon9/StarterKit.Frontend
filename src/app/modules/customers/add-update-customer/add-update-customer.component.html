@@ -29,11 +29,7 @@
           <input cFormControl type="email" formControlName="email" class="form-control-sm" placeholder="correo@ejemplo.com" />
         </c-col>
       
-        <!-- Otro (campo adicional) -->
-        <c-col md="6">
-          <label cLabel for="other">Otro</label>
-          <input cFormControl formControlName="other" class="form-control-sm" placeholder="Información adicional (opcional)" />
-        </c-col>
+
       
         <!-- Dirección -->
         <c-col xs="6">
@@ -61,3 +57,13 @@
       </form>
       
 </c-col>
+
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal 
+#confirmationModal  
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'">
+</app-confirmation-modal>
