@@ -10,27 +10,35 @@ export class ConfirmationModalComponent {
   @Input() messageModal: string = '';
   @Input() title: string = '';
   @Input() alignment: string = '';
-  @Input() isModalError: Boolean = false;
+  @Input() isModalError: boolean = false;
+  @Input() isConfirmation: boolean = false; // Nueva propiedad para confirmar
+  @Output() confirmAction: EventEmitter<void> = new EventEmitter<void>(); // Emisor para acción de confirmación
   
-  alignmentModal: 'top'| 'center'| undefined;
+  alignmentModal: 'top' | 'center' | undefined;
   visible: boolean = false;
 
-
-  ngOnInit() {    
-    if (this.alignment === 'center') { 
+  ngOnInit() {
+    // Ajusta la alineación del modal
+    if (this.alignment === 'center') {
       this.alignmentModal = 'center';
     } else {
-      this.alignmentModal = 'top'; // Por ejemplo, puedes poner 'top' si no es 'center'
+      this.alignmentModal = 'top';
     }
   }
-  // Método para cerrar el modal y emitir el cambio
+
+  // Método para cerrar el modal
   closeModal() {
-    this.visible = false;  
+    this.visible = false;
   }
 
-  // Método para abrir el modal (si es necesario)
+  // Método para abrir el modal
   openModal() {
     this.visible = true;
   }
-}
 
+  // Método que se llama cuando el usuario confirma (clic en "SI")
+  confirm() {
+    this.confirmAction.emit(); // Emitimos el evento para que el componente padre lo maneje
+    this.closeModal(); // Cerramos el modal después de confirmar
+  }
+}

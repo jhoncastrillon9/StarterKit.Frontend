@@ -9,7 +9,6 @@ import { ViewEncapsulation } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
-
 @Component({
   selector: 'app-listcustomer',
   templateUrl: './listcustomer.component.html',
@@ -24,15 +23,18 @@ export class ListcustomerComponent implements OnInit {
   customers: CustomerModel[] = [];
   isModalError: boolean = false;
 
-  // Mensajes para el módulo de clientes
   private readonly successDeleteMessage: string = "¡El cliente ha sido eliminado correctamente!";
   private readonly successDeleteTitle: string = "¡Eliminación Completada!";
   private readonly errorDeleteMessage: string = "Hubo un problema al intentar eliminar el cliente. Intenta de nuevo.";
   private readonly errorTitle: string = "Oops, ocurrió un error.";
   private readonly loadDataError: string = "Algo falló al obtener los datos de los clientes. Refresca la página.";
-
+  private readonly deleteMessage: string = "Una vez eliminado, no hay vuelta atrás... bueno, tal vez sí, pero mejor asegúrate antes de despedirlo para siempre. 😅";
+  private readonly deleteTitle: string = "¿Quieres eliminar a este cliente?";
+  
   title: string = this.successDeleteTitle;
   messageModal: string = this.successDeleteMessage;
+
+  private customerToDelete?: CustomerModel; // Para almacenar el cliente que se va a eliminar
 
   constructor(
     private customerService: CustomerService,
@@ -67,13 +69,26 @@ export class ListcustomerComponent implements OnInit {
     this.searchValue = '';
   }
 
+  // Abre el modal de confirmación antes de eliminar
+  confirmDeleteCustomer(customerModel: CustomerModel) {
+    this.customerToDelete = customerModel; // Guardamos el cliente que se va a eliminar
+    this.confirmationModal.messageModal = this.deleteMessage;
+    this.confirmationModal.title = this.deleteTitle;
+    this.confirmationModal.isConfirmation = true; // Activamos el modo confirmación
+
+    // Emitimos la acción a ejecutar cuando se confirme la eliminación
+    this.confirmationModal.confirmAction.subscribe(() => this.deleteCustomer(this.customerToDelete!)); 
+    this.confirmationModal.openModal(); // Abrimos el modal
+  }
+
+  // Método para eliminar un cliente
   deleteCustomer(customerModel: CustomerModel) {
     this.spinner.show();
     this.customerService.delete(customerModel.customerId).subscribe(
       (response: any) => {
         this.spinner.hide();
         this.loadCustomers();
-        this.showModal(false, this.successDeleteMessage, this.successDeleteTitle);
+        this.showNotify()
       },
       (error) => {
         this.spinner.hide();
@@ -91,6 +106,10 @@ export class ListcustomerComponent implements OnInit {
     this.isModalError = isError;
     this.title = title;
     this.messageModal = message;
+    this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
     this.confirmationModal.openModal();
+  }
+  showNotify(){
+    console.log('show notify');
   }
 }

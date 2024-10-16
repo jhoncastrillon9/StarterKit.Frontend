@@ -88,7 +88,7 @@
           <td>{{ customer.address | capitalize | truncate:60}}</td>          
           <td>
             <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/customers/update', customer.customerId]" title="Ver Cliente"><svg cIcon class="me-2" name="cilPencil"></svg></span>                
-            <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="deleteCustomer(customer)" title="Eliminar Cliente Cotización"><svg cIcon class="me-2" name="cilXCircle"></svg></span>
+            <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="confirmDeleteCustomer(customer)" title="Eliminar Cliente Cotización"><svg cIcon class="me-2" name="cilXCircle"></svg></span>
           </td>
         </tr>
       </ng-template>

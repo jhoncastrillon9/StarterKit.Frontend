@@ -23,7 +23,6 @@ export class AddUpdateCustomerComponent implements OnInit {
   private readonly errorMessage: string = "Hubo un problema al procesar los datos del cliente. Intenta de nuevo.";
   private readonly errorTitle: string = "Oops, ocurrió un error.";
   private readonly formInvalidMessage: string = "El formulario necesita ser completado correctamente. Por favor, revisa los campos.";
-
   title: string = this.successAddMessage;
   messageModal: string = this.successAddMessage;
 
