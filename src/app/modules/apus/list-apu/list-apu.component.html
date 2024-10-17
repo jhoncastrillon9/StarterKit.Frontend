@@ -106,3 +106,13 @@
       </ng-template>
     </p-table>
 </c-col>
+
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal 
+#confirmationModal  
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'">
+</app-confirmation-modal>
