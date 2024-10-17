@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'; // Asegúrate de importar FormGroup y Validators desde '@angular/forms'
 import { AuthService } from '../../../auth/auth.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
-
-
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
 @Component({
   selector: 'app-login',
@@ -12,9 +11,11 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  isModalError: boolean = false;
   loginForm: FormGroup;
   messageModal: string = "Parece que el usuario o la contraseña que has ingresado son incorrectos. A veces, hasta los teclados se confunden.";
-  titleModal: string = "¡Ups! Algo salió mal ⚠️";
+  title: string = "¡Ups! Algo salió mal";
 
   public visible = false;
   
@@ -28,8 +29,6 @@ export class LoginComponent {
     });
   }
 
- 
-
 
   toggleLiveDemo() {
     this.visible = !this.visible;
@@ -40,13 +39,11 @@ export class LoginComponent {
   }
 
   onLogin() {
-    console.log("Start login");
     if (this.loginForm.valid) {
       this.spinner.show();
       const formData = this.loginForm.value;
       this.authService.login(formData).subscribe(
         (response: any) => {
-          console.log("login is OK");
           const { token  } = response;          
           const tokenData = JSON.parse(atob(token.split('.')[1]));           
           // Almacena el token y los datos del usuario en el almacenamiento local          
@@ -59,7 +56,11 @@ export class LoginComponent {
         (error) => {
           // Maneja errores y muestra un mensaje al usuario          
           this.spinner.hide();
-          this.toggleLiveDemo();
+          if (error.status === 401) {
+            this.handleError('Error Login',this.messageModal);
+          } else {
+            this.handleError('Error Login', 'Estamos experimentando problemas. Por favor, intenta más tarde.');
+          }    
           console.log(error.error);   
         }
       );
@@ -71,4 +72,19 @@ export class LoginComponent {
       }); 
     }
   }
+
+  private handleError(consoleMessage: string, modalMessage: string) {
+    console.error(consoleMessage);
+    this.showModal(true, modalMessage, this.title);
+  }
+
+  showModal(isError: boolean, message: string, title: string) {
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isConfirmation = false;
+    this.confirmationModal.openModal();
+  }
+
+
 }

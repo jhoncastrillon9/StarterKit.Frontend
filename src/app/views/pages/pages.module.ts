@@ -12,6 +12,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { RecoveryPasswordComponent } from './recovery-password/recovery-password.component';
 import { LoginCodeComponent } from './login-code/login-code.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
+import { CustomSharedModule } from '../../shared/shared.module';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
     FormModule,
     ReactiveFormsModule,
     NgxSpinnerModule,
-    ModalModule
+    ModalModule,
+    CustomSharedModule
   ]
 })
 export class PagesModule {
