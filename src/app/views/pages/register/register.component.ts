@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from 'src/app/auth/auth.service';
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
 @Component({
   selector: 'app-register',
@@ -10,8 +11,11 @@ import { AuthService } from 'src/app/auth/auth.service';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
-  messageModal: string = "";
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  isModalError: boolean = false;  
+  messageModal: string = "Estamos teniendo algunos inconvenientes. Por favor, inténtalo de nuevo más tarde. Si necesitas agregar un usuario a una empresa existente, contacta con nuestro equipo de soporte.";
+  title: string = "¡Ups! Algo salió mal";
+  registerForm: FormGroup;  
   public visible = false;
 
 
@@ -29,14 +33,6 @@ export class RegisterComponent {
    }
 
 
-
-   toggleLiveDemo() {
-    this.visible = !this.visible;
-  }
-
-  handleLiveDemoChange(event: any) {
-    this.visible = event;
-  }
 
    onRegister() {
     console.log("Start register");
@@ -56,9 +52,11 @@ export class RegisterComponent {
         (error) => {
           // Maneja errores y muestra un mensaje al usuario          
           this.spinner.hide();
-          this.toggleLiveDemo();
-          this.messageModal = 'Error al registrar usuario: ' + error.error.error
-          
+          if (error.status === 400) {
+            this.handleError('Error register', error.error.error)
+          } else {
+            this.handleError('Error register', this.messageModal)
+          }  
         }
       );
     } else {      
@@ -75,5 +73,20 @@ export class RegisterComponent {
     const confirmPassword = control.value;    
     return passwordControl === confirmPassword ? null : { 'passwordMismatch': true };
   }
+
+  
+  private handleError(consoleMessage: string, modalMessage: string) {
+    console.error(consoleMessage);
+    this.showModal(true, modalMessage, this.title);
+  }
+
+  showModal(isError: boolean, message: string, title: string) {
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isConfirmation = false;
+    this.confirmationModal.openModal();
+  }
+
 
 }

@@ -30,14 +30,6 @@ export class LoginComponent {
   }
 
 
-  toggleLiveDemo() {
-    this.visible = !this.visible;
-  }
-
-  handleLiveDemoChange(event: any) {
-    this.visible = event;
-  }
-
   onLogin() {
     if (this.loginForm.valid) {
       this.spinner.show();
