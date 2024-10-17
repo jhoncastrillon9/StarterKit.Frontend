@@ -25,7 +25,7 @@
       <div class="modal-footer justify-content-center" style="border-top: none;"> <!-- Sin línea separadora -->
         <!-- Si es una confirmación, mostramos los botones "SI" y "Cancelar" -->
         <ng-container *ngIf="isConfirmation; else defaultFooter">
-          <button (click)="confirm()" cButton color="danger" style="color: white;" class="btn-md">Si, Eliminar</button>
+          <button (click)="confirm()" cButton color="danger" style="color: white;" class="btn-md">{{titleButtonComfimationYes}}</button>
           <button (click)="closeModal()" cButton color="primary" style="color: white;" class="btn-md">Cancelar</button>
         </ng-container>
         <!-- Footer por defecto (solo botón "Salir") -->

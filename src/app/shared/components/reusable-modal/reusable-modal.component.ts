@@ -11,8 +11,9 @@ export class ConfirmationModalComponent {
   @Input() title: string = '';
   @Input() alignment: string = '';
   @Input() isModalError: boolean = false;
-  @Input() isConfirmation: boolean = false; // Nueva propiedad para confirmar
-  @Output() confirmAction: EventEmitter<void> = new EventEmitter<void>(); // Emisor para acción de confirmación
+  @Input() isConfirmation: boolean = false; 
+  @Input() titleButtonComfimationYes: string = ''; 
+  @Output() confirmAction: EventEmitter<void> = new EventEmitter<void>(); 
   
   alignmentModal: 'top' | 'center' | undefined;
   visible: boolean = false;
@@ -29,6 +30,13 @@ export class ConfirmationModalComponent {
   // Método para cerrar el modal
   closeModal() {
     this.visible = false;
+    this.messageModal = '';
+    this.title ='';
+    this.alignment= '';
+    this.isModalError = false;
+    this.isConfirmation = false; 
+    this.titleButtonComfimationYes = ''; 
+    this.confirmAction =  new EventEmitter<void>(); 
   }
 
   // Método para abrir el modal

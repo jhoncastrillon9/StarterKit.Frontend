@@ -103,9 +103,9 @@ export class AddUpdateCustomerComponent implements OnInit {
   }
 
   showModal(isError: boolean, message: string, title: string) {
-    this.isModalError = isError;
-    this.title = title;
-    this.messageModal = message;
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
     this.confirmationModal.openModal();
   }
 }

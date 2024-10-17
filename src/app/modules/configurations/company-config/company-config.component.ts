@@ -129,9 +129,9 @@ export class CompanyConfigComponent implements OnInit {
   }
 
   showModal(isError: boolean, message: string, title: string = this.errorTitle) {
-    this.isModalError = isError;
-    this.title = title;
-    this.messageModal = message;
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
     this.confirmationModal.openModal();
   }
 }

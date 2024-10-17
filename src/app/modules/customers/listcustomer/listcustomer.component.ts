@@ -74,7 +74,8 @@ export class ListcustomerComponent implements OnInit {
     this.customerToDelete = customerModel; // Guardamos el cliente que se va a eliminar
     this.confirmationModal.messageModal = this.deleteMessage;
     this.confirmationModal.title = this.deleteTitle;
-    this.confirmationModal.isConfirmation = true; // Activamos el modo confirmación
+    this.confirmationModal.isConfirmation = true;
+    this.confirmationModal.titleButtonComfimationYes = 'Si, Eliminar';
 
     // Emitimos la acción a ejecutar cuando se confirme la eliminación
     this.confirmationModal.confirmAction.subscribe(() => this.deleteCustomer(this.customerToDelete!)); 
@@ -103,9 +104,9 @@ export class ListcustomerComponent implements OnInit {
   }
 
   showModal(isError: boolean, message: string, title: string) {
-    this.isModalError = isError;
-    this.title = title;
-    this.messageModal = message;
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
     this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
     this.confirmationModal.openModal();
   }

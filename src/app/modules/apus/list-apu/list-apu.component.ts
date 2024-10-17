@@ -75,9 +75,6 @@ export class ListApuComponent {
     });
   }
 
-
-
-
   clear(table: Table) {
     table.clear();
     this.searchValue = ''
@@ -90,9 +87,9 @@ private handleError(consoleMessage: string, modalMessage: string) {
 }
 
 showModal(isError: boolean, message: string, title: string) {
-  this.isModalError = isError;
-  this.title = title;
-  this.messageModal = message;
+  this.confirmationModal.isModalError = isError;
+  this.confirmationModal.title = title;
+  this.confirmationModal.messageModal = message;
   this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
   this.confirmationModal.openModal();
 }

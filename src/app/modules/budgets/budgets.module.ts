@@ -109,7 +109,9 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AutoFocusModule } from 'primeng/autofocus';
-import { SharedModule as CustomSharedModule } from '../../shared.module'; 
+import { SharedModule as CustomSharedModulePipes } from '../../shared.module'; 
+import { CustomSharedModule} from '../../shared/shared.module';
+
 
 @NgModule({
   declarations: [
@@ -118,6 +120,7 @@ import { SharedModule as CustomSharedModule } from '../../shared.module';
     ReadBudgetComponent  ],
   imports: [
     CustomSharedModule,
+    CustomSharedModulePipes,
     CommonModule,
     BudgetsRoutingModule,
     NgxSpinnerModule,    
