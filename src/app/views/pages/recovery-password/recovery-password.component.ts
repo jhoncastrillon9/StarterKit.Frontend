@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'; // Asegúrate de importar FormGroup y Validators desde '@angular/forms'
 import { AuthService } from '../../../auth/auth.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
 @Component({
   selector: 'app-recovery-password',  
@@ -10,8 +11,11 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrl: './recovery-password.component.scss'
 })
 export class RecoveryPasswordComponent {
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  isModalError: boolean = false;  
+  messageModal: string = "Estamos teniendo algunos inconvenientes. Por favor, inténtalo de nuevo más tarde. Si necesitas agregar un usuario a una empresa existente, contacta con nuestro equipo de soporte.";
+  title: string = "¡Ups! Algo salió mal";
   recoveryPasswordForm: FormGroup;
-  messageModal: string = "";
   public visible = false;
 
 
@@ -26,32 +30,24 @@ export class RecoveryPasswordComponent {
    }
 
 
-
-   toggleLiveDemo() {
-    this.visible = !this.visible;
-  }
-
-  handleLiveDemoChange(event: any) {
-    this.visible = event;
-  }
-
   onRecoveryPassword() {
-    console.log("Start onRecoverPassword");
     if (this.recoveryPasswordForm.valid) {
       this.spinner.show();
       const formData = this.recoveryPasswordForm.value;
       this.authService.recoveryPassword(formData).subscribe(
-        (response: any) => {
-          console.log("onRecoverPassword is OK");
+        (response: any) => {   
           this.spinner.hide();          
           this.router.navigate(['/login']);
         },
-        (error) => {
-          // Maneja errores y muestra un mensaje al usuario          
+        (error) => {         
           this.spinner.hide();
-          this.toggleLiveDemo();
-          this.messageModal = 'Error al onRecoverPassword: ' + error.error.error
-          
+          if (error.status === 400) {
+            this.handleError('Error recovery', error.error.error)
+          } else {
+            this.handleError('Error recovery', this.messageModal)
+          } 
+    
+          this.messageModal = 'Error al onRecoverPassword: ' + error.error.error;          
         }
       );
     } else {      
@@ -61,4 +57,21 @@ export class RecoveryPasswordComponent {
       });      
     }
   }
+
+
+  private handleError(consoleMessage: string, modalMessage: string) {
+    console.error(consoleMessage);
+    this.showModal(true, modalMessage, this.title);
+  }
+
+  showModal(isError: boolean, message: string, title: string) {
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isConfirmation = false;
+    this.confirmationModal.openModal();
+  }
+
+
+
 }
