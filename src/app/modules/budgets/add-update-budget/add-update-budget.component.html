@@ -1,185 +1,227 @@
-<c-col xs="12">  
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Nueva Cotización</span>    
+<c-col xs="12">
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1">
+    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary"
+      class="cui-primary">Nueva Cotización</span>
     <div style="color:  #6610f2; font-weight: 600;">
-     Fecha {{ currentDate | date: 'dd MMM yyyy' }}
+      Fecha {{ currentDate | date: 'dd MMM yyyy' }}
     </div>
   </div>
 </c-col>
 
 <c-col xs="12">
- 
-        <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
-          <input cFormControl formControlName="budgetId" style="display: none;" />
-          <c-col md="5">
-            <label cLabel for="budgetName" >Nombre de la Obra o cotización:*</label>
-            <input cFormControl formControlName="budgetName" class="form-control-sm"/>
-          </c-col>
-          <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)" class="text-danger">
-            Nombre de la obra es obligatorio
-          </p>
 
-          <c-col md="5">
-            <label cLabel for="customerId">Cliente:*</label>
-            <select aria-label="Default select example" cFormControl cSelect formControlName="customerId" class="form-select-sm form-control-sm">
-              <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
-            </select>
-          </c-col>
-          <c-col md="2">
-            <label cLabel for="note">Sumar AIU</label>
-            <input cFormCheckInput type="checkbox" cFormControl formControlName="sumAIU" (change)="updateAmount()" (blur)="updateAmount()" (input)="updateAmount()"/>
-          </c-col>
+  <form cForm class="row g-3" [formGroup]="budgetForm" (ngSubmit)="onAddUpdateBudget()">
+    <input cFormControl formControlName="budgetId" style="display: none;" />
 
+    <!-- Nombre -->
+    <c-col md="5">
+      <label cLabel for="budgetName">Nombre de la Obra o cotización:*</label>
+      <input cFormControl formControlName="budgetName" class="form-control-sm"
+        [ngClass]="{'is-invalid': budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)}" />
 
-          
+      <div class="text-medium-emphasis small text-danger-error"
+        *ngIf="budgetForm.get('budgetName')?.invalid && (budgetForm.get('budgetName')?.touched || budgetForm.get('budgetName')?.dirty)">
+        El nombre de la obra o cotización es obligatorio.
+      </div>
+    </c-col>
 
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th class="descripcion colo-frayforTable">Descripción</th>
-                  <th class="und colo-frayforTable">Und</th>
-                  <th class="cantidad colo-frayforTable">Cantidad</th>
-                  <th class="precio colo-frayforTable">Precio</th>
-                  <th class="subtotal colo-frayforTable">Subtotal</th>
-                  <th class="acciones colo-frayforTable">Acciones</th>
-                </tr>
-              </thead>
-              <tbody formArrayName="budgetDetailsDto">
-                <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
-                  <td >
-                    <textarea cFormControl formControlName="description" placeholder="Descripción" style="min-height: 50px; resize: vertical; max-height: 200px; width: 100%;" rows="2"></textarea>
-                    <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)" class="text-danger">
-                      La descripción es obligatoria.
-                    </p>
-                  </td>
-                  <td class="align-middle">
-
-                    <select class="form-select form-select-sm" aria-label="Und" cFormControl formControlName="unitMeasurement" >
-                      <option value="Und" selected>Und</option>
-                      <option value="M2">M2</option>
-                      <option value="M3">M3</option>
-                      <option value="ML">ML</option>
-                      <option value="kg">kg</option>
-                      <option value="hr">hr</option>
-                      <option value="mes">mes</option>
-                      <option value="km">km</option>
-                      <option value="Carga">Carga</option>
-                      <option value="M3-km">M3-km</option>
-                      <option value="jgo">jgo</option>
-                      <option value="lt">lt</option>
-                      <option value="ton-m">ton-m</option>
-                      <option value="HA">HA</option>
+    <!-- Cliente -->
+    <c-col md="5">
+      <label cLabel for="customerId">Cliente:*</label>
+      <select aria-label="Default select example" cFormControl cSelect formControlName="customerId"
+        [ngClass]="{'is-invalid': budgetForm.get('customerId')?.invalid && (budgetForm.get('customerId')?.touched || budgetForm.get('customerId')?.dirty)}"
+        class="form-select-sm form-control-sm">
+        <option value="" disabled selected>Seleccione un cliente</option> <!-- Opción por defecto -->
+        <option *ngFor="let customer of customers" [value]="customer.customerId">{{customer.customerName}}</option>
+      </select>
+      <div class="text-medium-emphasis small text-danger-error"
+        *ngIf="budgetForm.get('customerId')?.invalid && (budgetForm.get('customerId')?.touched || budgetForm.get('customerId')?.dirty)">
+        El cliente es obligatorio.
+      </div>
+    </c-col>
 
 
-                    </select>    
-                  </td>
-                  <td class="align-middle">
-                    <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
-                    <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
-                      La Cantidad es obligatoria.
-                    </p>
-                  </td>
-                  <td class="align-middle">
-                    <input cFormControl formControlName="price" placeholder="Precio" type="number" (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)" (input)="calculateSubtotalForDetails(i)" class="form-control-sm"/>
-                    <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
-                      El precio es obligatorio.
-                    </p>
-                    <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)" class="text-danger">
-                      El precio debe ser un número válido.
-                    </p>
-                    <p class="text-medium-emphasis small" *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)" class="text-danger">
-                      La cantidad debe ser un número válido.
-                    </p>
-                  </td>
-                  <td class="align-middle">
-                    <input cFormControl formControlName="subtotal" placeholder="0" readonly name="subtotal" class="form-control-sm" />
-                  </td>
-                  <td class="align-middle">
-                    <a style="color:  #dc3545 ; cursor: pointer;" (click)="removeBudgetDetail(i)">                      <svg cIcon class="me-2" name="cilXCircle"></svg>                     </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <c-col md="2">
+      <label cLabel for="note">Sumar AIU</label>
+      <input cFormCheckInput type="checkbox" cFormControl formControlName="sumAIU" (change)="updateAmount()"
+        (blur)="updateAmount()" (input)="updateAmount()" />
+    </c-col>
+
+
+
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="descripcion colo-frayforTable">Descripción</th>
+            <th class="und colo-frayforTable">Und</th>
+            <th class="cantidad colo-frayforTable">Cantidad</th>
+            <th class="precio colo-frayforTable">Precio</th>
+            <th class="subtotal colo-frayforTable">Subtotal</th>
+            <th class="acciones colo-frayforTable">Acciones</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="budgetDetailsDto">
+          <tr *ngFor="let detail of budgetDetails.controls; let i = index" [formGroupName]="i">
+            <td>
+              <!-- Description -->
+              <textarea cFormControl formControlName="description" placeholder="Descripción"
+                style="min-height: 50px; resize: vertical; max-height: 200px; width: 100%;" rows="2"
+                [ngClass]="{'is-invalid': budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)}">
+            </textarea>
+              <div class="text-medium-emphasis small text-danger-error"
+                *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)">
+                La descripción es obligatoria.
+              </div>
+            </td>
+            <td class="align-middle">
+
+              <select class="form-select form-select-sm" aria-label="Und" cFormControl
+                formControlName="unitMeasurement">
+                <option value="Und" selected>Und</option>
+                <option value="M2">M2</option>
+                <option value="M3">M3</option>
+                <option value="ML">ML</option>
+                <option value="kg">kg</option>
+                <option value="hr">hr</option>
+                <option value="mes">mes</option>
+                <option value="km">km</option>
+                <option value="Carga">Carga</option>
+                <option value="M3-km">M3-km</option>
+                <option value="jgo">jgo</option>
+                <option value="lt">lt</option>
+                <option value="ton-m">ton-m</option>
+                <option value="HA">HA</option>
+
+
+              </select>
+            </td>
+            <td class="align-middle">
+              <!-- quantity -->
+              <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number"
+                (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)"
+                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
+
+              <div class="text-medium-emphasis small text-danger-error"
+                *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)">
+                La cantidad es obligatoria.
+              </div>
+            </td>
+            <td class="align-middle">
+              <input cFormControl formControlName="price" placeholder="Precio" type="number"
+                (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)"
+                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
+
+              <div class="text-medium-emphasis small text-danger-error"
+                *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)">
+                El precio es obligatorio.
+              </div>
+
+              <div class="text-medium-emphasis small text-danger-error"
+                *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)"
+                class="text-danger">
+                El precio debe ser un número válido.
+              </div>
+              <div class="text-medium-emphasis small text-danger-error"
+                *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)"
+                class="text-danger">
+                La cantidad debe ser un número válido.
+              </div>
+            </td>
+            <td class="align-middle">
+              <input cFormControl formControlName="subtotal" placeholder="0" readonly name="subtotal"
+                class="form-control-sm" />
+            </td>
+            <td class="align-middle">
+              <a style="color:  #dc3545 ; cursor: pointer;" (click)="removeBudgetDetail(i)"> <svg cIcon class="me-2"
+                  name="cilXCircle"></svg> </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <c-col xs="12" class="text-center">
+      <!-- Botón Agregar Item nuevo con margen derecho -->
+      <button cButton color="primary" type="button" class="btn-sm me-3" (click)="addBudgetDetail()">
+        Agregar Item nuevo
+      </button>
+
+      <!-- Botón Agregar Item desde APU -->
+      <button cButton color="primary" type="button" class="btn-sm" (click)="addBudgetDetailFromAPU()">
+        Agregar Item desde APU
+      </button>
+    </c-col>
+
+
+    <c-col md="3">
+      <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
+    </c-col>
+
+    <c-col md="12">
+      <div class="row">
+        <c-col md="9">
+          <div class="row">
+            <c-col md="8">
+              <label cLabel for="wayToPay">Forma de pago:</label>
+              <input cFormControl formControlName="wayToPay" class="form-control-sm" />
+            </c-col>
+            <c-col md="2">
+              <label cLabel for="deliveryTime">Plazo de entrega:</label>
+              <input cFormControl formControlName="deliveryTime" class="form-control-sm" />
+            </c-col>
+            <c-col md="2">
+              <label cLabel for="validityOffer">Validez de oferta:</label>
+              <input cFormControl formControlName="validityOffer" class="form-control-sm" />
+            </c-col>
+          </div>
+          <div class="row">
+            <c-col md="8">
+              <label cLabel for="note">Nota:</label>
+              <textarea cFormControl formControlName="note"
+                placeholder="Escribe una nota para el cliente o detalles importantes" rows="2"></textarea>
+
+            </c-col>
           </div>
 
-          <c-col xs="12" class="text-center">
-            <!-- Botón Agregar Item nuevo con margen derecho -->
-            <button cButton color="primary"  type="button" class="btn-sm me-3" (click)="addBudgetDetail()">
-              Agregar Item nuevo
-            </button>
-            
-            <!-- Botón Agregar Item desde APU -->
-            <button cButton color="primary"  type="button" class="btn-sm" (click)="addBudgetDetailFromAPU()">
-              Agregar Item desde APU
-            </button>
-          </c-col>
-          
 
-          <c-col md="3">
-            <input cFormControl formControlName="amount" sizing="sm" readonly style="display: none;" />
-          </c-col>
+        </c-col>
 
-          <c-col md="12">
-            <div class="row">
-              <c-col md="9">
-                <div class="row">
-                  <c-col md="8">
-                    <label cLabel for="wayToPay">Forma de pago:</label>
-                    <input cFormControl formControlName="wayToPay" class="form-control-sm"/>
-                  </c-col>
-                  <c-col md="2">
-                    <label cLabel for="deliveryTime">Plazo de entrega:</label>
-                    <input cFormControl formControlName="deliveryTime" class="form-control-sm" />
-                  </c-col>
-                  <c-col md="2">
-                    <label cLabel for="validityOffer">Validez de oferta:</label>
-                    <input cFormControl formControlName="validityOffer" class="form-control-sm"/>
-                  </c-col>
-                </div>
-                <div class="row">
-                  <c-col md="8">
-                    <label cLabel for="note">Nota:</label>                    
-                    <textarea cFormControl formControlName="note" placeholder="Escribe una nota para el cliente o detalles importantes"rows="2"></textarea>
+        <c-col md="3" class="text-end">
+          <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
+          <h5><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
+          <h5><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
+          <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
+        </c-col>
+      </div>
 
-                  </c-col>
-                </div>
-               
+    </c-col>
 
-              </c-col>
-              
-              <c-col md="3" class="text-end">
-                <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
-                <h5><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
-                <h5><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
-                <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
-              </c-col>
-            </div>
+    <p class="text-medium-emphasis small"
+      *ngIf="budgetForm.get('email')?.invalid && (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)"
+      class="text-danger">
+      Email no es válido.
+    </p>
+    <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
+      {{msjError}}
+    </p>
 
-          </c-col>
+    <c-col xs="12" class="text-end">
 
-          <p class="text-medium-emphasis small" *ngIf="budgetForm.get('email')?.invalid && (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)" class="text-danger">
-            Email no es válido.
-          </p>
-          <p class="text-medium-emphasis small" *ngIf="showErrors" class="text-danger">
-            {{msjError}}
-          </p>
+      <a cButton type="button" class="me-3 btn-sm" variant="outline" [routerLink]="'/budgets/budgets'">
+        Regresar
+      </a>
 
-          <c-col xs="12" class="text-end">
-            
-            <a cButton type="button" class="me-3 btn-sm" variant="outline" [routerLink]="'/budgets/budgets'">
-              Regresar
-            </a>
-            
-            
-            <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
-              {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
-            </button>
-     
-          </c-col>
-        </form>
 
-  </c-col>
+      <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
+        {{ budgetForm.get('budgetId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
+      </button>
+
+    </c-col>
+  </form>
+
+</c-col>
 
 <!-- Modal de confirmación -->
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)" size="xl">
@@ -190,7 +232,9 @@
       <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;">
         <h5 cModalTitle>
           <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i>
-          <span class="cui-primary" style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item desde APU!</span>   
+          <span class="cui-primary"
+            style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item
+            desde APU!</span>
         </h5>
         <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
           <i class="bi bi-x"></i>
@@ -246,16 +290,11 @@
 
 
 <!-- Modal de confirmación -->
-<app-confirmation-modal 
-#confirmationModal  
-  [messageModal]="messageModal"
-  [title]="title"
-  [isModalError]="isModalError"
+<app-confirmation-modal #confirmationModal [messageModal]="messageModal" [title]="title" [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
 
 
-  <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
-    <p style="color: white"> Cargando... </p>
-  </ngx-spinner>
-
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
+  <p style="color: white"> Cargando... </p>
+</ngx-spinner>

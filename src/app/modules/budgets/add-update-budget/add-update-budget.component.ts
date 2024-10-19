@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
 import { CustomerModel } from '../../customers/models/customer.Model';
@@ -26,12 +26,12 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
-  validityOfferDefault: string = "30 días";     
+  validityOfferDefault: string = "30 días";
   budgetForm: FormGroup;
   budgetId?: string;
   currentDate: Date = new Date();
   customers: CustomerModel[] = [];
-  showErrors: boolean = false;  
+  showErrors: boolean = false;
   msjError: string = "";
   visible = false;
 
@@ -40,10 +40,10 @@ export class AddUpdateBudgetComponent implements OnInit {
   selectedItems: ApuModel[] = [];
   apuModels: ApuModel[] = [];
   private localStorageKey = 'apuModelsData';
-  private expiryKey = 'apuModelsExpiry'; 
-  
+  private expiryKey = 'apuModelsExpiry';
+
   //Campos calculados
-  amount: number = 0;  
+  amount: number = 0;
   aiu: number = 0;
   iva: number = 0;
   total: number = 0;
@@ -61,7 +61,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.budgetForm = this.fb.group({
       budgetId: ['0'],
       userId: ['0', [Validators.required]],
-      customerId: ['0', [Validators.required]],
+      customerId: ['', [Validators.required, numberGreaterThanZeroValidator()]], // Aplica el validador aquí
       amount: [this.amount, [Validators.required]],
       date: [new Date()],
       budgetName: ['', [Validators.required]],
@@ -73,8 +73,8 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
 
-    iconSet.icons = {  cilPencil,cilXCircle, cilMoney};
-    
+    iconSet.icons = { cilPencil, cilXCircle, cilMoney };
+
   }
 
   ngOnInit() {
@@ -82,15 +82,15 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetId = params.get('id')!;
       this.spinner.show();
       if (this.budgetId) {
-        this.budgetService.getById(this.budgetId).subscribe((budget: any) => {          
-          
+        this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
+
           this.budgetForm.patchValue(budget);
-  
+
           // Agrega el código aquí para cargar los detalles del presupuesto
           if (budget && budget.budgetDetailsDto) {
             const detailsArray = this.budgetForm.get('budgetDetailsDto') as FormArray;
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
-  
+
             budget.budgetDetailsDto.forEach((detail: any) => {
               const budgetDetailGroup = this.fb.group({
                 budgetDetailId: detail.budgetDetailId,
@@ -103,21 +103,21 @@ export class AddUpdateBudgetComponent implements OnInit {
               });
               detailsArray.push(budgetDetailGroup);
             });
-  
+
             // Actualiza el total después de cargar los detalles
             this.updateAmount();
             this.spinner.hide();
           }
-        },(error)=> {
+        }, (error) => {
           this.spinner.hide();
-          this.handleError('Load Data',this.errorGeneralMessage);
+          this.handleError('Load Data', this.errorGeneralMessage);
         });
       } else {
         //Add empty row 
         this.addBudgetDetail();
       }
     });
-  
+
     this.loadCustomers();
     this.loadApus();
 
@@ -128,10 +128,10 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.customerService.get().subscribe(customers => {
       this.customers = customers;
       this.spinner.hide();
-    },(error)=>{
+    }, (error) => {
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
-      this.handleError('Load Data',this.errorGeneralMessage);
+      this.handleError('Load Data', this.errorGeneralMessage);
     });
   }
 
@@ -188,13 +188,17 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   onAddUpdateBudget() {
+    console.log(this.budgetForm.get('budgetName')?.errors); 
+    console.log(this.budgetForm.get('customerId')?.errors); // Verifica los errores
+    this.budgetForm.markAllAsTouched();
+    console.log(this.budgetForm.get('customerId')?.errors); // Verifica los errores
     if (this.budgetForm.valid) {
       this.spinner.show();
       this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.amount);
       const formData = this.budgetForm.value;
       console.log(formData);
-      
+
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(
           (response: any) => {
@@ -205,7 +209,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.showErrors = true;
             this.msjError = error;
             this.spinner.hide();
-            this.handleError('Load Data',this.errorGeneralMessage);
+            this.handleError('Load Data', this.errorGeneralMessage);
           }
         );
       } else {
@@ -215,16 +219,16 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.spinner.hide();
           },
           (error) => {
-            this.showErrors = true;            
+            this.showErrors = true;
             this.msjError = "Error inesperado, revisa la información del formulario";
             this.spinner.hide();
-            this.handleError('Load Data',this.errorGeneralMessage);
+            this.handleError('Load Data', this.errorGeneralMessage);
           }
         );
       }
     } else {
       this.showErrors = true;
-      this.showModalDefault(true,'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.','¡Campos incompletos!');      
+      this.showModalDefault(true, 'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.', '¡Campos incompletos!');
     }
   }
 
@@ -241,12 +245,12 @@ export class AddUpdateBudgetComponent implements OnInit {
   updateAmount() {
     this.amount = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
-      const subtotal = control.get('subtotal')?.value;     
-  
+      const subtotal = control.get('subtotal')?.value;
+
       if (subtotal !== null) {
         // Convierte el valor en una cadena de texto y luego realiza el reemplazo
         const sanitizedSubtotal = String(subtotal).replace(/,/g, '').replace(/\./g, '');
-  
+
         // Convierte la cadena sin separadores de miles en número
         this.amount += parseFloat(sanitizedSubtotal);
       }
@@ -260,102 +264,125 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.iva = this.aiu * 0.19; // Calculas el IVA
     const sumAIU = this.budgetForm.get('sumAIU')?.value;
     console.log(sumAIU);
-    if(sumAIU){
+    if (sumAIU) {
       this.total = this.amount + this.iva + this.aiu; // Calculas el total
-    } else{
+    } else {
       this.total = this.amount + this.iva; // Calculas el total
     }
-   
-}
 
-handleLiveDemoChange(event: any) {
-  this.visible = event;
-}
-
-showModal() {
-  this.visible = true;
-}
-
-closeModal() {
-  this.visible = false;
-}
-
-closeModalAPU() {
-  this.visible = false;
-  this.selectedItems = [];
-  this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
-}
-
-// Método para resetear los ítems seleccionados
-resetSelections() {
-  this.apuModels.forEach(item => item.selected = false); // Deseleccionar todos los ítems
-}
-
-addBudgetDetailFromAPU() {
-  // Verificamos si la lista está vacía o nula, o si los datos en localStorage han caducado
-  const storedData = localStorage.getItem(this.localStorageKey);
-  const storedExpiry = localStorage.getItem(this.expiryKey);
-
-  const now = new Date().getTime();
-  const sixHours = 6 * 60 * 60 * 1000; // Seis horas en milisegundos
-
-  const isLocalDataValid = storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours);
-
-  // Si la lista está vacía o nula, o los datos son inválidos, llamamos a la API
-  if (!this.apuModels || this.apuModels.length === 0 || !isLocalDataValid) {
-    this.loadApus(); // Cargar datos desde la API si es necesario
   }
 
-  // Mostrar el modal
-  this.showModal();
-}
+  handleLiveDemoChange(event: any) {
+    this.visible = event;
+  }
+
+  showModal() {
+    this.visible = true;
+  }
+
+  closeModal() {
+    this.visible = false;
+  }
+
+  closeModalAPU() {
+    this.visible = false;
+    this.selectedItems = [];
+    this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
+  }
+
+  // Método para resetear los ítems seleccionados
+  resetSelections() {
+    this.apuModels.forEach(item => item.selected = false); // Deseleccionar todos los ítems
+  }
+
+  addBudgetDetailFromAPU() {
+    // Verificamos si la lista está vacía o nula, o si los datos en localStorage han caducado
+    const storedData = localStorage.getItem(this.localStorageKey);
+    const storedExpiry = localStorage.getItem(this.expiryKey);
+
+    const now = new Date().getTime();
+    const sixHours = 6 * 60 * 60 * 1000; // Seis horas en milisegundos
+
+    const isLocalDataValid = storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours);
+
+    // Si la lista está vacía o nula, o los datos son inválidos, llamamos a la API
+    if (!this.apuModels || this.apuModels.length === 0 || !isLocalDataValid) {
+      this.loadApus(); // Cargar datos desde la API si es necesario
+    }
+
+    // Mostrar el modal
+    this.showModal();
+  }
 
 
-addToList() {
-  this.closeModal();
-  this.spinner.show();
+  addToList() {
+    this.closeModal();
+    this.spinner.show();
 
-  this.selectedItems = this.apuModels.filter(item => item.selected);
+    this.selectedItems = this.apuModels.filter(item => item.selected);
 
-  this.closeModal();
+    this.closeModal();
 
 
 
-  this.selectedItems.forEach(item => {
-    const budgetDetailGroup = this.fb.group({
-      budgetDetailId: [0],
-      budgetId: [0],
-      unitMeasurement: [item.unitMeasurement || 'Und'], // Se toma la unidad del item seleccionado o 'Und' por defecto
-      description: [item.itemName, [Validators.required]], // Descripción con el nombre del ítem
-      quantity: [1, [Validators.required, Validators.pattern(/^\d+$/)]], // Cantidad inicial por defecto en 1
-      price: [item.totalPrice, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Precio del ítem seleccionado
-      subtotal: [item.totalPrice], // Subtotal es el precio por defecto
+    this.selectedItems.forEach(item => {
+      const budgetDetailGroup = this.fb.group({
+        budgetDetailId: [0],
+        budgetId: [0],
+        unitMeasurement: [item.unitMeasurement || 'Und'], // Se toma la unidad del item seleccionado o 'Und' por defecto
+        description: [item.itemName, [Validators.required]], // Descripción con el nombre del ítem
+        quantity: [1, [Validators.required, Validators.pattern(/^\d+$/)]], // Cantidad inicial por defecto en 1
+        price: [item.totalPrice, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Precio del ítem seleccionado
+        subtotal: [item.totalPrice], // Subtotal es el precio por defecto
+      });
+
+      // Agregar al array de detalles
+      this.budgetDetails.push(budgetDetailGroup);
     });
 
-    // Agregar al array de detalles
-    this.budgetDetails.push(budgetDetailGroup);
-  });
-
-  // Después de agregar los elementos, actualizar el monto total
-  this.updateAmount();
-  this.spinner.hide();
-  this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
-}
+    // Después de agregar los elementos, actualizar el monto total
+    this.updateAmount();
+    this.spinner.hide();
+    this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
+  }
 
 
-private handleError(consoleMessage: string, modalMessage: string) {
-  console.error(consoleMessage);
-  this.showModalDefault(true, modalMessage, this.errorTitle);
+  private handleError(consoleMessage: string, modalMessage: string) {
+    console.error(consoleMessage);
+    this.showModalDefault(true, modalMessage, this.errorTitle);
+  }
+
+  showModalDefault(isError: boolean, message: string, title: string) {
+    this.confirmationModal.isModalError = isError;
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
+    this.confirmationModal.openModal();
+  }
+  showNotify() {
+    console.log('show notify');
+  }
 }
 
-showModalDefault(isError: boolean, message: string, title: string) {
-  this.confirmationModal.isModalError = isError;
-  this.confirmationModal.title = title;
-  this.confirmationModal.messageModal = message;
-  this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
-  this.confirmationModal.openModal();
-}
-showNotify(){
-  console.log('show notify');
-}
+export function numberGreaterThanZeroValidator(): ValidatorFn {
+  return (control: AbstractControl): { [key: string]: any } | null => {
+    const value = control.value;
+    console.log('Validator' + value);
+    // Si el valor es undefined, retornamos un objeto que indica que es inválido
+    if (value === undefined || value === null) {
+      console.log('Validator true 1' );
+      return { invalidNumber: true }; // Indica que el valor es inválido
+    }
+
+    // Verificar si el valor es un número y mayor que 0
+    if (isNaN(value) || value <= 0) {
+      console.log('Validator true 2' );
+
+      return { invalidNumber: true }; // Retorna un objeto de error si no es válido
+    }
+
+    console.log('Validator null' );
+
+    return null; // Retorna null si es válido
+  }
 }
