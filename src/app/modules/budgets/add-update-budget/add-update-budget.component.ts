@@ -188,10 +188,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   onAddUpdateBudget() {
-    console.log(this.budgetForm.get('budgetName')?.errors); 
-    console.log(this.budgetForm.get('customerId')?.errors); // Verifica los errores
     this.budgetForm.markAllAsTouched();
-    console.log(this.budgetForm.get('customerId')?.errors); // Verifica los errores
     if (this.budgetForm.valid) {
       this.spinner.show();
       this.budgetForm.get('date')?.setValue(this.currentDate);
@@ -318,11 +315,8 @@ export class AddUpdateBudgetComponent implements OnInit {
   addToList() {
     this.closeModal();
     this.spinner.show();
-
     this.selectedItems = this.apuModels.filter(item => item.selected);
-
     this.closeModal();
-
 
 
     this.selectedItems.forEach(item => {
@@ -367,21 +361,16 @@ export class AddUpdateBudgetComponent implements OnInit {
 export function numberGreaterThanZeroValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
     const value = control.value;
-    console.log('Validator' + value);
+   
     // Si el valor es undefined, retornamos un objeto que indica que es inválido
-    if (value === undefined || value === null) {
-      console.log('Validator true 1' );
+    if (value === undefined || value === null) {     
       return { invalidNumber: true }; // Indica que el valor es inválido
     }
 
     // Verificar si el valor es un número y mayor que 0
     if (isNaN(value) || value <= 0) {
-      console.log('Validator true 2' );
-
       return { invalidNumber: true }; // Retorna un objeto de error si no es válido
     }
-
-    console.log('Validator null' );
 
     return null; // Retorna null si es válido
   }

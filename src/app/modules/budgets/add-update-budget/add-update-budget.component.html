@@ -101,7 +101,9 @@
               <!-- quantity -->
               <input cFormControl formControlName="quantity" placeholder="Cantidad" type="number"
                 (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)"
-                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
+                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" 
+                [ngClass]="{'is-invalid': budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)}"
+                />
 
               <div class="text-medium-emphasis small text-danger-error"
                 *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)">
@@ -111,7 +113,11 @@
             <td class="align-middle">
               <input cFormControl formControlName="price" placeholder="Precio" type="number"
                 (change)="calculateSubtotalForDetails(i)" (blur)="calculateSubtotalForDetails(i)"
-                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" />
+                (input)="calculateSubtotalForDetails(i)" class="form-control-sm" 
+                [ngClass]="{'is-invalid': budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)}"
+                [ngClass]="{'is-invalid': budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)}"
+                [ngClass]="{'is-invalid': budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('pattern') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)}"
+                />
 
               <div class="text-medium-emphasis small text-danger-error"
                 *ngIf="budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') && (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched || budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)">

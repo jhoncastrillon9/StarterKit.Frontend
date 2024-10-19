@@ -36,7 +36,7 @@ export class AddUpdateCustomerComponent implements OnInit {
 
   ngOnInit() {
     this.customerForm = this.fb.group({
-      email: ['', [Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       customerName: ['', [Validators.required]],
       customId: [''],
       address: [''],  
@@ -63,6 +63,7 @@ export class AddUpdateCustomerComponent implements OnInit {
   }
 
   onAddUpdateCustomer() {
+    this.customerForm.markAllAsTouched();
     if (this.customerForm.valid) {
       const formData = this.customerForm.value;
       this.spinner.show();
