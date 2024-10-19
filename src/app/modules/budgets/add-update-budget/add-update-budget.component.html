@@ -181,10 +181,10 @@
 
   </c-col>
 
+
 <!-- Modal de confirmación -->
-<!-- Modal de confirmación -->
-<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)"  class="modal-lg">
-  <div class="modal-dialog " style="max-width: 80vw; width: 100%;"> <!-- Forzar ancho a 80% del viewport -->
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)"  size="xl">
+  <div class="modal-dialog "> <!-- Forzar ancho a 80% del viewport -->
     <div class="modal-content text-center" style="border: none;"> <!-- Contenido centrado y sin bordes -->
 
       <!-- Título con icono centrado y botón de cerrar -->
@@ -209,7 +209,7 @@
 
         <!-- Select con filtro -->
         <div class="mb-3">
-          <select [(ngModel)]="selectedItems" class="form-select" multiple>
+          <select [(ngModel)]="selectedItems" class="form-select"  multiple size="10">
             <option *ngFor="let apu of apuModels | filterBy: searchTerm" [ngValue]="apu">
               {{ apu.itemName  | capitalize }} - {{ apu.unitMeasurement }} - $ {{ apu.totalPrice.toLocaleString('es-ES') }}
             </option>
