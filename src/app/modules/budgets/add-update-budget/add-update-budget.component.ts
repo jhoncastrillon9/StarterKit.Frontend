@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
@@ -9,6 +9,7 @@ import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApuModel } from '../../apus/models/apu.Model';
 import { ApuService } from '../../apus/services/apu.service';
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 @Component({
   selector: 'app-add-update-budget',
   templateUrl: './add-update-budget.component.html',
@@ -16,6 +17,13 @@ import { ApuService } from '../../apus/services/apu.service';
 })
 
 export class AddUpdateBudgetComponent implements OnInit {
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  isModalError: boolean = false;
+  private readonly errorTitle: string = "¡Ups! ocurrió un error.";
+  title: string = '';
+  messageModal: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
+  private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
+
   wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
   validityOfferDefault: string = "30 días";     
@@ -26,7 +34,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   showErrors: boolean = false;  
   msjError: string = "";
   visible = false;
-  messageModal: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
+
 
   searchTerm = '';
   selectedItems: ApuModel[] = [];
@@ -102,6 +110,7 @@ export class AddUpdateBudgetComponent implements OnInit {
           }
         },(error)=> {
           this.spinner.hide();
+          this.handleError('Load Data',this.errorGeneralMessage);
         });
       } else {
         //Add empty row 
@@ -122,6 +131,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     },(error)=>{
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
+      this.handleError('Load Data',this.errorGeneralMessage);
     });
   }
 
@@ -195,6 +205,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.showErrors = true;
             this.msjError = error;
             this.spinner.hide();
+            this.handleError('Load Data',this.errorGeneralMessage);
           }
         );
       } else {
@@ -207,12 +218,13 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.showErrors = true;            
             this.msjError = "Error inesperado, revisa la información del formulario";
             this.spinner.hide();
+            this.handleError('Load Data',this.errorGeneralMessage);
           }
         );
       }
     } else {
       this.showErrors = true;
-      this.msjError = "Uppp!!! Parece que faltan campos por completar";
+      this.showModalDefault(true,'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.','¡Campos incompletos!');      
     }
   }
 
@@ -331,4 +343,19 @@ addToList() {
 }
 
 
+private handleError(consoleMessage: string, modalMessage: string) {
+  console.error(consoleMessage);
+  this.showModalDefault(true, modalMessage, this.errorTitle);
+}
+
+showModalDefault(isError: boolean, message: string, title: string) {
+  this.confirmationModal.isModalError = isError;
+  this.confirmationModal.title = title;
+  this.confirmationModal.messageModal = message;
+  this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
+  this.confirmationModal.openModal();
+}
+showNotify(){
+  console.log('show notify');
+}
 }
