@@ -9,5 +9,6 @@
     unitMeasurement: string = "";
     laborCost: number = 0;
     totalPrice: number = 0;
+    selected: boolean = false;
  
   }

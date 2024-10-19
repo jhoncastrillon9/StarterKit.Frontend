@@ -1,8 +1,8 @@
 <c-col xs="12">  
   <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
     <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Nueva Cotización</span>    
-    <div >
-      <span style="color:  #6610f2 ;">Fecha: </span> {{ currentDate | date: 'dd MMM yyyy' }}
+    <div style="color:  #6610f2; font-weight: 600;">
+     Fecha {{ currentDate | date: 'dd MMM yyyy' }}
     </div>
   </div>
 </c-col>
@@ -181,57 +181,69 @@
 
   </c-col>
 
-
 <!-- Modal de confirmación -->
-<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)"  size="xl">
-  <div class="modal-dialog "> <!-- Forzar ancho a 80% del viewport -->
-    <div class="modal-content text-center" style="border: none;"> <!-- Contenido centrado y sin bordes -->
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)" size="xl">
+  <div class="modal-dialog">
+    <div class="modal-content text-center" style="border: none;">
 
-      <!-- Título con icono centrado y botón de cerrar -->
-      <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;"> <!-- Sin línea separadora -->
+      <!-- Título del modal -->
+      <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;">
         <h5 cModalTitle>
-          <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i> <!-- Ícono antes del título -->
+          <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i>
           <span class="cui-primary" style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item desde APU!</span>   
         </h5>
-
-        <!-- Botón de cierre 'X' en la esquina superior derecha -->
         <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
-          <i class="bi bi-x"></i> <!-- Ícono de cerrar -->
+          <i class="bi bi-x"></i>
         </button>
       </div>
 
-      <!-- Mensaje centrado -->
+      <!-- Cuerpo del modal con tabla y scroll -->
       <div class="modal-body">
+
         <!-- Campo de búsqueda -->
         <div class="mb-3">
           <input type="text" [(ngModel)]="searchTerm" class="form-control" placeholder="Buscar item..." />
         </div>
 
-        <!-- Select con filtro -->
-        <div class="mb-3">
-          <select [(ngModel)]="selectedItems" class="form-select"  multiple size="10">
-            <option *ngFor="let apu of apuModels | filterBy: searchTerm" [ngValue]="apu">
-              {{ apu.itemName  | capitalize }} - {{ apu.unitMeasurement }} - $ {{ apu.totalPrice.toLocaleString('es-ES') }}
-            </option>
-          </select>
+        <!-- Tabla de selección con estilo tipo Excel y scroll -->
+        <div style="max-height: 300px; overflow-y: auto;"> <!-- Contenedor con scroll -->
+          <table class="table table-bordered table-hover table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Seleccionar</th>
+                <th scope="col">Nombre del Item</th>
+                <th scope="col">Unidad de Medida</th>
+                <th scope="col">Precio Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let apu of apuModels">
+                <td>
+                  <input type="checkbox" [(ngModel)]="apu.selected" /> <!-- Checkbox para selección -->
+                </td>
+                <td>{{ apu.itemName | capitalize }}</td>
+                <td>{{ apu.unitMeasurement }}</td>
+                <td>$ {{ apu.totalPrice.toLocaleString('es-ES') }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <!-- Botón para añadir los seleccionados -->
 
       </div>
 
-      <!-- Botón centrado para salir -->
-      <div class="modal-footer justify-content-center" style="border-top: none;"> <!-- Sin línea separadora -->
-
-        <button (click)="closeModal()" cButton  variant="outline" class="btn-sm">Salir</button>
-        <button (click)="addToList(selectedItems)" cButton color="primary" style="color: white;" class="btn-sm">
+      <!-- Pie del modal con botones -->
+      <div class="modal-footer justify-content-center" style="border-top: none;">
+        <button (click)="closeModalAPU()" cButton variant="outline" class="btn-sm">Salir</button>
+        <button (click)="addToList()" cButton color="primary" style="color: white;" class="btn-sm">
           Agregar Seleccionados
         </button>
       </div>
-      
+
     </div>
   </div>
 </c-modal>
+
+
 
 
 

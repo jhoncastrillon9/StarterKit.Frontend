@@ -5,10 +5,10 @@
 ####Bugs####
 Resposive
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
+Agregar IVA 
 
 ###Podemso salir sin eso 
 Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
-¡Aquí tienes tu cotización solicitada! quitar tanto texto
 poder agregar mas emails al ciente para el envio de cotizaciones
 
 

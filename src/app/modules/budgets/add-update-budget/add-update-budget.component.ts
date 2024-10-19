@@ -33,8 +33,6 @@ export class AddUpdateBudgetComponent implements OnInit {
   apuModels: ApuModel[] = [];
   private localStorageKey = 'apuModelsData';
   private expiryKey = 'apuModelsExpiry'; 
-
-
   
   //Campos calculados
   amount: number = 0;  
@@ -68,6 +66,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     });
 
     iconSet.icons = {  cilPencil,cilXCircle, cilMoney};
+    
   }
 
   ngOnInit() {
@@ -112,6 +111,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   
     this.loadCustomers();
     this.loadApus();
+
   }
 
   loadCustomers() {
@@ -268,6 +268,16 @@ closeModal() {
   this.visible = false;
 }
 
+closeModalAPU() {
+  this.visible = false;
+  this.selectedItems = [];
+  this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
+}
+
+// Método para resetear los ítems seleccionados
+resetSelections() {
+  this.apuModels.forEach(item => item.selected = false); // Deseleccionar todos los ítems
+}
 
 addBudgetDetailFromAPU() {
   // Verificamos si la lista está vacía o nula, o si los datos en localStorage han caducado
@@ -289,10 +299,17 @@ addBudgetDetailFromAPU() {
 }
 
 
-addToList(selectedItems: ApuModel[]) {
+addToList() {
   this.closeModal();
   this.spinner.show();
-  selectedItems.forEach(item => {
+
+  this.selectedItems = this.apuModels.filter(item => item.selected);
+
+  this.closeModal();
+
+
+
+  this.selectedItems.forEach(item => {
     const budgetDetailGroup = this.fb.group({
       budgetDetailId: [0],
       budgetId: [0],
@@ -309,13 +326,9 @@ addToList(selectedItems: ApuModel[]) {
 
   // Después de agregar los elementos, actualizar el monto total
   this.updateAmount();
-
-
-
   this.spinner.hide();
-
+  this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
 }
-
 
 
 }
