@@ -33,6 +33,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   customers: CustomerModel[] = [];
   showErrors: boolean = false;
   msjError: string = "";
+  titlePage: string = "Nueva cotización";
   visible = false;
 
 
@@ -82,6 +83,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetId = params.get('id')!;
       this.spinner.show();
       if (this.budgetId) {
+        this.titlePage="Editar cotización";
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
 
           this.budgetForm.patchValue(budget);

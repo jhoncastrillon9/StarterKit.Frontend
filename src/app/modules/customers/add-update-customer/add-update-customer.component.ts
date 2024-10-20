@@ -15,6 +15,8 @@ export class AddUpdateCustomerComponent implements OnInit {
   
   customerForm: FormGroup = new FormGroup({});
   customerId?: string;
+  titlePage: string = "Nuevo cliente";
+
   isModalError: boolean = false;
 
   // Mensajes para el módulo de clientes
@@ -47,6 +49,7 @@ export class AddUpdateCustomerComponent implements OnInit {
       this.customerId = params.get('id')!;
 
       if (this.customerId) {
+        this.titlePage = "Editar cliente"
         this.spinner.show();
         this.customerService.getById(this.customerId).subscribe(
           (customer: any) => {

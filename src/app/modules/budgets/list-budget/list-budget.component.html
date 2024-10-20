@@ -86,7 +86,7 @@
 
         <ng-template pTemplate="body" let-budget >
           <tr  class="TableCustomCotiza">
-            <td>{{ budget.budgetId }}</td>
+            <td>{{ budget.internalCode }}</td>
             <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
             <td>{{ budget.budgetName  | capitalize | truncate:50}} 
               <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>

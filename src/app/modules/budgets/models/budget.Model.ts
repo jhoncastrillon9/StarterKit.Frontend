@@ -2,6 +2,7 @@ import {CustomerModel} from '../../customers/models/customer.Model';
 export class BudgetModel {
     budgetId: number =0;
     customerId: number=0;
+    internalCode: number=0;
     userId: number=0;
     budgetName: string ="";
     wayToPay: string ="";

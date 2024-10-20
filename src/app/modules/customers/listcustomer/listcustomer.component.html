@@ -39,12 +39,6 @@
 
       <ng-template pTemplate="header">
         <tr class="TableCustomCotiza">
-            <th style="min-width:5rem">
-                <div pSortableColumn="customerId" class="flex align-items-center">
-                    Cod
-                    <p-sortIcon field="customerId" />
-                </div>
-            </th>
             <th  pSortableColumn="customId" style="min-width:10rem">
                 <div class="flex align-items-center">
                     Nit
@@ -81,7 +75,6 @@
 
       <ng-template pTemplate="body" let-customer >
         <tr  class="TableCustomCotiza">
-          <td>{{ customer.customerId }}</td>
           <td>{{ customer.customId }}</td>
           <td>{{ customer.customerName  | capitalize | truncate:60}} </td>
           <td>{{ customer.email | capitalize | truncate:60}}</td>
