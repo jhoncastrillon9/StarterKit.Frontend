@@ -286,30 +286,21 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   setCalculatesTotals() {
-    const ivaValue = this.budgetForm.get('IVA')?.value; // Valor real del campo IVA
-    const aiuValue = this.budgetForm.get('AIU')?.value; // Valor real del campo AIU
-    const sumAIU = this.budgetForm.get('sumAIU')?.value; // Valor de sumAIU
-
-    // Si AIU tiene un valor válido, se usa para calcular el AIU, si no, se asigna 0
-    this.aiu = aiuValue ? this.amount * 0.1 : 0;
-
-    if (ivaValue && aiuValue) {
-      this.iva = this.aiu * 0.19;
-    } else if (ivaValue && aiuValue == false) {
-      this.iva = this.amount * 0.19;
-
-    } else {
-      this.iva = 0;
-    }
-
-    if (sumAIU) {
-      this.total = this.amount + this.iva + this.aiu; // Calculas el total
-    } else {
-      this.total = this.amount + this.iva; // Calculas el total
-    }
-
+    const { IVA: ivaValue = 0, AIU: aiuValue = 0, sumAIU = false } = this.budgetForm.value; // Obtenemos valores con default 0
+    const aiuPercentage = 0.1;
+    const ivaPercentage = 0.19;
+  
+    // Calcula el AIU solo si tiene valor, si no, será 0
+    this.aiu = aiuValue ? this.amount * aiuPercentage : 0;
+  
+    // Si existe valor en IVA, calcula el IVA en base al AIU o al monto total
+    this.iva = ivaValue ? (aiuValue ? this.aiu * ivaPercentage : this.amount * ivaPercentage) : 0;
+  
+    // Suma total dependiendo si sumAIU es verdadero o no
+    this.total = this.amount + this.iva + (sumAIU ? this.aiu : 0);
   }
 
+  
   handleLiveDemoChange(event: any) {
     this.visible = event;
   }
