@@ -35,7 +35,6 @@ export class ChangePasswordComponent {
    ngOnInit() {
     this.route.paramMap.subscribe(params => {      
       this.validateCodeModel.codePassword = params.get('id')!;
-      console.log("try get parameter" + this.validateCodeModel.codePassword);
     })
     }
 
@@ -50,14 +49,12 @@ export class ChangePasswordComponent {
   }
 
    onChangePassword() {
-    console.log("Start onChangePassword");
     if (this.registerForm.valid) {
       this.spinner.show();
       const formData = this.registerForm.value;
       this.validateCodeModel.newPassword = this.registerForm.get('password')?.value
       this.authService.changePassword(this.validateCodeModel).subscribe(
         (response: any) => {
-          console.log("onChangePassword is OK");
           const { token  } = response;          
           const tokenData = JSON.parse(atob(token.split('.')[1]));                     
           localStorage.setItem('tokenData', JSON.stringify(tokenData));

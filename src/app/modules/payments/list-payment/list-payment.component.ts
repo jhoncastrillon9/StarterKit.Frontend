@@ -90,7 +90,6 @@ deletePaymentWithComfirm(paymentModel: PaymentModel){
     this.spinner.show()    
       this.paymentService.delete(this.paymentToDelete?.paymentId).subscribe(
         (response: any) => {
-          console.log("payment delete is OK");      
           this.loadPayments();           
           this.spinner.hide();
         },

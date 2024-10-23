@@ -35,13 +35,11 @@ export class RegisterComponent {
 
 
    onRegister() {
-    console.log("Start register");
     if (this.registerForm.valid) {
       this.spinner.show();
       const formData = this.registerForm.value;
       this.authService.register(formData).subscribe(
         (response: any) => {
-          console.log("register is OK");
           const { token  } = response;          
           const tokenData = JSON.parse(atob(token.split('.')[1]));                     
           localStorage.setItem('tokenData', JSON.stringify(tokenData));

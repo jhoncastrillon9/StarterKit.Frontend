@@ -1,14 +1,11 @@
 //*******Tareas PARA SALIR********//
 9 implementar boton de wasap  FRONT 
-
-
-####Bugs####
 Resposive
-3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
 Agregar IVA 
 
+
+
 ###Podemso salir sin eso 
-Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
 poder agregar mas emails al ciente para el envio de cotizaciones
 
 
@@ -41,6 +38,8 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
+Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
 Organizar cotizacion que se esta dañando en algunas aprtes  y hacerla dinamica OK
 10 Permiter al apu agregar items al  OK
 6 Implementar el color de la empresa FRONT

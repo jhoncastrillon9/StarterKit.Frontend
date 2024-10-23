@@ -38,11 +38,9 @@ export class LoginCodeComponent {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {      
       this.validateCodeModel.codePassword = params.get('id')!;
-      console.log("try get parameter" + this.validateCodeModel.codePassword);
       this.spinner.show();
       this.authService.validateCodePasword(this.validateCodeModel).subscribe(
         (response: any) => {
-          console.log("login is OK");
           this.spinner.hide();
           this.router.navigate(['/changepassword']);
         },

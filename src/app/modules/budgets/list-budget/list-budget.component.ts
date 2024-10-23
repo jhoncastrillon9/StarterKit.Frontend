@@ -125,7 +125,6 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
   }
 
    sendEmailBudgetWithComfirm(budgetModel: BudgetModel){ 
-    console.log('sned comfirm');
     this.budgetToSendEmail = budgetModel;
     this.confirmationModal.messageModal = "Tu cotización se enviará a los siguientes correos electrónicos: "+ budgetModel.customerDto.email+"";
     this.confirmationModal.title = this.sendEmailTitleComfirmation;

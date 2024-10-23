@@ -61,8 +61,7 @@ export class AddUpdateComponent {
           this.spinner.hide();
         });
       } else {
-        console.log("Is Add Payment");   
-        this.paymentForm.get('budgetId')?.setValue(this.budgetId);
+       this.paymentForm.get('budgetId')?.setValue(this.budgetId);
         this.spinner.hide(); 
       }
     });     
@@ -74,9 +73,7 @@ export class AddUpdateComponent {
       this.spinner.show();
       this.paymentForm.get('paymentDate')?.setValue(this.currentDate);
       
-      const formData = this.paymentForm.value;
-      console.log(formData);
-      
+      const formData = this.paymentForm.value;      
       if (this.paymentId) {
         this.paymentService.update(formData).subscribe(
           (response: any) => {

@@ -10,6 +10,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ApuModel } from '../../apus/models/apu.Model';
 import { ApuService } from '../../apus/services/apu.service';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { color } from 'html2canvas/dist/types/css/types/color';
 @Component({
   selector: 'app-add-update-budget',
   templateUrl: './add-update-budget.component.html',
@@ -70,6 +71,8 @@ export class AddUpdateBudgetComponent implements OnInit {
       deliveryTime: [this.deliveryTimeDefault],
       validityOffer: [this.validityOfferDefault],
       note: [''],
+      IVA: [true],
+      AIU: [true],
       sumAIU: [true],
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
@@ -83,7 +86,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetId = params.get('id')!;
       this.spinner.show();
       if (this.budgetId) {
-        this.titlePage="Editar cotización";
+        this.titlePage = "Editar cotización";
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
 
           this.budgetForm.patchValue(budget);
@@ -146,11 +149,10 @@ export class AddUpdateBudgetComponent implements OnInit {
 
     // Verificamos si hay datos almacenados y si no han caducado
     if (storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours)) {
-      console.log('Usando datos de LocalStorage');
+      console.log('Using LocalStorage for Apu');
       this.apuModels = JSON.parse(storedData);
     } else {
       // Si no hay datos o han caducado, cargamos desde la API
-      console.log('Consultando datos de la API');
       this.apuService.get().subscribe(
         apu => {
           this.apuModels = apu;
@@ -196,8 +198,6 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.amount);
       const formData = this.budgetForm.value;
-      console.log(formData);
-
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(
           (response: any) => {
@@ -241,6 +241,33 @@ export class AddUpdateBudgetComponent implements OnInit {
     }
   }
 
+
+  updateCheckStatusIVA() {
+
+    this.updateAmount();
+  }
+
+
+
+  updateCheckStatusAIU() {
+    const aiu = this.budgetForm.get('AIU')?.value;
+    // Controla el estado de 'sumAIU' basado en 'AIU'
+    if (aiu === true) {
+      this.budgetForm.get('sumAIU')?.enable();
+      this.budgetForm.get('sumAIU')?.setValue(true);
+    } else {
+      this.budgetForm.get('sumAIU')?.disable();
+      this.budgetForm.get('sumAIU')?.setValue(false);
+    }
+
+    this.updateAmount();
+  }
+
+
+
+
+
+
   updateAmount() {
     this.amount = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
@@ -259,10 +286,22 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   setCalculatesTotals() {
-    this.aiu = this.amount * 0.1; // Calculas el AIU
-    this.iva = this.aiu * 0.19; // Calculas el IVA
-    const sumAIU = this.budgetForm.get('sumAIU')?.value;
-    console.log(sumAIU);
+    const ivaValue = this.budgetForm.get('IVA')?.value; // Valor real del campo IVA
+    const aiuValue = this.budgetForm.get('AIU')?.value; // Valor real del campo AIU
+    const sumAIU = this.budgetForm.get('sumAIU')?.value; // Valor de sumAIU
+
+    // Si AIU tiene un valor válido, se usa para calcular el AIU, si no, se asigna 0
+    this.aiu = aiuValue ? this.amount * 0.1 : 0;
+
+    if (ivaValue && aiuValue) {
+      this.iva = this.aiu * 0.19;
+    } else if (ivaValue && aiuValue == false) {
+      this.iva = this.amount * 0.19;
+
+    } else {
+      this.iva = 0;
+    }
+
     if (sumAIU) {
       this.total = this.amount + this.iva + this.aiu; // Calculas el total
     } else {
@@ -363,9 +402,9 @@ export class AddUpdateBudgetComponent implements OnInit {
 export function numberGreaterThanZeroValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
     const value = control.value;
-   
+
     // Si el valor es undefined, retornamos un objeto que indica que es inválido
-    if (value === undefined || value === null) {     
+    if (value === undefined || value === null) {
       return { invalidNumber: true }; // Indica que el valor es inválido
     }
 
