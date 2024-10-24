@@ -1,7 +1,7 @@
 //*******Tareas PARA SALIR********//
 9 implementar boton de wasap  FRONT 
 Resposive
-Agregar IVA 
+Agregar IVA Falta BACKEDN 
 
 
 

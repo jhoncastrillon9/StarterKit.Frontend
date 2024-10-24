@@ -71,8 +71,8 @@ export class AddUpdateBudgetComponent implements OnInit {
       deliveryTime: [this.deliveryTimeDefault],
       validityOffer: [this.validityOfferDefault],
       note: [''],
-      IVA: [true],
-      AIU: [true],
+      hasIVA: [true],
+      hasAIU: [true],
       sumAIU: [true],
       budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
@@ -250,7 +250,7 @@ export class AddUpdateBudgetComponent implements OnInit {
 
 
   updateCheckStatusAIU() {
-    const aiu = this.budgetForm.get('AIU')?.value;
+    const aiu = this.budgetForm.get('hasAIU')?.value;
     // Controla el estado de 'sumAIU' basado en 'AIU'
     if (aiu === true) {
       this.budgetForm.get('sumAIU')?.enable();
@@ -286,7 +286,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   setCalculatesTotals() {
-    const { IVA: ivaValue = 0, AIU: aiuValue = 0, sumAIU = false } = this.budgetForm.value; // Obtenemos valores con default 0
+    const { hasIVA: ivaValue = 0, hasAIU: aiuValue = 0, sumAIU = false } = this.budgetForm.value; // Obtenemos valores con default 0
     const aiuPercentage = 0.1;
     const ivaPercentage = 0.19;
   

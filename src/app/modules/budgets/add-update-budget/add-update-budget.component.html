@@ -43,12 +43,12 @@
 
     <c-col md="1">
       <label cLabel for="note">IVA</label>
-      <input cFormCheckInput type="checkbox" cFormControl formControlName="IVA" (change)="updateCheckStatusIVA()" />
+      <input cFormCheckInput type="checkbox" cFormControl formControlName="hasIVA" (change)="updateCheckStatusIVA()" />
      
     </c-col>
     <c-col md="1">
       <label cLabel for="note">Aplicar AIU</label>
-      <input cFormCheckInput type="checkbox" cFormControl formControlName="AIU" (change)="updateCheckStatusAIU()"  />
+      <input cFormCheckInput type="checkbox" cFormControl formControlName="hasAIU" (change)="updateCheckStatusAIU()"  />
     </c-col>
     <c-col md="1">
       <label cLabel for="note">Sumar AIU Al Total</label>
@@ -209,8 +209,8 @@
 
         <c-col md="3" class="text-end">
           <h5><strong>SubTotal: {{amount.toLocaleString()}}</strong></h5>
-          <h5 *ngIf="budgetForm.get('AIU')?.value"><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
-          <h5 *ngIf="budgetForm.get('IVA')?.value"><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
+          <h5 *ngIf="budgetForm.get('hasAIU')?.value"><strong>AIU: {{aiu.toLocaleString()}}</strong></h5>
+          <h5 *ngIf="budgetForm.get('hasIVA')?.value"><strong>IVA: {{iva.toLocaleString()}}</strong></h5>
           <h5><strong>TOTAL: {{total.toLocaleString()}}</strong></h5>
         </c-col>
       </div>
