@@ -252,8 +252,7 @@
         <h5 cModalTitle>
           <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i>
           <span class="cui-primary"
-            style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item
-            desde APU!</span>
+            style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">¡Agregar Item desde APU!</span>
         </h5>
         <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
           <i class="bi bi-x"></i>
@@ -280,7 +279,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let apu of apuModels">
+              <tr *ngFor="let apu of filteredApuModels">
                 <td>
                   <input type="checkbox" [(ngModel)]="apu.selected" /> <!-- Checkbox para selección -->
                 </td>

@@ -241,12 +241,10 @@ export class AddUpdateBudgetComponent implements OnInit {
     }
   }
 
-
   updateCheckStatusIVA() {
 
     this.updateAmount();
   }
-
 
 
   updateCheckStatusAIU() {
@@ -262,11 +260,6 @@ export class AddUpdateBudgetComponent implements OnInit {
 
     this.updateAmount();
   }
-
-
-
-
-
 
   updateAmount() {
     this.amount = 0; // Reinicializa el total    
@@ -303,6 +296,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   
   handleLiveDemoChange(event: any) {
     this.visible = event;
+    console.log('Abremo dal apu : '+ event);
   }
 
   showModal() {
@@ -321,7 +315,17 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   // Método para resetear los ítems seleccionados
   resetSelections() {
+    this.searchTerm='';
     this.apuModels.forEach(item => item.selected = false); // Deseleccionar todos los ítems
+  }
+
+  get filteredApuModels() {
+    if (!this.searchTerm) {
+      return this.apuModels;
+    }
+    return this.apuModels.filter(apu =>
+      apu.itemName.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
   }
 
   addBudgetDetailFromAPU() {
