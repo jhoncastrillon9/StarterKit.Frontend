@@ -11,6 +11,9 @@ import { ApuModel } from '../../apus/models/apu.Model';
 import { ApuService } from '../../apus/services/apu.service';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { color } from 'html2canvas/dist/types/css/types/color';
+import Fuse from 'fuse.js';
+
+
 @Component({
   selector: 'app-add-update-budget',
   templateUrl: './add-update-budget.component.html',
@@ -49,6 +52,18 @@ export class AddUpdateBudgetComponent implements OnInit {
   aiu: number = 0;
   iva: number = 0;
   total: number = 0;
+
+  equivalencias: { [key: string]: string[] } = {
+    adobe: ['muro', 'ladrillo', 'bloque'],
+    muro: ['adobe', 'ladrillo', 'bloque'],
+    bloque: ['ladrillo', 'muro', 'adobe'],
+    ladrillo: ['bloque', 'muro', 'adobe'],
+    drywall: ['dry wall', ' drywall', 'driwall'],
+    driwall: ['dry wall', ' drywall', 'driwall'],
+    draiwall: ['dry wall', ' drywall', 'driwall'],
+    draywall: ['dry wall', ' drywall', 'driwall'],
+    techo: ['tejado', ' teja'],
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -323,9 +338,31 @@ export class AddUpdateBudgetComponent implements OnInit {
     if (!this.searchTerm) {
       return this.apuModels;
     }
-    return this.apuModels.filter(apu =>
-      apu.itemName.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
+  
+    // Crear un conjunto de términos de búsqueda que incluya sinónimos
+    const searchTerms = [this.searchTerm.toLowerCase()];
+  
+    // Agregar sinónimos si existen
+    if (this.equivalencias[this.searchTerm.toLowerCase()]) {
+      searchTerms.push(...this.equivalencias[this.searchTerm.toLowerCase()]);
+    }
+  
+    // Configuración de opciones para Fuse.js
+    const options = {
+      keys: ['itemName'],
+      includeScore: true,
+      threshold: 0.3,
+    };
+  
+    // Crear una instancia de Fuse con los modelos y opciones
+    const fuse = new Fuse(this.apuModels, options);
+  
+    // Realizar la búsqueda para cada término de búsqueda
+    const resultados = searchTerms.flatMap(term => fuse.search(term));
+  
+    // Devolver solo los elementos encontrados (sin duplicados)
+    const uniqueResults = new Set(resultados.map(result => result.item));
+    return Array.from(uniqueResults);
   }
 
   addBudgetDetailFromAPU() {
