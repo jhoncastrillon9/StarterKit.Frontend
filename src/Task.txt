@@ -1,8 +1,7 @@
 //*******Tareas PARA SALIR********//
 9 implementar boton de wasap  FRONT 
 Resposive
-Agregar IVA Falta BACKEDN 
-
+cambiar el color de los bobotnes egundarios ver el formulario de registro el importante siempre a la derecha 
 
 
 ###Podemso salir sin eso 
@@ -38,6 +37,7 @@ Crear aplication services contractas para guardar dtos interfaces etc...
 
 
 //*******OK********//
+Agregar IVA Falta BACKEDN  OK
 3.3 ocultar columna codigo o si se implmento nuevo codigo de identificaon ponerlo FRONT Trigger faild
 Al recordar contraseña deberia salir un poopup diciendo que todo esta ok 
 Organizar cotizacion que se esta dañando en algunas aprtes  y hacerla dinamica OK

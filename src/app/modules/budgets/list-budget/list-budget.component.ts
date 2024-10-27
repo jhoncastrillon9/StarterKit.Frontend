@@ -197,7 +197,7 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     const url = window.URL.createObjectURL(data);    
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Cotizacion_'+customerModel.budgetId+' '+customerModel.budgetName;
+    a.download = 'Cotizacion_'+customerModel.internalCode+' '+customerModel.budgetName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
