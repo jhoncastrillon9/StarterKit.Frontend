@@ -1,5 +1,5 @@
 <c-col xs="12">  
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1">          
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1 mb-3">          
     <span style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;" class="cui-primary">Actualizar Datos de Mi Empresa</span>    
   </div>
 </c-col>
@@ -54,17 +54,31 @@
       <input cFormControl placeholder="Ej: www.ejemplo.com" formControlName="urlWeb" class="form-control-sm" />
     </c-col>
 
-    <c-col xs="6">
+    <c-col xs="12" md="6">
       <label cLabel for="urlImageLogo">Logo de la Empresa</label>
       <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" class="form-control-sm" />
     </c-col>
 
-    <c-col xs="12" class="text-end">
-      <a cButton type="button" class="me-md-2 btn-sm" variant="outline" [routerLink]="'/'">Salir</a>
-      <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
-        Actualizar
-      </button>
-    </c-col>
+<!-- Botones de acción -->
+<c-col xs="12" class="text-end mb-4"> <!-- Añadir margen inferior -->
+  <a 
+    cButton 
+    type="button" 
+    class="me-3 btn-sm" 
+    variant="outline" 
+    [routerLink]="'/'"
+  >
+    Salir
+  </a>
+
+  <button 
+    cButton 
+    type="submit" 
+    class="btn-sm"         
+  >
+    Actualizar
+  </button>
+</c-col>
   </form>
 </c-col>
 
