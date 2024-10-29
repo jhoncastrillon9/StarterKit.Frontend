@@ -42,21 +42,40 @@
     </c-col>
 
     <!-- Dirección -->
-    <c-col xs="6">
+    <c-col xs="12" md="6">
       <label cLabel for="address">Dirección</label>
-      <input cFormControl formControlName="address" class="form-control-sm"
-        placeholder="Ej: Calle 123, Nº 45-67, Piso 2, Bogotá" />
+      <input 
+        cFormControl 
+        formControlName="address" 
+        class="form-control-sm"
+        placeholder="Ej: Calle 123, Nº 45-67, Piso 2, Bogotá" 
+      />
     </c-col>
 
 
     <!-- Botones de acción -->
     <c-col xs="12" class="text-end">
-      <a cButton type="button" class="me-md-2 btn-sm" variant="outline"
-        [routerLink]="'/customers/customers'">Regresar</a>
-      <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px;">
+      <a 
+        cButton 
+        type="button" 
+        class="me-3 btn-sm mt-2" 
+        variant="outline" 
+        [routerLink]="'/customers/customers'"
+      >
+        Regresar
+      </a>
+      
+      <button 
+        cButton 
+        type="submit" 
+        class="btn-sm mt-2" 
+        style="margin-left: 10px;"
+      >
         {{ customerForm.get('customerId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
       </button>
     </c-col>
+    
+
   </form>
 
 </c-col>
