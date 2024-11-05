@@ -1,11 +1,29 @@
-<div class="bg-light min-vh-100 d-flex flex-row align-items-center" style="background-image: url('../../../../assets/images/BackLogin.jpg'); background-size: cover;">
+<div
+  class="bg-light min-vh-100 d-flex flex-row align-items-center"
+  style="
+    background-color: #212294 !important;;
+    background-size: cover;
+    
+  "
+>
+
   <c-container>
     <c-row class="justify-content-center">
       <c-col lg="7" md="9" xl="6">
+                    <!-- Logo centrado -->
+                    <div class="text-center mb-4">
+                      <img
+                        src="../../../../assets/img/logos/logocotiza.png"
+                        alt="Logo"
+                        class="img-fluid"
+                        style="max-height: 100px"
+                      />
+                    </div>
         <c-card class="mx-4">
-          <c-card-body class="p-4">            
-            <form cForm  [formGroup]="registerForm" (ngSubmit)="onRegister()">  
-              <div class="text-center"> <!-- Nuevo div para centrar -->
+          <c-card-body class="p-4">
+            <form cForm [formGroup]="registerForm" (ngSubmit)="onRegister()">
+              <div class="text-center">
+                <!-- Nuevo div para centrar -->
                 <h1>Registrarse</h1>
                 <p class="text-medium-emphasis">Crear cuenta</p>
               </div>
@@ -13,64 +31,101 @@
                 <span cInputGroupText>
                   <svg cIcon name="cilUser"></svg>
                 </span>
-                <input autoComplete="name" cFormControl placeholder="Empresa" formControlName="companyName"/>
-              </c-input-group>             
+                <input
+                  autoComplete="name"
+                  cFormControl
+                  placeholder="Empresa"
+                  formControlName="companyName"
+                />
+              </c-input-group>
 
               <c-input-group class="mb-3">
                 <span cInputGroupText>&#64;</span>
-                <input autoComplete="email" cFormControl placeholder="Email" formControlName="email"/>
+                <input
+                  autoComplete="email"
+                  cFormControl
+                  placeholder="Email"
+                  formControlName="email"
+                />
               </c-input-group>
 
               <c-input-group class="mb-3">
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
-                <input autoComplete="new-password" cFormControl placeholder="Contraseña" type="password" formControlName="password"/>
+                <input
+                  autoComplete="new-password"
+                  cFormControl
+                  placeholder="Contraseña"
+                  type="password"
+                  formControlName="password"
+                />
               </c-input-group>
 
               <c-input-group class="mb-4">
                 <span cInputGroupText>
                   <svg cIcon name="cilLockLocked"></svg>
                 </span>
-                <input autoComplete="new-password" cFormControl placeholder="Repetir Contraseña" type="password" formControlName="passwordconfirmation"/>
+                <input
+                  autoComplete="new-password"
+                  cFormControl
+                  placeholder="Repetir Contraseña"
+                  type="password"
+                  formControlName="passwordconfirmation"
+                />
               </c-input-group>
-              
-              
-              <div *ngIf="registerForm.get('companyName')?.invalid && (registerForm.get('companyName')?.touched || registerForm.get('companyName')?.dirty)" class="text-danger">
+
+              <div
+                *ngIf="
+                  registerForm.get('companyName')?.invalid &&
+                  (registerForm.get('companyName')?.touched ||
+                    registerForm.get('companyName')?.dirty)
+                "
+                class="text-danger"
+              >
                 Campo compañia es obligatorio.
-              </div> 
-              <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)" class="text-danger">
+              </div>
+              <div
+                *ngIf="
+                  registerForm.get('email')?.invalid &&
+                  (registerForm.get('email')?.touched ||
+                    registerForm.get('email')?.dirty)
+                "
+                class="text-danger"
+              >
                 Campo email es obligatorio.
-              </div> 
-              <div *ngIf="registerForm.get('password')?.errors?.['required'] && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)" class="text-danger">
+              </div>
+              <div
+                *ngIf="registerForm.get('password')?.errors?.['required'] && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)"
+                class="text-danger"
+              >
                 Campo password es obligatorio.
               </div>
-              <div *ngIf="registerForm.get('passwordconfirmation')?.invalid && (registerForm.get('passwordconfirmation')?.touched || registerForm.get('passwordconfirmation')?.dirty)" class="text-danger">
+              <div
+                *ngIf="
+                  registerForm.get('passwordconfirmation')?.invalid &&
+                  (registerForm.get('passwordconfirmation')?.touched ||
+                    registerForm.get('passwordconfirmation')?.dirty)
+                "
+                class="text-danger"
+              >
                 Las contraseñas no son iguales.
-              </div> 
-              
+              </div>
 
-
-              <div class="d-flex justify-content-center">      
-                <a 
-                cButton 
-                type="button" 
-                class="me-3 btn-sm" 
-                variant="outline" 
-                [routerLink]="'/login'"
-              >
-                Regresar
-              </a>            
-              <button 
-                cButton 
-                type="submit" 
-                class="btn-sm"         
-              >
-              ¡Crear Cuenta!
-              </button>
-
-              
-              </div>              
+              <div class="d-flex justify-content-center">
+                <a
+                  cButton
+                  type="button"
+                  class="me-3 btn-sm blueButtomHover"
+                  variant="outline"
+                  [routerLink]="'/login'"
+                >
+                  Regresar
+                </a>
+                <button cButton type="submit" class="btn-sm blueButtom">
+                  ¡Crear Cuenta!
+                </button>
+              </div>
             </form>
           </c-card-body>
         </c-card>
@@ -80,14 +135,20 @@
 </div>
 
 <!-- Modal de confirmación -->
-<app-confirmation-modal 
-#confirmationModal  
+<app-confirmation-modal
+  #confirmationModal
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
-  [alignment]="'top'">
+  [alignment]="'top'"
+>
 </app-confirmation-modal>
 
-
-
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="square-jelly-box"
+  [fullScreen]="true"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
