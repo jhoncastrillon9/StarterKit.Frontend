@@ -1,10 +1,24 @@
 <div
   class="bg-light min-vh-100 d-flex flex-column justify-content-center align-items-center text-center text-md-start"
-  style="background-image: url('../../../../assets/images/BackLogin.jpg'); background-size: cover;"
+  style="
+    background-color: #212294 !important;;
+    background-size: cover;    
+  "
 >
+
+
   <div class="container-fluid">
     <div class="row justify-content-center">
       <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                            <!-- Logo centrado -->
+                            <div class="text-center mb-4">
+                              <img
+                                src="../../../../assets/img/logos/logocotiza.png"
+                                alt="Logo"
+                                class="img-fluid"
+                                style="max-height: 100px"
+                              />
+                            </div>
         <c-card-group>
           <!-- Tarjeta de inicio de sesión -->
           <c-card class="p-4">
@@ -56,12 +70,12 @@
 
                 <div class="row mt-4">
                   <div class="col-6 text-center col-md-12">
-                    <button cButton class="px-4" color="primary" type="submit">
+                    <button cButton class="px-4 blueButtom" color="primary" type="submit">
                       Iniciar sesión
                     </button>
                   </div>
                   <div class="col-6 col-md-6 text-center d-md-none">
-                    <button cButton color="secondary" routerLink="/register">
+                    <button cButton color="secondary" routerLink="/register" class="">
                       ¡Regístrate!
                     </button>
                   </div>
@@ -90,7 +104,7 @@
 
           <!-- Tarjeta de registro, visible en pantallas medianas y grandes -->
           <c-card
-            class="d-none d-md-block text-white bg-primary py-5"
+            class="d-none d-md-block text-white bg-primary py-5 backgroundBlue"
             style="width: 44%;"
           >
             <c-card-body class="text-center">
@@ -101,7 +115,7 @@
                   <br />
                   Crea cotizaciones GRATIS, consulta análisis de precios unitarios APU, facturas.
                 </p>
-                <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register">
+                <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register" class="yellowButtom">
                   ¡Regístrate Ahora!
                 </button>
               </div>
@@ -112,3 +126,12 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal 
+#confirmationModal  
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'">
+</app-confirmation-modal>
