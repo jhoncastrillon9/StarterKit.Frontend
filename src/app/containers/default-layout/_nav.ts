@@ -51,8 +51,27 @@ export const navItems: INavData[] = [
         icon: 'nav-icon-bullet'
       },
       {
-        name: 'Nueva cliente',
+        name: 'Nuevo cliente',
         url: '/customers/add',
+        icon: 'nav-icon-bullet'
+      },
+      
+    ]
+  },
+
+  {
+    name: 'Informes de obra',
+    url: '/projectreports',    
+    iconComponent: { name: 'cil-description' },
+    children: [
+      {
+        name: 'Listado de informes',
+        url: '/projectreports/projectreports',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Nuevo Informe',
+        url: '/projectreports/add',
         icon: 'nav-icon-bullet'
       },
       

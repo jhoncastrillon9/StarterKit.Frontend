@@ -60,6 +60,12 @@ const routes: Routes = [
           canActivate: [AuthGuard]
       },
       {
+        path: 'projectreports',
+        loadChildren: () =>
+          import('./modules/project-reports/ProjectReports-routing.module').then((m) => m.ProjectReportsRoutingModule),          
+          canActivate: [AuthGuard]
+      },
+      {
         path: 'theme',
         loadChildren: () =>
           import('./views/theme/theme.module').then((m) => m.ThemeModule),          

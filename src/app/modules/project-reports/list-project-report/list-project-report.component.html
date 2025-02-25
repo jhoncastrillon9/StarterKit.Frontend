@@ -1,0 +1,115 @@
+<c-col xs="12">  
+    <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+      <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Informes de Obra</span>    
+      
+    </div>
+  </c-col>
+ 
+ <c-col xs="12">
+      <p-table #dt 
+      class="p-datatable-sm" 
+      styleClass="p-datatable-gridlines"        
+      [value]="projectReports" 
+      [paginator]="true" 
+      [rows]="50"         
+      [filterDelay]="3" 
+      [loading]="loading"       
+      [rowHover]="true"
+      sortField="projectReportId" 
+      [sortOrder]="-1"
+      [rowsPerPageOptions]="[25, 50, 100, 500]"
+      currentPageReportTemplate="{first} al {last} de {totalRecords}"
+      [globalFilterFields]="['projectReportName','note', 'projectReportId','internalCode', ]"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      >
+
+
+
+    <ng-template pTemplate="caption" >
+      <div style="display: flex; justify-content: space-between; align-items: center;" >          
+          <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
+          
+
+          <span class="p-input-icon-left ml-auto">
+              <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
+          </span>
+      </div>
+  </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr class="TableCustomCotiza">
+            <th style="min-width:5rem">
+                <div pSortableColumn="projectReportId" class="flex align-items-center">
+                    Cod
+                    <p-sortIcon field="projectReportId" />
+                </div>
+            </th>
+
+            <th  pSortableColumn="date" style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Fecha
+                    <p-sortIcon field="date" />
+                </div>
+            </th>
+
+            <th pSortableColumn="projectReportName" >
+              <div class="flex align-items-center">
+                  Nombre
+                  <p-sortIcon field="projectReportName" />
+              </div>
+          </th>  
+            <th  pSortableColumn="budgetInternalCode">
+                <div class="flex align-items-center">
+                    Cod Cotizacion
+                    <p-sortIcon field="budgetInternalCode" />
+                </div>
+            </th>            
+
+            <th  pSortableColumn="budgetName">
+                <div class="flex align-items-center">
+                    Cotizacion
+                    <p-sortIcon field="budgetName" />
+                </div>
+            </th>
+
+            <th  pSortableColumn="curtomerName" style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Cliente
+                    <p-sortIcon field="curtomerName" />
+                </div>
+            </th>
+
+            <th style="min-width:10rem">
+              <div class="flex align-items-center">
+                  Opciones
+                
+              </div>
+          </th>
+
+        </tr>
+    </ng-template>
+
+      <ng-template pTemplate="body" let-report >
+        <tr  class="TableCustomCotiza">
+          <td>{{ report.projectReportId }}</td>   
+          <td>{{ report.date  | capitalize }} </td>
+          <td>{{ report.projectReportName  | capitalize | truncate:50}} </td>
+          <td>{{ report.budgetInternalCode }}</td>
+          <td>{{ report.budgetName | capitalize | truncate:50}} </td>
+          <td>{{ report.curtomerName | capitalize | truncate:50}} </td>
+
+        </tr>
+      </ng-template>
+    </p-table>
+</c-col>
+
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal 
+#confirmationModal  
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'">
+</app-confirmation-modal>
