@@ -10,7 +10,7 @@
     budgetName: string ="";   
     note: string ="";    
     date: Date = new Date;
-    budgetDetailsDto: ProjectReportDetailModel[] = [];
+    projectReportDetailsDto: ProjectReportDetailModel[] = [];
     curtomerName: string ="";  
     customerEmail: string ="";  
 

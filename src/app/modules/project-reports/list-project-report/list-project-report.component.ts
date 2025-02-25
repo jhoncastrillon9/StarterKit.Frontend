@@ -93,7 +93,7 @@ export class ListProjectReportComponent {
           customerEmail: "Budget 1",
           note: "Note 1",
           date: new Date(2025,12,31),
-          budgetDetailsDto: [
+          projectReportDetailsDto: [
             {
               projectReporDetailtId: 1,
               budgetDetailId: 501,
@@ -116,7 +116,7 @@ export class ListProjectReportComponent {
           customerEmail: "Budget 1",
 
           date: new Date(),
-          budgetDetailsDto: [
+          projectReportDetailsDto: [
             {
               projectReporDetailtId: 2,
               budgetDetailId: 502,
@@ -139,7 +139,7 @@ export class ListProjectReportComponent {
           customerEmail: "Budget 1",
 
           date: new Date(),
-          budgetDetailsDto: [
+          projectReportDetailsDto: [
             {
               projectReporDetailtId: 3,
               budgetDetailId: 503,
@@ -162,7 +162,7 @@ export class ListProjectReportComponent {
           budgetName: "Budget 4",
           note: "Note 4",
           date: new Date(),
-          budgetDetailsDto: [
+          projectReportDetailsDto: [
             {
               projectReporDetailtId: 4,
               budgetDetailId: 504,
@@ -185,7 +185,7 @@ export class ListProjectReportComponent {
 
           note: "Note 5",
           date: new Date(),
-          budgetDetailsDto: [
+          projectReportDetailsDto: [
             {
               projectReporDetailtId: 5,
               budgetDetailId: 505,
