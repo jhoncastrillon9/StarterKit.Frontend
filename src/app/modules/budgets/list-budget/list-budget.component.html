@@ -94,8 +94,8 @@
             <td>{{ budget.customerDto.customerName | capitalize | truncate:30}}</td>
             <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
             <td>
-              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blueviolet;">
-                <svg cIcon class="me-2" name="cilZoom"></svg>
+              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue;">
+                <svg cIcon class="me-2" name="cilCloudDownload"></svg>
               </span>
               <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet;">
                 <svg cIcon class="me-2" name="cilPencil"></svg>

@@ -1,8 +1,8 @@
 <c-col xs="12">  
     <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-      <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Informes de Obra</span>    
-      
-    </div>
+        <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Informes de Obra</span>    
+        <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm">Nuevo Informe de Obra</a>    
+      </div>
   </c-col>
  
  <c-col xs="12">
@@ -93,11 +93,26 @@
       <ng-template pTemplate="body" let-report >
         <tr  class="TableCustomCotiza">
           <td>{{ report.projectReportId }}</td>   
-          <td>{{ report.date  | capitalize }} </td>
-          <td>{{ report.projectReportName  | capitalize | truncate:50}} </td>
+          <td>{{ report.date | date: 'dd MMM yyyy' }} </td>
+          <td>{{ report.projectReportName  | truncate:50}} </td>
           <td>{{ report.budgetInternalCode }}</td>
-          <td>{{ report.budgetName | capitalize | truncate:50}} </td>
-          <td>{{ report.curtomerName | capitalize | truncate:50}} </td>
+          <td>{{ report.budgetName |  truncate:50}} </td>
+          <td>{{ report.curtomerName | truncate:50}} </td>
+            <td>
+                <span (click)="downloadProjectReport(report)" title="Descargar PDF" style="cursor: pointer; color: blue;">
+                    <svg cIcon class="me-2" name="cilCloudDownload"></svg>
+                  </span>
+                  <span [routerLink]="['/projectReport/update', report.projectReportId]" title="Editar Informe" style="cursor: pointer; color: blueviolet;">
+                    <svg cIcon class="me-2" name="cilPencil"></svg>
+                  </span>
+                  <span (click)="deleteProjectReportWithComfirm(report)" title="Eliminar Informe" style="cursor: pointer; color: red;">
+                    <svg cIcon class="me-2" name="cilXCircle"></svg>
+                  </span>
+              
+                  <span (click)="sendEmailProjectReportWithComfirm(report)" title="Enviar Informe" style="cursor: pointer; color: rgb(0, 100, 128);">
+                    <svg cIcon class="me-2" name="cibMinutemailer"></svg>
+                  </span>
+            </td>    
 
         </tr>
       </ng-template>

@@ -12,5 +12,7 @@
     date: Date = new Date;
     budgetDetailsDto: ProjectReportDetailModel[] = [];
     curtomerName: string ="";  
+    customerEmail: string ="";  
+
  
   }
