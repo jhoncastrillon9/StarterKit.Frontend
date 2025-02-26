@@ -7,8 +7,7 @@ export class SendBudgetPdfRequest {
     constructor(budget: BudgetModel) {
       this.budgetId = budget.budgetId;  
       this.emails = this.extractEmails(budget.customerDto.email); 
-    }
-  
+    } 
     
     private extractEmails(emailString: string): string[] {
       if (!emailString) {

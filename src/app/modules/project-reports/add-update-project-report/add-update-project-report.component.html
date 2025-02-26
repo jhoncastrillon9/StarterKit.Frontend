@@ -1,1 +1,213 @@
-<p>add-update-project-report works!</p>
+<c-col xs="12">
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+      class="p-1"
+    >
+      <span
+        style="
+          color: #6610f2;
+          font-size: 2rem;
+          font-weight: 500;
+          font-family: Yanone Kaffeesatz;
+        "
+        color="primary"
+        class="cui-primary"
+        >{{ titlePage }}</span
+      >
+      <div style="color: #6610f2; font-weight: 600">
+        Fecha {{ currentDate | date : "dd MMM yyyy" }}
+      </div>
+    </div>
+  </c-col>
+  
+  <c-col xs="12">
+    <form
+      cForm
+      class="row g-3"
+      [formGroup]="projectReportForm"
+      (ngSubmit)="onAddUpdateProjectReport()"
+    >
+      <input cFormControl formControlName="projectReportId" style="display: none" />
+  
+      <!-- Nombre -->
+      <c-col md="3">
+        <label cLabel for="projectReportName">Nombre del informe*</label>
+        <input
+          cFormControl
+          formControlName="projectReportName"
+          class="form-control-sm"
+          [ngClass]="{
+            'is-invalid':
+              projectReportForm.get('projectReportName')?.invalid &&
+              (projectReportForm.get('projectReportName')?.touched ||
+                projectReportForm.get('projectReportName')?.dirty)
+          }"
+        />
+  
+        <div
+          class="text-medium-emphasis small text-danger-error"
+          *ngIf="
+            projectReportForm.get('projectReportName')?.invalid &&
+            (projectReportForm.get('projectReportName')?.touched ||
+              projectReportForm.get('projectReportName')?.dirty)
+          "
+        >
+          El nombre del informe es obligatorio.
+        </div>
+      </c-col>
+  
+      <!-- Cotizacion Asociada -->
+      <c-col md="3">
+        <label cLabel for="budgetId">Proyecto - Cotizaciòn:*</label>
+        <select
+          aria-label="Default select example"
+          cFormControl
+          cSelect
+          formControlName="budgetId"
+          [ngClass]="{
+            'is-invalid':
+              projectReportForm.get('budgetId')?.invalid &&
+              (projectReportForm.get('budgetId')?.touched ||
+                projectReportForm.get('budgetId')?.dirty)
+          }"
+          class="form-select-sm form-control-sm"
+        >
+          <option value="" disabled selected>Seleccione una cotización</option>
+          <!-- Opción por defecto -->
+          <option
+            *ngFor="let budget of budgets"
+            [value]="budget.budgetId"
+          >
+            {{ budget.budgetName }}
+          </option>
+        </select>  
+      </c-col> 
+
+  
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="descripcion colo-frayforTable">Imagen</th>
+              <th class="und colo-frayforTable">Descripción</th>  
+              <th class="und colo-frayforTable">Selecionar Foto</th>    
+              <th class="acciones colo-frayforTable">Opciones</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="projectReportDetailsDto">
+            <tr
+              *ngFor="let detail of projectReportDetailsArray.controls; let i = index"
+              [formGroupName]="i"
+            >
+            <td>
+                <img src="..." class="img-thumbnail" alt="...">
+
+            </td>
+              <td>
+                <!-- Description -->
+                <textarea
+                  cFormControl
+                  formControlName="description"
+                  placeholder="Descripción"
+                  style="
+                    min-height: 50px;
+                    resize: vertical;
+                    max-height: 200px;
+                    width: 100%;
+                  "
+                  rows="2"  
+                >
+                </textarea>           
+              </td>
+     
+              <td class="centered-input">
+
+      <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" class="form-control-sm" />
+</td>
+   
+              <td class="align-middle">
+                <a
+                  style="color: #dc3545; cursor: pointer"
+                  (click)="removeProjectReportDetail(i)"
+                >
+                  <svg cIcon class="me-2" name="cilXCircle"></svg>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <c-col xs="12" class="text-center">
+        <!-- Botón Agregar Item nuevo con margen derecho -->
+        <button
+          cButton
+          color="primary"
+          type="button"
+          class="btn-sm me-3"
+          (click)="addProjectReportDetail()"
+        >
+          Agregar Foto
+        </button> 
+
+      </c-col>
+  
+  
+  
+  
+      <c-col xs="12" class="text-end mb-3">
+        <a
+          cButton
+          type="button"
+          class="me-3 btn-sm d-none d-md-inline"
+          variant="outline"
+          [routerLink]="'/budgets/budgets'"
+        >
+          Regresar
+        </a>
+  
+        <a
+        cButton
+        type="button"
+        class="me-3 btn-sm d-inline d-md-none" 
+        variant="outline"
+        [routerLink]="'/budgets/budgets'"
+      >
+        Regresar
+      </a>
+      
+        <button
+          cButton
+          type="submit"
+          class="me-md-2 btn-sm"
+          style="margin-right: 10px"
+        >
+          {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar" : "Guardar" }}
+        </button>
+        
+  
+      </c-col>
+      
+    </form>
+  </c-col>
+  
+   <!-- Modal de confirmación -->
+  <app-confirmation-modal
+    #confirmationModal
+    [messageModal]="messageModal"
+    [title]="title"
+    [isModalError]="isModalError"
+    [alignment]="'top'"
+  >
+  </app-confirmation-modal>
+  
+  <ngx-spinner
+    bdColor="rgba(0, 0, 0, 0.8)"
+    size="medium"
+    color="#fff"
+    type="square-jelly-box"
+    [fullScreen]="true"
+  >
+    <p style="color: white">Cargando...</p>
+  </ngx-spinner>
+  

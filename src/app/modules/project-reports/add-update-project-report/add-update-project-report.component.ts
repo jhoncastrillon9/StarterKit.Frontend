@@ -1,21 +1,45 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { cilEnvelopeOpen, flagSet } from '@coreui/icons';
+import { IconModule, IconSetService } from '@coreui/icons-angular';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney} from '@coreui/icons';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Table, TableModule} from 'primeng/table';
+import { ViewEncapsulation } from '@angular/core';
+import { SharedModule } from '../../../shared.module';
+import { CommonModule } from '@angular/common';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule } from '@coreui/angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { ProjectReportModel } from '../models/projectReport.Model';
-import { Router, ActivatedRoute } from '@angular/router';
-import { cilPencil, cilXCircle, cilMoney } from '@coreui/icons';
-import { IconSetService } from '@coreui/icons-angular';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { ApuService } from '../../apus/services/apu.service';
 import { CustomerService } from '../../customers/services/customer.service';
 import { ProjectReportDetailModel } from '../models/projectReportDetail.Model';
 import { ProjectReportService } from '../services/projectReportService.service';
+import { CustomSharedModule} from '../../../shared/shared.module';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
+import { StyleClassModule } from 'primeng/styleclass';
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputOtpModule } from 'primeng/inputotp';
+import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
+import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
+import { BudgetModel } from '../../budgets/models/budget.Model';
 
 @Component({
   selector: 'app-add-update-project-report',
   standalone: true,
-  imports: [],
+    imports: [    SharedModule,     CommonModule,         RouterModule,     NgxSpinnerModule,         CardModule,     FormModule,     GridModule,     FormsModule,     ButtonModule,     ReactiveFormsModule,     FormModule,
+       PrimeButtonModule,     DropdownModule,    SharedModule,    ListGroupModule,    IconModule,    ModalModule,    TableModule,    InputTextModule,    InputIconModule,    IconFieldModule,    StyleClassModule,    InputMaskModule,
+      InputSwitchModule,    InputNumberModule,    InputTextareaModule,    InputGroupAddonModule,    InputGroupModule,    InputOtpModule, CustomSharedModule
+      ],
   templateUrl: './add-update-project-report.component.html',
   styleUrl: './add-update-project-report.component.scss'
 })
@@ -35,7 +59,7 @@ export class AddUpdateProjectReportComponent {
   msjError: string = "";
   titlePage: string = "Nuevo Informe de Obra";
   visible = false;
-
+  budgets: BudgetModel[] = [];
 
   searchTerm = '';
   selectedItems: ProjectReportModel[] = [];
@@ -47,8 +71,7 @@ export class AddUpdateProjectReportComponent {
     private route: ActivatedRoute,
     private projectReportService: ProjectReportService,
     private customerService: CustomerService,
-    private apuService: ApuService,
-    public iconSet: IconSetService,
+   public iconSet: IconSetService,
     private spinner: NgxSpinnerService
   ) {
     this.projectReportForm = this.fb.group({
@@ -130,7 +153,7 @@ export class AddUpdateProjectReportComponent {
     this.projectReportDetailsArray.push(reportDetailsGroup);
   }
 
-  removeBudgetDetail(index: number) {
+  removeProjectReportDetail(index: number) {
     this.projectReportDetailsArray.removeAt(index);
   }
 
@@ -178,7 +201,14 @@ export class AddUpdateProjectReportComponent {
   }
 
 
-
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      //this.selectedFile = file;
+    } else {
+      this.showModalDefault(true, 'Solo puedes cargar archivos de tipo imagenes 😉', this.errorTitle);
+    }
+  }
 
 
 
