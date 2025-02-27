@@ -1,189 +1,149 @@
 <c-col xs="12">
-    <div
-      style="display: flex; justify-content: space-between; align-items: center"
-      class="p-1"
-    >
-      <span
-        style="
+    <div style="display: flex; justify-content: space-between; align-items: center" class="p-1">
+        <span style="
           color: #6610f2;
           font-size: 2rem;
           font-weight: 500;
           font-family: Yanone Kaffeesatz;
-        "
-        color="primary"
-        class="cui-primary"
-        >{{ titlePage }}</span
-      >
-      <div style="color: #6610f2; font-weight: 600">
-        Fecha {{ currentDate | date : "dd MMM yyyy" }}
-      </div>
+        " color="primary" class="cui-primary">{{ titlePage }}</span>
+        <div style="color: #6610f2; font-weight: 600">
+            Fecha {{ currentDate | date : "dd MMM yyyy" }}
+        </div>
     </div>
-  </c-col>
-  
-  <c-col xs="12">
-    <form
-      cForm
-      class="row g-3"
-      [formGroup]="projectReportForm"
-      (ngSubmit)="onAddUpdateProjectReport()"
-    >
-      <input cFormControl formControlName="projectReportId" style="display: none" />
-  
-      <!-- Nombre -->
-      <c-col md="3">
-        <label cLabel for="projectReportName">Nombre del informe*</label>
-        <input
-          cFormControl
-          formControlName="projectReportName"
-          class="form-control-sm"
-          [ngClass]="{
+</c-col>
+
+<c-col xs="12">
+    <form cForm class="row g-3" [formGroup]="projectReportForm" (ngSubmit)="onAddUpdateProjectReport()">
+        <input cFormControl formControlName="projectReportId" style="display: none" />
+
+        <!-- Nombre -->
+        <c-col md="3">
+            <label cLabel for="projectReportName">Nombre del informe*</label>
+            <input cFormControl formControlName="projectReportName" class="form-control-sm" [ngClass]="{
             'is-invalid':
               projectReportForm.get('projectReportName')?.invalid &&
               (projectReportForm.get('projectReportName')?.touched ||
                 projectReportForm.get('projectReportName')?.dirty)
-          }"
-        />
-  
-        <div
-          class="text-medium-emphasis small text-danger-error"
-          *ngIf="
+          }" />
+
+            <div class="text-medium-emphasis small text-danger-error" *ngIf="
             projectReportForm.get('projectReportName')?.invalid &&
             (projectReportForm.get('projectReportName')?.touched ||
               projectReportForm.get('projectReportName')?.dirty)
-          "
-        >
-          El nombre del informe es obligatorio.
-        </div>
-      </c-col>
-  
-      <!-- Cotizacion Asociada -->
-      <c-col md="3">
-        <label cLabel for="budgetId">Proyecto - Cotizaciòn:*</label>
-        <select
-          aria-label="Default select example"
-          cFormControl
-          cSelect
-          formControlName="budgetId"
-          [ngClass]="{
+          ">
+                El nombre del informe es obligatorio.
+            </div>
+        </c-col>
+
+        <!-- Cotizacion Asociada -->
+        <c-col md="3">
+            <label cLabel for="budgetId">Proyecto - Cotizaciòn:*</label>
+            <select aria-label="Default select example" cFormControl cSelect formControlName="budgetId" [ngClass]="{
             'is-invalid':
               projectReportForm.get('budgetId')?.invalid &&
               (projectReportForm.get('budgetId')?.touched ||
                 projectReportForm.get('budgetId')?.dirty)
-          }"
-          class="form-select-sm form-control-sm"
-        >
-          <option value="" disabled selected>Seleccione una cotización</option>
-          <!-- Opción por defecto -->
-          <option
-            *ngFor="let budget of budgets"
-            [value]="budget.budgetId"
-          >
-            {{ budget.budgetName }}
-          </option>
-        </select>  
-      </c-col> 
+          }" class="form-select-sm form-control-sm">
+                <option value="" disabled selected>Seleccione una cotización</option>
+                <!-- Opción por defecto -->
+                <option *ngFor="let budget of budgets" [value]="budget.budgetId">
+                    {{ budget.budgetName }}
+                </option>
+            </select>
+        </c-col>
 
-      <c-col md="2" >
-        <label cLabel for="budgetId">Selecionar Imagenes:*</label>
+        <c-col md="2">
+            <label cLabel for="budgetId">Selecionar Imagenes:*</label>
 
-        <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" class="form-control-sm" multiple/>
-        
-      </c-col> 
+            <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)"
+                class="form-control-sm" multiple />
 
-      <c-col md="2">
-        <label cLabel >*</label>
-<br>
-        <button
-          cButton
-          type="submit"
-          class="me-md-2 btn-sm"
-        >
-          {{ projectReportForm.get("projectReportId")?.value > 0 ? "Cargar Fotos" : "Cargar Fotos" }}
-        </button>
-      </c-col> 
+        </c-col>
 
-  
+        <c-col md="2">
+            <label cLabel>*</label>
+            <br>
 
-      <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDto">
-        <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index" [formGroupName]="i">
-          <div class="card">
-            <img [src]="detail.get('urlImage')?.value" class="card-img-top img-thumbnail" alt="Imagen cargada">
-            <div class="card-body">
-              <h5 class="card-title">Imagen {{ i + 1 }}</h5>
-              <textarea
-                cFormControl
-                formControlName="description"
-                placeholder="Ingrese una descripción para la imagen"
-                class="form-control"
-                rows="2"
-                aria-placeholder="Ingrese una descripción para la imagen"
-              ></textarea>
-              <a
-              style="color: #dc3545; cursor: pointer"
-              (click)="removeProjectReportDetail(i)"
-            >
-              <svg cIcon class="me-2 icon-large-3rem" name="cilXCircle"></svg>
+
+
+            <a cButton type="button" class="me-3 btn-sm d-inline d-md-none" variant="outline"
+                [routerLink]="'/budgets/budgets'">
+                Regresar
             </a>
-            </div>
-          </div>
-        </div>
-      </div>
 
-  
-  
-      <c-col xs="12" class="text-end mb-3">
-        <a
-          cButton
-          type="button"
-          class="me-3 btn-sm d-none d-md-inline"
-          variant="outline"
-          [routerLink]="'/budgets/budgets'"
-        >
-          Regresar
-        </a>
-  
-        <a
-        cButton
-        type="button"
-        class="me-3 btn-sm d-inline d-md-none" 
-        variant="outline"
-        [routerLink]="'/budgets/budgets'"
-      >
-        Regresar
-      </a>
-      
-        <button
-          cButton
-          type="submit"
-          class="me-md-2 btn-sm"
-          style="margin-right: 10px"
-        >
-          {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar" : "Guardar" }}
-        </button>
-        
-  
-      </c-col>
-      
+            <a cButton type="button" class="me-3 btn-sm d-none d-md-inline" variant="outline"
+                [routerLink]="'/budgets/budgets'">
+                Regresar
+            </a>
+
+            <button cButton type="submit" class="me-md-2 btn-sm">
+                {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar Informe" : "Guardar Informe" }}
+            </button>
+
+        </c-col>
+
+
+
+        <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDto">
+            <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index"
+                [formGroupName]="i">
+                <div class="card">
+                    <img [src]="detail.get('urlImage')?.value" class="card-img-top img-thumbnail" alt="Imagen cargada">
+                    <div class="card-body">
+                        <h5 class="card-title">Imagen {{ i + 1 }}</h5>
+                        <div class="row">
+
+
+                            <c-col md="10">
+
+                                <textarea cFormControl formControlName="description"
+                                    placeholder="Ingrese una descripción para la imagen" class="form-control" rows="2"
+                                    aria-placeholder="Ingrese una descripción para la imagen"></textarea>
+
+                            </c-col>
+
+                            <c-col md="2">
+
+                                <a style="color: #dc3545; cursor: pointer; font-size: 3rem;"
+                                    (click)="removeProjectReportDetail(i)">
+                                    <svg cIcon class="me-2 icon-large-3rem" name="cilXCircle"></svg> </a>
+                            </c-col>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <c-col xs="12" class="text-end mb-3">
+            <a cButton type="button" class="me-3 btn-sm d-none d-md-inline" variant="outline"
+                [routerLink]="'/budgets/budgets'">
+                Regresar
+            </a>
+
+            <a cButton type="button" class="me-3 btn-sm d-inline d-md-none" variant="outline"
+                [routerLink]="'/budgets/budgets'">
+                Regresar
+            </a>
+
+            <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px">
+                {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar Infome" : "Guardar Informe" }}
+            </button>
+
+
+        </c-col>
+
     </form>
-  </c-col>
-  
-   <!-- Modal de confirmación -->
-  <app-confirmation-modal
-    #confirmationModal
-    [messageModal]="messageModal"
-    [title]="title"
-    [isModalError]="isModalError"
-    [alignment]="'top'"
-  >
-  </app-confirmation-modal>
-  
-  <ngx-spinner
-    bdColor="rgba(0, 0, 0, 0.8)"
-    size="medium"
-    color="#fff"
-    type="square-jelly-box"
-    [fullScreen]="true"
-  >
+</c-col>
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal #confirmationModal [messageModal]="messageModal" [title]="title" [isModalError]="isModalError"
+    [alignment]="'top'">
+</app-confirmation-modal>
+
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
     <p style="color: white">Cargando...</p>
-  </ngx-spinner>
-  
+</ngx-spinner>
