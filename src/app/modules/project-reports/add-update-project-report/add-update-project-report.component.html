@@ -47,7 +47,7 @@
                 <option value="" disabled selected>Seleccione una cotización</option>
                 <!-- Opción por defecto -->
                 <option *ngFor="let budget of budgets" [value]="budget.budgetId">
-                    {{ budget.budgetName }}
+                    {{budget.internalCode}} - {{ budget.date | date : "dd MMM yyyy"  }} - {{ budget.budgetName }} - {{ budget.customerDto.customerName }}
                 </option>
             </select>
         </c-col>

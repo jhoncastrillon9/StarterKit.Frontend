@@ -32,6 +32,7 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
 import { BudgetModel } from '../../budgets/models/budget.Model';
+import { BudgetService } from '../../budgets/services/budget.service';
 
 @Component({
   selector: 'app-add-update-project-report',
@@ -71,6 +72,7 @@ export class AddUpdateProjectReportComponent {
     private route: ActivatedRoute,
     private projectReportService: ProjectReportService,
     private customerService: CustomerService,
+    private budgetService: BudgetService,
    public iconSet: IconSetService,
     private spinner: NgxSpinnerService
   ) {
@@ -128,6 +130,19 @@ export class AddUpdateProjectReportComponent {
     });
 
     this.loadCustomers();
+    this.loadBudgets();
+  }
+
+
+  loadBudgets(){
+    this.spinner.show()    
+    this.budgetService.get().subscribe(budgetsModel => {
+      this.budgets = budgetsModel;
+      this.spinner.hide();
+    },(error)=>{
+      this.spinner.hide();
+      this.handleError('Error to Load Bugets', this.errorGeneralMessage);
+    });
   }
 
   loadCustomers() {
