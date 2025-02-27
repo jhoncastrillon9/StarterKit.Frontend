@@ -2,3 +2,27 @@
     text-align: center;
     vertical-align: middle;
   }
+
+
+/* filepath: /C:/Repos/StarterKit.Frontend/src/app/modules/project-reports/add-update-project-report/add-update-project-report.component.scss */
+.centered-input {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .card-img-top {
+    max-width: 100%; /* El ancho máximo será el tamaño de la columna */
+    max-height: 300px; /* La altura máxima será de 300px */
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
