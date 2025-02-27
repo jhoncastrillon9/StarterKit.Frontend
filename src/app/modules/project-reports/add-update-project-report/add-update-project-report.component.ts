@@ -61,10 +61,18 @@ export class AddUpdateProjectReportComponent {
   titlePage: string = "Nuevo Informe de Obra";
   visible = false;
   budgets: BudgetModel[] = [];
+  private readonly sendEmailTitleComfirmation: string = "Informe de Obra en camino! 📬";
+  private readonly errorToSendEmailMessage: string = "Algo salió mal al enviar el email. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
+  private readonly errorToDownloadBudgetMessage: string = "Algo salió mal al descargar el informe de obra. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
+  private readonly successDeleteMessage: string = "¡El Informe de Obra ha sido eliminada correctamente!";
+  private readonly successSendProjectReportMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
+  private readonly successSendProjectReportTitle: string = "¡Correo Enviado!";
 
   searchTerm = '';
   selectedItems: ProjectReportModel[] = [];
   apuModels: ProjectReportModel[] = [];
+  projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
+
 
   constructor(
     private fb: FormBuilder,
@@ -286,4 +294,61 @@ export class AddUpdateProjectReportComponent {
   showNotify() {
     console.log('show notify');
   }
+
+
+
+  sendEmailProjectReportWithComfirm(projectReportModelModel: ProjectReportModel){ 
+      this.projectReportToSendEmail = projectReportModelModel;
+      this.confirmationModal.messageModal = "Tu Informe de obra se enviará a los siguientes correos electrónicos: "+ projectReportModelModel.customerEmail;
+      this.confirmationModal.title = this.sendEmailTitleComfirmation;
+      this.confirmationModal.isConfirmation = true; 
+      this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
+      // Emitimos la acción a ejecutar cuando se confirme
+      this.confirmationModal.confirmAction.subscribe(() => this.sendEmailProjectReport()); 
+      this.confirmationModal.openModal(); 
+  
+    }
+  
+     sendEmailProjectReport(){      
+      this.spinner.show()   
+        var request = new SendProjectReportPdfRequest(this.projectReportToSendEmail);
+        this.budgetService.sendEmailBudget(request).subscribe(
+          (response: any) => {              
+            this.loadBudgets();           
+            this.spinner.hide();
+            this.showModalDefault(false,this.successSendProjectReportMessage,this.successSendProjectReportTitle,)
+          },
+          (error) => {
+            this.spinner.hide();
+            this.handleError('Error to send Bugets', this.errorToSendEmailMessage);
+          }
+        );     
+        this.projectReportToSendEmail = new ProjectReportModel;;
+    }
+  
+ 
+    downloadProjectReport(projectReportModel: ProjectReportModel) {
+      this.spinner.show();
+      this.budgetService.download(projectReportModel.budgetId).subscribe(
+        (data: Blob) => {
+          this.descargarPDF(data,projectReportModel);
+          this.spinner.hide();
+        },
+        (error) => {
+          this.spinner.hide(); 
+          this.handleError('Error to download Prject Report', this.errorToDownloadBudgetMessage);
+        }
+      );
+    }
+  
+    private descargarPDF(data: Blob, projectReportModel: ProjectReportModel) {
+      const url = window.URL.createObjectURL(data);    
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'InformeObra_'+projectReportModel.internalCode+' '+projectReportModel.projectReportName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
 }
