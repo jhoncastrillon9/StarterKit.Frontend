@@ -104,21 +104,24 @@
 
   
 
-      <div class="row row-cols-1 row-cols-md-4 g-4 " formArrayName="projectReportDetailsDto">
-
+      <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDto">
         <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index" [formGroupName]="i">
           <div class="card">
-            <img src="https://m.media-amazon.com/images/I/511-pS5CCCL.jpg" class="card-img-top" alt="...">
-      
+            <img [src]="detail.get('urlImage')?.value" class="card-img-top" alt="Imagen cargada">
             <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+              <h5 class="card-title">Imagen {{ i + 1 }}</h5>
+              <textarea
+                cFormControl
+                formControlName="description"
+                placeholder="Ingrese una descripción para la imagen"
+                class="form-control"
+                rows="3"
+              ></textarea>
+              <button type="button" class="btn btn-danger mt-2" (click)="removeProjectReportDetail(i)">Eliminar</button>
             </div>
           </div>
         </div>
-
       </div>
-
 
       <div class="table-responsive">
         <table class="table">

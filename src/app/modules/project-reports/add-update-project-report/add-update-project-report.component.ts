@@ -202,14 +202,29 @@ export class AddUpdateProjectReportComponent {
 
 
   onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      //this.selectedFile = file;
-    } else {
-      this.showModalDefault(true, 'Solo puedes cargar archivos de tipo imagenes 😉', this.errorTitle);
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            const urlImage = e.target.result;
+            const reportDetailsGroup = this.fb.group({
+              projectReporDetailtId: [0],
+              projectReporId: [0],
+              urlImage: [urlImage, Validators.required],
+              description: ['Ingrese una descripción para la imagen', Validators.required]
+            });
+            this.projectReportDetailsArray.push(reportDetailsGroup);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          this.showModalDefault(true, 'Solo puedes cargar archivos de tipo imagenes 😉', this.errorTitle);
+        }
+      }
     }
   }
-
 
 
 
