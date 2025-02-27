@@ -116,8 +116,14 @@
                 placeholder="Ingrese una descripción para la imagen"
                 class="form-control"
                 rows="2"
+                aria-placeholder="Ingrese una descripción para la imagen"
               ></textarea>
-              <button type="button" class="btn btn-danger mt-2" (click)="removeProjectReportDetail(i)">Eliminar</button>
+              <a
+              style="color: #dc3545; cursor: pointer"
+              (click)="removeProjectReportDetail(i)"
+            >
+              <svg cIcon class="me-2 icon-large-3rem" name="cilXCircle"></svg>
+            </a>
             </div>
           </div>
         </div>

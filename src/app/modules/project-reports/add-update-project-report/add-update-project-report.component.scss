@@ -10,8 +10,13 @@
     vertical-align: middle;
   }
   
+  .card {
+    max-width: 500px; /* El ancho máximo de la tarjeta será de 500px */
+    margin: 0 auto; /* Centra la tarjeta horizontalmente */
+  }
+  
   .card-img-top {
-    max-width: 100%; /* El ancho máximo será el tamaño de la columna */
+    max-width: 100%; /* El ancho máximo será el tamaño de la tarjeta */
     max-height: 300px; /* La altura máxima será de 300px */
     width: auto;
     height: auto;
@@ -25,4 +30,9 @@
   
   .mt-2 {
     margin-top: 0.5rem;
+  }
+
+  .icon-large-3rem {
+    width: 3rem !important; /* Ajusta el tamaño según tus necesidades */
+    height: 3rem !important; /* Ajusta el tamaño según tus necesidades */
   }

@@ -214,7 +214,7 @@ export class AddUpdateProjectReportComponent {
               projectReporDetailtId: [0],
               projectReporId: [0],
               urlImage: [urlImage, Validators.required],
-              description: ['Ingrese una descripción para la imagen', Validators.required]
+              description: ['', Validators.required]
             });
             this.projectReportDetailsArray.push(reportDetailsGroup);
           };
