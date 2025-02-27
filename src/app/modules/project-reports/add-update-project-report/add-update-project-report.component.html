@@ -37,13 +37,13 @@
 
         <!-- Cotizacion Asociada -->
         <c-col md="3">
-            <label cLabel for="budgetId">Proyecto - Cotizaciòn:*</label>
+            <label cLabel for="budgetId">Proyecto - Cotización:*</label>
             <select aria-label="Default select example" cFormControl cSelect formControlName="budgetId" [ngClass]="{
             'is-invalid':
               projectReportForm.get('budgetId')?.invalid &&
               (projectReportForm.get('budgetId')?.touched ||
                 projectReportForm.get('budgetId')?.dirty)
-          }" class="form-select-sm form-control-sm">
+          }" class="form-select-sm form-control-sm" (change)="onBudgetChange($event)">
                 <option value="" disabled selected>Seleccione una cotización</option>
                 <!-- Opción por defecto -->
                 <option *ngFor="let budget of budgets" [value]="budget.budgetId">

@@ -258,7 +258,16 @@ export class AddUpdateProjectReportComponent {
 
 
 
+  onBudgetChange(event: any) {
+    const selectedBudgetId = event.target.value;
+    const selectedBudget = this.budgets.find(budget => budget.budgetId == selectedBudgetId);
 
+    if (selectedBudget) {
+      this.projectReportForm.patchValue({
+        projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`
+      });
+    }
+  }
 
 
 
