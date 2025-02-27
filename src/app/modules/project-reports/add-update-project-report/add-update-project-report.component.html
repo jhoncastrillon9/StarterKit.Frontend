@@ -104,10 +104,11 @@
 
   
 
-      <div class="row row-cols-1 row-cols-md-4 g-4">
-        <div class="col">
+      <div class="row row-cols-1 row-cols-md-4 g-4 " formArrayName="projectReportDetailsDto">
+
+        <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index" [formGroupName]="i">
           <div class="card">
-            <img src="..." class="card-img-top" alt="...">
+            <img src="https://m.media-amazon.com/images/I/511-pS5CCCL.jpg" class="card-img-top" alt="...">
       
             <div class="card-body">
               <h5 class="card-title">Card title</h5>
@@ -115,66 +116,7 @@
             </div>
           </div>
         </div>
-        <div class="col">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-        
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-        
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card">
-              <img src="..." class="card-img-top" alt="...">
-        
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-              </div>
-            </div>
-          </div>
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-      
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-      
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card">
-            <img src="..." class="card-img-top" alt="...">
-      
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            </div>
-          </div>
-        </div>
+
       </div>
 
 
@@ -214,11 +156,7 @@
                 </textarea>           
               </td>
      
-              <td class="centered-input">
 
-      <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" class="form-control-sm" multiple/>
-</td>
-   
               <td class="align-middle">
                 <a
                   style="color: #dc3545; cursor: pointer"
@@ -232,20 +170,7 @@
         </table>
       </div>
   
-      <c-col xs="12" class="text-center">
-        <!-- Botón Agregar Item nuevo con margen derecho -->
-        <button
-          cButton
-          color="primary"
-          type="button"
-          class="btn-sm me-3"
-          (click)="addProjectReportDetail()"
-        >
-          Agregar Foto
-        </button> 
 
-      </c-col>
-  
   
   
   

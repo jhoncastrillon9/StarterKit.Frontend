@@ -101,11 +101,11 @@ export class AddUpdateProjectReportComponent {
           this.projectReportForm.patchValue(projectReport);
 
           // Agrega el código aquí para cargar los detalles del presupuesto
-          if (projectReport && projectReport.budgetDetailsDto) {
+          if (projectReport && projectReport.projectReportDetailsDto) {
             const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
        
-            projectReport.budgetDetailsDto.forEach((detail: any) => {
+            projectReport.projectReportDetailsDto.forEach((detail: any) => {
               const projectReportDetailsGroup = this.fb.group({
                 projectReporDetailtId: detail.projectReporDetailtId,
                 projectReporId: detail.projectReporId,
@@ -123,7 +123,7 @@ export class AddUpdateProjectReportComponent {
         });
       } else {
         //Add empty row 
-        this.addProjectReportDetail();
+        //this.addProjectReportDetail();
       }
     });
 
