@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://jhoncastrillonsp-001-site1.ctempurl.com',
+    apiUrl: 'https://cotizaconstructorbackendapp-h6dngyedcububedu.centralus-01.azurewebsites.net',
   };
