@@ -55,7 +55,7 @@
         <c-col md="2">
             <label cLabel for="budgetId">Selecionar Imagenes:*</label>
 
-            <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)"
+            <input cFormControl type="file" (change)="onFileSelected($event)"
                 class="form-control-sm" multiple />
 
         </c-col>
@@ -94,30 +94,34 @@
                         <div class="row">
 
 
-                            <c-col md="10">
-
-                                <textarea cFormControl formControlName="description"
-                                    placeholder="Ingrese una descripción para la imagen" class="form-control" rows="2"
-                                    aria-placeholder="Ingrese una descripción para la imagen"></textarea>
-
-                            </c-col>
-
-                            <c-col md="2">
-
-                                <a style="color: #dc3545; cursor: pointer; font-size: 3rem;"
-                                    (click)="removeProjectReportDetail(i)">
-                                    <svg cIcon class="me-2 icon-large-3rem" name="cilXCircle"></svg> </a>
-                            </c-col>
-                        </div>
-
-                        <div class="row">
-                            <select aria-label="Default select example" cFormControl cSelect  class="form-select-sm form-control-sm" >
+                            <c-col md="11">
+                                <select aria-label="Default select example" cFormControl cSelect  class="form-select-sm form-control-sm" formControlName="detailSelect">
                                     <option value="" disabled selected>Seleccionar Item (Opcional)</option>
                                     <!-- Opción por defecto -->
                                     <option *ngFor="let detail of selectBudgetDetailsModel" >
                                         {{detail.description}}
                                     </option>
-                                </select>
+                            </select>
+                    
+
+                            </c-col>
+
+                            <c-col md="1">
+
+                                <a style="color: #dc3545; cursor: pointer; "
+                                    (click)="removeProjectReportDetail(i)">
+                                    <svg cIcon class="me-2 " name="cilXCircle"></svg> </a>
+                            </c-col>
+                        </div>
+<br>
+                        <div class="row">
+                            <c-col md="11">
+                                <textarea cFormControl formControlName="description"
+                                placeholder="Ingrese una descripción adicional para la imagen" class="form-control" rows="2"
+                                aria-placeholder="Ingrese una descripción para la imagen"></textarea>
+                                </c-col>
+                                
+                           
                         </div>
 
 

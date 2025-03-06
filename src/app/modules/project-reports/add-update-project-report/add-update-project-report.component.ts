@@ -89,6 +89,7 @@ export class AddUpdateProjectReportComponent {
       budgetInternalCode: ['0'],
       projectReportName: [''],
       note: [''],
+      introduction: [''],
       date: [new Date()], 
       projectReportDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
     });
@@ -116,7 +117,7 @@ export class AddUpdateProjectReportComponent {
               const projectReportDetailsGroup = this.fb.group({
                 projectReporDetailtId: detail.projectReporDetailtId,
                 projectReporId: detail.projectReporId,
-                description: detail.description,
+                description: detail.detailSelect + detail.description,
                 urlImage: detail.urlImage         
               });
               detailsArray.push(projectReportDetailsGroup);
@@ -167,8 +168,9 @@ export class AddUpdateProjectReportComponent {
     const reportDetailsGroup = this.fb.group({
       projectReporDetailtId: [0],
       projectReporId: [0],
-      urlImage: ['',[Validators.required]],
-      description: ['', [Validators.required]],     
+      urlImage: [''],
+      description: [''],  
+      detailSelect: ['']   
     });
     this.projectReportDetailsArray.push(reportDetailsGroup);
   }
@@ -183,6 +185,8 @@ export class AddUpdateProjectReportComponent {
 
   onAddUpdateProjectReport() {
     this.projectReportForm.markAllAsTouched();
+    console.log(this.projectReportForm);
+    console.log(this.projectReportForm.valid);
     if (this.projectReportForm.valid) {
       this.spinner.show();
       this.projectReportForm.get('date')?.setValue(this.currentDate);
@@ -233,8 +237,9 @@ export class AddUpdateProjectReportComponent {
             const reportDetailsGroup = this.fb.group({
               projectReporDetailtId: [0],
               projectReporId: [0],
-              urlImage: [urlImage, Validators.required],
-              description: ['', Validators.required]
+              urlImage: [urlImage],
+              description: [''],
+              detailSelect: ['']
             });
             this.projectReportDetailsArray.push(reportDetailsGroup);
           };
