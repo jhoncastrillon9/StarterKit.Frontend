@@ -110,6 +110,16 @@
                             </c-col>
                         </div>
 
+                        <div class="row">
+                            <select aria-label="Default select example" cFormControl cSelect  class="form-select-sm form-control-sm" >
+                                    <option value="" disabled selected>Seleccionar Item (Opcional)</option>
+                                    <!-- Opción por defecto -->
+                                    <option *ngFor="let detail of selectBudgetDetailsModel" >
+                                        {{detail.description}}
+                                    </option>
+                                </select>
+                        </div>
+
 
                     </div>
                 </div>

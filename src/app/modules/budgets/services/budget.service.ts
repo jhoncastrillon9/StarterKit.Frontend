@@ -33,6 +33,18 @@ import { environment } from 'src/environment';
         })
       );
     }
+
+    getWithDetail() {
+      const headers = this.getHeaders();
+      return this.http.get(`${this.apiUrl}/api/Budget/GetAllWithDetails`, { headers, observe: 'response' }).pipe(
+        map((response: HttpResponse<any>) => {
+          if (response.status === 401) {
+            this.router.navigate(['/login']);
+          }
+          return response.body;
+        })
+      );
+    }
   
     getById(data: any) {
       const headers = this.getHeaders();

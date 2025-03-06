@@ -31,7 +31,7 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
-import { BudgetModel } from '../../budgets/models/budget.Model';
+import { BudgetDetailModel, BudgetModel } from '../../budgets/models/budget.Model';
 import { BudgetService } from '../../budgets/services/budget.service';
 
 @Component({
@@ -48,30 +48,27 @@ import { BudgetService } from '../../budgets/services/budget.service';
 export class AddUpdateProjectReportComponent {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
-  private readonly errorTitle: string = "¡Ups! ocurrió un error.";
   title: string = '';
-  messageModal: string = "¡Actualizados correctamente!";
-  private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
   projectReportForm: FormGroup;
   projectReporId?: string;
   currentDate: Date = new Date();
   customers: CustomerModel[] = [];
   showErrors: boolean = false;
   msjError: string = "";
-  titlePage: string = "Nuevo Informe de Obra";
   visible = false;
   budgets: BudgetModel[] = [];
+  projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
+  selectBudgetDetailsModel : BudgetDetailModel[] = [];
   private readonly sendEmailTitleComfirmation: string = "Informe de Obra en camino! 📬";
   private readonly errorToSendEmailMessage: string = "Algo salió mal al enviar el email. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
   private readonly errorToDownloadBudgetMessage: string = "Algo salió mal al descargar el informe de obra. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
   private readonly successDeleteMessage: string = "¡El Informe de Obra ha sido eliminada correctamente!";
   private readonly successSendProjectReportMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
   private readonly successSendProjectReportTitle: string = "¡Correo Enviado!";
-
-  searchTerm = '';
-  selectedItems: ProjectReportModel[] = [];
-  apuModels: ProjectReportModel[] = [];
-  projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
+  private readonly errorTitle: string = "¡Ups! ocurrió un error.";
+  private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
+  messageModal: string = "¡Actualizados correctamente!";
+  titlePage: string = "Nuevo Informe de Obra";
 
 
   constructor(
@@ -144,7 +141,7 @@ export class AddUpdateProjectReportComponent {
 
   loadBudgets(){
     this.spinner.show()    
-    this.budgetService.get().subscribe(budgetsModel => {
+    this.budgetService.getWithDetail().subscribe(budgetsModel => {
       this.budgets = budgetsModel;
       this.spinner.hide();
     },(error)=>{
@@ -271,6 +268,8 @@ export class AddUpdateProjectReportComponent {
     const selectedBudget = this.budgets.find(budget => budget.budgetId == selectedBudgetId);
 
     if (selectedBudget) {
+      console.log(selectedBudget);
+      this.selectBudgetDetailsModel = selectedBudget.budgetDetailsDto;
       this.projectReportForm.patchValue({
         projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`
       });
