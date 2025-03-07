@@ -169,6 +169,7 @@ export class AddUpdateProjectReportComponent {
       projectReporDetailtId: [0],
       projectReporId: [0],
       urlImage: [''],
+      ImageFile: [''],
       description: [''],  
       detailSelect: ['']   
     });
@@ -185,12 +186,11 @@ export class AddUpdateProjectReportComponent {
 
   onAddUpdateProjectReport() {
     this.projectReportForm.markAllAsTouched();
-    console.log(this.projectReportForm);
-    console.log(this.projectReportForm.valid);
     if (this.projectReportForm.valid) {
       this.spinner.show();
       this.projectReportForm.get('date')?.setValue(this.currentDate);
       const formData = this.projectReportForm.value;
+
       if (this.projectReporId) {
         this.projectReportService.update(formData).subscribe(
           (response: any) => {
@@ -205,7 +205,7 @@ export class AddUpdateProjectReportComponent {
           }
         );
       } else {
-        this.projectReportService.add(formData).subscribe(
+        this.projectReportService.add(this.projectReportForm.value).subscribe(
           (response: any) => {
             this.router.navigate(['/projectreports/projectreports']);
             this.spinner.hide();
@@ -228,18 +228,19 @@ export class AddUpdateProjectReportComponent {
   onFileSelected(event: any) {
     const files = event.target.files;
     if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
+      for (let i = 0; i < files.length; i++) {  
         const file = files[i];
         if (file.type.startsWith('image/')) {
           const reader = new FileReader();
           reader.onload = (e: any) => {
-            const urlImage = e.target.result;
+            const imageFile = e.target.result;
             const reportDetailsGroup = this.fb.group({
               projectReporDetailtId: [0],
               projectReporId: [0],
-              urlImage: [urlImage],
+              urlImage: [''],
               description: [''],
-              detailSelect: ['']
+              detailSelect: [''],
+              imageFile: [imageFile]
             });
             this.projectReportDetailsArray.push(reportDetailsGroup);
           };
