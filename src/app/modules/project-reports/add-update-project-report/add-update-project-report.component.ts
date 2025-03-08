@@ -170,6 +170,7 @@ export class AddUpdateProjectReportComponent {
       projectReporId: [0],
       urlImage: [''],
       ImageFile: [''],
+      imageFileXX: [''],
       description: [''],  
       detailSelect: ['']   
     });
@@ -189,7 +190,26 @@ export class AddUpdateProjectReportComponent {
     if (this.projectReportForm.valid) {
       this.spinner.show();
       this.projectReportForm.get('date')?.setValue(this.currentDate);
-      const formData = this.projectReportForm.value;
+
+      const formData = new FormData();
+      formData.append('projectReportId', this.projectReportForm.get('projectReportId')?.value??0);
+      formData.append('customerId', this.projectReportForm.get('customerId')?.value??0);
+      formData.append('internalCode', this.projectReportForm.get('internalCode')?.value??0);
+      formData.append('budgetId', this.projectReportForm.get('budgetId')?.value?? 0);
+      formData.append('projectReportName', this.projectReportForm.get('projectReportName')?.value?? '');
+      formData.append('note', this.projectReportForm.get('note')?.value ?? '');
+      formData.append('introduction', this.projectReportForm.get('introduction')?.value?? '');
+      formData.append('date', this.projectReportForm.get('date')?.value.toISOString());
+
+      // Agregar detalles del proyecto
+      const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
+      detailsArray.controls.forEach((control: any, index: number) => {
+        formData.append(`projectReportDetailsDto[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
+        formData.append(`projectReportDetailsDto[${index}].description`, control.get('description').value?? '' +' '+ control.get('detailSelect').value?? '');        
+        if (control.get('imageFile').value) {
+          formData.append(`projectReportDetailsDto[${index}].imageFile`, control.get('imageFileXX').value);
+        }
+      });
 
       if (this.projectReporId) {
         this.projectReportService.update(formData).subscribe(
@@ -198,28 +218,23 @@ export class AddUpdateProjectReportComponent {
             this.spinner.hide();
           },
           (error) => {
-            this.showErrors = true;
-            this.msjError = error;
             this.spinner.hide();
-            this.handleError('Load Data', this.errorGeneralMessage);
+            this.handleError('Error to update Project Report', this.errorGeneralMessage);
           }
         );
       } else {
-        this.projectReportService.add(this.projectReportForm.value).subscribe(
+        this.projectReportService.add(formData).subscribe(
           (response: any) => {
             this.router.navigate(['/projectreports/projectreports']);
             this.spinner.hide();
           },
           (error) => {
-            this.showErrors = true;
-            this.msjError = "Error inesperado, revisa la información del formulario";
             this.spinner.hide();
-            this.handleError('Load Data', this.errorGeneralMessage);
+            this.handleError('Error to add Project Report', this.errorGeneralMessage);
           }
         );
       }
     } else {
-      this.showErrors = true;
       this.showModalDefault(true, 'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.', '¡Campos incompletos!');
     }
   }
@@ -240,7 +255,8 @@ export class AddUpdateProjectReportComponent {
               urlImage: [''],
               description: [''],
               detailSelect: [''],
-              imageFile: [imageFile]
+              imageFile: [imageFile],
+              imageFileXX: [file]
             });
             this.projectReportDetailsArray.push(reportDetailsGroup);
           };
@@ -274,10 +290,13 @@ export class AddUpdateProjectReportComponent {
     const selectedBudget = this.budgets.find(budget => budget.budgetId == selectedBudgetId);
 
     if (selectedBudget) {
-      console.log(selectedBudget);
       this.selectBudgetDetailsModel = selectedBudget.budgetDetailsDto;
       this.projectReportForm.patchValue({
-        projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`
+        projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`,
+        customerId: selectedBudget.customerId,
+        budgetInternalCode: selectedBudget.internalCode,
+        budgetId: selectedBudget.budgetId,
+        companyId: selectedBudget.companyId
       });
     }
   }
