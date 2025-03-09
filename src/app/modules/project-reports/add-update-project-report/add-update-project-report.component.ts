@@ -122,7 +122,7 @@ export class AddUpdateProjectReportComponent {
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
             projectReport.projectReportDetailsDTO.forEach((detail: any) => {
               const projectReporDetailGroup = this.fb.group({       
-                projectReportDetailtId: detail.projectReportDetailtId,
+                projectReportDetailId: detail.projectReportDetailId,
                 projectReporId: detail.projectReporId,
                 description: detail.description,
                 urlImage: detail.urlImage,
@@ -191,7 +191,7 @@ export class AddUpdateProjectReportComponent {
 
   addProjectReportDetail() {
     const reportDetailsGroup = this.fb.group({
-      projectReportDetailtId: [0],
+      projectReportDetailId: [0],
       projectReporId: [0],
       urlImage: [''],
       ImageFile: [''],
@@ -235,14 +235,14 @@ export class AddUpdateProjectReportComponent {
       // Agregar detalles del proyecto
       const detailsArray = this.projectReportForm.get('projectReportDetailsDTO') as FormArray;
       detailsArray.controls.forEach((control: any, index: number) => {
-        formData.append(`projectReportDetailsDTO[${index}].projectReportDetailtId`, control.get('projectReportDetailtId').value??0);
+        formData.append(`projectReportDetailsDTO[${index}].projectReportDetailId`, control.get('projectReportDetailId').value??0);
         formData.append(`projectReportDetailsDTO[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
 
         formData.append(`projectReportDetailsDTO[${index}].description`, control.get('description').value??'' );  
-        formData.append(`projectReportDetailsDTO[${index}].title`, control.get('detailSelect').value.description??'' );
-        formData.append(`projectReportDetailsDTO[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId??0 );     
+        formData.append(`projectReportDetailsDTO[${index}].title`, control.get('detailSelect')?.value?.description??'' );
+        formData.append(`projectReportDetailsDTO[${index}].budgetDetailId`, control.get('detailSelect')?.value?.budgetDetailId??0 );     
 
-        if (this.isEdit==false) {
+        if (control.get('imageFileXX')?.value) {
           formData.append(`projectReportDetailsDTO[${index}].imageFile`, control.get('imageFileXX').value);
         }
     
@@ -294,7 +294,7 @@ export class AddUpdateProjectReportComponent {
           reader.onload = (e: any) => {
             const imageFile = e.target.result;
             const reportDetailsGroup = this.fb.group({
-              projectReportDetailtId: [0],
+              projectReportDetailId: [0],
               projectReporId: [0],
               urlImage: [''],
               description: [''],
