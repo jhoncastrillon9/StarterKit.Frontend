@@ -31,7 +31,7 @@ const routes: Routes = [
           }
         },
         {
-          path: 'update/:id',          
+          path: 'add/:id',          
           component: AddUpdateProjectReportComponent,
           data: {
             title: 'Editar'
