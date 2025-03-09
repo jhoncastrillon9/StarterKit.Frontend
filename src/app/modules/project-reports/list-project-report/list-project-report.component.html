@@ -19,7 +19,7 @@
       [sortOrder]="-1"
       [rowsPerPageOptions]="[25, 50, 100, 500]"
       currentPageReportTemplate="{first} al {last} de {totalRecords}"
-      [globalFilterFields]="['projectReportName','note', 'projectReportId','internalCode', ]"
+      [globalFilterFields]="['projectReportName','note', 'projectReportId','internalCode', 'customerDto.customerName','budgetDTO.budgetName']"
       [tableStyle]="{ 'min-width': '50rem' }"
       >
 
@@ -73,10 +73,10 @@
                 </div>
             </th>
 
-            <th  pSortableColumn="curtomerName" style="min-width:10rem">
+            <th  pSortableColumn="customerDto.customerName" style="min-width:10rem">
                 <div class="flex align-items-center">
                     Cliente
-                    <p-sortIcon field="curtomerName" />
+                    <p-sortIcon field="customerDto.customerName" />
                 </div>
             </th>
 
@@ -96,13 +96,13 @@
           <td>{{ report.date | date: 'dd MMM yyyy' }} </td>
           <td>{{ report.projectReportName  | truncate:50}} </td>
           <td>{{ report.budgetInternalCode }}</td>
-          <td>{{ report.budgetName |  truncate:50}} </td>
-          <td>{{ report.curtomerName | truncate:50}} </td>
+          <td>{{ report.budgetDTO.budgetName |  truncate:50}} </td>
+          <td>{{ report.customerDto.customerName | truncate:50}} </td>
             <td>
                 <span (click)="downloadProjectReport(report)" title="Descargar PDF" style="cursor: pointer; color: blue;">
                     <svg cIcon class="me-2" name="cilCloudDownload"></svg>
                   </span>
-                  <span [routerLink]="['/projectReport/update', report.projectReportId]" title="Editar Informe" style="cursor: pointer; color: blueviolet;">
+                  <span [routerLink]="['/projectreports/add', report.projectReportId]" title="Editar Informe" style="cursor: pointer; color: blueviolet;">
                     <svg cIcon class="me-2" name="cilPencil"></svg>
                   </span>
                   <span (click)="deleteProjectReportWithComfirm(report)" title="Eliminar Informe" style="cursor: pointer; color: red;">

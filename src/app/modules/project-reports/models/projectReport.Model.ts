@@ -1,5 +1,6 @@
   import { ProjectReportDetailModel } from "./projectReportDetail.Model";
   import { CustomerModel } from "../../customers/models/customer.Model";
+import { BudgetModel } from "../../budgets/models/budget.Model";
   export class ProjectReportModel {
     projectReportId: number = 0;
     budgetId: number =0;
@@ -11,8 +12,7 @@
     note: string ="";    
     date: Date = new Date;
     projectReportDetailsDto: ProjectReportDetailModel[] = [];
-    curtomerName: string ="";  
-    customerEmail: string ="";  
-
- 
+    customerDto: CustomerModel = new CustomerModel;
+    budgetDTO: BudgetModel = new BudgetModel; 
+    customerName: string = this.customerDto.customerName;
   }

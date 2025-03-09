@@ -364,7 +364,7 @@ export class AddUpdateProjectReportComponent {
 
   sendEmailProjectReportWithComfirm(projectReportModelModel: ProjectReportModel){ 
       this.projectReportToSendEmail = projectReportModelModel;
-      this.confirmationModal.messageModal = "Tu Informe de obra se enviará a los siguientes correos electrónicos: "+ projectReportModelModel.customerEmail;
+      this.confirmationModal.messageModal = "Tu Informe de obra se enviará a los siguientes correos electrónicos: "+ projectReportModelModel.customerDto.email;
       this.confirmationModal.title = this.sendEmailTitleComfirmation;
       this.confirmationModal.isConfirmation = true; 
       this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';

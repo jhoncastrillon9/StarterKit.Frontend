@@ -54,7 +54,8 @@ export class ListProjectReportComponent {
     
       private readonly errorToSendEmailMessage: string = "Algo salió mal al enviar el email. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
       private readonly errorToDownloadBudgetMessage: string = "Algo salió mal al descargar el informe de obra. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
-    
+      private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
+
       private readonly successDeleteTitle: string = "¡Eliminación Completada!";
       private readonly errorDeleteMessage: string = "Hubo un problema al intentar eliminar el informe de obra. Si tienes documentos asociados no podemos la podemos eliminar";      
       private readonly deleteMessage: string = "Una vez eliminado, no hay vuelta atrás... bueno, tal vez sí, pero mejor asegúrate antes de despedirlo para siempre. 😅";
@@ -81,126 +82,24 @@ export class ListProjectReportComponent {
     fetchProjectReports() {
       this.spinner.show();
     
-      this.projectReports = [
-        {
-          projectReportId: 1,
-          budgetId: 101,
-          customerId: 201,
-          internalCode: 301,
-          budgetInternalCode: 401,
-          projectReportName: "Project Report 1",
-          budgetName: "Budget 1",
-          customerEmail: "Budget 1",
-          note: "Note 1",
-          date: new Date(2025,12,31),
-          projectReportDetailsDto: [
-            {
-              projectReporDetailtId: 1,
-              budgetDetailId: 501,
-              projectReporId: 1,
-              description: "Detail 1",
-              urlImage: "http://example.com/image1.jpg"
-            }
-          ],
-          curtomerName: "Customer 1"
-        },
-        {
-          projectReportId: 2,
-          budgetId: 102,
-          customerId: 202,
-          internalCode: 302,
-          budgetInternalCode: 402,
-          projectReportName: "Project Report 2",
-          budgetName: "Budget 2",
-          note: "Note 2",
-          customerEmail: "Budget 1",
 
-          date: new Date(),
-          projectReportDetailsDto: [
-            {
-              projectReporDetailtId: 2,
-              budgetDetailId: 502,
-              projectReporId: 2,
-              description: "Detail 2",
-              urlImage: "http://example.com/image2.jpg"
-            }
-          ],
-          curtomerName: "Customer 2"
-        },
-        {
-          projectReportId: 3,
-          budgetId: 103,
-          customerId: 203,
-          internalCode: 303,
-          budgetInternalCode: 403,
-          projectReportName: "Project Report 3",
-          budgetName: "Budget 3",
-          note: "Note 3",
-          customerEmail: "Budget 1",
-
-          date: new Date(),
-          projectReportDetailsDto: [
-            {
-              projectReporDetailtId: 3,
-              budgetDetailId: 503,
-              projectReporId: 3,
-              description: "Detail 3",
-              urlImage: "http://example.com/image3.jpg"
-            }
-          ],
-          curtomerName: "Customer 3"
-        },
-        {
-          projectReportId: 4,
-          budgetId: 104,
-          customerId: 204,
-          internalCode: 304,
-          customerEmail: "Budget 1",
-
-          budgetInternalCode: 404,
-          projectReportName: "Project Report 4",
-          budgetName: "Budget 4",
-          note: "Note 4",
-          date: new Date(),
-          projectReportDetailsDto: [
-            {
-              projectReporDetailtId: 4,
-              budgetDetailId: 504,
-              projectReporId: 4,
-              description: "Detail 4",
-              urlImage: "http://example.com/image4.jpg"
-            }
-          ],
-          curtomerName: "Customer 4"
-        },
-        {
-          projectReportId: 5,
-          budgetId: 105,
-          customerId: 205,
-          internalCode: 305,
-          budgetInternalCode: 405,
-          projectReportName: "Project Report 5",
-          budgetName: "Budget 5",
-          customerEmail: "Budget 1",
-
-          note: "Note 5",
-          date: new Date(),
-          projectReportDetailsDto: [
-            {
-              projectReporDetailtId: 5,
-              budgetDetailId: 505,
-              projectReporId: 5,
-              description: "Detail 5",
-              urlImage: "http://example.com/image5.jpg"
-            }
-          ],
-          curtomerName: "Customer 5"
-        }
-      ];
-    
-      this.loading = false;
+      this.projectReportService.get().subscribe(projectReports => {
+        this.projectReports = projectReports;
+        this.spinner.hide();
+        this.loading = false;
+      },(error)=>{
+        this.spinner.hide();
+        this.handleError('Error to Load ProjectReports', this.errorGeneralMessage);
+      });    
       this.spinner.hide();
     }
+
+
+    
+  loadBudgets(){
+    this.spinner.show()    
+    this.loading = true;
+  }
   
     clear(table: Table) {
       table.clear();
@@ -257,7 +156,7 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
 
    sendEmailProjectReportWithComfirm(projectReport: ProjectReportModel){ 
     this.projectReportToSendEmail = projectReport;
-    this.confirmationModal.messageModal = "El informe se enviará a los siguientes correos electrónicos: "+ projectReport.customerEmail+"";
+    this.confirmationModal.messageModal = "El informe se enviará a los siguientes correos electrónicos: "+ projectReport.customerDto.email+"";
     this.confirmationModal.title = this.sendEmailTitleComfirmation;
     this.confirmationModal.isConfirmation = true; 
     this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
