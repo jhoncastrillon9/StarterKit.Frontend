@@ -70,6 +70,7 @@ export class AddUpdateProjectReportComponent {
   private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
   messageModal: string = "¡Actualizados correctamente!";
   titlePage: string = "Nuevo Informe de Obra";
+  isEdit = false;
 
 
   constructor(
@@ -111,7 +112,7 @@ export class AddUpdateProjectReportComponent {
       this.spinner.show();
       if (this.projectReporId) {
         this.titlePage = "Editar Informe de obra";       
-
+        this.isEdit = true;
         this.projectReportService.getById(this.projectReporId).subscribe((projectReport: any) => {
           this.loadProjectReportDetailsByBudagetId(projectReport.budgetId);
           this.projectReportForm.patchValue(projectReport);
@@ -121,7 +122,7 @@ export class AddUpdateProjectReportComponent {
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
             projectReport.projectReportDetailsDTO.forEach((detail: any) => {
               const projectReporDetailGroup = this.fb.group({       
-                projectReporDetailtId: detail.projectReporDetailtId,
+                projectReportDetailtId: detail.projectReportDetailtId,
                 projectReporId: detail.projectReporId,
                 description: detail.description,
                 urlImage: detail.urlImage,
@@ -190,7 +191,7 @@ export class AddUpdateProjectReportComponent {
 
   addProjectReportDetail() {
     const reportDetailsGroup = this.fb.group({
-      projectReporDetailtId: [0],
+      projectReportDetailtId: [0],
       projectReporId: [0],
       urlImage: [''],
       ImageFile: [''],
@@ -234,17 +235,17 @@ export class AddUpdateProjectReportComponent {
       // Agregar detalles del proyecto
       const detailsArray = this.projectReportForm.get('projectReportDetailsDTO') as FormArray;
       detailsArray.controls.forEach((control: any, index: number) => {
-        formData.append(`projectReportDetailsDTO[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
+        formData.append(`projectReportDetailsDTO[${index}].projectReportDetailtId`, control.get('projectReportDetailtId').value??0);
         formData.append(`projectReportDetailsDTO[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
 
         formData.append(`projectReportDetailsDTO[${index}].description`, control.get('description').value??'' );  
         formData.append(`projectReportDetailsDTO[${index}].title`, control.get('detailSelect').value.description??'' );
         formData.append(`projectReportDetailsDTO[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId??0 );     
 
-
-        if (control.get('imageFile').value) {
+        if (this.isEdit==false) {
           formData.append(`projectReportDetailsDTO[${index}].imageFile`, control.get('imageFileXX').value);
         }
+    
       });
 
       if (this.projectReporId) {
@@ -293,7 +294,7 @@ export class AddUpdateProjectReportComponent {
           reader.onload = (e: any) => {
             const imageFile = e.target.result;
             const reportDetailsGroup = this.fb.group({
-              projectReporDetailtId: [0],
+              projectReportDetailtId: [0],
               projectReporId: [0],
               urlImage: [''],
               description: [''],
