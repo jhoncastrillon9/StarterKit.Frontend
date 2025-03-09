@@ -9,7 +9,7 @@ import { SharedModule } from '../../../shared.module';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule } from '@coreui/angular';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerModel } from '../../customers/models/customer.Model';
@@ -85,14 +85,14 @@ export class AddUpdateProjectReportComponent {
       projectReportId: ['0'],
       customerId: ['0'],
       internalCode: ['0'],
-      budgetId: ['0'],
+      budgetId: ['0', [Validators.required, this.budgetIdValidator]],
       budgetInternalCode: ['0'],
-      projectReportName: [''],
+      projectReportName: ['', Validators.required],
       note: [''],
       signature: [''],
       introdution: ['Nos complace informarle que hemos finalizado el proyecto que hemos llevado a cabo para ustedes. Adjuntamos evidencia fotográfica que refleja el trabajo realizado, con la confianza de que podrá apreciar el esfuerzo y la dedicación invertidos en el desarrollo de este proyecto. Agradecemos su confianza y esperamos seguir colaborando en futuros proyectos.'],
       date: [new Date()], 
-      projectReportDetailsDto: this.fb.array([]) 
+      projectReportDetailsDto: this.fb.array([], this.minLengthArray(1))
     });
 
     iconSet.icons = { cilPencil, cilXCircle, cilMoney };
@@ -140,6 +140,22 @@ export class AddUpdateProjectReportComponent {
     this.loadBudgets();
   }
 
+  budgetIdValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (value <= 0) {
+      return { invalidBudgetId: 'Budget ID must be greater than 0' };
+    }
+    return null;
+  }
+
+  minLengthArray(min: number) {
+    return (control: AbstractControl) => {
+      if (control instanceof FormArray && control.length < min) {
+        return { minLengthArray: true };
+      } 
+      return null;
+    };
+  }
 
   loadBudgets(){
     this.spinner.show()    
@@ -248,7 +264,14 @@ export class AddUpdateProjectReportComponent {
         );
       }
     } else {
-      this.showModalDefault(true, 'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.', '¡Campos incompletos!');
+      const errors = this.projectReportForm.get('projectReportDetailsDto')?.errors;
+
+      if (errors?.['minLengthArray']) {
+        this.showModalDefault(true, 'Por favor, agrega por lo menos una imagen al informe.', '¡Imagenes por subir!');
+      }else
+      {
+        this.showModalDefault(true, 'Por favor, completa todos los campos requeridos o verifica que no haya filas vacías antes de continuar.', '¡Campos incompletos!');
+      }
     }
   }
 
