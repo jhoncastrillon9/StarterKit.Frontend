@@ -15,7 +15,7 @@
 <c-col xs="12">
     <form cForm class="row g-3" [formGroup]="projectReportForm" (ngSubmit)="onAddUpdateProjectReport()">
         <input cFormControl formControlName="projectReportId" style="display: none" />
-
+<div class="row">
         <!-- Nombre -->
         <c-col md="3">
             <label cLabel for="projectReportName">Nombre del informe*</label>
@@ -52,6 +52,7 @@
             </select>
         </c-col>
 
+        <!-- Selecionar imagenes -->
         <c-col md="2">
             <label cLabel for="budgetId">Selecionar Imagenes:*</label>
 
@@ -60,6 +61,7 @@
 
         </c-col>
 
+        <!-- Botones  -->
         <c-col md="2">
             <label cLabel>*</label>
             <br>
@@ -81,6 +83,29 @@
             </button>
 
         </c-col>
+</div>
+
+<div class="row">
+            <!-- Introducciòn -->
+            <c-col md="3">
+                <label cLabel for="introdution">Introducciòn</label>
+                <textarea cFormControl formControlName="introdution" class="form-control-sm"></textarea>
+            </c-col>
+            <!-- Introducciòn -->
+
+            <c-col md="3">
+                <label cLabel for="note">Nota</label>
+                <textarea cFormControl formControlName="note" class="form-control-sm"></textarea>
+            </c-col>
+            <!-- Introducciòn -->
+
+            <c-col md="3">
+                <label cLabel for="signature">Firma</label>
+                <textarea cFormControl formControlName="signature" class="form-control-sm"></textarea>
+            </c-col>
+</div>
+
+
 
 
 

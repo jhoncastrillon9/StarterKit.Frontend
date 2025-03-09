@@ -89,9 +89,10 @@ export class AddUpdateProjectReportComponent {
       budgetInternalCode: ['0'],
       projectReportName: [''],
       note: [''],
-      introduction: [''],
+      signature: [''],
+      introdution: ['Nos complace informarle que hemos finalizado el proyecto que hemos llevado a cabo para ustedes. Adjuntamos evidencia fotográfica que refleja el trabajo realizado, con la confianza de que podrá apreciar el esfuerzo y la dedicación invertidos en el desarrollo de este proyecto. Agradecemos su confianza y esperamos seguir colaborando en futuros proyectos.'],
       date: [new Date()], 
-      projectReportDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
+      projectReportDetailsDto: this.fb.array([]) 
     });
 
     iconSet.icons = { cilPencil, cilXCircle, cilMoney };
@@ -201,7 +202,10 @@ export class AddUpdateProjectReportComponent {
 
       formData.append('projectReportName', this.projectReportForm.get('projectReportName')?.value?? '');
       formData.append('note', this.projectReportForm.get('note')?.value ?? '');
-      formData.append('introduction', this.projectReportForm.get('introduction')?.value?? '');
+      
+      
+      formData.append('introdution', this.projectReportForm.get('introdution')?.value?? '');
+      formData.append('signature', this.projectReportForm.get('signature')?.value?? '');
       formData.append('date', this.projectReportForm.get('date')?.value.toISOString());
 
       // Agregar detalles del proyecto
@@ -210,9 +214,9 @@ export class AddUpdateProjectReportComponent {
         formData.append(`projectReportDetailsDto[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
         formData.append(`projectReportDetailsDto[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
 
-        formData.append(`projectReportDetailsDto[${index}].description`, control.get('description').value );  
-        formData.append(`projectReportDetailsDto[${index}].title`, control.get('detailSelect').value.description );
-        formData.append(`projectReportDetailsDto[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId );     
+        formData.append(`projectReportDetailsDto[${index}].description`, control.get('description').value??'' );  
+        formData.append(`projectReportDetailsDto[${index}].title`, control.get('detailSelect').value.description??'' );
+        formData.append(`projectReportDetailsDto[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId??0 );     
 
 
         if (control.get('imageFile').value) {
@@ -298,14 +302,19 @@ export class AddUpdateProjectReportComponent {
     const selectedBudgetId = event.target.value;
     const selectedBudget = this.budgets.find(budget => budget.budgetId == selectedBudgetId);
 
+
+
     if (selectedBudget) {
+      
+      console.log(selectedBudget.companyDTO);
       this.selectBudgetDetailsModel = selectedBudget.budgetDetailsDto;
       this.projectReportForm.patchValue({
         projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`,
         customerId: selectedBudget.customerId,
         budgetInternalCode: selectedBudget.internalCode,
         budgetId: selectedBudget.budgetId,
-        companyId: selectedBudget.companyId
+        companyId: selectedBudget.companyId,
+        signature: `${selectedBudget.companyDTO.companyName}\n NIT: ${selectedBudget.companyDTO.document}` 
       });
     }
   }

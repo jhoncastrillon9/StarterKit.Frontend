@@ -1,4 +1,6 @@
 import {CustomerModel} from '../../customers/models/customer.Model';
+import {CompanyModel} from '../../budgets/models/company.Model';
+
 export class BudgetModel {
     budgetId: number =0;
     customerId: number=0;
@@ -16,6 +18,7 @@ export class BudgetModel {
     date: Date = new Date;
     budgetDetailsDto: BudgetDetailModel[] = [];
     customerDto: CustomerModel = new CustomerModel;
+    companyDTO: CompanyModel = new CompanyModel;
 }
 
 
