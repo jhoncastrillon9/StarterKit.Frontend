@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://localhost:7072',
+    apiUrl: 'https://cotizaconstructorbackendapp-h6dngyedcububedu.centralus-01.azurewebsites.net',
   };

@@ -87,6 +87,8 @@ export class AddUpdateBudgetComponent implements OnInit {
       deliveryTime: [this.deliveryTimeDefault],
       validityOffer: [this.validityOfferDefault],
       note: [''],
+        projectReportId: [0],
+
       hasIVA: [true],
       hasAIU: [true],
       sumAIU: [true],
