@@ -137,7 +137,7 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
    if(this.projectReportToDelete!=null){
     this.loading = true;
     this.spinner.show()    
-      this.projectReportService.delete(this.projectReportToDelete?.budgetId).subscribe(
+      this.projectReportService.delete(this.projectReportToDelete?.projectReportId).subscribe(
         (response: any) => {
           this.fetchProjectReports();           
           this.spinner.hide();
