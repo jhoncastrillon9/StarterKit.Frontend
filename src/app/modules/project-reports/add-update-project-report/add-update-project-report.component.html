@@ -109,13 +109,13 @@
 
 
 
-        <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDto">
+        <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDTO">
             <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index"
                 [formGroupName]="i">
                 <div class="card">
-                    <img [src]="detail.get('imageFile')?.value" class="card-img-top img-thumbnail" alt="Imagen cargada">
+                    <img [src]="detail.get('imageFile')?.value?? detail.get('urlImage')?.value" class="card-img-top img-thumbnail" alt="Imagen cargada">
                     <div class="card-body">
-                        <h5 class="card-title">Imagen {{ i + 1 }}</h5>
+                        <!-- <h5 class="card-title">Imagen {{ i + 1 }}</h5> -->
                         <div class="row">
 
 

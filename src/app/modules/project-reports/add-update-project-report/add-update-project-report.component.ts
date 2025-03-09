@@ -92,7 +92,7 @@ export class AddUpdateProjectReportComponent {
       signature: [''],
       introdution: ['Nos complace informarle que hemos finalizado el proyecto que hemos llevado a cabo para ustedes. Adjuntamos evidencia fotográfica que refleja el trabajo realizado, con la confianza de que podrá apreciar el esfuerzo y la dedicación invertidos en el desarrollo de este proyecto. Agradecemos su confianza y esperamos seguir colaborando en futuros proyectos.'],
       date: [new Date()], 
-      projectReportDetailsDto: this.fb.array([], this.minLengthArray(1))
+      projectReportDetailsDTO: this.fb.array([], this.minLengthArray(1))
     });
 
     iconSet.icons = { cilPencil, cilXCircle, cilMoney };
@@ -108,23 +108,24 @@ export class AddUpdateProjectReportComponent {
 
         this.projectReportService.getById(this.projectReporId).subscribe((projectReport: any) => {
           this.projectReportForm.patchValue(projectReport);
-          // Agrega el código aquí para cargar los detalles del presupuesto
-          if (projectReport && projectReport.projectReportDetailsDto) {
-            const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
+          // Agrega el código aquí para cargar los detalles
+          if (projectReport && projectReport.projectReportDetailsDTO) {
+            const detailsArray = this.projectReportForm.get('projectReportDetailsDTO') as FormArray;
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
-       
-            projectReport.projectReportDetailsDto.forEach((detail: any) => {
-              const projectReportDetailsGroup = this.fb.group({
+            projectReport.projectReportDetailsDTO.forEach((detail: any) => {
+              const projectReporDetailGroup = this.fb.group({       
                 projectReporDetailtId: detail.projectReporDetailtId,
                 projectReporId: detail.projectReporId,
-                description: detail.detailSelect + detail.description,
-                urlImage: detail.urlImage         
+                description: detail.description,
+                urlImage: detail.urlImage  
               });
-              detailsArray.push(projectReportDetailsGroup);
+              detailsArray.push(projectReporDetailGroup);
             });
 
             this.spinner.hide();
           }
+
+
         }, (error) => {
           this.spinner.hide();
           this.handleError('Load Data', this.errorGeneralMessage);
@@ -137,6 +138,7 @@ export class AddUpdateProjectReportComponent {
 
     this.loadCustomers();
     this.loadBudgets();
+
   }
 
   budgetIdValidator(control: AbstractControl): ValidationErrors | null {
@@ -160,6 +162,10 @@ export class AddUpdateProjectReportComponent {
     this.spinner.show()    
     this.budgetService.getWithDetail().subscribe(budgetsModel => {
       this.budgets = budgetsModel;
+      if (this.projectReporId) {
+        this.loadProjectReportDetailsByBudagetId(this.projectReportForm.get('budgetId')?.value?? 0);
+      }
+
       this.spinner.hide();
     },(error)=>{
       this.spinner.hide();
@@ -198,7 +204,7 @@ export class AddUpdateProjectReportComponent {
   }
 
   get projectReportDetailsArray() {
-    return this.projectReportForm.get('projectReportDetailsDto') as FormArray;
+    return this.projectReportForm.get('projectReportDetailsDTO') as FormArray;
   }
 
   onAddUpdateProjectReport() {
@@ -224,18 +230,18 @@ export class AddUpdateProjectReportComponent {
       formData.append('date', this.projectReportForm.get('date')?.value.toISOString());
 
       // Agregar detalles del proyecto
-      const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
+      const detailsArray = this.projectReportForm.get('projectReportDetailsDTO') as FormArray;
       detailsArray.controls.forEach((control: any, index: number) => {
-        formData.append(`projectReportDetailsDto[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
-        formData.append(`projectReportDetailsDto[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
+        formData.append(`projectReportDetailsDTO[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
+        formData.append(`projectReportDetailsDTO[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
 
-        formData.append(`projectReportDetailsDto[${index}].description`, control.get('description').value??'' );  
-        formData.append(`projectReportDetailsDto[${index}].title`, control.get('detailSelect').value.description??'' );
-        formData.append(`projectReportDetailsDto[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId??0 );     
+        formData.append(`projectReportDetailsDTO[${index}].description`, control.get('description').value??'' );  
+        formData.append(`projectReportDetailsDTO[${index}].title`, control.get('detailSelect').value.description??'' );
+        formData.append(`projectReportDetailsDTO[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId??0 );     
 
 
         if (control.get('imageFile').value) {
-          formData.append(`projectReportDetailsDto[${index}].imageFile`, control.get('imageFileXX').value);
+          formData.append(`projectReportDetailsDTO[${index}].imageFile`, control.get('imageFileXX').value);
         }
       });
 
@@ -263,7 +269,7 @@ export class AddUpdateProjectReportComponent {
         );
       }
     } else {
-      const errors = this.projectReportForm.get('projectReportDetailsDto')?.errors;
+      const errors = this.projectReportForm.get('projectReportDetailsDTO')?.errors;
 
       if (errors?.['minLengthArray']) {
         this.showModalDefault(true, 'Por favor, agrega por lo menos una imagen al informe.', '¡Imagenes por subir!');
@@ -322,13 +328,15 @@ export class AddUpdateProjectReportComponent {
 
   onBudgetChange(event: any) {
     const selectedBudgetId = event.target.value;
+    this.loadProjectReportDetailsByBudagetId(selectedBudgetId);
+  }
+
+
+
+  private loadProjectReportDetailsByBudagetId(selectedBudgetId: any) {
+    
     const selectedBudget = this.budgets.find(budget => budget.budgetId == selectedBudgetId);
-
-
-
     if (selectedBudget) {
-      
-      console.log(selectedBudget.companyDTO);
       this.selectBudgetDetailsModel = selectedBudget.budgetDetailsDto;
       this.projectReportForm.patchValue({
         projectReportName: `${selectedBudget.internalCode} - ${selectedBudget.budgetName}`,
@@ -336,12 +344,10 @@ export class AddUpdateProjectReportComponent {
         budgetInternalCode: selectedBudget.internalCode,
         budgetId: selectedBudget.budgetId,
         companyId: selectedBudget.companyId,
-        signature: `${selectedBudget.companyDTO.companyName}\n NIT: ${selectedBudget.companyDTO.document}` 
+        signature: `${selectedBudget.companyDTO.companyName}\n NIT: ${selectedBudget.companyDTO.document}`
       });
     }
   }
-
-
 
   private handleError(consoleMessage: string, modalMessage: string) {
     console.error(consoleMessage);
