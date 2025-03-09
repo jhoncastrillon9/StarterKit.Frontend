@@ -104,11 +104,10 @@ export class AddUpdateProjectReportComponent {
       this.projectReporId = params.get('id')!;
       this.spinner.show();
       if (this.projectReporId) {
-        this.titlePage = "Editar Informe de obra";
+        this.titlePage = "Editar Informe de obra";       
+
         this.projectReportService.getById(this.projectReporId).subscribe((projectReport: any) => {
-
           this.projectReportForm.patchValue(projectReport);
-
           // Agrega el código aquí para cargar los detalles del presupuesto
           if (projectReport && projectReport.projectReportDetailsDto) {
             const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
@@ -176,7 +175,7 @@ export class AddUpdateProjectReportComponent {
     }, (error) => {
       console.error('Error al cargar Budget', error);
       this.spinner.hide();
-      this.handleError('Load Data', this.errorGeneralMessage);
+      this.handleError('Erro trying Load Customers', this.errorGeneralMessage);
     });
   }
 
