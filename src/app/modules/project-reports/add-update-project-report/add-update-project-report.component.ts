@@ -33,6 +33,7 @@ import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
 import { BudgetDetailModel, BudgetModel } from '../../budgets/models/budget.Model';
 import { BudgetService } from '../../budgets/services/budget.service';
+import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-add-update-project-report',
@@ -99,7 +100,11 @@ export class AddUpdateProjectReportComponent {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.spinner.show();
+    this.loadCustomers();
+    await this.loadBudgets();
+
     this.route.paramMap.subscribe(params => {
       this.projectReporId = params.get('id')!;
       this.spinner.show();
@@ -107,6 +112,7 @@ export class AddUpdateProjectReportComponent {
         this.titlePage = "Editar Informe de obra";       
 
         this.projectReportService.getById(this.projectReporId).subscribe((projectReport: any) => {
+          this.loadProjectReportDetailsByBudagetId(projectReport.budgetId);
           this.projectReportForm.patchValue(projectReport);
           // Agrega el código aquí para cargar los detalles
           if (projectReport && projectReport.projectReportDetailsDTO) {
@@ -117,8 +123,10 @@ export class AddUpdateProjectReportComponent {
                 projectReporDetailtId: detail.projectReporDetailtId,
                 projectReporId: detail.projectReporId,
                 description: detail.description,
-                urlImage: detail.urlImage  
+                urlImage: detail.urlImage,
+                detailSelect: [this.selectBudgetDetailsModel.find(budgetDetail => budgetDetail.budgetDetailId === detail.budgetDetailId) || null]
               });
+              console.log('detail', projectReporDetailGroup);                
               detailsArray.push(projectReporDetailGroup);
             });
 
@@ -136,8 +144,6 @@ export class AddUpdateProjectReportComponent {
       }
     });
 
-    this.loadCustomers();
-    this.loadBudgets();
 
   }
 
@@ -158,19 +164,15 @@ export class AddUpdateProjectReportComponent {
     };
   }
 
-  loadBudgets(){
-    this.spinner.show()    
-    this.budgetService.getWithDetail().subscribe(budgetsModel => {
-      this.budgets = budgetsModel;
-      if (this.projectReporId) {
-        this.loadProjectReportDetailsByBudagetId(this.projectReportForm.get('budgetId')?.value?? 0);
-      }
-
+  private async loadBudgets() {
+    this.spinner.show();
+    try {
+      this.budgets = await this.budgetService.getWithDetail().toPromise();
+    } catch (error) {
+      this.handleError('Error to Load Budgets', this.errorGeneralMessage);
+    } finally {
       this.spinner.hide();
-    },(error)=>{
-      this.spinner.hide();
-      this.handleError('Error to Load Bugets', this.errorGeneralMessage);
-    });
+    }
   }
 
   loadCustomers() {
