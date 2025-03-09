@@ -105,6 +105,7 @@ export class AddUpdateProjectReportComponent {
     this.loadCustomers();
     await this.loadBudgets();
 
+    this.spinner.show();
     this.route.paramMap.subscribe(params => {
       this.projectReporId = params.get('id')!;
       this.spinner.show();
@@ -126,7 +127,6 @@ export class AddUpdateProjectReportComponent {
                 urlImage: detail.urlImage,
                 detailSelect: [this.selectBudgetDetailsModel.find(budgetDetail => budgetDetail.budgetDetailId === detail.budgetDetailId) || null]
               });
-              console.log('detail', projectReporDetailGroup);                
               detailsArray.push(projectReporDetailGroup);
             });
 
@@ -143,7 +143,7 @@ export class AddUpdateProjectReportComponent {
         //this.addProjectReportDetail();
       }
     });
-
+    this.spinner.hide();
 
   }
 
@@ -360,7 +360,7 @@ export class AddUpdateProjectReportComponent {
     this.confirmationModal.isModalError = isError;
     this.confirmationModal.title = title;
     this.confirmationModal.messageModal = message;
-    this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
+    this.confirmationModal.isConfirmation = false; 
     this.confirmationModal.openModal();
   }
   showNotify() {
