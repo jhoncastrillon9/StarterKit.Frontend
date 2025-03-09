@@ -196,6 +196,9 @@ export class AddUpdateProjectReportComponent {
       formData.append('customerId', this.projectReportForm.get('customerId')?.value??0);
       formData.append('internalCode', this.projectReportForm.get('internalCode')?.value??0);
       formData.append('budgetId', this.projectReportForm.get('budgetId')?.value?? 0);
+      formData.append('budgetInternalCode', this.projectReportForm.get('budgetInternalCode')?.value?? 0);
+      formData.append('companyId', this.projectReportForm.get('companyId')?.value?? 0);
+
       formData.append('projectReportName', this.projectReportForm.get('projectReportName')?.value?? '');
       formData.append('note', this.projectReportForm.get('note')?.value ?? '');
       formData.append('introduction', this.projectReportForm.get('introduction')?.value?? '');
