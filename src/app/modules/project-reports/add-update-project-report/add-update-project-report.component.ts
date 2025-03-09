@@ -205,7 +205,13 @@ export class AddUpdateProjectReportComponent {
       const detailsArray = this.projectReportForm.get('projectReportDetailsDto') as FormArray;
       detailsArray.controls.forEach((control: any, index: number) => {
         formData.append(`projectReportDetailsDto[${index}].projectReporDetailtId`, control.get('projectReporDetailtId').value??0);
-        formData.append(`projectReportDetailsDto[${index}].description`, (control.get('description').value +' '+ control.get('detailSelect').value));        
+        formData.append(`projectReportDetailsDto[${index}].projectReportId`, this.projectReportForm.get('projectReportId')?.value??0);
+
+        formData.append(`projectReportDetailsDto[${index}].description`, control.get('description').value );  
+        formData.append(`projectReportDetailsDto[${index}].title`, control.get('detailSelect').value.description );
+        formData.append(`projectReportDetailsDto[${index}].budgetDetailId`, control.get('detailSelect').value.budgetDetailId );     
+
+
         if (control.get('imageFile').value) {
           formData.append(`projectReportDetailsDto[${index}].imageFile`, control.get('imageFileXX').value);
         }

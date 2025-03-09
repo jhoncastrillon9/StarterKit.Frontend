@@ -98,7 +98,7 @@
                                 <select aria-label="Default select example" cFormControl cSelect  class="form-select-sm form-control-sm" formControlName="detailSelect">
                                     <option value="" disabled selected>Seleccionar Item (Opcional)</option>
                                     <!-- Opción por defecto -->
-                                    <option *ngFor="let detail of selectBudgetDetailsModel" >
+                                    <option *ngFor="let detail of selectBudgetDetailsModel" [ngValue]="detail">
                                         {{detail.description}}
                                     </option>
                             </select>
