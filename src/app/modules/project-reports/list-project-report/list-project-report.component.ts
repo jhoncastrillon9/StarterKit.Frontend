@@ -186,12 +186,12 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
       this.projectReportToSendEmail = new ProjectReportModel;;
   }  
   
-  downloadProjectReport(customerModel: ProjectReportModel) {
+  downloadProjectReport(projectReportModel: ProjectReportModel) {
     this.spinner.show();
     this.loading = true;
-    this.projectReportService.download(customerModel.budgetId).subscribe(
+    this.projectReportService.download(projectReportModel.projectReportId).subscribe(
       (data: Blob) => {
-        this.descargarPDF(data,customerModel);
+        this.descargarPDF(data,projectReportModel);
         this.spinner.hide();
         this.loading = false;
       },
@@ -203,11 +203,11 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
     );
   }
 
-  private descargarPDF(data: Blob, customerModel: ProjectReportModel) {
+  private descargarPDF(data: Blob, projectReportModel: ProjectReportModel) {
     const url = window.URL.createObjectURL(data);    
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Informe_'+customerModel.internalCode+' '+customerModel.budgetName;
+    a.download = 'Informe_'+projectReportModel.internalCode+'_cotizacion_'+projectReportModel.budgetInternalCode;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

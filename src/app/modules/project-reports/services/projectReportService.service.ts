@@ -96,10 +96,10 @@ import { environment } from '../../../../environment';
       );
     }
 
-    download(budgetId: number): Observable<Blob> {
+    download(projectReportId: number): Observable<Blob> {
       const headers = this.getHeaders();
   
-      return this.http.get(`${this.apiUrl}/api/ProjectReport/projectReportPdf/${budgetId}`, {
+      return this.http.get(`${this.apiUrl}/api/projectReport/downloadPdfAsync/${projectReportId}`, {
         headers,
         responseType: 'blob',
       });

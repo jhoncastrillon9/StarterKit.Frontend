@@ -77,6 +77,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   ) {
     this.budgetForm = this.fb.group({
       budgetId: ['0'],
+      externalInvoice: ['0'],
       userId: ['0', [Validators.required]],
       customerId: ['', [Validators.required, numberGreaterThanZeroValidator()]], // Aplica el validador aquí
       amount: [this.amount, [Validators.required]],
@@ -212,6 +213,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       this.spinner.show();
       this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.amount);
+      
       const formData = this.budgetForm.value;
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(

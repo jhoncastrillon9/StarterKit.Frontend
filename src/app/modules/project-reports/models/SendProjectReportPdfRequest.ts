@@ -1,11 +1,11 @@
 import { ProjectReportModel } from "./projectReport.Model";
 
 export class SendProjectReportPdfRequest {
-    budgetId: number;
+  projectReportId: number;
     emails: string[];    
 
     constructor(report: ProjectReportModel) {
-      this.budgetId = report.budgetId;  
+      this.projectReportId = report.projectReportId;  
       this.emails = this.extractEmails(report.customerDto.email); 
     } 
     
