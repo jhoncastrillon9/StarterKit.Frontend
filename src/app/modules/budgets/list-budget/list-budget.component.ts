@@ -9,6 +9,9 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { Table, TableModule} from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { BadgeModule } from 'primeng/badge';
+import { ButtonModule } from 'primeng/button';
+
 
 
 @Component({

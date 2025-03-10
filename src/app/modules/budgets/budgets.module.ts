@@ -5,7 +5,7 @@ import { AddUpdateBudgetComponent } from './add-update-budget/add-update-budget.
 import { ListBudgetComponent } from './list-budget/list-budget.component';
 import { BudgetsRoutingModule } from './budgets-routing.module';
 import { IconModule } from '@coreui/icons-angular';
-import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule, SharedModule } from '@coreui/angular';
+import { ButtonGroupModule, DropdownModule, ListGroupModule, } from '@coreui/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReadBudgetComponent } from './read-budget/read-budget.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -18,7 +18,6 @@ import { AccordionModule } from 'primeng/accordion';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
-import { BadgeModule } from 'primeng/badge';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CalendarModule } from 'primeng/calendar';
 import { CarouselModule } from 'primeng/carousel';
@@ -92,10 +91,8 @@ import { TagModule } from 'primeng/tag';
 import { TerminalModule } from 'primeng/terminal';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { TimelineModule } from 'primeng/timeline';
-import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
 import { TriStateCheckboxModule } from 'primeng/tristatecheckbox';
 import { TreeModule } from 'primeng/tree';
 import { TreeSelectModule } from 'primeng/treeselect';
@@ -112,6 +109,21 @@ import { AutoFocusModule } from 'primeng/autofocus';
 import { SharedModule as CustomSharedModulePipes } from '../../shared.module'; 
 import { CustomSharedModule} from '../../shared/shared.module';
 
+import {
+  AlertModule,
+  BadgeModule,
+  ButtonModule,
+  CardModule,
+  FormModule,
+  GridModule,
+  ModalModule,
+  PopoverModule,
+  ProgressModule,
+  SharedModule,
+  ToastModule,
+  TooltipModule,
+  UtilitiesModule
+} from '@coreui/angular';
 
 @NgModule({
   declarations: [
@@ -150,9 +162,9 @@ import { CustomSharedModule} from '../../shared/shared.module';
     InputGroupAddonModule,
     InputGroupModule,
     InputOtpModule,
-    PrimeButtonModule
-
-    
+    PrimeButtonModule,
+    BadgeModule
+       
     ]
 })
 export class BudgetsModule { }

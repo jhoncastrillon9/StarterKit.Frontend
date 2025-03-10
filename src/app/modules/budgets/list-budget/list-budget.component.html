@@ -65,6 +65,18 @@
                       <p-sortIcon field="customerDto.customerName" />                  
                   </div>
               </th>
+              <th  pSortableColumn="externalInvoice" >
+                <div class="flex align-items-center">
+                    Factura   
+                    <p-sortIcon field="externalInvoice" />                  
+                </div>
+            </th>
+            <th  pSortableColumn="projectReportId" >
+              <div class="flex align-items-center">
+                  Informe   
+                  <p-sortIcon field="projectReportId" />                  
+              </div>
+          </th>
               <th  pSortableColumn="total" style="min-width:10rem">
                   <div class="flex align-items-center">
                       Total
@@ -92,6 +104,19 @@
               <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
             </td>
             <td>{{ budget.customerDto.customerName | capitalize | truncate:30}}</td>
+             
+            <td>
+              <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
+                {{ budget.externalInvoice }}
+              </c-badge>
+            </td>
+
+            <td>
+              <c-badge *ngIf="budget.projectReportId && budget.projectReportId !== 0" color="success">
+                {{ budget.projectReportId}}
+              </c-badge>
+            </td>
+          
             <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
             <td>
               <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue;">

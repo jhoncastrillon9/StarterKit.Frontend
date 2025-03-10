@@ -13,6 +13,8 @@ export class BudgetModel {
     deliveryTime: string ="";
     isInvoice: boolean = false;
     note: string ="";
+    externalInvoice: string ="";
+    projectReportId: number=0;
     amount: number =0;
     total: number =0;
     date: Date = new Date;
