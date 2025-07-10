@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { CustomerService } from '../../customers/services/customer.service';
-import { cilPencil, cilXCircle, cilMoney } from '@coreui/icons';
+import { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApuModel } from '../../apus/models/apu.Model';
@@ -53,6 +53,11 @@ export class AddUpdateBudgetComponent implements OnInit {
   iva: number = 0;
   total: number = 0;
 
+  // Propiedades para grabación de audio
+  isRecording: boolean = false;
+  mediaRecorder: MediaRecorder | null = null;
+  audioChunks: Blob[] = [];
+
   equivalencias: { [key: string]: string[] } = {
     adobe: ['muro', 'ladrillo', 'bloque'],
     muro: ['adobe', 'ladrillo', 'bloque'],
@@ -95,7 +100,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetDetailsDto: this.fb.array([])
     });
 
-    iconSet.icons = { cilPencil, cilXCircle, cilMoney };
+    iconSet.icons = { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay };
 
   }
 
@@ -433,7 +438,137 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.confirmationModal.openModal();
   }
   showNotify() {
-    console.log('show notify');
+    // Implementación del método showNotify si es necesario
+  }
+
+  // Métodos para grabación de audio
+  async toggleRecording() {
+    if (this.isRecording) {
+      this.stopRecording();
+    } else {
+      await this.startRecording();
+    }
+  }
+
+  async startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Priorizar mp4/m4a que es más compatible con el backend
+      let mimeType = 'audio/mp4';
+      if (!MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/webm;codecs=opus';
+      }
+      
+      this.mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType
+      });
+      
+      this.audioChunks = [];
+      
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        this.processRecording();
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      this.mediaRecorder.onerror = (event) => {
+        console.error('Error en grabación:', event);
+        this.isRecording = false;
+        this.handleError('Grabación', 'Error durante la grabación de audio.');
+      };
+
+      this.mediaRecorder.start();
+      this.isRecording = true;
+    } catch (error) {
+      console.error('Error al iniciar la grabación:', error);
+      this.handleError('Grabación', 'No se pudo acceder al micrófono. Verifica los permisos.');
+    }
+  }
+
+  stopRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.isRecording = false;
+    }
+  }
+
+  async processRecording() {
+    if (this.audioChunks.length === 0) {
+      this.handleError('Grabación', 'No se pudo grabar audio.');
+      return;
+    }
+
+    // Determinar el tipo MIME y extensión del archivo
+    let mimeType = 'audio/mp4';
+    let fileExtension = 'm4a';
+    
+    if (this.mediaRecorder && this.mediaRecorder.mimeType) {
+      mimeType = this.mediaRecorder.mimeType;
+      if (mimeType.includes('mp4')) {
+        fileExtension = 'm4a';
+      } else if (mimeType.includes('webm')) {
+        // Si el backend no acepta webm, intentar con mp3
+        fileExtension = 'mp3';
+      }
+    }
+
+    const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+    await this.sendAudioToBackend(audioBlob, fileExtension);
+  }
+
+  async sendAudioToBackend(audioBlob: Blob, fileExtension: string) {
+    this.spinner.show();
+    
+    try {
+      const formData = new FormData();
+      formData.append('audioFile', audioBlob, `recording.${fileExtension}`);
+
+      // Llamar al servicio para enviar el audio
+      this.budgetService.sendAudioToDetails(formData).subscribe({
+        next: (response: any) => {
+          this.spinner.hide();
+          this.addDetailsFromAudio(response);
+          this.showModalDefault(false, 'Detalles agregados correctamente desde el audio.', 'Éxito');
+        },
+        error: (error: any) => {
+          this.spinner.hide();
+          console.error('Error al procesar audio:', error);
+          this.handleError('Procesamiento de Audio', 'No se pudo procesar el audio. Intenta de nuevo.');
+        }
+      });
+    } catch (error) {
+      this.spinner.hide();
+      console.error('Error al enviar audio:', error);
+      this.handleError('Envío de Audio', 'Error al enviar el audio al servidor.');
+    }
+  }
+
+  addDetailsFromAudio(details: any[]) {
+    if (!details || details.length === 0) {
+      return;
+    }
+
+    details.forEach(detail => {
+      const budgetDetailGroup = this.fb.group({
+        budgetDetailId: [detail.budgetDetailId || 0],
+        budgetId: [detail.budgetId || 0],
+        description: [detail.description || '', [Validators.required]],
+        unitMeasurement: [detail.unitMeasurement || 'Und'],
+        quantity: [detail.quantity || 0, [Validators.required, Validators.pattern(/^\d+$/)]],
+        price: [detail.price || 0, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+        subtotal: [detail.total || 0],
+      });
+      
+      this.budgetDetails.push(budgetDetailGroup);
+    });
+
+    this.updateAmount();
   }
 }
 

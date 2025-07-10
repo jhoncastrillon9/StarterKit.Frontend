@@ -436,6 +436,22 @@
         Agregar Item nuevo
       </button>
 
+      <!-- Botón de Grabación de Audio -->
+      <button
+        cButton
+        color="info"
+        type="button"
+        class="btn-sm me-3 btn-recording"
+        [class.recording]="isRecording"
+        [class]="isRecording ? 'btn-danger' : 'btn-info'"
+        (click)="toggleRecording()"
+        title="Grabar audio para agregar detalles"
+      >
+        <i class="cil-speech" *ngIf="!isRecording"></i>
+        <i class="cil-media-play" *ngIf="isRecording"></i>
+        {{ isRecording ? 'Detener' : 'Grabar' }}
+      </button>
+
       <!-- Botón Agregar Item desde APU -->
       <button
         cButton

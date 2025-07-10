@@ -40,3 +40,40 @@
   .text-danger-error{
     color: #ce1c60 !important;
   }
+
+  // Estilos para el botón de grabación
+  .btn-recording {
+    border-radius: 50%;
+    min-width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+    
+    &.recording {
+      animation: pulse 1.5s infinite;
+    }
+
+    i {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+  }
