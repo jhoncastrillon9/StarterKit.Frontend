@@ -79,6 +79,19 @@ export const navItems: INavData[] = [
   },
 
   {
+    name: 'Reportes',
+    url: '/reports',
+    iconComponent: { name: 'cil-description' },
+    children: [
+      {
+        name: 'Estados de cuenta',
+        url: '/reports/account-statement',
+        icon: 'nav-icon-bullet'
+      }
+    ]
+  },
+
+  {
     name: 'Configuración',
     url: '/configurations/companyConfig',
     iconComponent: { name: 'cil-puzzle' },

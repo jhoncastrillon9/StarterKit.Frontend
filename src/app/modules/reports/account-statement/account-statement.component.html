@@ -1,0 +1,70 @@
+<c-col xs="12">  
+  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
+    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Estados de cuenta</span>    
+  </div>
+</c-col>
+<c-col xs="12">
+  <div class="form-group">
+    <label for="customerSelect">Selecciona un cliente:</label>
+    <select id="customerSelect" class="form-control" (change)="onCustomerSelectChange($event)">
+      <option value="">-- Selecciona --</option>
+      <option *ngFor="let customer of customers()" [value]="customer.customerId">
+        {{ customer.customerName }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngIf="selectedCustomer()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <h3 style="margin: 0;">Cliente: {{ selectedCustomer()?.customerName }}</h3>
+      <button class="btn btn-primary" (click)="generarPDF()">Generar reporte PDF</button>
+    </div>
+    <div style="margin-bottom: 1rem; text-align: left;">
+      <strong>Total adeudado:</strong> $ {{ total().toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}
+    </div>
+    <table class="table table-striped TableCustomCotiza">
+      <thead>
+        <tr class="TableCustomCotiza">
+          <th>Código</th>
+          <th>Fecha</th>
+          <th>Nombre de la obra</th>
+          <th>Factura</th>
+          <th>Estado</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let budget of filteredBudgets()" class="TableCustomCotiza">
+          <td>{{ budget.internalCode }}</td>
+          <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
+          <td>{{ budget.budgetName }}</td>
+          <td>
+            <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
+              {{ budget.externalInvoice }}
+            </c-badge>
+          </td>
+          <td>
+            <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': '#e040fb', 'color': 'white'}">
+              {{ budget.estado }}
+            </c-badge>
+            <span *ngIf="!budget.estado">Pendiente</span>
+          </td>
+          <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" class="text-end"><strong>Total</strong></td>
+          <td style="text-align: right;"><strong>$ {{ total().toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+      <button class="btn btn-primary" (click)="generarPDF()">Generar reporte PDF</button>
+    </div>
+  </div>
+</c-col> 
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true">
+  <p style="color: white"> Generando PDF... </p>
+</ngx-spinner> 
