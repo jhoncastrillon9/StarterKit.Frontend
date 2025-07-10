@@ -12,6 +12,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ttp-server -p $PORT dist/cotiza-constructor",
+    "start:dev": "ng serve",
     "build": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

@@ -28,7 +28,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   messageModal: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
   private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
 
-  wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
+  wayToPayDefault: string = "70% Para iniciar la obra, 20% en el transcurso de la obra y 10% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
   validityOfferDefault: string = "30 días";
   budgetForm: FormGroup;
@@ -79,7 +79,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetId: ['0'],
       externalInvoice: ['0'],
       userId: ['0', [Validators.required]],
-      customerId: ['', [Validators.required, numberGreaterThanZeroValidator()]], // Aplica el validador aquí
+      customerId: ['', [Validators.required, numberGreaterThanZeroValidator()]],
       amount: [this.amount, [Validators.required]],
       date: [new Date()],
       budgetName: ['', [Validators.required]],
@@ -87,12 +87,12 @@ export class AddUpdateBudgetComponent implements OnInit {
       deliveryTime: [this.deliveryTimeDefault],
       validityOffer: [this.validityOfferDefault],
       note: [''],
-        projectReportId: [0],
-
+      estado: [''],
+      projectReportId: [0],
       hasIVA: [true],
-      hasAIU: [true],
-      sumAIU: [true],
-      budgetDetailsDto: this.fb.array([]) // Inicializa el FormArray para los detalles del presupuesto
+      hasAIU: [false],
+      sumAIU: [false],
+      budgetDetailsDto: this.fb.array([])
     });
 
     iconSet.icons = { cilPencil, cilXCircle, cilMoney };
@@ -213,9 +213,11 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.budgetForm.markAllAsTouched();
     if (this.budgetForm.valid) {
       this.spinner.show();
-      this.budgetForm.get('date')?.setValue(this.currentDate);
       this.budgetForm.get('amount')?.setValue(this.amount);
-      
+      // Solo actualizar la fecha si es una nueva cotización
+      if (!this.budgetId) {
+        this.budgetForm.get('date')?.setValue(this.currentDate);
+      }
       const formData = this.budgetForm.value;
       if (this.budgetId) {
         this.budgetService.update(formData).subscribe(

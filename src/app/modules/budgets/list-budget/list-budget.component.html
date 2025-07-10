@@ -19,7 +19,7 @@
         [sortOrder]="-1"
         [rowsPerPageOptions]="[20, 40, 60, 100]"
         currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
-        [globalFilterFields]="['budgetId', 'date', 'budgetName', 'customerDto.customerName', 'total']"
+        [globalFilterFields]="['budgetId', 'internalCode', 'date', 'budgetName', 'customerDto.customerName', 'total']"
         [tableStyle]="{ 'min-width': '50rem' }"
         >
 
@@ -71,6 +71,12 @@
                     <p-sortIcon field="externalInvoice" />                  
                 </div>
             </th>
+            <th pSortableColumn="estado">
+              <div class="flex align-items-center">
+                  Estado
+                  <p-sortIcon field="estado" />
+              </div>
+            </th>
             <th  pSortableColumn="projectReportId" >
               <div class="flex align-items-center">
                   Informe   
@@ -110,7 +116,11 @@
                 {{ budget.externalInvoice }}
               </c-badge>
             </td>
-
+            <td>
+              <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': '#e040fb', 'color': 'white'}">
+                {{ budget.estado }}
+              </c-badge>
+            </td>
             <td>
               <c-badge *ngIf="budget.projectReportId && budget.projectReportId !== 0" color="success">
                 {{ budget.projectReportId}}

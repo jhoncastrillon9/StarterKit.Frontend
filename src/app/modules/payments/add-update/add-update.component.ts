@@ -13,7 +13,7 @@ import { PaymentService } from '../services/payment.service';
   styleUrls: ['./add-update.component.scss']
 })
 export class AddUpdateComponent {
-  wayToPayDefault: string = "50% Para iniciar la obra, 25% en el transcurso de la obra y 25% Al finalizar Obra";
+  wayToPayDefault: string = "70% Para iniciar la obra, 20% en el transcurso de la obra y 10% Al finalizar Obra";
   deliveryTimeDefault: string = "1 Mes";
   validityOfferDefault: string = "30 días";     
   paymentForm: FormGroup;

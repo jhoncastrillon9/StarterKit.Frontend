@@ -21,6 +21,7 @@ export class BudgetModel {
     budgetDetailsDto: BudgetDetailModel[] = [];
     customerDto: CustomerModel = new CustomerModel;
     companyDTO: CompanyModel = new CompanyModel;
+    estado: string = ""; // Nuevo campo para el estado
 }
 
 
