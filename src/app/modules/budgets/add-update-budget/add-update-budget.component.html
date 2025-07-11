@@ -437,20 +437,26 @@
       </button>
 
       <!-- Botón de Grabación de Audio -->
-      <button
-        cButton
-        color="info"
-        type="button"
-        class="btn-sm me-3 btn-recording"
-        [class.recording]="isRecording"
-        [class]="isRecording ? 'btn-danger' : 'btn-info'"
-        (click)="toggleRecording()"
-        title="Grabar audio para agregar detalles"
-      >
-        <i class="cil-speech" *ngIf="!isRecording"></i>
-        <i class="cil-media-play" *ngIf="isRecording"></i>
-        {{ isRecording ? 'Detener' : 'Grabar' }}
-      </button>
+      <div class="audio-record-container text-center d-inline-block me-3">
+        <div 
+          class="mic-icon-wrapper"
+          [class.recording]="isRecording"
+          (click)="toggleRecording()"
+          title="Grabar audio para agregar detalles"
+          style="cursor:pointer;"
+        >
+          <i 
+            class="fas fa-microphone" 
+            [ngStyle]="{
+              color: isRecording ? '#ce1c60' : '#6610f2',
+              filter: isRecording ? 'drop-shadow(0 0 6px #ce1c60)' : 'drop-shadow(0 0 6px #6610f2)'
+            }"
+          ></i>
+        </div>
+        <div class="mic-label mt-1" [ngStyle]="{color: isRecording ? '#ce1c60' : '#6610f2', 'font-weight': 'bold'}">
+          {{ isRecording ? 'Detener' : 'Grabar' }}
+        </div>
+      </div>
 
       <!-- Botón Agregar Item desde APU -->
       <button
