@@ -425,49 +425,49 @@
     </div>
 
     <c-col xs="12" class="text-center">
-      <!-- Botón Agregar Item nuevo con margen derecho -->
-      <button
-        cButton
-        color="primary"
-        type="button"
-        class="btn-sm me-3"
-        (click)="addBudgetDetail()"
-      >
-        Agregar Item nuevo
-      </button>
-
-      <!-- Botón de Grabación de Audio -->
-      <div class="audio-record-container text-center d-inline-block me-3">
-        <div 
-          class="mic-icon-wrapper"
-          [class.recording]="isRecording"
-          (click)="toggleRecording()"
-          title="Grabar audio para agregar detalles"
-          style="cursor:pointer;"
+      <div class="d-flex justify-content-between align-items-end flex-wrap audio-actions-group">
+        <button
+          cButton
+          color="primary"
+          type="button"
+          class="btn-sm"
+          (click)="addBudgetDetail()"
         >
-          <i 
-            class="fas fa-microphone" 
-            [ngStyle]="{
-              color: isRecording ? '#ce1c60' : '#6610f2',
-              filter: isRecording ? 'drop-shadow(0 0 6px #ce1c60)' : 'drop-shadow(0 0 6px #6610f2)'
-            }"
-          ></i>
-        </div>
-        <div class="mic-label mt-1" [ngStyle]="{color: isRecording ? '#ce1c60' : '#6610f2', 'font-weight': 'bold'}">
-          {{ isRecording ? 'Detener' : 'Grabar' }}
-        </div>
-      </div>
+          Agregar Item nuevo
+        </button>
 
-      <!-- Botón Agregar Item desde APU -->
-      <button
-        cButton
-        color="primary"
-        type="button"
-        class="btn-sm"
-        (click)="addBudgetDetailFromAPU()"
-      >
-        Agregar Item desde APU
-      </button>
+        <!-- Botón de Grabación de Audio -->
+        <div class="audio-record-container text-center">
+          <div 
+            class="mic-icon-wrapper"
+            [class.recording]="isRecording"
+            (click)="toggleRecording()"
+            title="Grabar audio para agregar detalles"
+            style="cursor:pointer;"
+          >
+            <i 
+              class="fas fa-microphone" 
+              [ngStyle]="{
+                color: isRecording ? '#ce1c60' : '#6610f2',
+                filter: isRecording ? 'drop-shadow(0 0 6px #ce1c60)' : 'drop-shadow(0 0 6px #6610f2)'
+              }"
+            ></i>
+          </div>
+          <div class="mic-label mt-1" [ngStyle]="{color: isRecording ? '#ce1c60' : '#6610f2', 'font-weight': 'bold'}">
+            {{ isRecording ? 'Detener' : 'Grabar' }}
+          </div>
+        </div>
+
+        <button
+          cButton
+          color="primary"
+          type="button"
+          class="btn-sm"
+          (click)="addBudgetDetailFromAPU()"
+        >
+          Agregar Item desde APU
+        </button>
+      </div>
     </c-col>
 
     <c-col md="3">
