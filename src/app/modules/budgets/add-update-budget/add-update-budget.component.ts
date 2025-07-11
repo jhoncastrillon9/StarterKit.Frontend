@@ -12,6 +12,7 @@ import { ApuService } from '../../apus/services/apu.service';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
+import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 
 
 @Component({
@@ -504,22 +505,17 @@ export class AddUpdateBudgetComponent implements OnInit {
       return;
     }
 
-    // Determinar el tipo MIME y extensión del archivo
-    let mimeType = 'audio/mp4';
-    let fileExtension = 'm4a';
-    
-    if (this.mediaRecorder && this.mediaRecorder.mimeType) {
-      mimeType = this.mediaRecorder.mimeType;
-      if (mimeType.includes('mp4')) {
-        fileExtension = 'm4a';
-      } else if (mimeType.includes('webm')) {
-        // Si el backend no acepta webm, intentar con mp3
-        fileExtension = 'mp3';
-      }
-    }
+    // Unir los fragmentos grabados
+    const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
 
-    const audioBlob = new Blob(this.audioChunks, { type: mimeType });
-    await this.sendAudioToBackend(audioBlob, fileExtension);
+    // Convertir a WAV PCM 16kHz, 16bit, mono
+    try {
+      const wavBlob = await convertBlobToWavPcm16kMono(audioBlob);
+      await this.sendAudioToBackend(wavBlob, 'wav');
+    } catch (error) {
+      console.error('Error al convertir audio a WAV:', error);
+      this.handleError('Conversión de Audio', 'No se pudo convertir el audio a formato WAV PCM 16kHz, 16bit, mono.');
+    }
   }
 
   async sendAudioToBackend(audioBlob: Blob, fileExtension: string) {
