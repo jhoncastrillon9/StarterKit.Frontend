@@ -31,6 +31,7 @@
           <th>Factura</th>
           <th>Estado</th>
           <th>Total</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -39,17 +40,39 @@
           <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
           <td>{{ budget.budgetName }}</td>
           <td>
-            <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
-              {{ budget.externalInvoice }}
-            </c-badge>
+            <input 
+              type="text" 
+              class="form-control form-control-sm" 
+              [value]="budget.externalInvoice" 
+              (input)="onFacturaChange(budget.budgetId, $any($event.target).value)"
+              style="min-width: 100px;"
+            />
           </td>
           <td>
-            <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': '#e040fb', 'color': 'white'}">
-              {{ budget.estado }}
-            </c-badge>
-            <span *ngIf="!budget.estado">Pendiente</span>
+            <select 
+              class="form-select form-select-sm" 
+              [value]="budget.estado || ''" 
+              (change)="onEstadoChange(budget.budgetId, $any($event.target).value)"
+              style="min-width: 120px;"
+            >
+              <option value="">-- Seleccionar --</option>
+              <option *ngFor="let estado of estadoOptions" 
+                      [value]="estado"
+                      [selected]="budget.estado && budget.estado.toLowerCase() === estado.toLowerCase()">
+                {{ estado }}
+              </option>
+            </select>
           </td>
           <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
+          <td>
+            <button 
+              class="btn btn-success btn-sm" 
+              (click)="saveBudget(budget)"
+              [disabled]="!hasChanges(budget.budgetId)"
+            >
+              Guardar
+            </button>
+          </td>
         </tr>
       </tbody>
       <tfoot>

@@ -41,10 +41,64 @@ export class AccountStatementComponent implements OnInit {
     this.filteredBudgets().reduce((sum, b) => sum + (b.total ?? 0), 0)
   );
 
+  estadoOptions = [
+    'Cotizada',
+    'Aprobada',
+    'Rechazada',
+    'En Desarrollo',
+    'Finalizado',
+    'Facturada',
+    'Pagada'
+  ];
+
+  editedBudgets = new Map<number, { externalInvoice?: string, estado?: string }>();
+
   ngOnInit(): void {
     this.loadCustomers();
     this.loadBudgets();
     this.loadCompanyInfo();
+  }
+
+  onFacturaChange(budgetId: number, value: string) {
+    const current = this.editedBudgets.get(budgetId) || {};
+    this.editedBudgets.set(budgetId, { ...current, externalInvoice: value });
+  }
+
+  onEstadoChange(budgetId: number, value: string) {
+    const current = this.editedBudgets.get(budgetId) || {};
+    this.editedBudgets.set(budgetId, { ...current, estado: value });
+  }
+
+  saveBudget(budget: BudgetModel) {
+    const changes = this.editedBudgets.get(budget.budgetId);
+    if (!changes) return;
+
+    const updatedBudget = { ...budget, ...changes };
+    
+    this.spinner.show();
+    this.budgetService.update(updatedBudget).subscribe({
+      next: () => {
+        // Update local state
+        const budgetsList = this.budgets();
+        const index = budgetsList.findIndex(b => b.budgetId === budget.budgetId);
+        if (index !== -1) {
+          budgetsList[index] = updatedBudget;
+          this.budgets.set([...budgetsList]);
+        }
+        this.editedBudgets.delete(budget.budgetId);
+        this.spinner.hide();
+        alert('Cambios guardados correctamente');
+      },
+      error: (err) => {
+        console.error('Error al guardar:', err);
+        this.spinner.hide();
+        alert('Error al guardar los cambios');
+      }
+    });
+  }
+
+  hasChanges(budgetId: number): boolean {
+    return this.editedBudgets.has(budgetId);
   }
 
   loadCustomers() {
