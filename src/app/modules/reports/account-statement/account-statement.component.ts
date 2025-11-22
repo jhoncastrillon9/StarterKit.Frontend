@@ -7,6 +7,7 @@ import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { BUDGET_ESTADOS } from '../../../shared/constants';
 
 @Component({
   selector: 'app-account-statement',
@@ -30,9 +31,12 @@ export class AccountStatementComponent implements OnInit {
       budget.customerId === this.selectedCustomer()?.customerId &&
       budget.externalInvoice && budget.externalInvoice !== '0' && budget.externalInvoice !== '' &&
       (
-        !budget.estado ||
-        budget.estado.toLowerCase() === 'pendiente' ||
-        budget.estado.toLowerCase() === 'pendiente de pago'
+        !budget.estado 
+        || budget.estado.toLowerCase() === 'Aprobada' 
+        || budget.estado.toLowerCase() === 'En Desarrollo'
+        || budget.estado.toLowerCase() === 'Finalizado'
+        || budget.estado.toLowerCase() === 'Facturada'
+        || budget.estado.toLowerCase() === 'Pagada'
       )
     );
   });
@@ -41,15 +45,7 @@ export class AccountStatementComponent implements OnInit {
     this.filteredBudgets().reduce((sum, b) => sum + (b.total ?? 0), 0)
   );
 
-  estadoOptions = [
-    'Cotizada',
-    'Aprobada',
-    'Rechazada',
-    'En Desarrollo',
-    'Finalizado',
-    'Facturada',
-    'Pagada'
-  ];
+  estadoOptions = BUDGET_ESTADOS;
 
   editedBudgets = new Map<number, { externalInvoice?: string, estado?: string }>();
 

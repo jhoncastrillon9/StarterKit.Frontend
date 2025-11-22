@@ -13,6 +13,7 @@ import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-m
 import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
+import { BUDGET_ESTADOS } from '../../../shared/constants';
 
 
 @Component({
@@ -70,6 +71,8 @@ export class AddUpdateBudgetComponent implements OnInit {
     draywall: ['dry wall', ' drywall', 'driwall'],
     techo: ['tejado', ' teja'],
   };
+
+  estadoOptions = BUDGET_ESTADOS;
 
   constructor(
     private fb: FormBuilder,

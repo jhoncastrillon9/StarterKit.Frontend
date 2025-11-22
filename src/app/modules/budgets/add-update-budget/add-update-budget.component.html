@@ -534,12 +534,17 @@
             <!-- Margen inferior para separar del siguiente bloque -->
             <c-col md="8">
               <label cLabel for="estado">Estado:</label>
-              <input
+              <select
                 cFormControl
+                cSelect
                 formControlName="estado"
-                class="form-control-sm"
-                placeholder="Estado de la cotización"
-              />
+                class="form-select-sm form-control-sm"
+              >
+                <option value="">-- Seleccionar estado --</option>
+                <option *ngFor="let estado of estadoOptions" [value]="estado">
+                  {{ estado }}
+                </option>
+              </select>
             </c-col>
           </div>
         </c-col>
