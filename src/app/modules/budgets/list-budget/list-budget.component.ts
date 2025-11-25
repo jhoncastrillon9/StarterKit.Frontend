@@ -214,6 +214,19 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     return total
   }
 
+  getEstadoColor(estado: string): string {
+    const colores: { [key: string]: string } = {
+      'Cotizada': '#2196F3',        // Azul
+      'Aprobada': '#66BB6A',        // Verde Claro
+      'Rechazada': '#F44336',       // Rojo
+      'En Desarrollo': '#FF9800',   // Naranja
+      'Finalizado': '#1B5E20',      // Verde Oscuro
+      'Facturada': '#4CAF50',       // Verde
+      'Pagada': '#9C27B0'           // Morado
+    };
+    return colores[estado] || '#6c757d'; // Color por defecto (gris) si no coincide
+  }
+
 
   private handleError(consoleMessage: string, modalMessage: string) {
     console.error(consoleMessage);

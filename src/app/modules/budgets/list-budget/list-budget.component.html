@@ -117,7 +117,7 @@
               </c-badge>
             </td>
             <td>
-              <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': '#e040fb', 'color': 'white'}">
+              <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white'}">
                 {{ budget.estado }}
               </c-badge>
             </td>
