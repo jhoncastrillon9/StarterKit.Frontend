@@ -141,36 +141,83 @@
 }
 
 // Estilos para drag and drop
-tr.dragging {
-  opacity: 0.5;
-  background-color: #f8f9fa;
-}
-
-tr.drag-over {
-  border-top: 3px solid #6610f2;
-}
-
-tr[pDraggable] {
-  transition: all 0.3s ease;
+tr[draggable="true"] {
+  transition: all 0.2s ease;
+  position: relative;
   
   &:hover {
     background-color: #f8f9fa;
+  }
+  
+  &.dragging {
+    opacity: 0.4;
+    background-color: #e3e7ff !important;
+    border: 2px dashed #6610f2;
+    transform: scale(0.98);
+    
+    * {
+      pointer-events: none;
+    }
+  }
+  
+  &.drag-over {
+    background-color: #f0e7ff !important;
+    border-top: 4px solid #6610f2;
+    border-bottom: 4px solid #6610f2;
+    box-shadow: 0 4px 12px rgba(102, 16, 242, 0.3);
+    transform: scale(1.02);
+    
+    &::before {
+      content: '↓ Soltar aquí';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #6610f2;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      z-index: 1000;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(102, 16, 242, 0.4);
+      animation: pulse-drop 0.6s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes pulse-drop {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
   }
 }
 
 .drag-handle {
   cursor: grab;
   user-select: none;
+  transition: all 0.2s ease;
   
   &:active {
     cursor: grabbing;
   }
   
   i {
-    transition: color 0.2s;
+    transition: all 0.2s ease;
   }
   
   &:hover i {
     color: #6610f2 !important;
+    transform: scale(1.2);
+  }
+}
+
+// Feedback visual adicional para toda la tabla durante el drag
+tbody:has(tr.dragging) {
+  tr:not(.dragging):not(.drag-over) {
+    opacity: 0.6;
   }
 }
