@@ -25,6 +25,8 @@ export class AccountStatementComponent implements OnInit {
   selectedCustomer = signal<CustomerModel | null>(null);
   companyInfo = signal<any>(null);
 
+
+
   filteredBudgets = computed(() => {
     if (!this.selectedCustomer()) return [];
     return this.budgets().filter(budget =>
@@ -32,11 +34,11 @@ export class AccountStatementComponent implements OnInit {
       budget.externalInvoice && budget.externalInvoice !== '0' && budget.externalInvoice !== '' &&
       (
         !budget.estado 
-        || budget.estado.toLowerCase() === 'Aprobada' 
-        || budget.estado.toLowerCase() === 'En Desarrollo'
-        || budget.estado.toLowerCase() === 'Finalizado'
-        || budget.estado.toLowerCase() === 'Facturada'
-        || budget.estado.toLowerCase() === 'Pagada'
+        || budget.estado.toLowerCase() === 'aprobada' 
+        || budget.estado.toLowerCase() === 'en desarrollo'
+        || budget.estado.toLowerCase() === 'finalizado'
+        || budget.estado.toLowerCase() === 'facturada'
+        || budget.estado.toLowerCase() === 'pagada'
       )
     );
   });
