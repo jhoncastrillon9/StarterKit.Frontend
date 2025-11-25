@@ -14,6 +14,7 @@ import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import * as _ from 'lodash';
 
 
 @Component({
@@ -158,7 +159,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   loadCustomers() {
     this.spinner.show();
     this.customerService.get().subscribe(customers => {
-      this.customers = customers;
+      this.customers = _.orderBy(customers, [(customer) => customer.customerName?.toLowerCase()], ['asc']);
       this.spinner.hide();
     }, (error) => {
       console.error('Error al cargar Budget', error);
