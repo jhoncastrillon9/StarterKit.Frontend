@@ -152,6 +152,10 @@ export class AddUpdateBudgetComponent implements OnInit {
       } else {
         //Add empty row 
         this.addBudgetDetail();
+        // Set default estado to "Cotizada" for new budgets
+        this.budgetForm.patchValue({
+          estado: 'Cotizada'
+        });
       }
     });
 
