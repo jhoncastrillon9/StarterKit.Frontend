@@ -139,3 +139,38 @@
     }
   }
 }
+
+// Estilos para drag and drop
+tr.dragging {
+  opacity: 0.5;
+  background-color: #f8f9fa;
+}
+
+tr.drag-over {
+  border-top: 3px solid #6610f2;
+}
+
+tr[pDraggable] {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.drag-handle {
+  cursor: grab;
+  user-select: none;
+  
+  &:active {
+    cursor: grabbing;
+  }
+  
+  i {
+    transition: color 0.2s;
+  }
+  
+  &:hover i {
+    color: #6610f2 !important;
+  }
+}

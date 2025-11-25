@@ -56,6 +56,10 @@ export class AddUpdateBudgetComponent implements OnInit {
   iva: number = 0;
   total: number = 0;
 
+  // Propiedades para drag and drop
+  draggedIndex: number | null = null;
+  dragOverIndex: number | null = null;
+
   // Propiedades para grabación de audio
   isRecording: boolean = false;
   mediaRecorder: MediaRecorder | null = null;
@@ -569,6 +573,54 @@ export class AddUpdateBudgetComponent implements OnInit {
     });
 
     this.updateAmount();
+  }
+
+  // Métodos para drag and drop
+  dragStart(event: DragEvent, index: number) {
+    this.draggedIndex = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', index.toString());
+    }
+  }
+
+  dragEnd(event: DragEvent) {
+    this.draggedIndex = null;
+    this.dragOverIndex = null;
+  }
+
+  dragOver(event: DragEvent, index: number) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.dragOverIndex = index;
+  }
+
+  dragLeave(event: DragEvent) {
+    this.dragOverIndex = null;
+  }
+
+  drop(event: DragEvent, dropIndex: number) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (this.draggedIndex !== null && this.draggedIndex !== dropIndex) {
+      const detailsArray = this.budgetDetails;
+      const draggedItem = detailsArray.at(this.draggedIndex);
+      
+      // Remover el item arrastrado
+      detailsArray.removeAt(this.draggedIndex);
+      
+      // Insertar en la nueva posición
+      detailsArray.insert(dropIndex, draggedItem);
+      
+      // Recalcular los totales
+      this.updateAmount();
+    }
+    
+    this.draggedIndex = null;
+    this.dragOverIndex = null;
   }
 }
 

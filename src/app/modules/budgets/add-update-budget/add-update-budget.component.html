@@ -139,6 +139,7 @@
       <table class="table">
         <thead>
           <tr>
+            <th class="drag-handle colo-frayforTable" style="width: 40px;"></th>
             <th class="descripcion colo-frayforTable">Descripción</th>
             <th class="und colo-frayforTable">Und</th>
             <th class="cantidad colo-frayforTable">Cantidad</th>
@@ -151,7 +152,18 @@
           <tr
             *ngFor="let detail of budgetDetails.controls; let i = index"
             [formGroupName]="i"
+            draggable="true"
+            (dragstart)="dragStart($event, i)"
+            (dragend)="dragEnd($event)"
+            (dragover)="dragOver($event, i)"
+            (drop)="drop($event, i)"
+            (dragleave)="dragLeave($event)"
+            [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
+            style="cursor: move;"
           >
+            <td class="align-middle text-center drag-handle">
+              <i class="fas fa-bars" style="color: #6c757d; font-size: 1.2rem;"></i>
+            </td>
             <td>
               <!-- Description -->
               <textarea
