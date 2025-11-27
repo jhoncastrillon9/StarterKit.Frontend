@@ -117,9 +117,25 @@
               </c-badge>
             </td>
             <td>
-              <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white'}">
-                {{ budget.estado }}
-              </c-badge>
+              <p-dropdown 
+                [options]="statusOptions" 
+                [(ngModel)]="budget.estado" 
+                (onChange)="onStatusChange(budget)" 
+                appendTo="body"
+                [style]="{'width':'100%', 'min-width':'140px'}"
+                optionLabel="label" 
+                optionValue="value">
+                <ng-template pTemplate="selectedItem">
+                    <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white'}">
+                        {{ budget.estado }}
+                    </c-badge>
+                </ng-template>
+                <ng-template let-option pTemplate="item">
+                    <c-badge [ngStyle]="{'background-color': getEstadoColor(option.value), 'color': 'white'}">
+                        {{ option.label }}
+                    </c-badge>
+                </ng-template>
+              </p-dropdown>
             </td>
             <td>
               <c-badge *ngIf="budget.projectReportId && budget.projectReportId !== 0" color="success">

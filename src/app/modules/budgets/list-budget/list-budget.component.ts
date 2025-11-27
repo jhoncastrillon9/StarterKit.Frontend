@@ -4,9 +4,9 @@ import { SendBudgetPdfRequest } from '../models/sendBudgetRequest';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
-import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney,cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer} from '@coreui/icons';
+import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer } from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Table, TableModule} from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { BadgeModule } from 'primeng/badge';
@@ -19,7 +19,7 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './list-budget.component.html',
   styleUrls: ['./list-budget.component.scss'],
   encapsulation: ViewEncapsulation.None
-}) 
+})
 export class ListBudgetComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
@@ -53,19 +53,30 @@ export class ListBudgetComponent implements OnInit {
   isModalForDelete: boolean = false;
   isModalForSetInvoice: boolean = false;
   isModalForSendEmailBudget: boolean = false;
-  
+
   public visible = false;
   public budgetToDelete: BudgetModel | null = null;
   public budgetToSendEmail: BudgetModel = new BudgetModel;
 
   public budgetToSetInvoice: BudgetModel | null = null;
+  private originalStatuses: Map<number, string> = new Map();
+
+  statusOptions: any[] = [
+    { label: 'Cotizada', value: 'Cotizada' },
+    { label: 'Aprobada', value: 'Aprobada' },
+    { label: 'Rechazada', value: 'Rechazada' },
+    { label: 'En Desarrollo', value: 'En Desarrollo' },
+    { label: 'Finalizado', value: 'Finalizado' },
+    { label: 'Facturada', value: 'Facturada' },
+    { label: 'Pagada', value: 'Pagada' }
+  ];
 
 
   constructor(private budgetService: BudgetService,
-    public iconSet: IconSetService,  
+    public iconSet: IconSetService,
     private router: Router,
     private spinner: NgxSpinnerService) {
-    iconSet.icons = {  cilPencil,cilXCircle,cilZoom, cilCloudDownload,cilNoteAdd, cilMoney,cilCopy,cilContact, cibMailchimp, cibMailRu, cibMinutemailer};
+    iconSet.icons = { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer };
   }
 
 
@@ -76,43 +87,66 @@ export class ListBudgetComponent implements OnInit {
   clear(table: Table) {
     table.clear();
     this.searchValue = ''
-}  
+  }
 
 
-  loadBudgets(){
-    this.spinner.show()    
+  loadBudgets() {
+    this.spinner.show()
     this.loading = true;
     this.budgetService.get().subscribe(customers => {
       this.budgets = customers;
+      this.budgets.forEach(b => this.originalStatuses.set(b.budgetId, b.estado));
       this.spinner.hide();
       this.loading = false;
-    },(error)=>{
+    }, (error) => {
       this.spinner.hide();
-      this.loading = false;  
+      this.loading = false;
       this.handleError('Error to Load Bugets', this.errorGeneralMessage);
     });
   }
 
-deleteBudgetWithComfirm(budgetModel: BudgetModel){ 
-  this.budgetToDelete = budgetModel;
-  this.confirmationModal.messageModal = this.deleteMessage;
-  this.confirmationModal.title = this.deleteTitleComfirmation;
-  this.confirmationModal.isConfirmation = true; 
-  this.confirmationModal.titleButtonComfimationYes = 'Si, eliminar';
-
-  // Emitimos la acción a ejecutar cuando se confirme la eliminación
-  this.confirmationModal.confirmAction.subscribe(() => this.deleteBudget()); 
-  this.confirmationModal.openModal(); 
-}
-
-  deleteBudget(){      
-
-   if(this.budgetToDelete!=null){
+  onStatusChange(budget: BudgetModel) {
+    const oldStatus = this.originalStatuses.get(budget.budgetId);
     this.loading = true;
-    this.spinner.show()    
-      this.budgetService.delete(this.budgetToDelete?.budgetId).subscribe(
+    this.spinner.show();
+    this.budgetService.updateStatus(budget).subscribe(
+      (response: any) => {
+        this.loading = false;
+        this.spinner.hide();
+        this.originalStatuses.set(budget.budgetId, budget.estado);
+        this.showModal(false, `Se actualizó el estado de la cotización ${budget.internalCode} a ${budget.estado}`, '¡Estado Actualizado!');
+      },
+      (error) => {
+        this.loading = false;
+        this.spinner.hide();
+        if (oldStatus) {
+          budget.estado = oldStatus;
+        }
+        this.handleError('Error updating status', 'No se pudo actualizar el estado. Inténtalo de nuevo.');
+      }
+    );
+  }
+
+  deleteBudgetWithComfirm(budgetModel: BudgetModel) {
+    this.budgetToDelete = budgetModel;
+    this.confirmationModal.messageModal = this.deleteMessage;
+    this.confirmationModal.title = this.deleteTitleComfirmation;
+    this.confirmationModal.isConfirmation = true;
+    this.confirmationModal.titleButtonComfimationYes = 'Si, eliminar';
+
+    // Emitimos la acción a ejecutar cuando se confirme la eliminación
+    this.confirmationModal.confirmAction.subscribe(() => this.deleteBudget());
+    this.confirmationModal.openModal();
+  }
+
+  deleteBudget() {
+    const budget = this.budgetToDelete;
+    if (budget != null) {
+      this.loading = true;
+      this.spinner.show()
+      this.budgetService.delete(budget.budgetId).subscribe(
         (response: any) => {
-          this.loadBudgets();           
+          this.loadBudgets();
           this.spinner.hide();
           this.loading = false;
         },
@@ -121,62 +155,62 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
           this.loading = false;
           this.handleError('Error to delete Bugets', this.errorDeleteMessage);
         }
-      );      
-   }
-   this.budgetToDelete = null;
-    
+      );
+    }
+    this.budgetToDelete = null;
+
   }
 
-   sendEmailBudgetWithComfirm(budgetModel: BudgetModel){ 
+  sendEmailBudgetWithComfirm(budgetModel: BudgetModel) {
     this.budgetToSendEmail = budgetModel;
-    this.confirmationModal.messageModal = "Tu cotización se enviará a los siguientes correos electrónicos: "+ budgetModel.customerDto.email+"";
+    this.confirmationModal.messageModal = "Tu cotización se enviará a los siguientes correos electrónicos: " + budgetModel.customerDto.email + "";
     this.confirmationModal.title = this.sendEmailTitleComfirmation;
-    this.confirmationModal.isConfirmation = true; 
+    this.confirmationModal.isConfirmation = true;
     this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
     // Emitimos la acción a ejecutar cuando se confirme
-    this.confirmationModal.confirmAction.subscribe(() => this.sendEmailbudget()); 
-    this.confirmationModal.openModal(); 
+    this.confirmationModal.confirmAction.subscribe(() => this.sendEmailbudget());
+    this.confirmationModal.openModal();
 
   }
 
-   sendEmailbudget(){      
-    this.spinner.show()   
-    this.loading = true;  
-      var request = new SendBudgetPdfRequest(this.budgetToSendEmail);
-      this.budgetService.sendEmailBudget(request).subscribe(
-        (response: any) => {              
-          this.loadBudgets();           
-          this.spinner.hide();
-          this.loading = false;
-          this.showModal(false,this.successSendBusgetMessage,this.successSendBusgetTitle,)
-        },
-        (error) => {
-          this.spinner.hide();
-          this.loading = false;
-          this.handleError('Error to send Bugets', this.errorToSendEmailMessage);
-        }
-      );     
-      this.budgetToSendEmail = new BudgetModel;;
+  sendEmailbudget() {
+    this.spinner.show()
+    this.loading = true;
+    var request = new SendBudgetPdfRequest(this.budgetToSendEmail);
+    this.budgetService.sendEmailBudget(request).subscribe(
+      (response: any) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+        this.showModal(false, this.successSendBusgetMessage, this.successSendBusgetTitle,)
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error to send Bugets', this.errorToSendEmailMessage);
+      }
+    );
+    this.budgetToSendEmail = new BudgetModel;
   }
 
-   
-   copybudget(budgetModel: BudgetModel){      
-     this.spinner.show()   
-     this.loading = true;  
-       this.budgetService.copyBudget(budgetModel).subscribe(
-         (response: any) => {          
-           this.loadBudgets();           
-           this.spinner.hide();
-           this.loading = false;
-         },
-         (error) => {
-           this.spinner.hide();
-           this.loading = false;
-           this.handleError('Error to copybudget', this.errorTocopyBudgetMessage);
 
-         }
-       ); 
-   }
+  copybudget(budgetModel: BudgetModel) {
+    this.spinner.show()
+    this.loading = true;
+    this.budgetService.copyBudget(budgetModel).subscribe(
+      (response: any) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error to copybudget', this.errorTocopyBudgetMessage);
+
+      }
+    );
+  }
 
 
   downloadBudget(customerModel: BudgetModel) {
@@ -184,12 +218,12 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     this.loading = true;
     this.budgetService.download(customerModel.budgetId).subscribe(
       (data: Blob) => {
-        this.descargarPDF(data,customerModel);
+        this.descargarPDF(data, customerModel);
         this.spinner.hide();
         this.loading = false;
       },
       (error) => {
-        this.spinner.hide(); 
+        this.spinner.hide();
         this.loading = false;
         this.handleError('Error to download Bugets', this.errorToDownloadBudgetMessage);
       }
@@ -197,17 +231,17 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
   }
 
   private descargarPDF(data: Blob, customerModel: BudgetModel) {
-    const url = window.URL.createObjectURL(data);    
+    const url = window.URL.createObjectURL(data);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Cotizacion_'+customerModel.internalCode+' '+customerModel.budgetName;
+    a.download = 'Cotizacion_' + customerModel.internalCode + ' ' + customerModel.budgetName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
 
-  getTotal(amount:number){
+  getTotal(amount: number) {
     var aiu = (amount * 0.1);
     var iva = aiu * 0.19;
     var total = amount + iva;
@@ -240,9 +274,9 @@ deleteBudgetWithComfirm(budgetModel: BudgetModel){
     this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
     this.confirmationModal.openModal();
   }
-  showNotify(){
+  showNotify() {
     console.log('show notify');
   }
 
 
-  }
+}

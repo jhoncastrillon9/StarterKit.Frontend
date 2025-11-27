@@ -5,14 +5,15 @@ import { AddUpdateBudgetComponent } from './add-update-budget/add-update-budget.
 import { ListBudgetComponent } from './list-budget/list-budget.component';
 import { BudgetsRoutingModule } from './budgets-routing.module';
 import { IconModule } from '@coreui/icons-angular';
-import { ButtonGroupModule, DropdownModule, ListGroupModule, } from '@coreui/angular';
+import { ButtonGroupModule, ListGroupModule, } from '@coreui/angular';
+import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReadBudgetComponent } from './read-budget/read-budget.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
-import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
+import { ButtonModule as PrimeButtonModule } from 'primeng/button';
 import { InputIconModule } from 'primeng/inputicon';
 import { AccordionModule } from 'primeng/accordion';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -106,8 +107,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AutoFocusModule } from 'primeng/autofocus';
-import { SharedModule as CustomSharedModulePipes } from '../../shared.module'; 
-import { CustomSharedModule} from '../../shared/shared.module';
+import { SharedModule as CustomSharedModulePipes } from '../../shared.module';
+import { CustomSharedModule } from '../../shared/shared.module';
 
 import {
   AlertModule,
@@ -129,13 +130,13 @@ import {
   declarations: [
     ListBudgetComponent,
     AddUpdateBudgetComponent,
-    ReadBudgetComponent  ],
+    ReadBudgetComponent],
   imports: [
     CustomSharedModule,
     CustomSharedModulePipes,
     CommonModule,
     BudgetsRoutingModule,
-    NgxSpinnerModule,    
+    NgxSpinnerModule,
     CardModule,
     FormModule,
     GridModule,
@@ -163,8 +164,8 @@ import {
     InputGroupModule,
     InputOtpModule,
     PrimeButtonModule,
-    BadgeModule
-       
-    ]
+    BadgeModule,
+    DropdownModule
+  ]
 })
 export class BudgetsModule { }
