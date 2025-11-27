@@ -122,16 +122,16 @@
                 [(ngModel)]="budget.estado" 
                 (onChange)="onStatusChange(budget)" 
                 appendTo="body"
-                [style]="{'width':'100%', 'min-width':'140px'}"
+                styleClass="compact-dropdown dropdown-status"
                 optionLabel="label" 
                 optionValue="value">
                 <ng-template pTemplate="selectedItem">
-                    <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white'}">
+                    <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white', 'font-size': '0.7rem', 'padding': '0.15rem 0.4rem'}">
                         {{ budget.estado }}
                     </c-badge>
                 </ng-template>
-                <ng-template let-option pTemplate="item">
-                    <c-badge [ngStyle]="{'background-color': getEstadoColor(option.value), 'color': 'white'}">
+                <ng-template let-option pTemplate="item"  styleClass="dropdown-status-item">
+                    <c-badge styleClass="dropdown-status-item-badge" [ngStyle]="{'background-color': getEstadoColor(option.value), 'color': 'white'}">
                         {{ option.label }}
                     </c-badge>
                 </ng-template>

@@ -109,7 +109,8 @@ export class ListBudgetComponent implements OnInit {
     const oldStatus = this.originalStatuses.get(budget.budgetId);
     this.loading = true;
     this.spinner.show();
-    this.budgetService.updateStatus(budget).subscribe(
+    const updatedBudget = { status: budget.estado, budgetId: budget.budgetId };
+    this.budgetService.updateStatus(updatedBudget).subscribe(
       (response: any) => {
         this.loading = false;
         this.spinner.hide();
