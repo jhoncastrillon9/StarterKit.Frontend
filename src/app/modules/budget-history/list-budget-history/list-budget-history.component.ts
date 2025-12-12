@@ -37,9 +37,7 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   
   // Filtros
   filterRequest: BudgetHistoryFilterRequest = new BudgetHistoryFilterRequest();
-  budgetIdFilter: number | null = null;
   internalCodeFilter: number | null = null;
-  userIdFilter: number | null = null;
   logCambioFilter: string = "";
   fromDateFilter: Date | null = null;
   toDateFilter: Date | null = null;
@@ -71,9 +69,7 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   clear(table: Table) {
     table.clear();
     this.searchValue = '';
-    this.budgetIdFilter = null;
     this.internalCodeFilter = null;
-    this.userIdFilter = null;
     this.logCambioFilter = "";
     this.fromDateFilter = null;
     this.toDateFilter = null;
@@ -92,8 +88,6 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
     }
 
     // Aplicar filtros
-    this.filterRequest.budgetId = this.budgetIdFilter || 0;
-    this.filterRequest.userId = this.userIdFilter || 0;
     this.filterRequest.logCambio = this.logCambioFilter || "";
     this.filterRequest.fromDate = this.fromDateFilter;
     this.filterRequest.toDate = this.toDateFilter;

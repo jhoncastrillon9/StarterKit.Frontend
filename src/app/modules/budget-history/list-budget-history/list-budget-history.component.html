@@ -11,17 +11,6 @@
             <h6 class="mb-3">Filtros de Búsqueda</h6>
             <div class="row">
               <div class="col-md-3 mb-3">
-                <label for="budgetIdFilter">ID Presupuesto</label>
-                <input 
-                  type="number" 
-                  id="budgetIdFilter"
-                  class="form-control" 
-                  [(ngModel)]="budgetIdFilter"
-                  placeholder="ID del presupuesto"
-                />
-              </div>
-              
-              <div class="col-md-3 mb-3">
                 <label for="internalCodeFilter">Código Interno</label>
                 <input 
                   type="number" 
@@ -29,17 +18,6 @@
                   class="form-control" 
                   [(ngModel)]="internalCodeFilter"
                   placeholder="Código interno"
-                />
-              </div>
-
-              <div class="col-md-3 mb-3">
-                <label for="userIdFilter">ID Usuario</label>
-                <input 
-                  type="number" 
-                  id="userIdFilter"
-                  class="form-control" 
-                  [(ngModel)]="userIdFilter"
-                  placeholder="ID del usuario"
                 />
               </div>
 
@@ -113,46 +91,23 @@
           >
             <ng-template pTemplate="header">
               <tr>
-                <th style="width: 8%">ID</th>
-                <th style="width: 12%">Fecha</th>
-                <th style="width: 10%">Budget ID</th>
-                <th style="width: 15%">Nombre</th>
-                <th style="width: 10%">Código</th>
-                <th style="width: 10%">Estado</th>
-                <th style="width: 20%">Log de Cambio</th>
-                <th style="width: 8%">Usuario</th>
-                <th style="width: 7%">Acciones</th>
+                <th style="width: 120px">Código</th>
+                <th style="width: 180px">Fecha</th>
+                <th style="width: 200px">Obra</th>
+                <th>Log de Cambio</th>
+                <th style="width: 100px">Acciones</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-history>
               <tr>
-                <td>{{ history.budgetHistoryId }}</td>
-                <td>{{ history.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
-                <td>{{ history.budgetId }}</td>
-                <td>{{ history.budgetName }}</td>
                 <td>{{ history.internalCode }}</td>
+                <td>{{ history.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ history.budgetName }}</td>
                 <td>
-                  <span 
-                    class="badge"
-                    [ngClass]="{
-                      'bg-info': history.estado === 'Cotizada',
-                      'bg-success': history.estado === 'Aprobada',
-                      'bg-danger': history.estado === 'Rechazada',
-                      'bg-warning': history.estado === 'En Desarrollo',
-                      'bg-primary': history.estado === 'Finalizado',
-                      'bg-secondary': history.estado === 'Facturada',
-                      'bg-dark': history.estado === 'Pagada'
-                    }"
-                  >
-                    {{ history.estado }}
-                  </span>
+                  <div style="word-wrap: break-word; white-space: normal;">
+                    {{ history.logCambio }}
+                  </div>
                 </td>
-                <td>
-                  <span [title]="history.logCambio">
-                    {{ history.logCambio.length > 50 ? (history.logCambio | slice:0:50) + '...' : history.logCambio }}
-                  </span>
-                </td>
-                <td>{{ history.userId || '-' }}</td>
                 <td>
                   <div class="d-flex gap-2">
                     <button 
@@ -183,7 +138,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="9" class="text-center">No se encontraron registros en el historial.</td>
+                <td colspan="5" class="text-center">No se encontraron registros en el historial.</td>
               </tr>
             </ng-template>
           </p-table>
