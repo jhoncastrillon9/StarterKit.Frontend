@@ -145,25 +145,27 @@
           
             <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
             <td>
-              <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet;">
-                <svg cIcon class="me-2" name="cilPencil"></svg>
-              </span>
-              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue;">
-                <svg cIcon class="me-2" name="cilCloudDownload"></svg>
-              </span>
-              <span (click)="downloadExcel(budget)" title="Descargar Excel" style="cursor: pointer; color: green;">
-                <i class="pi pi-file-excel me-2" style="font-size: 1.2rem;"></i>
-              </span>
-              <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: orange;">
-                <svg cIcon class="me-2" name="cilCopy"></svg>
-              </span>
-              <p-button 
-                icon="pi pi-bars" 
-                [text]="true" 
-                (onClick)="onMenuClick($event, budget)" 
-                aria-label="Opciones"
-                styleClass="p-button-sm"
-              ></p-button>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet; display: flex; align-items: center;">
+                  <svg cIcon name="cilPencil"></svg>
+                </span>
+                <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue; display: flex; align-items: center;">
+                  <svg cIcon name="cilCloudDownload"></svg>
+                </span>
+                <span (click)="downloadExcel(budget)" title="Descargar Excel" style="cursor: pointer; color: green; display: flex; align-items: center;">
+                  <i class="pi pi-file-excel" style="font-size: 1.1rem;"></i>
+                </span>
+                <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: orange; display: flex; align-items: center;">
+                  <svg cIcon name="cilCopy"></svg>
+                </span>
+                <p-button 
+                  icon="pi pi-bars" 
+                  [text]="true" 
+                  (onClick)="onMenuClick($event, budget)" 
+                  aria-label="Opciones"
+                  styleClass="p-button-sm"
+                ></p-button>
+              </div>
             </td>
           </tr>
         </ng-template>
