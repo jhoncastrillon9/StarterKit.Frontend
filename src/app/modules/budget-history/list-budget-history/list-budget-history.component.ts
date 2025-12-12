@@ -154,8 +154,27 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   }
 
   viewBudget(history: BudgetHistoryModel) {
-    // Navegar a la vista de detalle del presupuesto
-    this.router.navigate(['/budgets/read', history.budgetId]);
+    this.spinner.show();
+    this.loading = true;
+    this.budgetHistoryService.downloadPdfFromHistory(history.budgetHistoryId).subscribe(
+      (data: Blob) => {
+        const url = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Historial_' + history.internalCode + '_' + history.budgetName + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.spinner.hide();
+        this.loading = false;
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error to download PDF from history', 'No se pudo descargar el PDF del historial. Inténtalo de nuevo.');
+      }
+    );
   }
 
   private handleError(logMessage: string, userMessage: string): void {

@@ -53,4 +53,15 @@ export class BudgetHistoryService {
       })
     );
   }
+
+  downloadPdfFromHistory(budgetHistoryId: number): Observable<Blob> {
+    const headers = this.getHeaders();
+    return this.http.get(
+      `${this.apiUrl}/api/Budget/budgetPdfFromHistory/${budgetHistoryId}`,
+      {
+        headers,
+        responseType: 'blob',
+      }
+    );
+  }
 }
