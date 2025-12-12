@@ -153,6 +153,24 @@ export class BudgetService {
     });
   }
 
+  downloadExcel(budgetId: number): Observable<Blob> {
+    const headers = this.getHeaders();
+
+    return this.http.get(`${this.apiUrl}/api/Budget/budgetExcel/${budgetId}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
+
+  downloadSchedule(budgetId: number, weeks: number, startDate: string): Observable<Blob> {
+    const headers = this.getHeaders();
+
+    return this.http.get(`${this.apiUrl}/api/Budget/budgetSchedule/${budgetId}?weeks=${weeks}&startDate=${startDate}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
+
   sendAudioToDetails(formData: FormData): Observable<any> {
     const headers = this.getHeaders();
     // No incluir Content-Type para que el navegador lo establezca automáticamente con el boundary para FormData

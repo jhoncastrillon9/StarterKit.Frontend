@@ -165,7 +165,10 @@ import {
     InputOtpModule,
     PrimeButtonModule,
     BadgeModule,
-    DropdownModule
+    DropdownModule,
+    MenuModule,
+    CalendarModule,
+    DialogModule
   ]
 })
 export class BudgetsModule { }

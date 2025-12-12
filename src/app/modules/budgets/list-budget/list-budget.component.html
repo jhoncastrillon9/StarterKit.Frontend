@@ -145,28 +145,30 @@
           
             <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
             <td>
-              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue;">
-                <svg cIcon class="me-2" name="cilCloudDownload"></svg>
-              </span>
               <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet;">
                 <svg cIcon class="me-2" name="cilPencil"></svg>
               </span>
-              <span (click)="deleteBudgetWithComfirm(budget)" title="Eliminar Cotización" style="cursor: pointer; color: red;">
-                <svg cIcon class="me-2" name="cilXCircle"></svg>
+              <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue;">
+                <svg cIcon class="me-2" name="cilCloudDownload"></svg>
               </span>
-              <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: green;">
+              <span (click)="downloadExcel(budget)" title="Descargar Excel" style="cursor: pointer; color: green;">
+                <i class="pi pi-file-excel me-2" style="font-size: 1.2rem;"></i>
+              </span>
+              <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: orange;">
                 <svg cIcon class="me-2" name="cilCopy"></svg>
               </span>
-              <span (click)="sendEmailBudgetWithComfirm(budget)" title="Enviar Cotización" style="cursor: pointer; color: rgb(0, 100, 128);">
-                <svg cIcon class="me-2" name="cibMinutemailer"></svg>
-              </span>
-      
-
-
+              <p-button 
+                icon="pi pi-bars" 
+                [text]="true" 
+                (onClick)="onMenuClick($event, budget)" 
+                aria-label="Opciones"
+                styleClass="p-button-sm"
+              ></p-button>
             </td>
           </tr>
         </ng-template>
-      </p-table>  
+      </p-table>
+      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>  
 </c-col>
 
 
@@ -178,6 +180,51 @@
   [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
+
+<!-- Dialog para parámetros del cronograma -->
+<p-dialog 
+  [(visible)]="displayScheduleDialog" 
+  [header]="'Descargar Cronograma'" 
+  [modal]="true" 
+  [style]="{width: '450px'}"
+  [draggable]="false"
+  [resizable]="false">
+  <div class="p-fluid">
+    <div class="field">
+      <label for="weeks">Número de Semanas</label>
+      <p-inputNumber 
+        id="weeks" 
+        [(ngModel)]="scheduleParams.weeks" 
+        [min]="1" 
+        [max]="52"
+        [showButtons]="true">
+      </p-inputNumber>
+    </div>
+    <div class="field mt-3">
+      <label for="startDate">Fecha de Inicio</label>
+      <p-calendar 
+        id="startDate" 
+        [(ngModel)]="scheduleParams.startDate" 
+        dateFormat="yy-mm-dd"
+        [showIcon]="true">
+      </p-calendar>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="displayScheduleDialog = false" 
+      styleClass="p-button-text">
+    </p-button>
+    <p-button 
+      label="Descargar" 
+      icon="pi pi-download" 
+      (onClick)="downloadSchedule()" 
+      [disabled]="!scheduleParams.weeks || !scheduleParams.startDate">
+    </p-button>
+  </ng-template>
+</p-dialog>
 
 <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
 

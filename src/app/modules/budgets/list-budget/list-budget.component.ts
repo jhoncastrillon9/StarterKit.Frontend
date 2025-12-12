@@ -11,6 +11,8 @@ import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
+import { MenuItem } from 'primeng/api';
+import { Menu } from 'primeng/menu';
 
 
 
@@ -22,6 +24,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ListBudgetComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  @ViewChild('menu') menu!: Menu;
   isModalError: boolean = false;
   private readonly successDeleteMessage: string = "¡La cotización ha sido eliminada correctamente!";
   private readonly successSendBusgetMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
@@ -47,7 +50,15 @@ export class ListBudgetComponent implements OnInit {
   searchValue: string | undefined;
   loading: boolean = true;
   budgets: BudgetModel[] = [];
+  menuItems: MenuItem[] = [];
+  currentBudget: BudgetModel | null = null;
 
+  displayScheduleDialog: boolean = false;
+  scheduleParams: { weeks: number | null; startDate: Date | null; budgetId: number | null } = {
+    weeks: null,
+    startDate: null,
+    budgetId: null
+  };
 
   isModalWithError: boolean = false;
   isModalForDelete: boolean = false;
@@ -275,9 +286,139 @@ export class ListBudgetComponent implements OnInit {
     this.confirmationModal.isConfirmation = false; // Aseguramos que no esté en modo confirmación
     this.confirmationModal.openModal();
   }
+  
   showNotify() {
     console.log('show notify');
   }
 
+  onMenuClick(event: Event, budget: BudgetModel) {
+    this.currentBudget = budget;
+    this.menuItems = this.getMenuItems(budget);
+    this.menu.toggle(event);
+  }
+
+  getMenuItems(budget: BudgetModel): MenuItem[] {
+    return [
+      {
+        label: 'Descargar PDF',
+        icon: 'pi pi-file-pdf',
+        command: () => this.downloadBudget(budget)
+      },
+      {
+        label: 'Descargar Excel',
+        icon: 'pi pi-file-excel',
+        command: () => this.downloadExcel(budget)
+      },
+      {
+        label: 'Descargar Cronograma',
+        icon: 'pi pi-calendar',
+        command: () => this.openScheduleDialog(budget)
+      },
+      {
+        separator: true
+      },
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.router.navigate(['/budgets/update', budget.budgetId])
+      },
+      {
+        label: 'Duplicar',
+        icon: 'pi pi-copy',
+        command: () => this.copybudget(budget)
+      },
+      {
+        label: 'Enviar',
+        icon: 'pi pi-send',
+        command: () => this.sendEmailBudgetWithComfirm(budget)
+      },
+      {
+        separator: true
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-trash',
+        command: () => this.deleteBudgetWithComfirm(budget),
+        styleClass: 'text-danger'
+      }
+    ];
+  }
+
+  downloadExcel(budget: BudgetModel) {
+    this.spinner.show();
+    this.loading = true;
+    this.budgetService.downloadExcel(budget.budgetId).subscribe(
+      (data: Blob) => {
+        const url = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Cotizacion_' + budget.internalCode + '_' + budget.budgetName + '.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.spinner.hide();
+        this.loading = false;
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error al descargar Excel', 'No se pudo descargar el archivo Excel. Por favor, intenta de nuevo.');
+      }
+    );
+  }
+
+  openScheduleDialog(budget: BudgetModel) {
+    this.scheduleParams = {
+      weeks: 4,
+      startDate: new Date(),
+      budgetId: budget.budgetId
+    };
+    this.displayScheduleDialog = true;
+  }
+
+  downloadSchedule() {
+    if (!this.scheduleParams.weeks || !this.scheduleParams.startDate || !this.scheduleParams.budgetId) {
+      return;
+    }
+
+    this.displayScheduleDialog = false;
+    this.spinner.show();
+    this.loading = true;
+
+    const budget = this.budgets.find(b => b.budgetId === this.scheduleParams.budgetId);
+    const formattedDate = this.formatDate(this.scheduleParams.startDate);
+
+    this.budgetService.downloadSchedule(
+      this.scheduleParams.budgetId,
+      this.scheduleParams.weeks,
+      formattedDate
+    ).subscribe(
+      (data: Blob) => {
+        const url = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Cronograma_' + (budget?.internalCode || this.scheduleParams.budgetId) + '.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.spinner.hide();
+        this.loading = false;
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error al descargar cronograma', 'No se pudo descargar el cronograma. Por favor, intenta de nuevo.');
+      }
+    );
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
 }
