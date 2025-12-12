@@ -23,7 +23,11 @@ export const navItems: INavData[] = [
         url: '/budgets/add',
         icon: 'nav-icon-bullet'
       },
-      
+      {
+        name: 'Historial de Presupuestos',
+        url: '/budget-history/list',
+        icon: 'nav-icon-bullet'
+      }
     ]
   },
   {

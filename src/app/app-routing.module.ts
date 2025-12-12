@@ -36,6 +36,12 @@ const routes: Routes = [
           canActivate: [AuthGuard]
       },
       {
+        path: 'budget-history',
+        loadChildren: () =>
+          import('./modules/budget-history/budget-history.module').then((m) => m.BudgetHistoryModule),          
+          canActivate: [AuthGuard]
+      },
+      {
         path: 'apus',
         loadChildren: () =>
           import('./modules/apus/apus-routing.module').then((m) => m.ApusRoutingModule),          

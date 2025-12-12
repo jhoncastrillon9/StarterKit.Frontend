@@ -1,0 +1,25 @@
+.container-list {
+  padding: 20px;
+}
+
+.badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.875rem;
+}
+
+.p-datatable {
+  .p-datatable-thead > tr > th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+  .p-datatable-tbody > tr {
+    &:hover {
+      background-color: #f1f3f5;
+    }
+  }
+}
+
+.d-flex.gap-2 {
+  gap: 0.5rem !important;
+}

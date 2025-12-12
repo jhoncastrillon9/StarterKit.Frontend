@@ -1,0 +1,196 @@
+<c-container class="container-list" [fluid]="true">
+  <c-row>
+    <c-col xs="12">
+      <c-card class="mb-4">
+        <c-card-header class="d-flex justify-content-between align-items-center">
+          <strong>Historial de Presupuestos</strong>
+        </c-card-header>
+        <c-card-body>
+          <!-- Filtros -->
+          <div class="mb-4 p-3 border rounded">
+            <h6 class="mb-3">Filtros de Búsqueda</h6>
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="budgetIdFilter">ID Presupuesto</label>
+                <input 
+                  type="number" 
+                  id="budgetIdFilter"
+                  class="form-control" 
+                  [(ngModel)]="budgetIdFilter"
+                  placeholder="ID del presupuesto"
+                />
+              </div>
+              
+              <div class="col-md-3 mb-3">
+                <label for="internalCodeFilter">Código Interno</label>
+                <input 
+                  type="number" 
+                  id="internalCodeFilter"
+                  class="form-control" 
+                  [(ngModel)]="internalCodeFilter"
+                  placeholder="Código interno"
+                />
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="userIdFilter">ID Usuario</label>
+                <input 
+                  type="number" 
+                  id="userIdFilter"
+                  class="form-control" 
+                  [(ngModel)]="userIdFilter"
+                  placeholder="ID del usuario"
+                />
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="logCambioFilter">Descripción del Cambio</label>
+                <input 
+                  type="text" 
+                  id="logCambioFilter"
+                  class="form-control" 
+                  [(ngModel)]="logCambioFilter"
+                  placeholder="Buscar en log de cambios"
+                />
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="fromDateFilter">Desde</label>
+                <input 
+                  type="date" 
+                  id="fromDateFilter"
+                  class="form-control" 
+                  [(ngModel)]="fromDateFilter"
+                />
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="toDateFilter">Hasta</label>
+                <input 
+                  type="date" 
+                  id="toDateFilter"
+                  class="form-control" 
+                  [(ngModel)]="toDateFilter"
+                />
+              </div>
+
+              <div class="col-md-6 mb-3 d-flex align-items-end">
+                <button 
+                  class="btn btn-primary me-2" 
+                  (click)="applyFilters()"
+                  [disabled]="loading"
+                >
+                  <svg cIcon name="cilZoom" class="me-1"></svg>
+                  Buscar
+                </button>
+                <button 
+                  class="btn btn-secondary" 
+                  (click)="clear(dt)"
+                  [disabled]="loading"
+                >
+                  Limpiar Filtros
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla -->
+          <p-table 
+            #dt
+            [value]="historyItems" 
+            [paginator]="true" 
+            [rows]="filterRequest.pageSize"
+            [totalRecords]="totalRecords"
+            [lazy]="true"
+            (onLazyLoad)="loadHistory($event)"
+            [loading]="loading"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+            [rowsPerPageOptions]="[10, 25, 50, 100]"
+            styleClass="p-datatable-gridlines"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [globalFilterFields]="['budgetName', 'internalCode', 'estado', 'logCambio']"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 8%">ID</th>
+                <th style="width: 12%">Fecha</th>
+                <th style="width: 10%">Budget ID</th>
+                <th style="width: 15%">Nombre</th>
+                <th style="width: 10%">Código</th>
+                <th style="width: 10%">Estado</th>
+                <th style="width: 20%">Log de Cambio</th>
+                <th style="width: 8%">Usuario</th>
+                <th style="width: 7%">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-history>
+              <tr>
+                <td>{{ history.budgetHistoryId }}</td>
+                <td>{{ history.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ history.budgetId }}</td>
+                <td>{{ history.budgetName }}</td>
+                <td>{{ history.internalCode }}</td>
+                <td>
+                  <span 
+                    class="badge"
+                    [ngClass]="{
+                      'bg-info': history.estado === 'Cotizada',
+                      'bg-success': history.estado === 'Aprobada',
+                      'bg-danger': history.estado === 'Rechazada',
+                      'bg-warning': history.estado === 'En Desarrollo',
+                      'bg-primary': history.estado === 'Finalizado',
+                      'bg-secondary': history.estado === 'Facturada',
+                      'bg-dark': history.estado === 'Pagada'
+                    }"
+                  >
+                    {{ history.estado }}
+                  </span>
+                </td>
+                <td>
+                  <span [title]="history.logCambio">
+                    {{ history.logCambio.length > 50 ? (history.logCambio | slice:0:50) + '...' : history.logCambio }}
+                  </span>
+                </td>
+                <td>{{ history.userId || '-' }}</td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <button 
+                      type="button" 
+                      cButton 
+                      color="primary" 
+                      variant="outline" 
+                      size="sm"
+                      (click)="viewBudget(history)"
+                      title="Ver presupuesto"
+                    >
+                      <svg cIcon name="cilZoom"></svg>
+                    </button>
+                    <button 
+                      type="button" 
+                      cButton 
+                      color="success" 
+                      variant="outline" 
+                      size="sm"
+                      (click)="restoreBudgetWithConfirm(history)"
+                      title="Restaurar desde este historial"
+                    >
+                      <svg cIcon name="cilReload"></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="9" class="text-center">No se encontraron registros en el historial.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+</c-container>
+
+<app-confirmation-modal #confirmationModal></app-confirmation-modal>
