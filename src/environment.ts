@@ -1,4 +1,5 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://localhost:7072',
+    apiUrl: 'https://cotizaconstructorwebapi.rhinocore.es',
+
   };
