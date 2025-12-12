@@ -140,20 +140,23 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   restoreBudget() {
     if (!this.historyToRestore) return;
 
-    this.spinner.show();
-    this.budgetHistoryService.restoreFromHistory(this.historyToRestore.budgetHistoryId).subscribe(
-      (response) => {
-        this.spinner.hide();
-        this.showModal(false, this.successRestoreMessage, this.successRestoreTitle);
-        this.loadHistory();
-        this.historyToRestore = null;
-      },
-      (error) => {
-        this.spinner.hide();
-        this.handleError('Error to Restore Budget', 'No se pudo restaurar el presupuesto. Inténtalo de nuevo.');
-        this.historyToRestore = null;
-      }
-    );
+    // Pequeño delay para asegurar que el modal de confirmación se cierre completamente
+    setTimeout(() => {
+      this.spinner.show();
+      this.budgetHistoryService.restoreFromHistory(this.historyToRestore!.budgetHistoryId).subscribe(
+        (response) => {
+          this.spinner.hide();
+          this.historyToRestore = null;
+          this.showModal(false, this.successRestoreMessage, this.successRestoreTitle);
+          this.loadHistory();
+        },
+        (error) => {
+          this.spinner.hide();
+          this.historyToRestore = null;
+          this.handleError('Error to Restore Budget', 'No se pudo restaurar el presupuesto. Inténtalo de nuevo.');
+        }
+      );
+    }, 300);
   }
 
   viewBudget(history: BudgetHistoryModel) {
