@@ -60,6 +60,19 @@ export class ListBudgetComponent implements OnInit {
     budgetId: null
   };
 
+  displayMergeDialog: boolean = false;
+  mergeParams: { 
+    budgetId1: number | null; 
+    budgetId2: number | null; 
+    newBudgetName: string; 
+    note: string;
+  } = {
+    budgetId1: null,
+    budgetId2: null,
+    newBudgetName: '',
+    note: ''
+  };
+
   isModalWithError: boolean = false;
   isModalForDelete: boolean = false;
   isModalForSetInvoice: boolean = false;
@@ -328,6 +341,11 @@ export class ListBudgetComponent implements OnInit {
         command: () => this.copybudget(budget)
       },
       {
+        label: 'Unir Cotizaciones',
+        icon: 'pi pi-plus-circle',
+        command: () => this.openMergeDialog(budget)
+      },
+      {
         label: 'Enviar',
         icon: 'pi pi-send',
         command: () => this.sendEmailBudgetWithComfirm(budget)
@@ -419,6 +437,62 @@ export class ListBudgetComponent implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  openMergeDialog(budget: BudgetModel) {
+    this.mergeParams = {
+      budgetId1: budget.budgetId,
+      budgetId2: null,
+      newBudgetName: '',
+      note: ''
+    };
+    this.displayMergeDialog = true;
+  }
+
+  mergeBudgets() {
+    if (!this.mergeParams.budgetId1 || !this.mergeParams.budgetId2 || !this.mergeParams.newBudgetName) {
+      this.handleError('Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+      return;
+    }
+
+    if (this.mergeParams.budgetId1 === this.mergeParams.budgetId2) {
+      this.handleError('Error de validación', 'No puedes unir una cotización consigo misma. Selecciona dos cotizaciones diferentes.');
+      return;
+    }
+
+    this.displayMergeDialog = false;
+    this.spinner.show();
+    this.loading = true;
+
+    const mergeRequest = {
+      budgetId1: this.mergeParams.budgetId1,
+      budgetId2: this.mergeParams.budgetId2,
+      newBudgetName: this.mergeParams.newBudgetName,
+      note: this.mergeParams.note
+    };
+
+    this.budgetService.mergeBudgets(mergeRequest).subscribe(
+      (response: any) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+        this.showModal(false, '¡Las cotizaciones se han unido exitosamente! Se ha creado una nueva cotización.', '¡Unión Exitosa!');
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error al unir cotizaciones', 'No se pudieron unir las cotizaciones. Por favor, intenta de nuevo.');
+      }
+    );
+  }
+
+  getAvailableBudgetsForMerge(): BudgetModel[] {
+    return this.budgets.filter(b => b.budgetId !== this.mergeParams.budgetId1);
+  }
+
+  getSelectedBudgetLabel(): string {
+    const budget = this.budgets.find(b => b.budgetId === this.mergeParams.budgetId1);
+    return budget ? `${budget.internalCode} - ${budget.budgetName}` : '';
   }
 
 }

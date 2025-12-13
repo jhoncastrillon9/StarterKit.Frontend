@@ -184,8 +184,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     const sixHours = 6 * 60 * 60 * 1000; // Seis horas en milisegundos
 
     // Verificamos si hay datos almacenados y si no han caducado
-    if (storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours)) {
-      console.log('Using LocalStorage for Apu');
+    if (storedData && storedExpiry && (now - parseInt(storedExpiry) < sixHours)) {      
       this.apuModels = JSON.parse(storedData);
     } else {
       // Si no hay datos o han caducado, cargamos desde la API

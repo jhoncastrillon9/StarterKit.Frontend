@@ -228,6 +228,79 @@
   </ng-template>
 </p-dialog>
 
+<!-- Dialog para unir cotizaciones -->
+<p-dialog 
+  [(visible)]="displayMergeDialog" 
+  [header]="'Unir Cotizaciones'" 
+  [modal]="true" 
+  [style]="{width: '500px'}"
+  [draggable]="false"
+  [resizable]="false">
+  <div class="p-fluid">
+    <div class="field">
+      <label for="budget1">Primera Cotización (seleccionada)</label>
+      <input 
+        pInputText 
+        id="budget1" 
+        [value]="getSelectedBudgetLabel()"
+        [disabled]="true"
+        class="p-inputtext-sm">
+    </div>
+    <div class="field mt-3">
+      <label for="budget2">Segunda Cotización *</label>
+      <p-dropdown 
+        id="budget2" 
+        [options]="getAvailableBudgetsForMerge()" 
+        [(ngModel)]="mergeParams.budgetId2" 
+        optionLabel="internalCode" 
+        optionValue="budgetId"
+        placeholder="Selecciona una cotización"
+        [filter]="true"
+        filterBy="internalCode,budgetName"
+        appendTo="body"
+        [showClear]="true">
+        <ng-template let-budget pTemplate="item">
+          <div>{{ budget.internalCode }} - {{ budget.budgetName | truncate:40 }}</div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+    <div class="field mt-3">
+      <label for="newBudgetName">Nombre de la Nueva Cotización *</label>
+      <input 
+        pInputText 
+        id="newBudgetName" 
+        [(ngModel)]="mergeParams.newBudgetName" 
+        placeholder="Ingresa el nombre"
+        class="p-inputtext-sm">
+    </div>
+    <div class="field mt-3">
+      <label for="note">Nota (opcional)</label>
+      <textarea 
+        pInputTextarea 
+        id="note" 
+        [(ngModel)]="mergeParams.note" 
+        rows="3" 
+        placeholder="Agrega una nota sobre la unión"
+        class="p-inputtextarea-sm">
+      </textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="displayMergeDialog = false" 
+      styleClass="p-button-text">
+    </p-button>
+    <p-button 
+      label="Unir Cotizaciones" 
+      icon="pi pi-plus-circle" 
+      (onClick)="mergeBudgets()" 
+      [disabled]="!mergeParams.budgetId1 || !mergeParams.budgetId2 || !mergeParams.newBudgetName">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
 <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
 
 
