@@ -263,9 +263,10 @@ export class AddUpdateBudgetComponent implements OnInit {
           },
           (error) => {
             this.showErrors = true;
-            this.msjError = error;
+            const errorMessage = this.extractErrorMessage(error);
+            this.msjError = errorMessage;
             this.spinner.hide();
-            this.handleError('Load Data', this.errorGeneralMessage);
+            this.handleError('Error al actualizar cotización', errorMessage);
           }
         );
       } else {
@@ -276,9 +277,10 @@ export class AddUpdateBudgetComponent implements OnInit {
           },
           (error) => {
             this.showErrors = true;
-            this.msjError = "Error inesperado, revisa la información del formulario";
+            const errorMessage = this.extractErrorMessage(error);
+            this.msjError = errorMessage;
             this.spinner.hide();
-            this.handleError('Load Data', this.errorGeneralMessage);
+            this.handleError('Error al crear cotización', errorMessage);
           }
         );
       }
@@ -459,6 +461,39 @@ export class AddUpdateBudgetComponent implements OnInit {
   private handleError(consoleMessage: string, modalMessage: string) {
     console.error(consoleMessage);
     this.showModalDefault(true, modalMessage, this.errorTitle);
+  }
+
+  /**
+   * Extrae el mensaje de error de un objeto de error HTTP
+   * Maneja diferentes estructuras de error que puede devolver el backend
+   */
+  private extractErrorMessage(error: any): string {
+    // Si el error tiene una estructura error.error con mensaje
+    if (error?.error) {
+      // Si error.error es un objeto con mensaje
+      if (typeof error.error === 'object' && error.error.message) {
+        return error.error.message;
+      }
+      // Si error.error es un string
+      if (typeof error.error === 'string') {
+        return error.error;
+      }
+      // Si error.error es un objeto con otras propiedades
+      if (typeof error.error === 'object') {
+        // Intentar obtener title, Message, errors, etc.
+        return error.error.title || error.error.Message || JSON.stringify(error.error);
+      }
+    }
+    // Si el error tiene un mensaje directo
+    if (error?.message) {
+      return error.message;
+    }
+    // Si es un string directamente
+    if (typeof error === 'string') {
+      return error;
+    }
+    // Si nada funciona, devolver mensaje genérico
+    return this.errorGeneralMessage;
   }
 
   showModalDefault(isError: boolean, message: string, title: string) {
