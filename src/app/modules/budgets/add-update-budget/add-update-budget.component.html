@@ -247,7 +247,8 @@
                 cFormControl
                 formControlName="quantity"
                 placeholder="Cantidad"
-                type="number"
+                type="text"
+                (keypress)="onlyNumbers($event)"
                 (change)="calculateSubtotalForDetails(i)"
                 (blur)="calculateSubtotalForDetails(i)"
                 (input)="calculateSubtotalForDetails(i)"
