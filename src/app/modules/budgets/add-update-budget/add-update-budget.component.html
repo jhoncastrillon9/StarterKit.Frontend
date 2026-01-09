@@ -152,17 +152,19 @@
           <tr
             *ngFor="let detail of budgetDetails.controls; let i = index"
             [formGroupName]="i"
-            draggable="true"
-            (dragstart)="dragStart($event, i)"
-            (dragend)="dragEnd($event)"
             (dragover)="dragOver($event, i)"
             (drop)="drop($event, i)"
             (dragleave)="dragLeave($event)"
             [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
-            style="cursor: move;"
           >
-            <td class="align-middle text-center drag-handle">
-              <i class="fas fa-bars" style="color: #6c757d; font-size: 1.2rem;"></i>
+            <td class="align-middle text-center drag-handle" style="cursor: grab;">
+              <i 
+                class="fas fa-bars" 
+                style="color: #6c757d; font-size: 1.2rem; cursor: grab;"
+                draggable="true"
+                (dragstart)="dragStart($event, i)"
+                (dragend)="dragEnd($event)"
+              ></i>
             </td>
             <td>
               <!-- Description -->

@@ -585,11 +585,21 @@ export class AddUpdateBudgetComponent implements OnInit {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/html', index.toString());
     }
+    // Cambiar el cursor durante el drag
+    const target = event.target as HTMLElement;
+    if (target) {
+      target.style.cursor = 'grabbing';
+    }
   }
 
   dragEnd(event: DragEvent) {
     this.draggedIndex = null;
     this.dragOverIndex = null;
+    // Restaurar el cursor
+    const target = event.target as HTMLElement;
+    if (target) {
+      target.style.cursor = 'grab';
+    }
   }
 
   dragOver(event: DragEvent, index: number) {
