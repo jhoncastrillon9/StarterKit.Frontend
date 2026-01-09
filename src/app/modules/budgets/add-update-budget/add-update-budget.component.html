@@ -427,10 +427,19 @@
             </td>
             <td class="align-middle">
               <a
+                style="color: #0d6efd; cursor: pointer"
+                class="me-3"
+                (click)="duplicateBudgetDetail(i)"
+                title="Duplicar item"
+              >
+                <svg cIcon name="cilCopy" size="lg"></svg>
+              </a>
+              <a
                 style="color: #dc3545; cursor: pointer"
                 (click)="removeBudgetDetail(i)"
+                title="Eliminar item"
               >
-                <svg cIcon class="me-2" name="cilXCircle"></svg>
+                <svg cIcon name="cilXCircle" size="lg"></svg>
               </a>
             </td>
           </tr>

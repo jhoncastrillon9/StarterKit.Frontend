@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { CustomerService } from '../../customers/services/customer.service';
-import { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay } from '@coreui/icons';
+import { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay, cilCopy } from '@coreui/icons';
 import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApuModel } from '../../apus/models/apu.Model';
@@ -109,7 +109,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       budgetDetailsDto: this.fb.array([])
     });
 
-    iconSet.icons = { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay };
+    iconSet.icons = { cilPencil, cilXCircle, cilMoney, cilSpeech, cilMediaPlay, cilCopy  };
 
   }
 
@@ -220,6 +220,24 @@ export class AddUpdateBudgetComponent implements OnInit {
   removeBudgetDetail(index: number) {
     this.budgetDetails.removeAt(index);
     this.updateAmount();
+  }
+
+  duplicateBudgetDetail(index: number) {
+    const detailToDuplicate = this.budgetDetails.at(index);
+    if (detailToDuplicate) {
+      const duplicatedDetail = this.fb.group({
+        budgetDetailId: [0],
+        budgetId: [detailToDuplicate.get('budgetId')?.value || 0],
+        unitMeasurement: [detailToDuplicate.get('unitMeasurement')?.value || 'Und'],
+        description: [detailToDuplicate.get('description')?.value || '', [Validators.required]],
+        quantity: [detailToDuplicate.get('quantity')?.value || null, [Validators.required, Validators.pattern(/^\d+$/)]],
+        price: [detailToDuplicate.get('price')?.value || null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+        subtotal: [detailToDuplicate.get('subtotal')?.value || 0],
+      });
+      // Insertar el item duplicado justo después del original
+      this.budgetDetails.insert(index + 1, duplicatedDetail);
+      this.updateAmount();
+    }
   }
 
   get budgetDetails() {
