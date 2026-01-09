@@ -129,6 +129,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             detailsArray.clear(); // Limpia los detalles existentes si los hubiera
 
             budget.budgetDetailsDto.forEach((detail: any) => {
+              const subtotal = detail.quantity * detail.price;
               const budgetDetailGroup = this.fb.group({
                 budgetDetailId: detail.budgetDetailId,
                 budgetId: detail.budgetId,
@@ -136,7 +137,7 @@ export class AddUpdateBudgetComponent implements OnInit {
                 unitMeasurement: detail.unitMeasurement,
                 quantity: detail.quantity,
                 price: detail.price,
-                subtotal: detail.quantity * detail.price,
+                subtotal: subtotal.toLocaleString(),
               });
               detailsArray.push(budgetDetailGroup);
             });
