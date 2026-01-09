@@ -36,6 +36,7 @@
         cFormControl
         formControlName="budgetName"
         class="form-control-sm"
+          maxlength="500"
         [ngClass]="{
           'is-invalid':
             budgetForm.get('budgetName')?.invalid &&
@@ -172,6 +173,7 @@
                 cFormControl
                 formControlName="description"
                 placeholder="Descripción"
+                maxlength="500"
                 style="
                   min-height: 50px;
                   resize: vertical;
@@ -515,6 +517,7 @@
                 cFormControl
                 formControlName="wayToPay"
                 class="form-control-sm"
+                maxlength="500"
               />
             </c-col>
             <c-col md="2">
@@ -523,6 +526,7 @@
                 cFormControl
                 formControlName="deliveryTime"
                 class="form-control-sm"
+                maxlength="500"
               />
             </c-col>
             <c-col md="2">
@@ -531,6 +535,7 @@
                 cFormControl
                 formControlName="validityOffer"
                 class="form-control-sm"
+                maxlength="500"
               />
             </c-col>
           </div>
@@ -543,6 +548,7 @@
                 formControlName="note"
                 placeholder="Escribe una nota para el cliente o detalles importantes"
                 rows="2"
+                maxlength="500"
               ></textarea>
             </c-col>
             <c-col md="2">
@@ -552,6 +558,7 @@
                 formControlName="externalInvoice"
                 class="form-control-sm"
                 placeholder="Número de factura"
+                maxlength="15"
               />
             </c-col>
           </div>
