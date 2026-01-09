@@ -296,7 +296,8 @@
                 cFormControl
                 formControlName="price"
                 placeholder="Precio"
-                type="number"
+                type="text"
+                appThousandSeparator
                 (change)="calculateSubtotalForDetails(i)"
                 (blur)="calculateSubtotalForDetails(i)"
                 (input)="calculateSubtotalForDetails(i)"

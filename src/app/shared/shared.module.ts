@@ -4,9 +4,13 @@ import { ConfirmationModalComponent } from './components/reusable-modal/reusable
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // Si usas ngModel
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule, SharedModule } from '@coreui/angular';
 import { IconModule } from '@coreui/icons-angular';
+import { ThousandSeparatorDirective } from './directives/thousand-separator.directive';
 
 @NgModule({
-  declarations: [ConfirmationModalComponent],
+  declarations: [
+    ConfirmationModalComponent,
+    ThousandSeparatorDirective
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -25,6 +29,9 @@ import { IconModule } from '@coreui/icons-angular';
     IconModule,
     ModalModule, // Si necesitas usar ngModel para manejar el modal
   ],
-  exports: [ConfirmationModalComponent] // Exportamos para que otros módulos lo usen
+  exports: [
+    ConfirmationModalComponent,
+    ThousandSeparatorDirective
+  ] // Exportamos para que otros módulos lo usen
 })
 export class CustomSharedModule { }
