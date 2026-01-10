@@ -36,6 +36,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   validityOfferDefault: string = "30 días";
   budgetForm: FormGroup;
   budgetId?: string;
+  internalCode?: number;
   currentDate: Date = new Date();
   customers: CustomerModel[] = [];
   showErrors: boolean = false;
@@ -120,7 +121,7 @@ export class AddUpdateBudgetComponent implements OnInit {
       if (this.budgetId) {
         this.titlePage = "Editar cotización";
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
-
+          this.internalCode = budget.internalCode;
           this.budgetForm.patchValue(budget);
 
           // Agrega el código aquí para cargar los detalles del presupuesto
