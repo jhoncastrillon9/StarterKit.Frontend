@@ -7,9 +7,9 @@
 >
 
 
-  <div class="container-fluid">
+  <div class="container">
     <div class="row justify-content-center">
-      <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+      <div class="col-12 col-lg-10 col-xl-8">
                             <!-- Logo centrado -->
                             <div class="text-center mb-4">
                               <img
@@ -69,13 +69,13 @@
                 </div>
 
                 <div class="row mt-4">
-                  <div class="col-6 text-center col-md-12">
-                    <button cButton class="px-4 blueButtom" color="primary" type="submit">
+                  <div class="col-12 col-md-6 text-center">
+                    <button cButton class="px-4 blueButtom w-100" color="primary" type="submit">
                       Iniciar sesión
                     </button>
                   </div>
-                  <div class="col-6 col-md-6 text-center d-md-none">
-                    <button cButton color="secondary" routerLink="/register" class="">
+                  <div class="col-12 col-md-6 text-center d-md-none mt-2 mt-md-0">
+                    <button cButton color="secondary" routerLink="/register" class="w-100">
                       ¡Regístrate!
                     </button>
                   </div>
@@ -91,7 +91,7 @@
                 
                 <div class="row mt-3">
                   <div class="col-12">
-                    <span style="font-size: 0.8rem;">Versión: 10-ENERO-2026</span>
+                    <span style="font-size: 0.8rem;">Versión: 11-ENERO-2026</span>
                   </div>
                 </div>
                 
@@ -104,8 +104,8 @@
 
           <!-- Tarjeta de registro, visible en pantallas medianas y grandes -->
           <c-card
-            class="d-none d-md-block text-white bg-primary py-5 backgroundBlue"
-            style="width: 44%;"
+            class="d-none d-md-flex text-white bg-primary py-5 backgroundBlue"
+            style="flex: 1; max-width: 450px;"
           >
             <c-card-body class="text-center">
               <div>

@@ -1,0 +1,55 @@
+// Estilos para mejorar el responsive del login
+
+// Card group con mejor espaciado
+c-card-group {
+  display: flex;
+  gap: 0;
+  
+  @media (min-width: 768px) {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
+// Card de login con mejor padding en diferentes pantallas
+c-card {
+  &:first-child {
+    flex: 1;
+    min-width: 0;
+    
+    @media (min-width: 768px) {
+      min-width: 400px;
+    }
+  }
+}
+
+// Ajustes para el contenedor principal
+.container {
+  padding-left: 15px;
+  padding-right: 15px;
+  
+  @media (min-width: 992px) {
+    max-width: 1140px;
+  }
+}
+
+// Mejorar el espaciado del logo
+.text-center.mb-4 {
+  margin-bottom: 2rem !important;
+  
+  img {
+    max-height: 100px;
+    width: auto;
+  }
+}
+
+// Ajustes para los botones
+button {
+  &.blueButtom, &.yellowButtom {
+    transition: all 0.3s ease;
+    
+    @media (max-width: 767px) {
+      width: 100%;
+    }
+  }
+}
