@@ -136,7 +136,7 @@ export class AddUpdateBudgetComponent implements OnInit {
                 description: detail.description,
                 unitMeasurement: detail.unitMeasurement,
                 quantity: detail.quantity,
-                price: detail.price,
+                price: [String(detail.price).replace(/\D/g, '')], // Convertir a string numérico sin formato
                 subtotal: subtotal.toLocaleString(),
               });
               detailsArray.push(budgetDetailGroup);

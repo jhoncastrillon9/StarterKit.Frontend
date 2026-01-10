@@ -1,16 +1,32 @@
-import { Directive, ElementRef, HostListener, Optional } from '@angular/core';
+import { Directive, ElementRef, HostListener, Optional, AfterViewInit } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: '[appThousandSeparator]'
 })
-export class ThousandSeparatorDirective {
+export class ThousandSeparatorDirective implements AfterViewInit {
   private previousValue: string = '';
 
   constructor(
     private el: ElementRef,
     @Optional() private ngControl: NgControl
   ) {}
+
+  ngAfterViewInit(): void {
+    // Formatear el valor inicial si existe
+    setTimeout(() => {
+      const input = this.el.nativeElement as HTMLInputElement;
+      const initialValue = this.ngControl?.control?.value;
+      
+      if (initialValue && initialValue !== '') {
+        const numericValue = String(initialValue).replace(/\D/g, '');
+        if (numericValue) {
+          const formattedValue = this.formatWithThousandSeparator(numericValue);
+          input.value = formattedValue;
+        }
+      }
+    });
+  }
 
   @HostListener('input', ['$event'])
   onInput(event: any): void {
@@ -61,8 +77,16 @@ export class ThousandSeparatorDirective {
   }
 
   private formatWithThousandSeparator(value: string): string {
-    // Convertir a número y luego aplicar el formato con separador de miles
-    return parseInt(value, 10).toLocaleString('es-ES');
+    // Convertir a número
+    const num = parseInt(value, 10);
+    
+    // Si es NaN o 0, retornar el valor tal cual
+    if (isNaN(num)) {
+      return '';
+    }
+    
+    // Formatear manualmente con separador de miles (punto para español)
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
   private updateValues(numericValue: string, formattedValue: string): void {
