@@ -1,19 +1,29 @@
 <c-col xs="12">  
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Cotizaciones</span>    
-    <div style="display: flex; gap: 10px; align-items: center;">
+  <div class="header-cotizaciones p-1">
+    <span style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;" color="primary" class="cui-primary">Cotizaciones</span>    
+    <div class="header-actions">
       <button 
         pButton 
         type="button" 
-        [class]="isRecording ? 'p-button-danger p-button-rounded' : 'p-button-success p-button-rounded'"
+        class="btn-ai-recording"
+        [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
         (click)="toggleRecordingAI()"
-        [pTooltip]="isRecording ? 'Detener grabación' : 'Crear cotización con IA'"
+        [pTooltip]="isRecording ? 'Toca para detener' : 'Crear cotización con IA'"
         tooltipPosition="bottom">
-        <i class="pi pi-microphone" [class.pi-spin]="isRecording"></i>
-        <span *ngIf="isRecording" style="margin-left: 5px;">Grabando...</span>
-        <span *ngIf="!isRecording" style="margin-left: 5px;">Crear con IA</span>
+        <div class="btn-ai-content">
+          <div class="mic-container" [class.pulse-animation]="isRecording">
+            <i class="pi pi-microphone"></i>
+          </div>
+          <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Crear con IA' }}</span>
+        </div>
+        <div *ngIf="isRecording" class="recording-waves">
+          <span class="wave"></span>
+          <span class="wave"></span>
+          <span class="wave"></span>
+          <span class="wave"></span>
+        </div>
       </button>
-      <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm">Nueva Cotización</a>
+      <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm btn-nueva-cotizacion">Nueva Cotización</a>
     </div>
   </div>
 </c-col>

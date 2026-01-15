@@ -458,27 +458,26 @@
           Agregar Item nuevo
         </button>
 
-        <!-- Botón de Grabación de Audio -->
-        <div class="audio-record-container text-center">
-          <div 
-            class="mic-icon-wrapper"
-            [class.recording]="isRecording"
-            (click)="toggleRecording()"
-            title="Grabar audio para agregar detalles"
-            style="cursor:pointer;"
-          >
-            <i 
-              class="fas fa-microphone" 
-              [ngStyle]="{
-                color: isRecording ? '#ce1c60' : '#6610f2',
-                filter: isRecording ? 'drop-shadow(0 0 6px #ce1c60)' : 'drop-shadow(0 0 6px #6610f2)'
-              }"
-            ></i>
+        <!-- Botón de Grabación de Audio con IA -->
+        <button 
+          type="button" 
+          class="btn-ai-recording"
+          [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
+          (click)="toggleRecording()"
+          [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'">
+          <div class="btn-ai-content">
+            <div class="mic-container" [class.pulse-animation]="isRecording">
+              <i class="pi pi-microphone"></i>
+            </div>
+            <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Agregar con IA' }}</span>
           </div>
-          <div class="mic-label mt-1" [ngStyle]="{color: isRecording ? '#ce1c60' : '#6610f2', 'font-weight': 'bold'}">
-            {{ isRecording ? 'Detener' : 'Grabar' }}
+          <div *ngIf="isRecording" class="recording-waves">
+            <span class="wave"></span>
+            <span class="wave"></span>
+            <span class="wave"></span>
+            <span class="wave"></span>
           </div>
-        </div>
+        </button>
 
         <button
           cButton
