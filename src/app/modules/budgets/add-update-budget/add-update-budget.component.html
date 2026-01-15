@@ -30,7 +30,7 @@
     <input cFormControl formControlName="budgetId" style="display: none" />
 
     <!-- Nombre -->
-    <c-col md="3">
+    <c-col xs="12" sm="6" md="6" lg="3">
       <label cLabel for="budgetName">Nombre de la Obra o cotización:*</label>
       <input
         cFormControl
@@ -58,7 +58,7 @@
     </c-col>
 
     <!-- Cliente -->
-    <c-col md="3">
+    <c-col xs="12" sm="6" md="6" lg="3">
       <label cLabel for="customerId">Cliente:*</label>
       <select
         aria-label="Default select example"
@@ -95,44 +95,39 @@
     </c-col>
 
     <!-- IVA, AIU y Sumar AIU -->
-    <c-col
-      xs="12"
-      md="4"
-      lg="3"
-      class="d-flex justify-content-between align-items-center"
-    >
-      <div class="form-check me-3">
-        <!-- Añadir margen derecho -->
-        <input
-          cFormCheckInput
-          type="checkbox"
-          cFormControl
-          formControlName="hasIVA"
-          (change)="updateCheckStatusIVA()"
-        />
-        <label class="form-check-label">IVA</label>
-      </div>
-      <div class="form-check me-3">
-        <!-- Añadir margen derecho -->
-        <input
-          cFormCheckInput
-          type="checkbox"
-          cFormControl
-          formControlName="hasAIU"
-          (change)="updateCheckStatusAIU()"
-        />
-        <label class="form-check-label">Aplicar AIU</label>
-      </div>
-      <div class="form-check">
-        <!-- Último checkbox sin margen derecho -->
-        <input
-          cFormCheckInput
-          type="checkbox"
-          cFormControl
-          formControlName="sumAIU"
-          (change)="updateAmount()"
-        />
-        <label class="form-check-label">Sumar AIU Al Total</label>
+    <c-col xs="12" sm="12" md="12" lg="6" class="mb-2 mb-lg-0">
+      <label cLabel class="d-block mb-2">Opciones:</label>
+      <div class="d-flex flex-wrap gap-3 align-items-center">
+        <div class="form-check">
+          <input
+            cFormCheckInput
+            type="checkbox"
+            cFormControl
+            formControlName="hasIVA"
+            (change)="updateCheckStatusIVA()"
+          />
+          <label class="form-check-label">IVA</label>
+        </div>
+        <div class="form-check">
+          <input
+            cFormCheckInput
+            type="checkbox"
+            cFormControl
+            formControlName="hasAIU"
+            (change)="updateCheckStatusAIU()"
+          />
+          <label class="form-check-label">Aplicar AIU</label>
+        </div>
+        <div class="form-check">
+          <input
+            cFormCheckInput
+            type="checkbox"
+            cFormControl
+            formControlName="sumAIU"
+            (change)="updateAmount()"
+          />
+          <label class="form-check-label">Sumar AIU Al Total</label>
+        </div>
       </div>
     </c-col>
 

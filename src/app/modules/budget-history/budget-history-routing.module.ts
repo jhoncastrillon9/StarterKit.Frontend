@@ -6,7 +6,7 @@ const routes: Routes = [
   {
     path: '',
     data: {
-      title: 'Historial de Presupuestos'
+      title: 'Historial de Cotizaciones'
     },
     children: [
       {

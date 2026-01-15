@@ -24,7 +24,7 @@ export const navItems: INavData[] = [
         icon: 'nav-icon-bullet'
       },
       {
-        name: 'Historial de Presupuestos',
+        name: 'Historial de cotizaciones',
         url: '/budget-history/list',
         icon: 'nav-icon-bullet'
       }
