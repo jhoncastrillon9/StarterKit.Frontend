@@ -30,14 +30,24 @@
       <input cFormControl formControlName="customId" class="form-control-sm" placeholder="Ejemplo: 123456789-0" />
     </c-col>
 
-    <!-- Email del cliente -->
+    <!-- Email del cliente (múltiples) -->
     <c-col md="6">
-      <label cLabel for="email">Email</label>
-      <input cFormControl type="email" formControlName="email" class="form-control-sm" placeholder="correo@ejemplo.com"
-        [ngClass]="{'is-invalid': customerForm.get('email')?.invalid && (customerForm.get('email')?.touched || customerForm.get('email')?.dirty)}" />
-      <div class="text-medium-emphasis small text-danger-error"
-        *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.touched || customerForm.get('email')?.dirty)">
-        Email del cliente es obligatorio.
+      <label cLabel for="emails">Emails</label>
+      <p-chips 
+        [(ngModel)]="emailsList" 
+        [ngModelOptions]="{standalone: true}"
+        separator=";" 
+        placeholder="Agregar correos electrónicos"
+        [addOnBlur]="true"
+        [addOnTab]="true"
+        styleClass="w-100"
+        (onAdd)="validateEmail($event)"
+        (onRemove)="onEmailsChange()"
+        (ngModelChange)="onEmailsChange()">
+      </p-chips>
+      <small class="text-muted">Presiona Enter o ; para agregar más correos</small>
+      <div class="text-medium-emphasis small text-danger-error" *ngIf="emailsInvalid">
+        Debe agregar al menos un correo electrónico válido.
       </div>
     </c-col>
 

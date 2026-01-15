@@ -157,7 +157,8 @@ import { SharedModule as CustomSharedModulePipes } from '../../shared.module';
     InputGroupModule,
     InputOtpModule,
     PrimeButtonModule,
-    CustomSharedModule
+    CustomSharedModule,
+    ChipsModule
   ],
   providers: [IconSetService]
 

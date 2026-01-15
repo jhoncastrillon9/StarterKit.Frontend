@@ -1,0 +1,103 @@
+<c-modal [visible]="visible" [alignment]="'top'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center" style="border: none;">
+      
+      <!-- Título con icono centrado y botón de cerrar -->
+      <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;">
+        <h5 cModalTitle>
+          <span class="cui-primary" style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;">
+            {{title}}
+          </span>
+        </h5>
+        <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="modal-body">
+        <p style="color: #202021; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">{{message}}</p>
+        
+        <!-- Chips de emails seleccionados -->
+        <div class="email-chips-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1rem;">
+          <ng-container *ngFor="let email of selectedEmails">
+            <p-chip 
+              [label]="email" 
+              [removable]="true" 
+              (onRemove)="removeEmail(email)"
+              styleClass="email-chip">
+            </p-chip>
+          </ng-container>
+        </div>
+
+        <!-- Emails no seleccionados (se pueden re-agregar) -->
+        <div *ngIf="emails.length > selectedEmails.length" style="margin-top: 1rem;">
+          <p class="text-muted" style="font-size: 0.85rem;">Emails disponibles para agregar:</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+            <ng-container *ngFor="let email of emails">
+              <button 
+                *ngIf="!isSelected(email)"
+                cButton 
+                color="secondary" 
+                variant="outline" 
+                size="sm"
+                (click)="addEmail(email)"
+                style="font-size: 0.8rem;">
+                <i class="pi pi-plus" style="margin-right: 0.25rem;"></i>
+                {{email}}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div style="margin-top: 1rem;">
+          <button 
+            cButton 
+            color="link" 
+            size="sm" 
+            (click)="selectAll()" 
+            [disabled]="selectedEmails.length === emails.length"
+            style="font-size: 0.8rem;">
+            Seleccionar todos
+          </button>
+          <button 
+            cButton 
+            color="link" 
+            size="sm" 
+            (click)="deselectAll()" 
+            [disabled]="selectedEmails.length === 0"
+            style="font-size: 0.8rem;">
+            Quitar todos
+          </button>
+        </div>
+
+        <!-- Mensaje de error si no hay emails seleccionados -->
+        <div *ngIf="selectedEmails.length === 0" class="text-danger" style="margin-top: 0.5rem; font-size: 0.9rem;">
+          Debes seleccionar al menos un correo electrónico.
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="modal-footer justify-content-center" style="border-top: none;">
+        <button 
+          (click)="confirm()" 
+          cButton 
+          color="primary" 
+          style="color: white;" 
+          class="btn-md"
+          [disabled]="selectedEmails.length === 0">
+          {{confirmButtonText}}
+        </button>
+        <button 
+          (click)="cancel()" 
+          cButton 
+          color="secondary" 
+          variant="outline" 
+          class="btn-md">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</c-modal>

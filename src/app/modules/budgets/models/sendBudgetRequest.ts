@@ -4,16 +4,22 @@ export class SendBudgetPdfRequest {
     budgetId: number;
     emails: string[];    
 
-    constructor(budget: BudgetModel) {
+    constructor(budget: BudgetModel, selectedEmails?: string[]) {
       this.budgetId = budget.budgetId;  
-      this.emails = this.extractEmails(budget.customerDto.email); 
+      // Si se proporcionan emails seleccionados, usarlos; sino, extraer del cliente
+      if (selectedEmails && selectedEmails.length > 0) {
+        this.emails = selectedEmails;
+      } else {
+        this.emails = this.extractEmails(budget.customerDto.email); 
+      }
     } 
     
     private extractEmails(emailString: string): string[] {
       if (!emailString) {
         return [];
       }
-      return emailString.split(',').map(email => email.trim());  
+      // Soportar tanto , como ; como separadores
+      return emailString.split(/[;,]/).map(email => email.trim()).filter(email => email.length > 0);  
     }
   }
   

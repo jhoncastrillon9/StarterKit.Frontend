@@ -1,14 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfirmationModalComponent } from './components/reusable-modal/reusable-modal.component';
+import { EmailSelectorModalComponent } from './components/email-selector-modal/email-selector-modal.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // Si usas ngModel
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule, SharedModule } from '@coreui/angular';
 import { IconModule } from '@coreui/icons-angular';
 import { ThousandSeparatorDirective } from './directives/thousand-separator.directive';
+import { ChipModule } from 'primeng/chip';
 
 @NgModule({
   declarations: [
     ConfirmationModalComponent,
+    EmailSelectorModalComponent,
     ThousandSeparatorDirective
   ],
   imports: [
@@ -27,10 +30,12 @@ import { ThousandSeparatorDirective } from './directives/thousand-separator.dire
     SharedModule,
     ListGroupModule,
     IconModule,
-    ModalModule, // Si necesitas usar ngModel para manejar el modal
+    ModalModule,
+    ChipModule // Para p-chip en el selector de emails
   ],
   exports: [
     ConfirmationModalComponent,
+    EmailSelectorModalComponent,
     ThousandSeparatorDirective
   ] // Exportamos para que otros módulos lo usen
 })

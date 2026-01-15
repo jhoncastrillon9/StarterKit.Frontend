@@ -9,6 +9,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { Table, TableModule } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
@@ -24,6 +25,7 @@ import { Menu } from 'primeng/menu';
 })
 export class ListBudgetComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
   @ViewChild('menu') menu!: Menu;
   isModalError: boolean = false;
   private readonly successDeleteMessage: string = "¡La cotización ha sido eliminada correctamente!";
@@ -81,6 +83,8 @@ export class ListBudgetComponent implements OnInit {
   public visible = false;
   public budgetToDelete: BudgetModel | null = null;
   public budgetToSendEmail: BudgetModel = new BudgetModel;
+  public availableEmails: string[] = [];
+  public selectedEmailsToSend: string[] = [];
 
   public budgetToSetInvoice: BudgetModel | null = null;
   private originalStatuses: Map<number, string> = new Map();
@@ -236,20 +240,34 @@ export class ListBudgetComponent implements OnInit {
 
   sendEmailBudgetWithComfirm(budgetModel: BudgetModel) {
     this.budgetToSendEmail = budgetModel;
-    this.confirmationModal.messageModal = "Tu cotización se enviará a los siguientes correos electrónicos: " + budgetModel.customerDto.email + "";
-    this.confirmationModal.title = this.sendEmailTitleComfirmation;
-    this.confirmationModal.isConfirmation = true;
-    this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
-    // Emitimos la acción a ejecutar cuando se confirme
-    this.confirmationModal.confirmAction.subscribe(() => this.sendEmailbudget());
-    this.confirmationModal.openModal();
+    // Extraer emails del cliente (separados por ; o ,)
+    const emailString = budgetModel.customerDto.email || '';
+    this.availableEmails = emailString
+      .split(/[;,]/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+    
+    if (this.availableEmails.length === 0) {
+      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+      return;
+    }
+    
+    // Abrir el modal de selección de emails
+    this.emailSelectorModal.emails = this.availableEmails;
+    this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
+    this.emailSelectorModal.confirmButtonText = 'Enviar Cotización';
+    this.emailSelectorModal.openModal();
+  }
 
+  onEmailsSelected(selectedEmails: string[]) {
+    this.selectedEmailsToSend = selectedEmails;
+    this.sendEmailbudget();
   }
 
   sendEmailbudget() {
     this.spinner.show()
     this.loading = true;
-    var request = new SendBudgetPdfRequest(this.budgetToSendEmail);
+    var request = new SendBudgetPdfRequest(this.budgetToSendEmail, this.selectedEmailsToSend);
     this.budgetService.sendEmailBudget(request).subscribe(
       (response: any) => {
         this.loadBudgets();
@@ -264,6 +282,7 @@ export class ListBudgetComponent implements OnInit {
       }
     );
     this.budgetToSendEmail = new BudgetModel;
+    this.selectedEmailsToSend = [];
   }
 
 

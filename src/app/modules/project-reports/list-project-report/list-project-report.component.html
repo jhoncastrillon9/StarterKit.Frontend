@@ -128,3 +128,10 @@
   [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
+
+<!-- Modal de selección de emails -->
+<app-email-selector-modal 
+  #emailSelectorModal
+  [emails]="availableEmails"
+  (confirmAction)="onEmailsSelected($event)">
+</app-email-selector-modal>

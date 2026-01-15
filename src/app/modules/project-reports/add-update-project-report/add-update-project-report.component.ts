@@ -11,6 +11,7 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule } from '@coreui/angular';
 import { AbstractControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
+import { EmailSelectorModalComponent } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { ProjectReportModel } from '../models/projectReport.Model';
@@ -48,6 +49,7 @@ import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 
 export class AddUpdateProjectReportComponent {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
   isModalError: boolean = false;
   title: string = '';
   projectReportForm: FormGroup;
@@ -60,6 +62,8 @@ export class AddUpdateProjectReportComponent {
   budgets: BudgetModel[] = [];
   projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
   selectBudgetDetailsModel : BudgetDetailModel[] = [];
+  availableEmails: string[] = [];
+  selectedEmailsToSend: string[] = [];
   private readonly sendEmailTitleComfirmation: string = "Informe de Obra en camino! 📬";
   private readonly errorToSendEmailMessage: string = "Algo salió mal al enviar el email. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
   private readonly errorToDownloadBudgetMessage: string = "Algo salió mal al descargar el informe de obra. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la pagina";
@@ -372,19 +376,33 @@ export class AddUpdateProjectReportComponent {
 
   sendEmailProjectReportWithComfirm(projectReportModelModel: ProjectReportModel){ 
       this.projectReportToSendEmail = projectReportModelModel;
-      this.confirmationModal.messageModal = "Tu Informe de obra se enviará a los siguientes correos electrónicos: "+ projectReportModelModel.customerDto.email;
-      this.confirmationModal.title = this.sendEmailTitleComfirmation;
-      this.confirmationModal.isConfirmation = true; 
-      this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
-      // Emitimos la acción a ejecutar cuando se confirme
-      this.confirmationModal.confirmAction.subscribe(() => this.sendEmailProjectReport()); 
-      this.confirmationModal.openModal(); 
-  
+      // Extraer emails del cliente (separados por ; o ,)
+      const emailString = projectReportModelModel.customerDto.email || '';
+      this.availableEmails = emailString
+        .split(/[;,]/)
+        .map(e => e.trim())
+        .filter(e => e.length > 0);
+      
+      if (this.availableEmails.length === 0) {
+        this.showModalDefault(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+        return;
+      }
+      
+      // Abrir el modal de selección de emails
+      this.emailSelectorModal.emails = this.availableEmails;
+      this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
+      this.emailSelectorModal.confirmButtonText = 'Enviar Informe';
+      this.emailSelectorModal.openModal();
+    }
+
+    onEmailsSelected(selectedEmails: string[]) {
+      this.selectedEmailsToSend = selectedEmails;
+      this.sendEmailProjectReport();
     }
   
      sendEmailProjectReport(){      
       this.spinner.show()   
-        var request = new SendProjectReportPdfRequest(this.projectReportToSendEmail);
+        var request = new SendProjectReportPdfRequest(this.projectReportToSendEmail, this.selectedEmailsToSend);
         this.budgetService.sendEmailBudget(request).subscribe(
           (response: any) => {              
             this.loadBudgets();           
@@ -396,7 +414,8 @@ export class AddUpdateProjectReportComponent {
             this.handleError('Error to send Bugets', this.errorToSendEmailMessage);
           }
         );     
-        this.projectReportToSendEmail = new ProjectReportModel;;
+        this.projectReportToSendEmail = new ProjectReportModel;
+        this.selectedEmailsToSend = [];
     }
   
  

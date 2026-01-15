@@ -19,6 +19,10 @@ export class AddUpdateCustomerComponent implements OnInit {
 
   isModalError: boolean = false;
 
+  // Lista de emails para el p-chips
+  emailsList: string[] = [];
+  emailsInvalid: boolean = false;
+
   // Mensajes para el módulo de clientes
   private readonly successAddMessage: string = "¡El cliente ha sido creado exitosamente!";
   private readonly successUpdateMessage: string = "¡El cliente ha sido actualizado correctamente!";
@@ -38,7 +42,7 @@ export class AddUpdateCustomerComponent implements OnInit {
 
   ngOnInit() {
     this.customerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [''],
       customerName: ['', [Validators.required]],
       customId: [''],
       address: [''],  
@@ -54,6 +58,10 @@ export class AddUpdateCustomerComponent implements OnInit {
         this.customerService.getById(this.customerId).subscribe(
           (customer: any) => {
             this.customerForm.patchValue(customer);
+            // Convertir emails separados por ; a lista
+            if (customer.email) {
+              this.emailsList = customer.email.split(';').map((e: string) => e.trim()).filter((e: string) => e.length > 0);
+            }
             this.spinner.hide();
           },
           (error) => {
@@ -65,10 +73,38 @@ export class AddUpdateCustomerComponent implements OnInit {
     });
   }
 
+  // Validar email al agregar
+  validateEmail(event: any) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const addedEmail = event.value;
+    if (!emailRegex.test(addedEmail)) {
+      // Remover el email inválido
+      const index = this.emailsList.indexOf(addedEmail);
+      if (index >= 0) {
+        this.emailsList.splice(index, 1);
+      }
+      this.showModal(true, 'El correo "' + addedEmail + '" no tiene un formato válido.', 'Correo inválido');
+    }
+    this.onEmailsChange();
+  }
+
+  // Actualizar campo email del form cuando cambian los chips
+  onEmailsChange() {
+    const emailString = this.emailsList.join(';');
+    this.customerForm.patchValue({ email: emailString });
+    this.emailsInvalid = this.emailsList.length === 0;
+  }
+
   onAddUpdateCustomer() {
     this.customerForm.markAllAsTouched();
-    if (this.customerForm.valid) {
+    
+    // Validar que haya al menos un email
+    this.emailsInvalid = this.emailsList.length === 0;
+    
+    if (this.customerForm.valid && !this.emailsInvalid) {
       const formData = this.customerForm.value;
+      // Asegurarse de que el email está actualizado con la lista
+      formData.email = this.emailsList.join(';');
       this.spinner.show();
 
       if (this.customerId) {
@@ -97,7 +133,11 @@ export class AddUpdateCustomerComponent implements OnInit {
         );
       }
     } else {
-      this.showModal(true, this.formInvalidMessage, this.errorTitle);
+      if (this.emailsInvalid) {
+        this.showModal(true, 'Debe agregar al menos un correo electrónico válido.', this.errorTitle);
+      } else {
+        this.showModal(true, this.formInvalidMessage, this.errorTitle);
+      }
     }
   }
 

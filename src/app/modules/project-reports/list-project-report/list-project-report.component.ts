@@ -26,6 +26,7 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { CustomSharedModule} from '../../../shared/shared.module';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
+import { EmailSelectorModalComponent } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
 
 @Component({
@@ -42,12 +43,15 @@ import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfReque
 })
 export class ListProjectReportComponent {
     @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+    @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
     isModalError: boolean = false;
     searchValue: string | undefined;
     loading: boolean = true;
     projectReports: ProjectReportModel[] = [];
       public projectReportToDelete: ProjectReportModel | null = null;
       public projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
+      public availableEmails: string[] = [];
+      public selectedEmailsToSend: string[] = [];
   
       private readonly successSendBusgetMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
       private readonly successSendBusgetTitle: string = "¡Correo Con informe Enviado!";   
@@ -156,20 +160,34 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
 
    sendEmailProjectReportWithComfirm(projectReport: ProjectReportModel){ 
     this.projectReportToSendEmail = projectReport;
-    this.confirmationModal.messageModal = "El informe se enviará a los siguientes correos electrónicos: "+ projectReport.customerDto.email+"";
-    this.confirmationModal.title = this.sendEmailTitleComfirmation;
-    this.confirmationModal.isConfirmation = true; 
-    this.confirmationModal.titleButtonComfimationYes = 'Si, Enviar';
-    // Emitimos la acción a ejecutar cuando se confirme
-    this.confirmationModal.confirmAction.subscribe(() => this.sendEmailProjectReport()); 
-    this.confirmationModal.openModal(); 
+    // Extraer emails del cliente (separados por ; o ,)
+    const emailString = projectReport.customerDto.email || '';
+    this.availableEmails = emailString
+      .split(/[;,]/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+    
+    if (this.availableEmails.length === 0) {
+      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+      return;
+    }
+    
+    // Abrir el modal de selección de emails
+    this.emailSelectorModal.emails = this.availableEmails;
+    this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
+    this.emailSelectorModal.confirmButtonText = 'Enviar Informe';
+    this.emailSelectorModal.openModal();
+  }
 
+  onEmailsSelected(selectedEmails: string[]) {
+    this.selectedEmailsToSend = selectedEmails;
+    this.sendEmailProjectReport();
   }
 
    sendEmailProjectReport(){      
     this.spinner.show()   
     this.loading = true;  
-      var request = new SendProjectReportPdfRequest(this.projectReportToSendEmail);
+      var request = new SendProjectReportPdfRequest(this.projectReportToSendEmail, this.selectedEmailsToSend);
       this.projectReportService.sendEmailBudget(request).subscribe(
         (response: any) => {              
           this.fetchProjectReports();           
@@ -183,7 +201,8 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
           this.handleError('Error to send Reports', this.errorToSendEmailMessage);
         }
       );     
-      this.projectReportToSendEmail = new ProjectReportModel;;
+      this.projectReportToSendEmail = new ProjectReportModel;
+      this.selectedEmailsToSend = [];
   }  
   
   downloadProjectReport(projectReportModel: ProjectReportModel) {
