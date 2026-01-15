@@ -159,8 +159,9 @@ export class ListBudgetComponent implements OnInit {
 
   startEditingInvoice(budget: BudgetModel) {
     this.editingInvoiceBudgetId = budget.budgetId;
-    this.editingInvoiceValue = budget.externalInvoice || '';
-    this.originalInvoiceValue = budget.externalInvoice || '';
+    const invoiceValue = budget.externalInvoice && budget.externalInvoice !== '0' ? budget.externalInvoice : '';
+    this.editingInvoiceValue = invoiceValue;
+    this.originalInvoiceValue = invoiceValue;
     setTimeout(() => {
       const input = document.querySelector('input[placeholder="Factura"]') as HTMLInputElement;
       if (input) input.focus();
