@@ -36,7 +36,7 @@ const routes: Routes = [
           canActivate: [AuthGuard]
       },
       {
-        path: 'budget-history',
+        path: 'budgetHistory',
         loadChildren: () =>
           import('./modules/budget-history/budget-history.module').then((m) => m.BudgetHistoryModule),          
           canActivate: [AuthGuard]
