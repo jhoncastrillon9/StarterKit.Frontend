@@ -85,6 +85,11 @@ export class ListBudgetComponent implements OnInit {
   public budgetToSetInvoice: BudgetModel | null = null;
   private originalStatuses: Map<number, string> = new Map();
 
+  // Propiedades para edición inline de factura
+  editingInvoiceBudgetId: number | null = null;
+  editingInvoiceValue: string = '';
+  private originalInvoiceValue: string = '';
+
   statusOptions: any[] = [
     { label: 'Cotizada', value: 'Cotizada' },
     { label: 'Aprobada', value: 'Aprobada' },
@@ -148,6 +153,48 @@ export class ListBudgetComponent implements OnInit {
           budget.estado = oldStatus;
         }
         this.handleError('Error updating status', 'No se pudo actualizar el estado. Inténtalo de nuevo.');
+      }
+    );
+  }
+
+  startEditingInvoice(budget: BudgetModel) {
+    this.editingInvoiceBudgetId = budget.budgetId;
+    this.editingInvoiceValue = budget.externalInvoice || '';
+    this.originalInvoiceValue = budget.externalInvoice || '';
+    setTimeout(() => {
+      const input = document.querySelector('input[placeholder="Factura"]') as HTMLInputElement;
+      if (input) input.focus();
+    }, 0);
+  }
+
+  cancelEditingInvoice() {
+    this.editingInvoiceBudgetId = null;
+    this.editingInvoiceValue = '';
+  }
+
+  saveExternalInvoice(budget: BudgetModel) {
+    if (this.editingInvoiceValue === this.originalInvoiceValue) {
+      this.cancelEditingInvoice();
+      return;
+    }
+
+    this.loading = true;
+    this.spinner.show();
+    const updatedData = { budgetId: budget.budgetId, externalInvoice: this.editingInvoiceValue };
+    
+    this.budgetService.updateExternalInvoice(updatedData).subscribe(
+      (response: any) => {
+        this.loading = false;
+        this.spinner.hide();
+        budget.externalInvoice = this.editingInvoiceValue;
+        this.cancelEditingInvoice();
+        this.showModal(false, `Se actualizó la factura de la cotización ${budget.internalCode}`, '¡Factura Actualizada!');
+      },
+      (error) => {
+        this.loading = false;
+        this.spinner.hide();
+        this.cancelEditingInvoice();
+        this.handleError('Error updating external invoice', 'No se pudo actualizar la factura. Inténtalo de nuevo.');
       }
     );
   }

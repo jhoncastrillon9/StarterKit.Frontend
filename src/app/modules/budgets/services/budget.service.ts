@@ -108,6 +108,18 @@ export class BudgetService {
     );
   }
 
+  updateExternalInvoice(data: any) {
+    const headers = this.getHeaders();
+    return this.http.put(`${this.apiUrl}/api/Budget/updateExternalInvoice`, data, { headers, observe: 'response' }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
+
   copyBudget(data: any) {
     const headers = this.getHeaders();
     return this.http.post(`${this.apiUrl}/api/Budget/copy`, data, { headers, observe: 'response' }).pipe(

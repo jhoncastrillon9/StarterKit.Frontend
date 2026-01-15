@@ -112,9 +112,29 @@
             <td>{{ budget.customerDto.customerName | capitalize | truncate:30}}</td>
              
             <td>
-              <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
-                {{ budget.externalInvoice }}
-              </c-badge>
+              <span 
+                *ngIf="editingInvoiceBudgetId !== budget.budgetId" 
+                (click)="startEditingInvoice(budget)" 
+                style="cursor: pointer;" 
+                title="Clic para editar">
+                <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
+                  {{ budget.externalInvoice }}
+                </c-badge>
+                <span *ngIf="!budget.externalInvoice || budget.externalInvoice === '0'" style="color: #999; font-style: italic;">
+                  Sin factura
+                </span>
+              </span>
+              <input 
+                *ngIf="editingInvoiceBudgetId === budget.budgetId"
+                pInputText 
+                [(ngModel)]="editingInvoiceValue" 
+                (blur)="saveExternalInvoice(budget)"
+                (keyup.enter)="saveExternalInvoice(budget)"
+                (keyup.escape)="cancelEditingInvoice()"
+                class="p-inputtext-sm"
+                style="width: 100px;"
+                placeholder="Factura"
+                #invoiceInput>
             </td>
             <td>
               <p-dropdown 
