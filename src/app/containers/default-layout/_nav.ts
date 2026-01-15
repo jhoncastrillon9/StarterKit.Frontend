@@ -112,7 +112,7 @@ export const navItems: INavData[] = [
       },
       {
         name: 'Mi Perfil',
-        url: '/configurations/companyConfig',
+        url: '/profile/me',
         icon: 'nav-icon-bullet'
       },
       
