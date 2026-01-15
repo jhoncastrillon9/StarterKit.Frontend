@@ -214,4 +214,24 @@ export class BudgetService {
       })
     );
   }
+
+  generateBudgetByAudio(formData: FormData): Observable<any> {
+    const headers = this.getHeaders();
+    // No incluir Content-Type para que el navegador lo establezca automáticamente con el boundary para FormData
+    const headersWithoutContentType = new HttpHeaders({
+      'Authorization': headers.get('Authorization') || ''
+    });
+
+    return this.http.post(`${this.apiUrl}/api/Budget/generate-by-audio`, formData, {
+      headers: headersWithoutContentType,
+      observe: 'response'
+    }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
 }

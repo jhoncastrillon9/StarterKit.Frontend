@@ -1,7 +1,20 @@
 <c-col xs="12">  
   <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
     <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Cotizaciones</span>    
-    <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm">Nueva Cotización</a>    
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <button 
+        pButton 
+        type="button" 
+        [class]="isRecording ? 'p-button-danger p-button-rounded' : 'p-button-success p-button-rounded'"
+        (click)="toggleRecordingAI()"
+        [pTooltip]="isRecording ? 'Detener grabación' : 'Crear cotización con IA'"
+        tooltipPosition="bottom">
+        <i class="pi pi-microphone" [class.pi-spin]="isRecording"></i>
+        <span *ngIf="isRecording" style="margin-left: 5px;">Grabando...</span>
+        <span *ngIf="!isRecording" style="margin-left: 5px;">Crear con IA</span>
+      </button>
+      <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm">Nueva Cotización</a>
+    </div>
   </div>
 </c-col>
 <c-col xs="12">
