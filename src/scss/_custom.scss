@@ -24,3 +24,46 @@
     rgba(37, 14, 156, 1) 100%
   ) !important;
 }
+
+// Estilos mejorados para el menú lateral (sidebar)
+.sidebar-nav .nav-link {
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background: rgba(33, 34, 148, 0.1) !important;
+    box-shadow: inset 4px 0 0 rgba(33, 34, 148, 0.5) !important;
+  }
+  
+  &.active {
+    background: linear-gradient(
+      90deg,
+      rgba(33, 34, 148, 0.15) 0%,
+      rgba(71, 50, 184, 0.12) 50%,
+      rgba(33, 34, 148, 0.15) 100%
+    ) !important;
+    box-shadow: inset 4px 0 0 #212294, 0 2px 8px rgba(33, 34, 148, 0.3) !important;
+    font-weight: 600 !important;
+    color: #212294 !important;
+    
+    .nav-icon {
+      color: #212294 !important;
+    }
+  }
+}
+
+// Para los grupos del menú
+.sidebar-nav .nav-group.show {
+  background: rgba(33, 34, 148, 0.05) !important;
+  
+  .nav-link {
+    &.active {
+      background: linear-gradient(
+        90deg,
+        rgba(33, 34, 148, 0.2) 0%,
+        rgba(71, 50, 184, 0.15) 50%,
+        rgba(33, 34, 148, 0.2) 100%
+      ) !important;
+      box-shadow: inset 4px 0 0 #4732b8, 0 2px 8px rgba(71, 50, 184, 0.4) !important;
+    }
+  }
+}
