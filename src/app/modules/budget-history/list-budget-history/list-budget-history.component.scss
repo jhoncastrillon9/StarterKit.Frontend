@@ -1,25 +1,527 @@
-.container-list {
-  padding: 20px;
+// ========================================
+// MODERN BUDGET HISTORY LIST STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// ========================================
+// CONTAINER
+// ========================================
+.history-list-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.badge {
-  padding: 0.35em 0.65em;
-  font-size: 0.875rem;
-}
-
-.p-datatable {
-  .p-datatable-thead > tr > th {
-    background-color: #f8f9fa;
-    font-weight: 600;
+// ========================================
+// HEADER STYLES
+// ========================================
+.history-list-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
   }
 
-  .p-datatable-tbody > tr {
-    &:hover {
-      background-color: #f1f3f5;
+  .header-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    color: $white;
+    font-weight: 500;
+    font-size: 0.9rem;
+    
+    i {
+      font-size: 0.9rem;
     }
   }
 }
 
-.d-flex.gap-2 {
-  gap: 0.5rem !important;
+// ========================================
+// FILTERS CARD
+// ========================================
+.filters-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+  color: $primary-color;
+  font-size: 1rem;
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+.filters-body {
+  padding: 1.5rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+  
+  i {
+    color: $primary-color;
+    font-size: 0.85rem;
+  }
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.btn-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.7rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &.btn-search {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+  
+  &.btn-clear {
+    background: $light-bg;
+    color: $secondary-color;
+    border: 2px solid #e5e7eb;
+    
+    &:hover:not(:disabled) {
+      background: #e5e7eb;
+      color: #374151;
+    }
+  }
+}
+
+// ========================================
+// MAIN CARD
+// ========================================
+.history-list-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+// ========================================
+// TABLE STYLES
+// ========================================
+.table-header-row {
+  background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+  
+  th {
+    padding: 1rem !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $primary-dark;
+    border-bottom: 2px solid rgba($primary-color, 0.2) !important;
+    white-space: nowrap;
+    
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.table-body-row {
+  transition: $transition;
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:hover {
+    background: #faf5ff;
+  }
+  
+  td {
+    padding: 0.875rem 1rem !important;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+}
+
+// Code Badge
+.code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Date
+.date-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+  .date-text {
+    color: #1f2937;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .time-text {
+    color: $secondary-color;
+    font-size: 0.8rem;
+  }
+}
+
+// Name
+.budget-name {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+// Log
+.log-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  
+  .log-icon {
+    color: $info-color;
+    font-size: 0.9rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  .log-text {
+    color: #4b5563;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &.action-view {
+    background: rgba($danger-color, 0.1);
+    color: $danger-color;
+    
+    &:hover {
+      background: $danger-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-restore {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+    
+    &:hover {
+      background: $success-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========================================
+// EMPTY STATE
+// ========================================
+.empty-state {
+  padding: 4rem 2rem !important;
+  text-align: center;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #e5e7eb;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    color: #374151;
+    margin: 0;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .history-list-header {
+    padding: 1rem 1.25rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-right {
+      width: 100%;
+    }
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    
+    .btn-filter {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .action-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    
+    i {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .history-list-container {
+    padding: 0 0.25rem 1rem;
+  }
+  
+  .filters-body {
+    padding: 1rem;
+  }
+}
+
+// ========================================
+// PRIMENG OVERRIDES
+// ========================================
+::ng-deep {
+  .p-datatable-modern {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+    
+    .p-paginator {
+      padding: 1rem;
+      background: $light-bg;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      
+      .p-paginator-element {
+        border-radius: 8px;
+        min-width: 36px;
+        height: 36px;
+        
+        &:hover {
+          background: rgba($primary-color, 0.1);
+          color: $primary-color;
+        }
+        
+        &.p-highlight {
+          background: $primary-color;
+          color: $white;
+        }
+      }
+    }
+    
+    .p-datatable-loading-overlay {
+      background: rgba(255, 255, 255, 0.9);
+    }
+  }
 }
