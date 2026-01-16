@@ -136,7 +136,8 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow: visible;
+  padding-bottom: 1rem;
 }
 
 .table-header-modern {
@@ -393,5 +394,32 @@
 
   .search-input-wrapper {
     width: 100%;
+  }
+}
+
+// Fix PrimeNG paginator dropdown
+::ng-deep {
+  .p-paginator {
+    overflow: visible !important;
+    
+    .p-dropdown {
+      min-width: 80px;
+      
+      .p-dropdown-panel {
+        z-index: 9999 !important;
+      }
+    }
+  }
+  
+  .p-datatable {
+    overflow: visible !important;
+    
+    .p-datatable-wrapper {
+      overflow: visible !important;
+    }
+  }
+  
+  .product-list-card {
+    overflow: visible !important;
   }
 }
