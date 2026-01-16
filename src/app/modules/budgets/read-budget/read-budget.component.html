@@ -61,13 +61,22 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let budgetDetailsDto of this.budgetDto?.budgetDetailsDto; let i = index">
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">{{budgetDetailsDto.description}}</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Un</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">{{budgetDetailsDto.quantity.toLocaleString()}}</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{budgetDetailsDto.price.toLocaleString()}}</td>
-        <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{getSubtotalDetail(budgetDetailsDto).toLocaleString()}}</td>        
-      </tr>
+      <ng-container *ngFor="let budgetDetailsDto of this.budgetDto?.budgetDetailsDto; let i = index">
+        <!-- Title Row -->
+        <tr *ngIf="budgetDetailsDto.isTitle" style="background-color: #e8e3f3;">
+          <td colspan="5" style="border: 1px solid #ddd; padding: 12px 10px; text-align: left; font-weight: 700; color: #5b21b6; font-size: 20px;">
+            <span style="margin-right: 8px;">📌</span>{{budgetDetailsDto.description}}
+          </td>
+        </tr>
+        <!-- Regular Item Row -->
+        <tr *ngIf="!budgetDetailsDto.isTitle">
+          <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">{{budgetDetailsDto.description}}</td>
+          <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">Un</td>
+          <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: center;">{{budgetDetailsDto.quantity.toLocaleString()}}</td>
+          <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{budgetDetailsDto.price.toLocaleString()}}</td>
+          <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{getSubtotalDetail(budgetDetailsDto).toLocaleString()}}</td>        
+        </tr>
+      </ng-container>
       
     </tbody>
     <tfoot>

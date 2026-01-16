@@ -184,15 +184,79 @@
               </tr>
             </thead>
             <tbody formArrayName="budgetDetailsDto">
-              <tr
-                *ngFor="let detail of budgetDetails.controls; let i = index"
-                [formGroupName]="i"
-                (dragover)="dragOver($event, i)"
-                (drop)="drop($event, i)"
-                (dragleave)="dragLeave($event)"
-                [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
-                class="table-row-modern"
-              >
+              <ng-container *ngFor="let detail of budgetDetails.controls; let i = index">
+                <!-- Title Row -->
+                <tr
+                  *ngIf="detail.get('isTitle')?.value"
+                  [formGroupName]="i"
+                  (dragover)="dragOver($event, i)"
+                  (drop)="drop($event, i)"
+                  (dragleave)="dragLeave($event)"
+                  [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
+                  class="table-row-title"
+                >
+                  <td class="td-drag">
+                    <div 
+                      class="drag-handle-modern"
+                      draggable="true"
+                      (dragstart)="dragStart($event, i)"
+                      (dragend)="dragEnd($event)"
+                    >
+                      <i class="fas fa-grip-vertical"></i>
+                    </div>
+                  </td>
+                  <td class="td-title-description" colspan="5">
+                    <div class="title-row-content">
+                      <i class="fas fa-bookmark title-icon"></i>
+                      <input
+                        cFormControl
+                        formControlName="description"
+                        placeholder="Escribe el título de la sección..."
+                        maxlength="200"
+                        class="input-title"
+                        [ngClass]="{
+                          'is-invalid':
+                            budgetForm
+                              .get('budgetDetailsDto')
+                              ?.get(i.toString())
+                              ?.get('description')
+                              ?.hasError('required') &&
+                            (budgetForm
+                              .get('budgetDetailsDto')
+                              ?.get(i.toString())
+                              ?.get('description')?.touched ||
+                              budgetForm
+                                .get('budgetDetailsDto')
+                                ?.get(i.toString())
+                                ?.get('description')?.dirty)
+                        }"
+                      />
+                    </div>
+                  </td>
+                  <td class="td-actions">
+                    <div class="action-buttons">
+                      <button
+                        type="button"
+                        class="btn-action btn-delete"
+                        (click)="removeBudgetDetail(i)"
+                        title="Eliminar título"
+                      >
+                        <i class="far fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Regular Item Row -->
+                <tr
+                  *ngIf="!detail.get('isTitle')?.value"
+                  [formGroupName]="i"
+                  (dragover)="dragOver($event, i)"
+                  (drop)="drop($event, i)"
+                  (dragleave)="dragLeave($event)"
+                  [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
+                  class="table-row-modern"
+                >
                 <td class="td-drag">
                   <div 
                     class="drag-handle-modern"
@@ -361,6 +425,7 @@
                   </div>
                 </td>
               </tr>
+              </ng-container>
             </tbody>
           </table>
         </div>
@@ -384,6 +449,16 @@
           >
             <i class="fas fa-plus"></i>
             <span>Agregar Item</span>
+          </button>
+
+          <button
+            cButton
+            type="button"
+            class="btn-modern btn-add-title"
+            (click)="addTitleRow()"
+          >
+            <i class="fas fa-bookmark"></i>
+            <span>Agregar Título</span>
           </button>
 
           <button 

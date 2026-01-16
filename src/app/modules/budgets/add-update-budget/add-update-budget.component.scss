@@ -372,6 +372,70 @@ $transition: all 0.3s ease;
         vertical-align: middle;
       }
     }
+
+    // Title Row Styles
+    .table-row-title {
+      transition: $transition;
+      border-bottom: 1px solid #f3f4f6;
+      background: linear-gradient(135deg, #f8f5ff 0%, #ede9fe 100%);
+      
+      &:hover {
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      td {
+        padding: 0.5rem 1rem;
+        vertical-align: middle;
+      }
+
+      .td-title-description {
+        padding: 0.5rem 1rem;
+      }
+
+      .title-row-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        .title-icon {
+          color: $primary-color;
+          font-size: 1rem;
+          opacity: 0.8;
+        }
+
+        .input-title {
+          flex: 1;
+          padding: 0.5rem 0.75rem;
+          border: 2px solid transparent;
+          border-radius: $border-radius-sm;
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #374151;
+          background: rgba(255, 255, 255, 0.7);
+          transition: $transition;
+          
+          &::placeholder {
+            color: #9ca3af;
+            font-weight: 500;
+          }
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            background: $white;
+            box-shadow: 0 0 0 2px rgba($primary-color, 0.15);
+          }
+          
+          &.is-invalid {
+            border-color: $danger-color;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -558,6 +622,16 @@ $transition: all 0.3s ease;
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+    }
+  }
+
+  &.btn-add-title {
+    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    color: $white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(#7c3aed, 0.4);
     }
   }
   

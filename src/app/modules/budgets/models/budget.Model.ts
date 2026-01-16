@@ -32,4 +32,5 @@ export class BudgetDetailModel {
     unitMeasurement: string ="";
     quantity: number=0;
     price: number=0;
+    isTitle: boolean = false;
 }

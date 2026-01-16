@@ -161,6 +161,7 @@ export class AddUpdateBudgetComponent implements OnInit {
                 quantity: detail.quantity,
                 price: [String(detail.price).replace(/\D/g, '')], // Convertir a string numérico sin formato
                 subtotal: subtotal.toLocaleString('es-CO'),
+                isTitle: [detail.isTitle || false],
               });
               detailsArray.push(budgetDetailGroup);
             });
@@ -236,9 +237,24 @@ export class AddUpdateBudgetComponent implements OnInit {
       price: [null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Validación para números con o sin decimales
       // No se requieren enviar al back
       subtotal: [0],
+      isTitle: [false],
     });
     this.budgetDetails.push(budgetDetailGroup);
     this.updateAmount();
+  }
+
+  addTitleRow() {
+    const titleGroup = this.fb.group({
+      budgetDetailId: [0],
+      budgetId: [0],
+      unitMeasurement: [''],
+      description: ['', [Validators.required]],
+      quantity: [0],
+      price: [0],
+      subtotal: [0],
+      isTitle: [true],
+    });
+    this.budgetDetails.push(titleGroup);
   }
 
   removeBudgetDetail(index: number) {
@@ -249,14 +265,16 @@ export class AddUpdateBudgetComponent implements OnInit {
   duplicateBudgetDetail(index: number) {
     const detailToDuplicate = this.budgetDetails.at(index);
     if (detailToDuplicate) {
+      const isTitle = detailToDuplicate.get('isTitle')?.value || false;
       const duplicatedDetail = this.fb.group({
         budgetDetailId: [0],
         budgetId: [detailToDuplicate.get('budgetId')?.value || 0],
         unitMeasurement: [detailToDuplicate.get('unitMeasurement')?.value || 'Und'],
         description: [detailToDuplicate.get('description')?.value || '', [Validators.required]],
-        quantity: [detailToDuplicate.get('quantity')?.value || null, [Validators.required, Validators.pattern(/^\d+$/)]],
-        price: [detailToDuplicate.get('price')?.value || null, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+        quantity: [isTitle ? 0 : (detailToDuplicate.get('quantity')?.value || null), isTitle ? [] : [Validators.required, Validators.pattern(/^\d+$/)]],
+        price: [isTitle ? 0 : (detailToDuplicate.get('price')?.value || null), isTitle ? [] : [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
         subtotal: [detailToDuplicate.get('subtotal')?.value || 0],
+        isTitle: [isTitle],
       });
       // Insertar el item duplicado justo después del original
       this.budgetDetails.insert(index + 1, duplicatedDetail);
@@ -346,6 +364,10 @@ export class AddUpdateBudgetComponent implements OnInit {
   updateAmount() {
     this.amount = 0; // Reinicializa el total    
     this.budgetDetails.controls.forEach((control) => {
+      // Skip title rows when calculating totals
+      const isTitle = control.get('isTitle')?.value;
+      if (isTitle) return;
+      
       const subtotal = control.get('subtotal')?.value;
 
       if (subtotal !== null) {
@@ -477,6 +499,7 @@ export class AddUpdateBudgetComponent implements OnInit {
         quantity: [1, [Validators.required, Validators.pattern(/^\d+$/)]], // Cantidad inicial por defecto en 1
         price: [item.totalPrice, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]], // Precio del ítem seleccionado
         subtotal: [item.totalPrice], // Subtotal es el precio por defecto
+        isTitle: [false],
       });
 
       // Agregar al array de detalles
@@ -656,6 +679,7 @@ export class AddUpdateBudgetComponent implements OnInit {
         quantity: [detail.quantity || 0, [Validators.required, Validators.pattern(/^\d+$/)]],
         price: [detail.price || 0, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
         subtotal: [detail.total || 0],
+        isTitle: [false],
       });
       
       this.budgetDetails.push(budgetDetailGroup);
