@@ -56,9 +56,9 @@ export class ListProductComponent implements OnInit {
     this.spinner.show();
     
     this.productService.getPaged(this.searchValue, this.currentPage, this.pageSize).subscribe({
-      next: (data: Product[]) => {
-        this.products = data;
-        this.totalRecords = data.length;
+      next: (response) => {
+        this.products = response.items;
+        this.totalRecords = response.total;
         this.loading = false;
         this.spinner.hide();
       },

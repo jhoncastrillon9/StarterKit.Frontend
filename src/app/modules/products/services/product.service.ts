@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
-import { Product } from '../models/product.model';
+import { Product, ProductPagedResponse } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class ProductService {
     return headers;
   }
 
-  getPaged(search: string = '', page: number = 1, pageSize: number = 10): Observable<Product[]> {
+  getPaged(search: string = '', page: number = 1, pageSize: number = 10): Observable<ProductPagedResponse> {
     const headers = this.getHeaders();
     let params = new HttpParams()
       .set('page', page.toString())

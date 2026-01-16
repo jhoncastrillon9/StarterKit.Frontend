@@ -8,7 +8,5 @@ export interface Product {
 
 export interface ProductPagedResponse {
   items: Product[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
+  total: number;
 }
