@@ -1,14 +1,46 @@
-<c-col xs="12">  
-    <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-        <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Informes de Obra</span>    
-        <a cButton type="button" [routerLink]="'/projectreports/add'" class="btn btn-primary btn-sm">Nuevo Informe de Obra</a>    
+<!-- Container Principal Moderno -->
+<div class="project-report-list-container">
+  <!-- Header Principal Moderno -->
+  <div class="project-report-list-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Informes de Obra</h1>
+          <p class="page-subtitle">Gestiona y administra tus informes de obra</p>
+        </div>
       </div>
-  </c-col>
- 
- <c-col xs="12">
-      <p-table #dt 
-      class="p-datatable-sm" 
-      styleClass="p-datatable-gridlines"        
+      <div class="header-right">
+        <div class="header-actions">
+          <a [routerLink]="'/projectreports/add'" class="btn-new-report">
+            <i class="fas fa-plus"></i>
+            <span>Nuevo Informe</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards Row -->
+  <div class="stats-row">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ projectReports.length }}</span>
+        <span class="stat-label">Total Informes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="project-report-list-card">
+    <p-table #dt 
+      class="report-table-modern" 
+      styleClass="p-datatable-modern"        
       [value]="projectReports" 
       [paginator]="true" 
       [rows]="50"         
@@ -18,111 +50,177 @@
       sortField="projectReportId" 
       [sortOrder]="-1"
       [rowsPerPageOptions]="[25, 50, 100, 500]"
-      currentPageReportTemplate="{first} al {last} de {totalRecords}"
+      currentPageReportTemplate="{first} al {last} de {totalRecords} informes"
       [globalFilterFields]="['projectReportName','note', 'projectReportId','internalCode', 'customerDto.customerName','budgetDTO.budgetName']"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      >
+      [tableStyle]="{ 'min-width': '50rem' }">
 
+      <!-- Caption / Search Bar -->
+      <ng-template pTemplate="caption">
+        <div class="table-header-modern">
+          <div class="search-section">
+            <div class="search-input-wrapper">
+              <i class="fas fa-search search-icon"></i>
+              <input 
+                pInputText 
+                type="text" 
+                [(ngModel)]="searchValue" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Buscar por nombre, cliente, cotización..." 
+                class="search-input"/>
+              <button 
+                *ngIf="searchValue" 
+                class="clear-search-btn" 
+                (click)="searchValue = ''; dt.filterGlobal('', 'contains')">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <div class="table-actions">
+            <button 
+              class="btn-filter-action" 
+              (click)="clear(dt)"
+              pTooltip="Limpiar filtros"
+              tooltipPosition="bottom">
+              <i class="fas fa-filter-circle-xmark"></i>
+              <span>Limpiar</span>
+            </button>
+          </div>
+        </div>
+      </ng-template>
 
-
-    <ng-template pTemplate="caption" >
-      <div style="display: flex; justify-content: space-between; align-items: center;" >          
-          <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
-          
-
-          <span class="p-input-icon-left ml-auto">
-              <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
-          </span>
-      </div>
-  </ng-template>
-
+      <!-- Table Header -->
       <ng-template pTemplate="header">
-        <tr class="TableCustomCotiza">
-            <th style="min-width:5rem">
-                <div pSortableColumn="projectReportId" class="flex align-items-center">
-                    Cod
-                    <p-sortIcon field="projectReportId" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="date" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Fecha
-                    <p-sortIcon field="date" />
-                </div>
-            </th>
-
-            <th pSortableColumn="projectReportName" >
-              <div class="flex align-items-center">
-                  Nombre
-                  <p-sortIcon field="projectReportName" />
-              </div>
-          </th>  
-            <th  pSortableColumn="budgetInternalCode">
-                <div class="flex align-items-center">
-                    Cod Cotizacion
-                    <p-sortIcon field="budgetInternalCode" />
-                </div>
-            </th>            
-
-            <th  pSortableColumn="budgetName">
-                <div class="flex align-items-center">
-                    Cotizacion
-                    <p-sortIcon field="budgetName" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="customerDto.customerName" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Cliente
-                    <p-sortIcon field="customerDto.customerName" />
-                </div>
-            </th>
-
-            <th style="min-width:10rem">
-              <div class="flex align-items-center">
-                  Opciones
-                
-              </div>
+        <tr class="table-header-row">
+          <th pSortableColumn="projectReportId" class="th-code">
+            <div class="th-content">
+              <i class="fas fa-hashtag"></i>
+              <span>Cod</span>
+              <p-sortIcon field="projectReportId" />
+            </div>
           </th>
-
+          <th pSortableColumn="date" class="th-date">
+            <div class="th-content">
+              <i class="far fa-calendar-alt"></i>
+              <span>Fecha</span>
+              <p-sortIcon field="date" />
+            </div>
+          </th>
+          <th pSortableColumn="projectReportName" class="th-name">
+            <div class="th-content">
+              <i class="fas fa-file-signature"></i>
+              <span>Nombre</span>
+              <p-sortIcon field="projectReportName" />
+            </div>
+          </th>
+          <th pSortableColumn="budgetInternalCode" class="th-budget-code">
+            <div class="th-content">
+              <i class="fas fa-receipt"></i>
+              <span>Cod Cotización</span>
+              <p-sortIcon field="budgetInternalCode" />
+            </div>
+          </th>
+          <th pSortableColumn="budgetName" class="th-budget">
+            <div class="th-content">
+              <i class="fas fa-file-invoice-dollar"></i>
+              <span>Cotización</span>
+              <p-sortIcon field="budgetName" />
+            </div>
+          </th>
+          <th pSortableColumn="customerDto.customerName" class="th-customer">
+            <div class="th-content">
+              <i class="fas fa-user-tie"></i>
+              <span>Cliente</span>
+              <p-sortIcon field="customerDto.customerName" />
+            </div>
+          </th>
+          <th class="th-actions">
+            <div class="th-content">
+              <i class="fas fa-cog"></i>
+              <span>Acciones</span>
+            </div>
+          </th>
         </tr>
-    </ng-template>
+      </ng-template>
 
-      <ng-template pTemplate="body" let-report >
-        <tr  class="TableCustomCotiza">
-          <td>{{ report.projectReportId }}</td>   
-          <td>{{ report.date | date: 'dd MMM yyyy' }} </td>
-          <td>{{ report.projectReportName  | truncate:50}} </td>
-          <td>{{ report.budgetInternalCode }}</td>
-          <td>{{ report.budgetDTO.budgetName |  truncate:50}} </td>
-          <td>{{ report.customerDto.customerName | truncate:50}} </td>
-            <td>
-                <span (click)="downloadProjectReport(report)" title="Descargar PDF" style="cursor: pointer; color: blue;">
-                    <svg cIcon class="me-2" name="cilCloudDownload"></svg>
-                  </span>
-                  <span [routerLink]="['/projectreports/add', report.projectReportId]" title="Editar Informe" style="cursor: pointer; color: blueviolet;">
-                    <svg cIcon class="me-2" name="cilPencil"></svg>
-                  </span>
-                  <span (click)="deleteProjectReportWithComfirm(report)" title="Eliminar Informe" style="cursor: pointer; color: red;">
-                    <svg cIcon class="me-2" name="cilXCircle"></svg>
-                  </span>
-              
-                  <span (click)="sendEmailProjectReportWithComfirm(report)" title="Enviar Informe" style="cursor: pointer; color: rgb(0, 100, 128);">
-                    <svg cIcon class="me-2" name="cibMinutemailer"></svg>
-                  </span>
-            </td>    
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-report>
+        <tr class="table-body-row">
+          <td>
+            <span class="code-badge">{{ report.projectReportId }}</span>
+          </td>
+          <td>
+            <span class="date-text">{{ report.date | date: 'dd MMM yyyy' }}</span>
+          </td>
+          <td>
+            <span class="report-name">{{ report.projectReportName | truncate:50 }}</span>
+          </td>
+          <td>
+            <span class="budget-code-badge">{{ report.budgetInternalCode }}</span>
+          </td>
+          <td>
+            <span class="budget-name">{{ report.budgetDTO.budgetName | truncate:50 }}</span>
+          </td>
+          <td>
+            <span class="customer-name">{{ report.customerDto.customerName | truncate:50 }}</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                class="action-btn action-download" 
+                (click)="downloadProjectReport(report)" 
+                pTooltip="Descargar PDF"
+                tooltipPosition="top">
+                <i class="fas fa-download"></i>
+              </button>
+              <button 
+                class="action-btn action-edit" 
+                [routerLink]="['/projectreports/add', report.projectReportId]"
+                pTooltip="Editar Informe"
+                tooltipPosition="top">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="action-btn action-delete" 
+                (click)="deleteProjectReportWithComfirm(report)"
+                pTooltip="Eliminar Informe"
+                tooltipPosition="top">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+              <button 
+                class="action-btn action-email" 
+                (click)="sendEmailProjectReportWithComfirm(report)"
+                pTooltip="Enviar por Email"
+                tooltipPosition="top">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="empty-state">
+            <div class="empty-content">
+              <i class="fas fa-clipboard-list empty-icon"></i>
+              <h3>No hay informes de obra</h3>
+              <p>Crea tu primer informe de obra para comenzar</p>
+              <a [routerLink]="'/projectreports/add'" class="btn-create-first">
+                <i class="fas fa-plus"></i>
+                <span>Crear Informe</span>
+              </a>
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>
-</c-col>
-
+  </div>
+</div>
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"

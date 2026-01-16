@@ -1,97 +1,178 @@
-<c-col xs="12">
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1">
-    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 550;" color="primary"
-      class="cui-primary">{{titlePage}}</span>
-    <a cButton type="button" [routerLink]="'/customers/add'" class="btn btn-primary btn-sm">Nuevo Cliente</a>
+<!-- Customer Page Container -->
+<div class="customer-page-container">
+  <!-- Header Principal Moderno -->
+  <div class="customer-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ titlePage }}</h1>
+          <p class="page-subtitle">Complete los datos del cliente</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="date-badge">
+          <i class="far fa-calendar-alt"></i>
+          <span>{{ currentDate | date : "dd MMM yyyy" }}</span>
+        </div>
+      </div>
+    </div>
   </div>
-</c-col>
 
-
-<c-col xs="12">
-  <form cForm class="row g-3" [formGroup]="customerForm" (ngSubmit)="onAddUpdateCustomer()">
+  <form cForm class="customer-form" [formGroup]="customerForm" (ngSubmit)="onAddUpdateCustomer()">
     <!-- Id del customer (oculto) -->
-    <input cFormControl formControlName="customerId" style="display: none;" />
+    <input cFormControl formControlName="customerId" style="display: none" />
 
-    <!-- Nombre del cliente -->
-    <c-col md="6">
-      <label cLabel for="customerName">Nombre*</label>
-      <input cFormControl formControlName="customerName" class="form-control-sm"
-        placeholder="Nombre completo o Razón Social"
-        [ngClass]="{'is-invalid': customerForm.get('customerName')?.invalid && (customerForm.get('customerName')?.touched || customerForm.get('customerName')?.dirty)}" />
-      <div class="text-medium-emphasis small text-danger-error"
-        *ngIf="customerForm.get('customerName')?.invalid && (customerForm.get('customerName')?.touched || customerForm.get('customerName')?.dirty)">
-        Nombre del cliente es obligatorio.
+    <!-- Card de Información del Cliente -->
+    <div class="customer-card info-card">
+      <div class="card-header-custom">
+        <i class="fas fa-id-card"></i>
+        <span>Información del Cliente</span>
       </div>
-    </c-col>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Nombre del cliente -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="customerName" class="label-modern">
+                <i class="fas fa-user"></i>
+                Nombre
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="customerName"
+                class="input-modern"
+                placeholder="Nombre completo o Razón Social"
+                maxlength="200"
+                [ngClass]="{
+                  'is-invalid':
+                    customerForm.get('customerName')?.invalid &&
+                    (customerForm.get('customerName')?.touched ||
+                      customerForm.get('customerName')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  customerForm.get('customerName')?.invalid &&
+                  (customerForm.get('customerName')?.touched ||
+                    customerForm.get('customerName')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                Nombre del cliente es obligatorio.
+              </div>
+            </div>
+          </c-col>
 
-    <!-- NIT o CC -->
-    <c-col md="6">
-      <label cLabel for="customId">NIT o CC</label>
-      <input cFormControl formControlName="customId" class="form-control-sm" placeholder="Ejemplo: 123456789-0" />
-    </c-col>
-
-    <!-- Email del cliente (múltiples) -->
-    <c-col md="6">
-      <label cLabel for="emails">Emails</label>
-      <p-chips 
-        [(ngModel)]="emailsList" 
-        [ngModelOptions]="{standalone: true}"
-        separator=";" 
-        placeholder="Agregar correos electrónicos"
-        [addOnBlur]="true"
-        [addOnTab]="true"
-        styleClass="w-100"
-        (onAdd)="validateEmail($event)"
-        (onRemove)="onEmailsChange()"
-        (ngModelChange)="onEmailsChange()">
-      </p-chips>
-      <small class="text-muted">Presiona Enter o ; para agregar más correos</small>
-      <div class="text-medium-emphasis small text-danger-error" *ngIf="emailsInvalid">
-        Debe agregar al menos un correo electrónico válido.
+          <!-- NIT o CC -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="customId" class="label-modern">
+                <i class="fas fa-id-badge"></i>
+                NIT o CC
+              </label>
+              <input
+                cFormControl
+                formControlName="customId"
+                class="input-modern"
+                placeholder="Ejemplo: 123456789-0"
+                maxlength="50"
+              />
+            </div>
+          </c-col>
+        </div>
       </div>
-    </c-col>
+    </div>
 
-    <!-- Dirección -->
-    <c-col xs="12" md="6">
-      <label cLabel for="address">Dirección</label>
-      <input 
-        cFormControl 
-        formControlName="address" 
-        class="form-control-sm"
-        placeholder="Ej: Calle 123, Nº 45-67, Piso 2, Bogotá" 
-      />
-    </c-col>
+    <!-- Card de Información de Contacto -->
+    <div class="customer-card contact-card">
+      <div class="card-header-custom">
+        <i class="fas fa-address-book"></i>
+        <span>Información de Contacto</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Email del cliente (múltiples) -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="emails" class="label-modern">
+                <i class="fas fa-envelope"></i>
+                Correos Electrónicos
+                <span class="required-star">*</span>
+              </label>
+              <div class="chips-container">
+                <p-chips
+                  [(ngModel)]="emailsList"
+                  [ngModelOptions]="{ standalone: true }"
+                  separator=";"
+                  placeholder="Agregar correos electrónicos"
+                  [addOnBlur]="true"
+                  [addOnTab]="true"
+                  styleClass="chips-modern w-100"
+                  (onAdd)="validateEmail($event)"
+                  (onRemove)="onEmailsChange()"
+                  (ngModelChange)="onEmailsChange()"
+                >
+                </p-chips>
+              </div>
+              <small class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Presiona Enter o ; para agregar más correos
+              </small>
+              <div class="error-message" *ngIf="emailsInvalid">
+                <i class="fas fa-exclamation-circle"></i>
+                Debe agregar al menos un correo electrónico válido.
+              </div>
+            </div>
+          </c-col>
 
+          <!-- Dirección -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="address" class="label-modern">
+                <i class="fas fa-map-marker-alt"></i>
+                Dirección
+              </label>
+              <input
+                cFormControl
+                formControlName="address"
+                class="input-modern"
+                placeholder="Ej: Calle 123, Nº 45-67, Piso 2, Bogotá"
+                maxlength="300"
+              />
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </div>
 
     <!-- Botones de acción -->
-    <c-col xs="12" class="text-end">
-      <a 
-        cButton 
-        type="button" 
-        class="me-3 btn-sm mt-2" 
-        variant="outline" 
+    <div class="form-actions">
+      <a
+        class="btn-modern btn-back"
         [routerLink]="'/customers/customers'"
       >
+        <i class="fas fa-arrow-left"></i>
         Regresar
       </a>
-      
-      <button 
-        cButton 
-        type="submit" 
-        class="btn-sm mt-2" 
-        style="margin-left: 10px;"
-      >
-        {{ customerForm.get('customerId')?.value > 0 ? 'Actualizar' : 'Guardar' }}
+      <button type="submit" class="btn-modern btn-save">
+        <i class="fas" [ngClass]="customerForm.get('customerId')?.value > 0 ? 'fa-sync-alt' : 'fa-save'"></i>
+        {{ customerForm.get('customerId')?.value > 0 ? 'Actualizar Cliente' : 'Guardar Cliente' }}
       </button>
-    </c-col>
-    
-
+    </div>
   </form>
-
-</c-col>
-
+</div>
 
 <!-- Modal de confirmación -->
-<app-confirmation-modal #confirmationModal [messageModal]="messageModal" [title]="title" [isModalError]="isModalError"
-  [alignment]="'top'">
+<app-confirmation-modal
+  #confirmationModal
+  [messageModal]="messageModal"
+  [title]="title"
+  [isModalError]="isModalError"
+  [alignment]="'top'"
+>
 </app-confirmation-modal>

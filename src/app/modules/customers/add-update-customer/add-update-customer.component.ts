@@ -16,6 +16,7 @@ export class AddUpdateCustomerComponent implements OnInit {
   customerForm: FormGroup = new FormGroup({});
   customerId?: string;
   titlePage: string = "Nuevo cliente";
+  currentDate: Date = new Date();
 
   isModalError: boolean = false;
 

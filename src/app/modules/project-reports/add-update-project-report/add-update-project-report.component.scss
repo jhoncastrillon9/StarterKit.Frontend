@@ -1,38 +1,636 @@
-.centered-input {
-    text-align: center;
-    vertical-align: middle;
-  }
+// ========================================
+// MODERN PROJECT REPORT FORM STYLES
+// ========================================
 
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
 
-/* filepath: /C:/Repos/StarterKit.Frontend/src/app/modules/project-reports/add-update-project-report/add-update-project-report.component.scss */
-.centered-input {
-    text-align: center;
-    vertical-align: middle;
-  }
-  
-  .card {
-    max-width: 500px; /* El ancho máximo de la tarjeta será de 500px */
-    margin: 0 auto; /* Centra la tarjeta horizontalmente */
-  }
-  
-  .card-img-top {
-    max-width: 100%; /* El ancho máximo será el tamaño de la tarjeta */
-    max-height: 300px; /* La altura máxima será de 300px */
-    width: auto;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .mt-2 {
-    margin-top: 0.5rem;
-  }
+// Page Container
+.project-report-page-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
 
-  .icon-large-3rem {
-    width: 3rem !important; /* Ajusta el tamaño según tus necesidades */
-    height: 3rem !important; /* Ajusta el tamaño según tus necesidades */
+// ========================================
+// HEADER STYLES
+// ========================================
+.project-report-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
+  }
+  
+  .date-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    color: $white;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+// ========================================
+// CARD STYLES
+// ========================================
+.project-report-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+  
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1rem;
+    
+    i {
+      font-size: 1.1rem;
+    }
+    
+    .items-count {
+      margin-left: auto;
+      background: $primary-color;
+      color: $white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  }
+  
+  .card-body-custom {
+    padding: 1.5rem;
+  }
+}
+
+// ========================================
+// FORM STYLES
+// ========================================
+.project-report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-group-modern {
+  margin-bottom: 0;
+  
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+    
+    .required-star {
+      color: $danger-color;
+      font-weight: 700;
+    }
+  }
+  
+  .label-modern-sm {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+    font-size: 0.8rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.input-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+  
+  &.is-invalid {
+    border-color: $danger-color;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($danger-color, 0.15);
+    }
+  }
+}
+
+.input-modern-sm {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.85rem;
+  transition: $transition;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.15);
+  }
+}
+
+.textarea-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  resize: vertical;
+  min-height: 100px;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.textarea-modern-sm {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.85rem;
+  transition: $transition;
+  resize: vertical;
+  min-height: 60px;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.select-modern {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2.5rem;
+}
+
+// File Input
+.file-input-wrapper {
+  position: relative;
+  
+  .file-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+  
+  .file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: $transition;
+    font-weight: 500;
+    font-size: 0.9rem;
+    
+    i {
+      font-size: 1rem;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// Helper text
+.helper-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  
+  i {
+    font-size: 0.75rem;
+    color: $info-color;
+  }
+}
+
+// Error Messages
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $danger-color;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// ========================================
+// IMAGES GRID
+// ========================================
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.image-card {
+  background: $light-bg;
+  border-radius: $border-radius;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-3px);
+  }
+  
+  .image-preview {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: $transition;
+    }
+    
+    &:hover img {
+      transform: scale(1.05);
+    }
+    
+    .btn-remove-image {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba($danger-color, 0.9);
+      color: $white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: $transition;
+      opacity: 0;
+      
+      i {
+        font-size: 0.9rem;
+      }
+      
+      &:hover {
+        background: $danger-color;
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  &:hover .btn-remove-image {
+    opacity: 1;
+  }
+  
+  .image-details {
+    padding: 1rem;
+    background: $white;
+  }
+}
+
+// Empty Images State
+.empty-images-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 2px dashed #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.empty-images-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+  
+  i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    color: $primary-light;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: #374151;
+  }
+  
+  p {
+    font-size: 0.9rem;
+    margin: 0.5rem 0 1.5rem;
+    color: $secondary-color;
+  }
+  
+  .btn-upload-first {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// ========================================
+// FORM ACTIONS
+// ========================================
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 0;
+}
+
+.btn-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &.btn-back {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    
+    &:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #374151;
+    }
+  }
+  
+  &.btn-save {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    padding: 0.75rem 2rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
+@media (max-width: 768px) {
+  .project-report-header {
+    padding: 1rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .header-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+  
+  .project-report-card {
+    .card-header-custom {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .card-body-custom {
+      padding: 1rem;
+    }
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    .btn-modern {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .project-report-page-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+  
+  .project-report-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .project-report-card {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .form-actions {
+    border-radius: $border-radius-sm;
+    padding: 1rem;
+  }
+  
+  .image-card .image-preview {
+    height: 180px;
+  }
+}
+
+// Utility
+.mt-2 {
+  margin-top: 0.5rem;
+}

@@ -1,24 +1,563 @@
-.TableCustomCotiza td {
-    padding: 0.2rem 0.5rem !important;
+// ========================================
+// MODERN PROJECT REPORT LIST STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// ========================================
+// CONTAINER
+// ========================================
+.project-report-list-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.TableCustomCotiza th {
-    padding: 0.4rem 0.5rem !important;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+// ========================================
+// HEADER STYLES
+// ========================================
+.project-report-list-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 }
 
-.TableCustomCotiza {    
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+// ========================================
+// NEW REPORT BUTTON
+// ========================================
+.btn-new-report {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.7rem 1.5rem;
+  background: $white;
+  color: $primary-color;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: $transition;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &:hover {
+    background: $light-bg;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: $primary-dark;
+  }
 }
 
-.ButtonClear.p-button {
-    border-radius: 6px !important;
-    padding: 0.4rem 0.6rem !important;
-    font-size: 0.8rem !important;
+// ========================================
+// STATS ROW
+// ========================================
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
+.stat-card {
+  background: $white;
+  border-radius: $border-radius;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: $shadow-sm;
+  transition: $transition;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-md;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.3rem;
+      color: $white;
+    }
+  }
+  
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.2;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: $secondary-color;
+      margin-top: 2px;
+    }
+  }
+  
+  &.stat-total .stat-icon {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  }
+}
 
-.ButtonSearchValue {
-    font-size: 0.8rem !important;
-    padding: 0.5rem 2rem !important;
+// ========================================
+// MAIN CARD
+// ========================================
+.project-report-list-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+// ========================================
+// TABLE HEADER / SEARCH
+// ========================================
+.table-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-section {
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    z-index: 1;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.7rem 2.5rem 0.7rem 2.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: $transition;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+  
+  .clear-search-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: $transition;
+    
+    &:hover {
+      color: $danger-color;
+      background: rgba($danger-color, 0.1);
+    }
+  }
+}
+
+.btn-filter-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.6rem 1.2rem;
+  background: $white;
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $secondary-color;
+  cursor: pointer;
+  transition: $transition;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+    background: rgba($primary-color, 0.05);
+  }
+}
+
+// ========================================
+// TABLE STYLES
+// ========================================
+.table-header-row {
+  background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+  
+  th {
+    padding: 1rem !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $primary-dark;
+    border-bottom: 2px solid rgba($primary-color, 0.2) !important;
+    white-space: nowrap;
+    
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.table-body-row {
+  transition: $transition;
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:hover {
+    background: #faf5ff;
+  }
+  
+  td {
+    padding: 0.75rem 1rem !important;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+}
+
+// Code Badge
+.code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.budget-code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.6rem;
+  background: linear-gradient(135deg, $info-color 0%, #06b6d4 100%);
+  color: $white;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+// Date
+.date-text {
+  color: $secondary-color;
+  font-size: 0.85rem;
+}
+
+// Names
+.report-name {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.budget-name {
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.customer-name {
+  color: #4b5563;
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  
+  i {
+    font-size: 0.85rem;
+  }
+  
+  &.action-download {
+    background: rgba(#0d6efd, 0.1);
+    color: #0d6efd;
+    
+    &:hover {
+      background: #0d6efd;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-edit {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    
+    &:hover {
+      background: $primary-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-delete {
+    background: rgba($danger-color, 0.1);
+    color: $danger-color;
+    
+    &:hover {
+      background: $danger-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-email {
+    background: rgba($info-color, 0.15);
+    color: #0891b2;
+    
+    &:hover {
+      background: #0891b2;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========================================
+// EMPTY STATE
+// ========================================
+.empty-state {
+  padding: 4rem 2rem !important;
+  text-align: center;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #e5e7eb;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    color: #374151;
+    margin: 0;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .btn-create-first {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: $transition;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .project-report-list-header {
+    padding: 1rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .header-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+  
+  .table-header-modern {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .search-section {
+      max-width: 100%;
+    }
+    
+    .table-actions {
+      justify-content: flex-end;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .project-report-list-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+  
+  .project-report-list-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .project-report-list-card {
+    border-radius: $border-radius-sm;
+  }
 }

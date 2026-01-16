@@ -1,195 +1,316 @@
-<c-col xs="12">
-    <div style="display: flex; justify-content: space-between; align-items: center" class="p-1">
-        <span style="
-          color: #6610f2;
-          font-size: 2rem;
-          font-weight: 500;
-          font-family: Yanone Kaffeesatz;
-        " color="primary" class="cui-primary">{{ titlePage }}</span>
-        <div style="color: #6610f2; font-weight: 600">
-            Fecha {{ currentDate | date : "dd MMM yyyy" }}
+<!-- Project Report Page Container -->
+<div class="project-report-page-container">
+  <!-- Header Principal Moderno -->
+  <div class="project-report-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-clipboard-list"></i>
         </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ titlePage }}</h1>
+          <p class="page-subtitle">Complete los datos del informe de obra</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="date-badge">
+          <i class="far fa-calendar-alt"></i>
+          <span>{{ currentDate | date : "dd MMM yyyy" }}</span>
+        </div>
+      </div>
     </div>
-</c-col>
+  </div>
 
-<c-col xs="12">
-    <form cForm class="row g-3" [formGroup]="projectReportForm" (ngSubmit)="onAddUpdateProjectReport()">
-        <input cFormControl formControlName="projectReportId" style="display: none" />
-<div class="row">
-        <!-- Nombre -->
-        <c-col md="3">
-            <label cLabel for="projectReportName">Nombre del informe*</label>
-            <input cFormControl formControlName="projectReportName" class="form-control-sm" [ngClass]="{
-            'is-invalid':
-              projectReportForm.get('projectReportName')?.invalid &&
-              (projectReportForm.get('projectReportName')?.touched ||
-                projectReportForm.get('projectReportName')?.dirty)
-          }" />
+  <form cForm class="project-report-form" [formGroup]="projectReportForm" (ngSubmit)="onAddUpdateProjectReport()">
+    <input cFormControl formControlName="projectReportId" style="display: none" />
 
-            <div class="text-medium-emphasis small text-danger-error" *ngIf="
-            projectReportForm.get('projectReportName')?.invalid &&
-            (projectReportForm.get('projectReportName')?.touched ||
-              projectReportForm.get('projectReportName')?.dirty)
-          ">
+    <!-- Card de Información General -->
+    <div class="project-report-card info-card">
+      <div class="card-header-custom">
+        <i class="fas fa-info-circle"></i>
+        <span>Información General</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Nombre del Informe -->
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="projectReportName" class="label-modern">
+                <i class="fas fa-file-signature"></i>
+                Nombre del Informe
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="projectReportName"
+                class="input-modern"
+                placeholder="Ej: Informe de avance semana 1"
+                maxlength="200"
+                [ngClass]="{
+                  'is-invalid':
+                    projectReportForm.get('projectReportName')?.invalid &&
+                    (projectReportForm.get('projectReportName')?.touched ||
+                      projectReportForm.get('projectReportName')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  projectReportForm.get('projectReportName')?.invalid &&
+                  (projectReportForm.get('projectReportName')?.touched ||
+                    projectReportForm.get('projectReportName')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
                 El nombre del informe es obligatorio.
+              </div>
             </div>
-        </c-col>
+          </c-col>
 
-        <!-- Cotizacion Asociada -->
-        <c-col md="3">
-            <label cLabel for="budgetId">Proyecto - Cotización:*</label>
-            <select aria-label="Default select example" cFormControl cSelect formControlName="budgetId" [ngClass]="{
-            'is-invalid':
-              projectReportForm.get('budgetId')?.invalid &&
-              (projectReportForm.get('budgetId')?.touched ||
-                projectReportForm.get('budgetId')?.dirty)
-          }" class="form-select-sm form-control-sm" (change)="onBudgetChange($event)">
+          <!-- Cotización Asociada -->
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="budgetId" class="label-modern">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Proyecto - Cotización
+                <span class="required-star">*</span>
+              </label>
+              <select
+                aria-label="Seleccionar cotización"
+                cFormControl
+                cSelect
+                formControlName="budgetId"
+                [ngClass]="{
+                  'is-invalid':
+                    projectReportForm.get('budgetId')?.invalid &&
+                    (projectReportForm.get('budgetId')?.touched ||
+                      projectReportForm.get('budgetId')?.dirty)
+                }"
+                class="input-modern select-modern"
+                (change)="onBudgetChange($event)"
+              >
                 <option value="" disabled selected>Seleccione una cotización</option>
-                <!-- Opción por defecto -->
                 <option *ngFor="let budget of budgets" [value]="budget.budgetId">
-                    {{budget.internalCode}} - {{ budget.date | date : "dd MMM yyyy"  }} - {{ budget.budgetName }} - {{ budget.customerDto.customerName }}
+                  {{ budget.internalCode }} - {{ budget.date | date : "dd MMM yyyy" }} - {{ budget.budgetName }} - {{ budget.customerDto.customerName }}
                 </option>
-            </select>
-        </c-col>
-
-        <!-- Selecionar imagenes -->
-        <c-col md="2">
-            <label cLabel for="budgetId">Selecionar Imagenes:*</label>
-
-            <input cFormControl type="file" (change)="onFileSelected($event)"
-                class="form-control-sm" multiple />
-
-        </c-col>
-
-        <!-- Botones  -->
-        <c-col md="2">
-            <label cLabel>*</label>
-            <br>
-
-
-
-            <a cButton type="button" class="me-3 btn-sm d-inline d-md-none" variant="outline"
-                [routerLink]="'/projectreports/projectreports'">
-                Regresar
-            </a>
-
-            <a cButton type="button" class="me-3 btn-sm d-none d-md-inline" variant="outline"
-                [routerLink]="'/projectreports/projectreports'">
-                Regresar
-            </a>
-
-            <button cButton type="submit" class="me-md-2 btn-sm">
-                {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar Informe" : "Guardar Informe" }}
-            </button>
-
-        </c-col>
-</div>
-
-<div class="row">
-            <!-- Introducciòn -->
-            <c-col md="3">
-                <label cLabel for="introdution">Introducciòn</label>
-                <textarea cFormControl formControlName="introdution" class="form-control-sm"></textarea>
-            </c-col>
-            <!-- Introducciòn -->
-
-            <c-col md="3">
-                <label cLabel for="note">Nota</label>
-                <textarea cFormControl formControlName="note" class="form-control-sm"></textarea>
-            </c-col>
-            <!-- Introducciòn -->
-
-            <c-col md="3">
-                <label cLabel for="signature">Firma</label>
-                <textarea cFormControl formControlName="signature" class="form-control-sm"></textarea>
-            </c-col>
-</div>
-
-
-
-
-
-        <div class="row row-cols-1 row-cols-md-4 g-4" formArrayName="projectReportDetailsDTO">
-            <div class="col" *ngFor="let detail of projectReportDetailsArray.controls; let i = index"
-                [formGroupName]="i">
-                <div class="card">
-                    <img [src]="detail.get('imageFile')?.value?? detail.get('urlImage')?.value" class="card-img-top img-thumbnail" alt="Imagen cargada">
-                    <div class="card-body">
-                        <!-- <h5 class="card-title">Imagen {{ i + 1 }}</h5> -->
-                        <div class="row">
-
-
-                            <c-col md="11">
-                                <select aria-label="Default select example" cFormControl cSelect  class="form-select-sm form-control-sm" formControlName="detailSelect">
-                                    <option value="" disabled selected>Seleccionar Item (Opcional)</option>
-                                    <!-- Opción por defecto -->
-                                    <option *ngFor="let detail of selectBudgetDetailsModel" [ngValue]="detail">
-                                        {{detail.description}}
-                                    </option>
-                            </select>
-                    
-
-                            </c-col>
-
-                            <c-col md="1">
-
-                                <a style="color: #dc3545; cursor: pointer; "
-                                    (click)="removeProjectReportDetail(i)">
-                                    <svg cIcon class="me-2 " name="cilXCircle"></svg> </a>
-                            </c-col>
-                        </div>
-<br>
-                        <div class="row">
-                            <c-col md="11">
-                                <textarea cFormControl formControlName="description"
-                                placeholder="Ingrese una descripción adicional para la imagen" class="form-control" rows="2"
-                                aria-placeholder="Ingrese una descripción para la imagen"></textarea>
-                                </c-col>
-                                
-                           
-                        </div>
-
-
-                    </div>
-                </div>
+              </select>
+              <div
+                class="error-message"
+                *ngIf="
+                  projectReportForm.get('budgetId')?.invalid &&
+                  (projectReportForm.get('budgetId')?.touched ||
+                    projectReportForm.get('budgetId')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                La cotización es obligatoria.
+              </div>
             </div>
+          </c-col>
+
+          <!-- Seleccionar Imágenes -->
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern">
+                <i class="fas fa-images"></i>
+                Seleccionar Imágenes
+              </label>
+              <div class="file-input-wrapper">
+                <input
+                  type="file"
+                  (change)="onFileSelected($event)"
+                  class="file-input"
+                  multiple
+                  accept="image/*"
+                  id="imageInput"
+                />
+                <label for="imageInput" class="file-input-label">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Subir imágenes</span>
+                </label>
+              </div>
+              <small class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Selecciona múltiples imágenes para el informe
+              </small>
+            </div>
+          </c-col>
         </div>
+      </div>
+    </div>
 
+    <!-- Card de Contenido del Informe -->
+    <div class="project-report-card content-card">
+      <div class="card-header-custom">
+        <i class="fas fa-edit"></i>
+        <span>Contenido del Informe</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Introducción -->
+          <c-col xs="12" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="introdution" class="label-modern">
+                <i class="fas fa-paragraph"></i>
+                Introducción
+              </label>
+              <textarea
+                cFormControl
+                formControlName="introdution"
+                class="textarea-modern"
+                rows="4"
+                placeholder="Escriba la introducción del informe..."
+              ></textarea>
+            </div>
+          </c-col>
 
+          <!-- Nota -->
+          <c-col xs="12" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="note" class="label-modern">
+                <i class="fas fa-sticky-note"></i>
+                Nota
+              </label>
+              <textarea
+                cFormControl
+                formControlName="note"
+                class="textarea-modern"
+                rows="4"
+                placeholder="Añada notas adicionales..."
+              ></textarea>
+            </div>
+          </c-col>
 
-        <c-col xs="12" class="text-end mb-3">
-            <a cButton type="button" class="me-3 btn-sm d-none d-md-inline" variant="outline"
-                [routerLink]="'/projectreports/projectreports'">
-                Regresar
-            </a>
+          <!-- Firma -->
+          <c-col xs="12" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="signature" class="label-modern">
+                <i class="fas fa-signature"></i>
+                Firma
+              </label>
+              <textarea
+                cFormControl
+                formControlName="signature"
+                class="textarea-modern"
+                rows="4"
+                placeholder="Información de firma..."
+              ></textarea>
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </div>
 
-            <a cButton type="button" class="me-3 btn-sm d-inline d-md-none" variant="outline"
-                [routerLink]="'/projectreports/projectreports'">
-                Regresar
-            </a>
+    <!-- Card de Imágenes del Informe -->
+    <div class="project-report-card images-card" *ngIf="projectReportDetailsArray.length > 0">
+      <div class="card-header-custom">
+        <i class="fas fa-photo-video"></i>
+        <span>Imágenes del Informe</span>
+        <span class="items-count">{{ projectReportDetailsArray.length }} imágenes</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="images-grid" formArrayName="projectReportDetailsDTO">
+          <div 
+            class="image-card" 
+            *ngFor="let detail of projectReportDetailsArray.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="image-preview">
+              <img 
+                [src]="detail.get('imageFile')?.value ?? detail.get('urlImage')?.value" 
+                alt="Imagen del informe"
+              />
+              <button 
+                type="button" 
+                class="btn-remove-image" 
+                (click)="removeProjectReportDetail(i)"
+                title="Eliminar imagen"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="image-details">
+              <div class="form-group-modern">
+                <label class="label-modern-sm">
+                  <i class="fas fa-link"></i>
+                  Vincular a Item
+                </label>
+                <select
+                  cFormControl
+                  cSelect
+                  class="input-modern-sm select-modern"
+                  formControlName="detailSelect"
+                >
+                  <option value="" selected>Seleccionar Item (Opcional)</option>
+                  <option *ngFor="let budgetDetail of selectBudgetDetailsModel" [ngValue]="budgetDetail">
+                    {{ budgetDetail.description | truncate:40 }}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group-modern mt-2">
+                <label class="label-modern-sm">
+                  <i class="fas fa-comment"></i>
+                  Descripción
+                </label>
+                <textarea
+                  cFormControl
+                  formControlName="description"
+                  placeholder="Descripción de la imagen..."
+                  class="textarea-modern-sm"
+                  rows="2"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <button cButton type="submit" class="me-md-2 btn-sm" style="margin-right: 10px">
-                {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar Infome" : "Guardar Informe" }}
-            </button>
+    <!-- Empty State para Imágenes -->
+    <div class="project-report-card empty-images-card" *ngIf="projectReportDetailsArray.length === 0">
+      <div class="empty-images-content">
+        <i class="fas fa-image"></i>
+        <h3>No hay imágenes</h3>
+        <p>Sube imágenes para documentar el avance de la obra</p>
+        <label for="imageInput" class="btn-upload-first">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Subir Imágenes</span>
+        </label>
+      </div>
+    </div>
 
-
-        </c-col>
-
-    </form>
-</c-col>
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <a class="btn-modern btn-back" [routerLink]="'/projectreports/projectreports'">
+        <i class="fas fa-arrow-left"></i>
+        Regresar
+      </a>
+      <button type="submit" class="btn-modern btn-save">
+        <i class="fas" [ngClass]="projectReportForm.get('projectReportId')?.value > 0 ? 'fa-sync-alt' : 'fa-save'"></i>
+        {{ projectReportForm.get("projectReportId")?.value > 0 ? "Actualizar Informe" : "Guardar Informe" }}
+      </button>
+    </div>
+  </form>
+</div>
 
 <!-- Modal de confirmación -->
-<app-confirmation-modal #confirmationModal [messageModal]="messageModal" [title]="title" [isModalError]="isModalError"
-    [alignment]="'top'">
+<app-confirmation-modal 
+  #confirmationModal 
+  [messageModal]="messageModal" 
+  [title]="title" 
+  [isModalError]="isModalError"
+  [alignment]="'top'"
+>
 </app-confirmation-modal>
 
 <!-- Modal de selección de emails -->
 <app-email-selector-modal 
   #emailSelectorModal
   [emails]="availableEmails"
-  (confirmAction)="onEmailsSelected($event)">
+  (confirmAction)="onEmailsSelected($event)"
+>
 </app-email-selector-modal>
 
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
-    <p style="color: white">Cargando...</p>
+  <p style="color: white">Cargando...</p>
 </ngx-spinner>
