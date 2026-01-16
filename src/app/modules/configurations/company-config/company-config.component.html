@@ -1,94 +1,253 @@
-<c-col xs="12">  
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1 mb-3">          
-    <span style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;" class="cui-primary">Actualizar Datos de Mi Empresa</span>    
+<!-- Company Config Page Container -->
+<div class="company-config-container">
+  <!-- Header Principal Moderno -->
+  <div class="company-config-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Configuración de Empresa</h1>
+          <p class="page-subtitle">Actualiza los datos de tu empresa</p>
+        </div>
+      </div>
+    </div>
   </div>
-</c-col>
 
-<c-col xs="12">
-  <form cForm class="row g-3" [formGroup]="companyForm" (ngSubmit)="updateCompany()">
-    <c-col xs="12" class="text-center">
-      <img 
-        [src]="urlImageLogo ? urlImageLogo : 'https://cotizaconstructorstorage.blob.core.windows.net/logos/8cbe1a7d-e127-48a0-81d6-19150f45234c.png'" 
-        alt="Logo" 
-        class="img-thumbnail mb-3" 
-        style="max-width: 150px;"
-      />
-    </c-col>
-
+  <form cForm class="company-form" [formGroup]="companyForm" (ngSubmit)="updateCompany()">
     <!-- ID de la empresa -->
     <input cFormControl formControlName="companyId" style="display: none;" />
 
-    <c-col md="6">
-      <label cLabel for="companyName">Nombre de la Empresa*</label>
-      <input cFormControl formControlName="companyName" placeholder="Ej: Constructora XYZ" class="form-control-sm" />
-      <p class="text-danger small" *ngIf="companyForm.get('companyName')?.invalid && (companyForm.get('companyName')?.touched || companyForm.get('companyName')?.dirty)">
-        El nombre de la empresa es obligatorio.
-      </p>
-    </c-col>
+    <!-- Card de Logo -->
+    <div class="company-card logo-card">
+      <div class="card-header-custom">
+        <i class="fas fa-image"></i>
+        <span>Logo de la Empresa</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="logo-section">
+          <div class="logo-preview">
+            <img 
+              [src]="urlImageLogo ? urlImageLogo : 'https://cotizaconstructorstorage.blob.core.windows.net/logos/8cbe1a7d-e127-48a0-81d6-19150f45234c.png'" 
+              alt="Logo de la empresa"
+            />
+          </div>
+          <div class="logo-upload">
+            <div class="form-group-modern">
+              <label class="label-modern">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Cambiar Logo
+              </label>
+              <div class="file-input-wrapper">
+                <input 
+                  type="file" 
+                  formControlName="urlImageLogo" 
+                  (change)="onFileSelected($event)" 
+                  class="file-input"
+                  id="logoInput"
+                  accept="image/*"
+                />
+                <label for="logoInput" class="file-input-label">
+                  <i class="fas fa-upload"></i>
+                  <span>Seleccionar imagen</span>
+                </label>
+              </div>
+              <small class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Formatos: PNG, JPG, JPEG. Tamaño recomendado: 200x100px
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <c-col md="6">
-      <label cLabel for="document">NIT o CC*</label>
-      <input cFormControl formControlName="document" placeholder="Ej: 123456789" class="form-control-sm" />
-    </c-col>
+    <!-- Card de Información General -->
+    <div class="company-card info-card">
+      <div class="card-header-custom">
+        <i class="fas fa-info-circle"></i>
+        <span>Información General</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Nombre de la Empresa -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="companyName" class="label-modern">
+                <i class="fas fa-building"></i>
+                Nombre de la Empresa
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="companyName"
+                class="input-modern"
+                placeholder="Ej: Constructora XYZ S.A.S"
+                maxlength="200"
+                [ngClass]="{
+                  'is-invalid':
+                    companyForm.get('companyName')?.invalid &&
+                    (companyForm.get('companyName')?.touched ||
+                      companyForm.get('companyName')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  companyForm.get('companyName')?.invalid &&
+                  (companyForm.get('companyName')?.touched ||
+                    companyForm.get('companyName')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El nombre de la empresa es obligatorio.
+              </div>
+            </div>
+          </c-col>
 
-    <c-col md="6">
-      <label cLabel for="telephones">Teléfonos</label>
-      <input cFormControl type="text" formControlName="telephones" placeholder="Ej: 3001234567" class="form-control-sm" />
-    </c-col>
+          <!-- NIT o CC -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="document" class="label-modern">
+                <i class="fas fa-id-card"></i>
+                NIT o CC
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="document"
+                class="input-modern"
+                placeholder="Ej: 900123456-7"
+                maxlength="50"
+              />
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </div>
 
-    <c-col md="6">
-      <label cLabel for="email">Email*</label>
-      <input cFormControl type="email" formControlName="email" placeholder="Ej: contacto@empresa.com" class="form-control-sm" />
-      <p class="text-danger small" *ngIf="companyForm.get('email')?.invalid && (companyForm.get('email')?.touched || companyForm.get('email')?.dirty)">
-        El email no es válido.
-      </p>
-    </c-col>
+    <!-- Card de Información de Contacto -->
+    <div class="company-card contact-card">
+      <div class="card-header-custom">
+        <i class="fas fa-address-book"></i>
+        <span>Información de Contacto</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Email -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="email" class="label-modern">
+                <i class="fas fa-envelope"></i>
+                Email
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                type="email"
+                formControlName="email"
+                class="input-modern"
+                placeholder="Ej: contacto@empresa.com"
+                maxlength="100"
+                [ngClass]="{
+                  'is-invalid':
+                    companyForm.get('email')?.invalid &&
+                    (companyForm.get('email')?.touched ||
+                      companyForm.get('email')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  companyForm.get('email')?.invalid &&
+                  (companyForm.get('email')?.touched ||
+                    companyForm.get('email')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El email no es válido.
+              </div>
+            </div>
+          </c-col>
 
-    <c-col xs="6">
-      <label cLabel for="address">Dirección</label>
-      <input cFormControl placeholder="Ej: Carr 90 N 10" formControlName="address" class="form-control-sm" />
-    </c-col>
+          <!-- Teléfonos -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="telephones" class="label-modern">
+                <i class="fas fa-phone"></i>
+                Teléfonos
+              </label>
+              <input
+                cFormControl
+                type="text"
+                formControlName="telephones"
+                class="input-modern"
+                placeholder="Ej: 3001234567"
+                maxlength="50"
+              />
+            </div>
+          </c-col>
 
-    <c-col xs="6">
-      <label cLabel for="urlWeb">URL Web</label>
-      <input cFormControl placeholder="Ej: www.ejemplo.com" formControlName="urlWeb" class="form-control-sm" />
-    </c-col>
+          <!-- Dirección -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="address" class="label-modern">
+                <i class="fas fa-map-marker-alt"></i>
+                Dirección
+              </label>
+              <input
+                cFormControl
+                formControlName="address"
+                class="input-modern"
+                placeholder="Ej: Calle 100 # 45-67, Bogotá"
+                maxlength="200"
+              />
+            </div>
+          </c-col>
 
-    <c-col xs="12" md="6">
-      <label cLabel for="urlImageLogo">Logo de la Empresa</label>
-      <input cFormControl type="file" formControlName="urlImageLogo" (change)="onFileSelected($event)" class="form-control-sm" />
-    </c-col>
+          <!-- URL Web -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="urlWeb" class="label-modern">
+                <i class="fas fa-globe"></i>
+                Página Web
+              </label>
+              <input
+                cFormControl
+                formControlName="urlWeb"
+                class="input-modern"
+                placeholder="Ej: www.miempresa.com"
+                maxlength="200"
+              />
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </div>
 
-<!-- Botones de acción -->
-<c-col xs="12" class="text-end mb-4"> <!-- Añadir margen inferior -->
-  <a 
-    cButton 
-    type="button" 
-    class="me-3 btn-sm" 
-    variant="outline" 
-    [routerLink]="'/'"
-  >
-    Salir
-  </a>
-
-  <button 
-    cButton 
-    type="submit" 
-    class="btn-sm"         
-  >
-    Actualizar
-  </button>
-</c-col>
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <a class="btn-modern btn-back" [routerLink]="'/'">
+        <i class="fas fa-arrow-left"></i>
+        Salir
+      </a>
+      <button type="submit" class="btn-modern btn-save">
+        <i class="fas fa-save"></i>
+        Actualizar Datos
+      </button>
+    </div>
   </form>
-</c-col>
+</div>
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
-  [alignment]="'top'">
+  [alignment]="'top'"
+>
 </app-confirmation-modal>
 
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">

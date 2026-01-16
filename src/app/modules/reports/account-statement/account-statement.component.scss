@@ -1,31 +1,547 @@
-.TableCustomCotiza td {
-  padding: 0.2rem 0.5rem !important;
+// ========================================
+// MODERN ACCOUNT STATEMENT STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// ========================================
+// CONTAINER
+// ========================================
+.account-statement-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.TableCustomCotiza th {
-  padding: 0.4rem 0.5rem !important;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.TableCustomCotiza {    
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
-
-.ButtonClear.p-button {
-  border-radius: 6px !important;
-  padding: 0.3rem 0.5rem !important;
-  font-size: 0.8rem !important;
-}
-
-.ButtonSearchValue {
-  font-size: 0.8rem !important;
-  padding: 0.5rem 2rem !important;
-}
-
-.form-group {
+// ========================================
+// HEADER STYLES
+// ========================================
+.account-statement-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
+  }
 }
 
-.text-end {
-  text-align: right;
+// ========================================
+// CARD STYLES
+// ========================================
+.account-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+  
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1rem;
+    flex-wrap: wrap;
+    
+    i {
+      font-size: 1.1rem;
+    }
+    
+    .total-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
+      color: $white;
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      
+      i {
+        font-size: 0.85rem;
+      }
+    }
+  }
+  
+  .card-body-custom {
+    padding: 1.5rem;
+    
+    &.p-0 {
+      padding: 0;
+    }
+  }
+  
+  .card-footer-custom {
+    padding: 1rem 1.5rem;
+    background: $light-bg;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: center;
+  }
+}
+
+// ========================================
+// FORM STYLES
+// ========================================
+.form-group-modern {
+  margin-bottom: 0;
+  
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.input-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.input-modern-sm {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: $transition;
+  min-width: 100px;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.15);
+  }
+}
+
+.select-modern {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2.5rem;
+}
+
+.select-modern-sm {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1em 1em;
+  padding-right: 2rem;
+  min-width: 130px;
+}
+
+// ========================================
+// TABLE STYLES
+// ========================================
+.table-modern-container {
+  overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+}
+
+.table-modern {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: separate;
+  border-spacing: 0;
+  
+  .table-header-row {
+    background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+    
+    th {
+      padding: 1rem !important;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: $primary-dark;
+      border-bottom: 2px solid rgba($primary-color, 0.2);
+      white-space: nowrap;
+      
+      .th-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        i {
+          font-size: 0.8rem;
+          opacity: 0.7;
+        }
+      }
+    }
+  }
+  
+  .table-body-row {
+    transition: $transition;
+    border-bottom: 1px solid #f3f4f6;
+    
+    &:hover {
+      background: #faf5ff;
+    }
+    
+    td {
+      padding: 0.75rem 1rem;
+      vertical-align: middle;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .table-footer-row {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    
+    td {
+      padding: 1rem;
+      font-size: 0.95rem;
+    }
+    
+    .total-final {
+      color: $success-color;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Badges
+.code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.date-text {
+  color: $secondary-color;
+  font-size: 0.85rem;
+}
+
+.budget-name {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.total-value {
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+// Action Button
+.btn-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &.btn-save-row {
+    background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
+    color: $white;
+    
+    &:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($success-color, 0.3);
+    }
+    
+    &.disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ========================================
+// BUTTONS
+// ========================================
+.btn-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &.btn-pdf {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    color: $white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(#dc2626, 0.3);
+    }
+  }
+  
+  &.btn-pdf-footer {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    padding: 0.75rem 2rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    }
+  }
+}
+
+// ========================================
+// EMPTY STATES
+// ========================================
+.empty-state {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  
+  .empty-icon {
+    font-size: 3rem;
+    color: #e5e7eb;
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+    color: #374151;
+    margin: 0;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.empty-card {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-content-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+  
+  i {
+    font-size: 5rem;
+    color: #e5e7eb;
+    opacity: 0.6;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    color: #374151;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .account-statement-header {
+    padding: 1rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+  }
+  
+  .account-card {
+    .card-header-custom {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+      
+      .total-badge {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    .card-body-custom {
+      padding: 1rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .account-statement-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+  
+  .account-statement-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .account-card {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
 } 

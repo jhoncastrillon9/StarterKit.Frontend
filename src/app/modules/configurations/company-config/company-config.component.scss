@@ -1,0 +1,422 @@
+// ========================================
+// MODERN COMPANY CONFIG STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// Page Container
+.company-config-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// ========================================
+// HEADER STYLES
+// ========================================
+.company-config-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
+  }
+}
+
+// ========================================
+// CARD STYLES
+// ========================================
+.company-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+  
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1rem;
+    
+    i {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .card-body-custom {
+    padding: 1.5rem;
+  }
+}
+
+// ========================================
+// LOGO SECTION
+// ========================================
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  
+  .logo-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: $border-radius;
+    overflow: hidden;
+    border: 3px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $light-bg;
+    
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+  
+  .logo-upload {
+    flex: 1;
+    min-width: 250px;
+  }
+}
+
+// ========================================
+// FORM STYLES
+// ========================================
+.company-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-group-modern {
+  margin-bottom: 0;
+  
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+    
+    .required-star {
+      color: $danger-color;
+      font-weight: 700;
+    }
+  }
+}
+
+.input-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+  
+  &.is-invalid {
+    border-color: $danger-color;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($danger-color, 0.15);
+    }
+  }
+}
+
+// File Input
+.file-input-wrapper {
+  position: relative;
+  
+  .file-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+  
+  .file-input-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: $transition;
+    font-weight: 500;
+    font-size: 0.9rem;
+    
+    i {
+      font-size: 1rem;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// Helper text
+.helper-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  
+  i {
+    font-size: 0.75rem;
+    color: $info-color;
+  }
+}
+
+// Error Messages
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $danger-color;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// ========================================
+// FORM ACTIONS
+// ========================================
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 0;
+}
+
+.btn-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &.btn-back {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    
+    &:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #374151;
+    }
+  }
+  
+  &.btn-save {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    padding: 0.75rem 2rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
+@media (max-width: 768px) {
+  .company-config-header {
+    padding: 1rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+  }
+  
+  .company-card {
+    .card-header-custom {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .card-body-custom {
+      padding: 1rem;
+    }
+  }
+  
+  .logo-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    .logo-preview {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .logo-upload {
+      width: 100%;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    .btn-modern {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .company-config-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+  
+  .company-config-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .company-card {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .form-actions {
+    border-radius: $border-radius-sm;
+    padding: 1rem;
+  }
+}
