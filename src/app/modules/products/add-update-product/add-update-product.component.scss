@@ -1,12 +1,42 @@
-.product-form-container {
-  padding: 1.5rem;
-  background: #f8f9fa;
-  min-height: 100vh;
+// ========================================
+// MODERN PRODUCT FORM STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// Page Container
+.product-page-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.product-form-header {
+// ========================================
+// HEADER STYLES
+// ========================================
+.product-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
-
+  box-shadow: $shadow-md;
+  
   .header-content {
     display: flex;
     justify-content: space-between;
@@ -14,43 +44,17 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
-
+  
   .header-left {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-
-  .btn-back {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    i {
-      color: #495057;
-    }
-
-    &:hover {
-      background: #667eea;
-      border-color: #667eea;
-
-      i {
-        color: white;
-      }
-    }
-  }
-
+  
   .header-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -58,198 +62,331 @@
     
     i {
       font-size: 1.5rem;
-      color: white;
+      color: $white;
     }
   }
-
-  .page-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin: 0;
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
   }
-
-  .page-subtitle {
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin: 0;
+  
+  .date-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    color: $white;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    
+    i {
+      font-size: 1rem;
+    }
   }
 }
 
-.product-form-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-
-  .full-width {
-    grid-column: 1 / -1;
+// ========================================
+// CARD STYLES
+// ========================================
+.product-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: $transition;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+  
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1rem;
+    
+    i {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .card-body-custom {
+    padding: 1.5rem;
   }
 }
 
-.form-group {
+// ========================================
+// FORM STYLES
+// ========================================
+.product-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0;
 }
 
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
-
-  i {
-    color: #667eea;
-    font-size: 0.85rem;
-  }
-
-  .required {
-    color: #dc3545;
+.form-group-modern {
+  margin-bottom: 0;
+  
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+    
+    .required-star {
+      color: $danger-color;
+      font-weight: 700;
+    }
   }
 }
 
-.form-input,
-.form-textarea {
+.input-modern {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+  
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
   }
-
-  &.input-error {
-    border-color: #dc3545;
-
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+  
+  &.is-invalid {
+    border-color: $danger-color;
+    
     &:focus {
-      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+      box-shadow: 0 0 0 3px rgba($danger-color, 0.15);
     }
   }
 }
 
-.form-textarea {
+.textarea-modern {
+  min-height: 80px;
   resize: vertical;
-  min-height: 100px;
+  max-height: 200px;
 }
 
-::ng-deep .form-input-number {
-  width: 100%;
-
-  .p-inputnumber-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+// Input Price Wrapper
+.input-price-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  .currency-prefix {
+    position: absolute;
+    left: 1rem;
+    color: $primary-color;
+    font-weight: 600;
     font-size: 0.95rem;
-    transition: all 0.3s ease;
-
-    &:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-    }
+    z-index: 1;
   }
-
-  &.input-error .p-inputnumber-input {
-    border-color: #dc3545;
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
-    }
+  
+  .input-price {
+    padding-left: 2rem;
   }
 }
 
-.error-message {
-  color: #dc3545;
+// Helper text
+.helper-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
   font-size: 0.8rem;
+  margin-top: 0.4rem;
+  
+  i {
+    font-size: 0.75rem;
+    color: $info-color;
+  }
 }
 
+// Error Messages
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $danger-color;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// ========================================
+// FORM ACTIONS
+// ========================================
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f0f0f0;
+  padding: 1.5rem;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 0;
 }
 
-.btn-cancel,
-.btn-save {
+.btn-modern {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-
+  transition: $transition;
+  text-decoration: none;
+  
   i {
     font-size: 0.9rem;
   }
-}
-
-.btn-cancel {
-  background: #f8f9fa;
-  color: #495057;
-  border: 1px solid #e0e0e0;
-
-  &:hover {
-    background: #e9ecef;
+  
+  &.btn-back {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    
+    &:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: #374151;
+    }
+  }
+  
+  &.btn-save {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    padding: 0.75rem 2rem;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
   }
 }
 
-.btn-save {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-// Responsive
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
 @media (max-width: 768px) {
-  .product-form-container {
+  .product-header {
     padding: 1rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .header-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
   }
-
-  .product-form-card {
-    padding: 1.5rem;
+  
+  .product-card {
+    .card-header-custom {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .card-body-custom {
+      padding: 1rem;
+    }
   }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
+  
   .form-actions {
-    flex-direction: column-reverse;
-
-    .btn-cancel,
-    .btn-save {
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    .btn-modern {
       width: 100%;
       justify-content: center;
     }
+  }
+}
+
+@media (max-width: 576px) {
+  .product-page-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+  
+  .product-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .product-card {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+  
+  .form-actions {
+    border-radius: $border-radius-sm;
+    padding: 1rem;
   }
 }

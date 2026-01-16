@@ -1,11 +1,43 @@
+// ========================================
+// MODERN PRODUCT LIST STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// ========================================
+// CONTAINER
+// ========================================
 .product-list-container {
-  padding: 1.5rem;
-  background: #f8f9fa;
-  min-height: 100vh;
+  padding: 0 0.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
+// ========================================
+// HEADER STYLES
+// ========================================
 .product-list-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
 
   .header-content {
     display: flex;
@@ -24,7 +56,7 @@
   .header-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -32,119 +64,159 @@
     
     i {
       font-size: 1.5rem;
-      color: white;
+      color: $white;
     }
   }
 
-  .page-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin: 0;
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
   }
 
-  .page-subtitle {
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin: 0;
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
   }
 }
 
+// ========================================
+// NEW PRODUCT BUTTON
+// ========================================
 .btn-new-product {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 0.7rem 1.5rem;
+  background: $white;
+  color: $primary-color;
+  border-radius: 50px;
   font-weight: 600;
+  font-size: 0.9rem;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: $transition;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
   cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    color: white;
-  }
-
+  
   i {
     font-size: 0.9rem;
   }
+  
+  &:hover {
+    background: $light-bg;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: $primary-dark;
+    text-decoration: none;
+  }
 }
 
+// ========================================
+// STATS ROW
+// ========================================
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
-  background: white;
-  border-radius: 12px;
+  background: $white;
+  border-radius: $border-radius;
   padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: $shadow-sm;
+  transition: $transition;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+    box-shadow: $shadow-md;
   }
 
   .stat-icon {
     width: 50px;
     height: 50px;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
-      font-size: 1.25rem;
-      color: white;
+      font-size: 1.3rem;
+      color: $white;
     }
-  }
-
-  &.stat-total .stat-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 
   .stat-info {
     display: flex;
     flex-direction: column;
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: $secondary-color;
+      margin-top: 2px;
+    }
   }
 
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1a1a2e;
+  &.stat-total .stat-icon {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
   }
 
-  .stat-label {
-    font-size: 0.85rem;
-    color: #6c757d;
+  &.stat-active .stat-icon {
+    background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
   }
 }
 
+// ========================================
+// MAIN CARD
+// ========================================
 .product-list-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   overflow: visible;
-  padding-bottom: 1rem;
 }
 
+// ========================================
+// TABLE HEADER / SEARCH
+// ========================================
 .table-header-modern {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -159,144 +231,193 @@
 
 .search-input-wrapper {
   position: relative;
+  display: flex;
+  align-items: center;
   flex: 1;
 
   .search-icon {
     position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    z-index: 1;
   }
 
   .search-input {
     width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    padding: 0.7rem 2.5rem 0.7rem 2.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 50px;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
+    transition: $transition;
 
     &:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+
+    &::placeholder {
+      color: #9ca3af;
     }
   }
 
   .clear-search-btn {
     position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 12px;
     background: none;
     border: none;
-    color: #6c757d;
+    color: #9ca3af;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 4px;
+    border-radius: 50%;
+    transition: $transition;
 
     &:hover {
-      color: #dc3545;
+      color: $danger-color;
+      background: rgba($danger-color, 0.1);
     }
   }
 }
 
 .btn-search {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: #667eea;
-  color: white;
+  gap: 6px;
+  padding: 0.65rem 1.25rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
   border: none;
-  border-radius: 8px;
+  border-radius: 50px;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: $transition;
 
   &:hover {
-    background: #5a6fd6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
   }
 }
 
 .btn-filter-action {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #f8f9fa;
-  color: #495057;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 0.6rem 1.2rem;
+  background: $white;
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 0.85rem;
   font-weight: 500;
+  color: $secondary-color;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: $transition;
+
+  i {
+    font-size: 0.9rem;
+  }
 
   &:hover {
-    background: #e9ecef;
+    border-color: $primary-color;
+    color: $primary-color;
+    background: rgba($primary-color, 0.05);
   }
 }
 
+// ========================================
+// TABLE STYLES
+// ========================================
 .table-header-row {
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
 
   th {
-    padding: 1rem;
+    padding: 1rem !important;
     font-weight: 600;
-    color: #495057;
-    border-bottom: 2px solid #e0e0e0;
-  }
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $primary-dark;
+    border-bottom: 2px solid rgba($primary-color, 0.2) !important;
+    white-space: nowrap;
 
-  .th-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
 
-    i {
-      color: #667eea;
+      i {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
     }
   }
 }
 
 .table-body-row {
-  transition: all 0.2s ease;
+  transition: $transition;
+  border-bottom: 1px solid #f3f4f6;
 
   &:hover {
-    background: #f8f9fa;
+    background: #faf5ff;
   }
 
   td {
-    padding: 1rem;
+    padding: 0.85rem 1rem !important;
     vertical-align: middle;
-    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
   }
 }
 
+// Code Badge
 .code-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.35rem 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 6px;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Name Wrapper
+.name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-name {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.product-description {
+  color: #6b7280;
+  font-size: 0.85rem;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Price Badge
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
+  color: $white;
+  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.product-name {
-  font-weight: 600;
-  color: #1a1a2e;
-}
-
-.product-description {
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.price-value {
-  font-weight: 600;
-  color: #28a745;
-}
-
+// ========================================
+// ACTION BUTTONS
+// ========================================
 .action-buttons {
   display: flex;
   gap: 0.5rem;
@@ -305,52 +426,60 @@
 .btn-action {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
-  border: none;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  border: none !important;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: $transition;
 
   i {
     font-size: 0.85rem;
   }
 
-  &.btn-edit {
-    background: #e3f2fd;
-    color: #1976d2;
+  &.btn-duplicate {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
 
     &:hover {
-      background: #1976d2;
-      color: white;
+      background: #0284c7 !important;
+      color: $white !important;
+      transform: translateY(-2px);
     }
   }
 
-  &.btn-duplicate {
-    background: #e8f5e9;
-    color: #388e3c;
+  &.btn-edit {
+    background: #fef3c7 !important;
+    color: #d97706 !important;
 
     &:hover {
-      background: #388e3c;
-      color: white;
+      background: #d97706 !important;
+      color: $white !important;
+      transform: translateY(-2px);
     }
   }
 
   &.btn-delete {
-    background: #ffebee;
-    color: #d32f2f;
+    background: #fee2e2 !important;
+    color: $danger-color !important;
 
     &:hover {
-      background: #d32f2f;
-      color: white;
+      background: $danger-color !important;
+      color: $white !important;
+      transform: translateY(-2px);
     }
   }
 }
 
+// ========================================
+// EMPTY STATE
+// ========================================
 .empty-message {
   text-align: center;
   padding: 3rem !important;
+  background: #fafafa;
 }
 
 .empty-state {
@@ -359,67 +488,187 @@
   align-items: center;
   gap: 1rem;
 
-  i {
-    font-size: 4rem;
-    color: #e0e0e0;
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 2.5rem;
+      color: $primary-light;
+    }
   }
 
   h3 {
     font-size: 1.25rem;
-    color: #495057;
+    color: #374151;
     margin: 0;
+    font-weight: 600;
   }
 
   p {
-    color: #6c757d;
+    color: #6b7280;
     margin: 0;
+    font-size: 0.9rem;
   }
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .product-list-container {
-    padding: 1rem;
-  }
+.btn-new-product-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: $transition;
+  margin-top: 0.5rem;
 
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    color: $white;
+    text-decoration: none;
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .product-list-header {
+    padding: 1rem;
+
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+
+    .page-title {
+      font-size: 1.5rem !important;
+    }
+
+    .header-right {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
   }
 
   .search-section {
     flex-direction: column;
     max-width: 100%;
+    width: 100%;
   }
 
   .search-input-wrapper {
     width: 100%;
   }
+
+  .table-header-modern {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
 }
 
-// Fix PrimeNG paginator dropdown
+@media (max-width: 576px) {
+  .product-list-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+
+  .product-list-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    border-radius: $border-radius-sm;
+  }
+
+  .product-list-card {
+    border-radius: $border-radius-sm;
+  }
+}
+
+// ========================================
+// PRIMENG OVERRIDES
+// ========================================
 ::ng-deep {
   .p-paginator {
     overflow: visible !important;
-    
+    padding: 1rem;
+    background: $light-bg;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 0 0 $border-radius $border-radius;
+
     .p-dropdown {
       min-width: 80px;
-      
+
       .p-dropdown-panel {
         z-index: 9999 !important;
       }
     }
+
+    .p-paginator-element {
+      border-radius: 8px;
+      
+      &:hover {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+      }
+    }
+
+    .p-paginator-page.p-highlight {
+      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+      color: $white;
+      border: none;
+    }
   }
-  
+
   .p-datatable {
     overflow: visible !important;
-    
+
     .p-datatable-wrapper {
       overflow: visible !important;
     }
+
+    .p-datatable-loading-overlay {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+    }
   }
-  
+
   .product-list-card {
     overflow: visible !important;
+  }
+
+  .p-sortable-column:hover {
+    background: rgba($primary-color, 0.1) !important;
+  }
+
+  .p-sortable-column.p-highlight {
+    background: rgba($primary-color, 0.15) !important;
+    color: $primary-dark !important;
   }
 }

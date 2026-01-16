@@ -1,15 +1,15 @@
-<!-- Container Principal -->
+<!-- Container Principal Moderno -->
 <div class="product-list-container">
-  <!-- Header Principal -->
+  <!-- Header Principal Moderno -->
   <div class="product-list-header">
     <div class="header-content">
       <div class="header-left">
         <div class="header-icon">
-          <i class="fas fa-box"></i>
+          <i class="fas fa-boxes"></i>
         </div>
         <div class="header-text">
           <h1 class="page-title">Productos</h1>
-          <p class="page-subtitle">Gestiona y administra tus productos</p>
+          <p class="page-subtitle">Gestiona y administra tu catálogo de productos</p>
         </div>
       </div>
       <div class="header-right">
@@ -27,11 +27,20 @@
   <div class="stats-row">
     <div class="stat-card stat-total">
       <div class="stat-icon">
-        <i class="fas fa-boxes"></i>
+        <i class="fas fa-cubes"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalRecords }}</span>
+        <span class="stat-label">Total Productos</span>
+      </div>
+    </div>
+    <div class="stat-card stat-active">
+      <div class="stat-icon">
+        <i class="fas fa-box-open"></i>
       </div>
       <div class="stat-info">
         <span class="stat-value">{{ products.length }}</span>
-        <span class="stat-label">Total Productos</span>
+        <span class="stat-label">En esta página</span>
       </div>
     </div>
   </div>
@@ -126,7 +135,7 @@
           </th>
           <th class="th-actions">
             <div class="th-content">
-              <i class="fas fa-cogs"></i>
+              <i class="fas fa-cog"></i>
               <span>Acciones</span>
             </div>
           </th>
@@ -140,13 +149,17 @@
             <span class="code-badge">{{ product.productInternalCode }}</span>
           </td>
           <td class="td-name">
-            <span class="product-name">{{ product.name }}</span>
+            <div class="name-wrapper">
+              <span class="product-name">{{ product.name }}</span>
+            </div>
           </td>
           <td class="td-description">
-            <span class="product-description">{{ product.description }}</span>
+            <span class="product-description" [pTooltip]="product.description" tooltipPosition="top">
+              {{ product.description | truncate:50 }}
+            </span>
           </td>
           <td class="td-price">
-            <span class="price-value">{{ formatPrice(product.price) }}</span>
+            <span class="price-badge">{{ formatPrice(product.price) }}</span>
           </td>
           <td class="td-actions">
             <div class="action-buttons">
@@ -155,7 +168,7 @@
                 type="button" 
                 class="btn-action btn-duplicate"
                 (click)="duplicateProduct(product)"
-                pTooltip="Duplicar"
+                pTooltip="Duplicar producto"
                 tooltipPosition="bottom">
                 <i class="fas fa-copy"></i>
               </button>
@@ -164,7 +177,7 @@
                 type="button" 
                 class="btn-action btn-edit"
                 (click)="goToEdit(product)"
-                pTooltip="Editar"
+                pTooltip="Editar producto"
                 tooltipPosition="bottom">
                 <i class="fas fa-pencil-alt"></i>
               </button>
@@ -173,7 +186,7 @@
                 type="button" 
                 class="btn-action btn-delete"
                 (click)="confirmDelete(product)"
-                pTooltip="Eliminar"
+                pTooltip="Eliminar producto"
                 tooltipPosition="bottom">
                 <i class="fas fa-trash-alt"></i>
               </button>
@@ -187,13 +200,15 @@
         <tr>
           <td colspan="5" class="empty-message">
             <div class="empty-state">
-              <i class="fas fa-box-open"></i>
+              <div class="empty-icon">
+                <i class="fas fa-box-open"></i>
+              </div>
               <h3>No se encontraron productos</h3>
               <p>Intenta con otros términos de búsqueda o crea un nuevo producto</p>
-              <button class="btn-new-product" (click)="goToAdd()">
+              <a class="btn-new-product-empty" [routerLink]="'/products/add'">
                 <i class="fas fa-plus"></i>
                 <span>Nuevo Producto</span>
-              </button>
+              </a>
             </div>
           </td>
         </tr>

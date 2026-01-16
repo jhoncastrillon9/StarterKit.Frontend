@@ -7,6 +7,7 @@ import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule
 import { IconModule } from '@coreui/icons-angular';
 import { ThousandSeparatorDirective } from './directives/thousand-separator.directive';
 import { ChipModule } from 'primeng/chip';
+import { SharedModule as PipesSharedModule } from '../shared.module';
 
 @NgModule({
   declarations: [
@@ -31,12 +32,14 @@ import { ChipModule } from 'primeng/chip';
     ListGroupModule,
     IconModule,
     ModalModule,
-    ChipModule // Para p-chip en el selector de emails
+    ChipModule, // Para p-chip en el selector de emails
+    PipesSharedModule
   ],
   exports: [
     ConfirmationModalComponent,
     EmailSelectorModalComponent,
-    ThousandSeparatorDirective
+    ThousandSeparatorDirective,
+    PipesSharedModule
   ] // Exportamos para que otros módulos lo usen
 })
 export class CustomSharedModule { }

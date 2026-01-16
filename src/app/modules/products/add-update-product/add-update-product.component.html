@@ -1,131 +1,205 @@
-<!-- Container Principal -->
-<div class="product-form-container">
-  <!-- Header -->
-  <div class="product-form-header">
+<!-- Product Page Container -->
+<div class="product-page-container">
+  <!-- Header Principal Moderno -->
+  <div class="product-header">
     <div class="header-content">
       <div class="header-left">
-        <button class="btn-back" (click)="onCancel()">
-          <i class="fas fa-arrow-left"></i>
-        </button>
         <div class="header-icon">
-          <i class="fas fa-box"></i>
+          <i class="fas" [ngClass]="isEditMode ? 'fa-edit' : 'fa-box-open'"></i>
         </div>
         <div class="header-text">
           <h1 class="page-title">{{ pageTitle }}</h1>
-          <p class="page-subtitle">{{ isEditMode ? 'Modifica los datos del producto' : 'Ingresa los datos del nuevo producto' }}</p>
+          <p class="page-subtitle">{{ isEditMode ? 'Modifica los datos del producto' : 'Complete los datos del nuevo producto' }}</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="date-badge">
+          <i class="far fa-calendar-alt"></i>
+          <span>{{ currentDate | date : "dd MMM yyyy" }}</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Form Card -->
-  <div class="product-form-card">
-    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-      <div class="form-grid">
-        <!-- Código Interno -->
-        <div class="form-group">
-          <label for="productInternalCode" class="form-label">
-            <i class="fas fa-barcode"></i>
-            Código Interno <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="productInternalCode" 
-            formControlName="productInternalCode"
-            placeholder="Ej: PROD-001"
-            class="form-input"
-            [ngClass]="{'input-error': productInternalCodeInvalid}"/>
-          <small *ngIf="productInternalCodeInvalid" class="error-message">
-            El código interno es requerido
-          </small>
-        </div>
+  <form cForm class="product-form" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <!-- Card de Información del Producto -->
+    <div class="product-card info-card">
+      <div class="card-header-custom">
+        <i class="fas fa-cube"></i>
+        <span>Información del Producto</span>
+      </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Código Interno -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="productInternalCode" class="label-modern">
+                <i class="fas fa-barcode"></i>
+                Código Interno
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="productInternalCode"
+                class="input-modern"
+                placeholder="Ej: PROD-001"
+                maxlength="50"
+                [ngClass]="{
+                  'is-invalid':
+                    productForm.get('productInternalCode')?.invalid &&
+                    (productForm.get('productInternalCode')?.touched ||
+                      productForm.get('productInternalCode')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  productForm.get('productInternalCode')?.invalid &&
+                  (productForm.get('productInternalCode')?.touched ||
+                    productForm.get('productInternalCode')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El código interno es obligatorio.
+              </div>
+            </div>
+          </c-col>
 
-        <!-- Nombre -->
-        <div class="form-group">
-          <label for="name" class="form-label">
-            <i class="fas fa-tag"></i>
-            Nombre <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="name" 
-            formControlName="name"
-            placeholder="Nombre del producto"
-            class="form-input"
-            [ngClass]="{'input-error': nameInvalid}"/>
-          <small *ngIf="nameInvalid" class="error-message">
-            El nombre es requerido
-          </small>
-        </div>
-
-        <!-- Precio -->
-        <div class="form-group">
-          <label for="price" class="form-label">
-            <i class="fas fa-dollar-sign"></i>
-            Precio <span class="required">*</span>
-          </label>
-          <p-inputNumber 
-            id="price" 
-            formControlName="price"
-            mode="currency" 
-            currency="COP" 
-            locale="es-CO"
-            [minFractionDigits]="0"
-            placeholder="0"
-            styleClass="form-input-number"
-            [ngClass]="{'input-error': priceInvalid}">
-          </p-inputNumber>
-          <small *ngIf="priceInvalid" class="error-message">
-            El precio es requerido y debe ser mayor o igual a 0
-          </small>
-        </div>
-
-        <!-- Descripción (full width) -->
-        <div class="form-group full-width">
-          <label for="description" class="form-label">
-            <i class="fas fa-align-left"></i>
-            Descripción
-          </label>
-          <textarea 
-            pInputTextarea 
-            id="description" 
-            formControlName="description"
-            placeholder="Descripción del producto (opcional)"
-            rows="4"
-            class="form-textarea">
-          </textarea>
+          <!-- Nombre del Producto -->
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="name" class="label-modern">
+                <i class="fas fa-tag"></i>
+                Nombre del Producto
+                <span class="required-star">*</span>
+              </label>
+              <input
+                cFormControl
+                formControlName="name"
+                class="input-modern"
+                placeholder="Nombre del producto"
+                maxlength="200"
+                [ngClass]="{
+                  'is-invalid':
+                    productForm.get('name')?.invalid &&
+                    (productForm.get('name')?.touched ||
+                      productForm.get('name')?.dirty)
+                }"
+              />
+              <div
+                class="error-message"
+                *ngIf="
+                  productForm.get('name')?.invalid &&
+                  (productForm.get('name')?.touched ||
+                    productForm.get('name')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El nombre del producto es obligatorio.
+              </div>
+            </div>
+          </c-col>
         </div>
       </div>
+    </div>
 
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <button 
-          type="button" 
-          class="btn-cancel" 
-          (click)="onCancel()">
-          <i class="fas fa-times"></i>
-          <span>Cancelar</span>
-        </button>
-        <button 
-          type="submit" 
-          class="btn-save"
-          [disabled]="productForm.invalid">
-          <i class="fas fa-save"></i>
-          <span>{{ isEditMode ? 'Actualizar' : 'Guardar' }}</span>
-        </button>
+    <!-- Card de Detalles y Precio -->
+    <div class="product-card details-card">
+      <div class="card-header-custom">
+        <i class="fas fa-money-bill-wave"></i>
+        <span>Detalles y Precio</span>
       </div>
-    </form>
-  </div>
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Precio -->
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="price" class="label-modern">
+                <i class="fas fa-dollar-sign"></i>
+                Precio
+                <span class="required-star">*</span>
+              </label>
+              <div class="input-price-wrapper">
+                <span class="currency-prefix">$</span>
+                <input
+                  cFormControl
+                  type="number"
+                  formControlName="price"
+                  class="input-modern input-price"
+                  placeholder="0"
+                  min="0"
+                  [ngClass]="{
+                    'is-invalid':
+                      productForm.get('price')?.invalid &&
+                      (productForm.get('price')?.touched ||
+                        productForm.get('price')?.dirty)
+                  }"
+                />
+              </div>
+              <div
+                class="error-message"
+                *ngIf="
+                  productForm.get('price')?.invalid &&
+                  (productForm.get('price')?.touched ||
+                    productForm.get('price')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El precio es obligatorio y debe ser mayor o igual a 0.
+              </div>
+            </div>
+          </c-col>
+
+          <!-- Descripción -->
+          <c-col xs="12" sm="12" md="8">
+            <div class="form-group-modern">
+              <label cLabel for="description" class="label-modern">
+                <i class="fas fa-align-left"></i>
+                Descripción
+              </label>
+              <textarea
+                cFormControl
+                formControlName="description"
+                class="input-modern textarea-modern"
+                placeholder="Descripción del producto (opcional)"
+                rows="3"
+                maxlength="500"
+              ></textarea>
+              <small class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Máximo 500 caracteres
+              </small>
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <a
+        class="btn-modern btn-back"
+        [routerLink]="'/products/products'"
+      >
+        <i class="fas fa-arrow-left"></i>
+        Regresar
+      </a>
+      <button type="submit" class="btn-modern btn-save" [disabled]="productForm.invalid">
+        <i class="fas" [ngClass]="isEditMode ? 'fa-sync-alt' : 'fa-save'"></i>
+        {{ isEditMode ? 'Actualizar Producto' : 'Guardar Producto' }}
+      </button>
+    </div>
+  </form>
 </div>
 
-<!-- Modal de Confirmación -->
-<app-confirmation-modal 
+<!-- Modal de confirmación -->
+<app-confirmation-modal
   #confirmationModal
-  [title]="modalTitle"
   [messageModal]="modalMessage"
+  [title]="modalTitle"
   [isModalError]="isModalError"
-  [isConfirmation]="false"
-  (confirmAction)="onModalConfirm()">
+  [alignment]="'top'"
+>
 </app-confirmation-modal>
 
 <ngx-spinner 

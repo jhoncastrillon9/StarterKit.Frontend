@@ -18,6 +18,7 @@ export class AddUpdateProductComponent implements OnInit {
   isEditMode: boolean = false;
   productId: number | null = null;
   pageTitle: string = 'Nuevo Producto';
+  currentDate: Date = new Date();
 
   // Modal
   visible: boolean = false;
