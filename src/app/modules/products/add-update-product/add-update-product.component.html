@@ -1,0 +1,138 @@
+<!-- Container Principal -->
+<div class="product-form-container">
+  <!-- Header -->
+  <div class="product-form-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn-back" (click)="onCancel()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ pageTitle }}</h1>
+          <p class="page-subtitle">{{ isEditMode ? 'Modifica los datos del producto' : 'Ingresa los datos del nuevo producto' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="product-form-card">
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Código Interno -->
+        <div class="form-group">
+          <label for="productInternalCode" class="form-label">
+            <i class="fas fa-barcode"></i>
+            Código Interno <span class="required">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="productInternalCode" 
+            formControlName="productInternalCode"
+            placeholder="Ej: PROD-001"
+            class="form-input"
+            [ngClass]="{'input-error': productInternalCodeInvalid}"/>
+          <small *ngIf="productInternalCodeInvalid" class="error-message">
+            El código interno es requerido
+          </small>
+        </div>
+
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="name" class="form-label">
+            <i class="fas fa-tag"></i>
+            Nombre <span class="required">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="name" 
+            formControlName="name"
+            placeholder="Nombre del producto"
+            class="form-input"
+            [ngClass]="{'input-error': nameInvalid}"/>
+          <small *ngIf="nameInvalid" class="error-message">
+            El nombre es requerido
+          </small>
+        </div>
+
+        <!-- Precio -->
+        <div class="form-group">
+          <label for="price" class="form-label">
+            <i class="fas fa-dollar-sign"></i>
+            Precio <span class="required">*</span>
+          </label>
+          <p-inputNumber 
+            id="price" 
+            formControlName="price"
+            mode="currency" 
+            currency="COP" 
+            locale="es-CO"
+            [minFractionDigits]="0"
+            placeholder="0"
+            styleClass="form-input-number"
+            [ngClass]="{'input-error': priceInvalid}">
+          </p-inputNumber>
+          <small *ngIf="priceInvalid" class="error-message">
+            El precio es requerido y debe ser mayor o igual a 0
+          </small>
+        </div>
+
+        <!-- Descripción (full width) -->
+        <div class="form-group full-width">
+          <label for="description" class="form-label">
+            <i class="fas fa-align-left"></i>
+            Descripción
+          </label>
+          <textarea 
+            pInputTextarea 
+            id="description" 
+            formControlName="description"
+            placeholder="Descripción del producto (opcional)"
+            rows="4"
+            class="form-textarea">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn-cancel" 
+          (click)="onCancel()">
+          <i class="fas fa-times"></i>
+          <span>Cancelar</span>
+        </button>
+        <button 
+          type="submit" 
+          class="btn-save"
+          [disabled]="productForm.invalid">
+          <i class="fas fa-save"></i>
+          <span>{{ isEditMode ? 'Actualizar' : 'Guardar' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<app-reusable-modal 
+  [(visible)]="visible"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  [isError]="isModalError"
+  [showCancelButton]="false"
+  (confirm)="onModalConfirm()">
+</app-reusable-modal>
+
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.8)" 
+  size="medium" 
+  color="#fff" 
+  type="ball-clip-rotate" 
+  [fullScreen]="true">
+  <p style="color: white">Cargando...</p>
+</ngx-spinner>

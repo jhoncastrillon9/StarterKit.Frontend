@@ -64,6 +64,24 @@ export const navItems: INavData[] = [
   },
 
   {
+    name: 'Productos',
+    url: '/products',
+    iconComponent: { name: 'cil-basket' },
+    children: [
+      {
+        name: 'Listado de productos',
+        url: '/products/products',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Nuevo producto',
+        url: '/products/add',
+        icon: 'nav-icon-bullet'
+      },
+    ]
+  },
+
+  {
     name: 'Informes de obra',
     url: '/projectreports',    
     iconComponent: { name: 'cil-description' },
