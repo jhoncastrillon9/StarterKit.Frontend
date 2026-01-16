@@ -182,13 +182,6 @@
               <p-sortIcon field="estado" />
             </div>
           </th>
-          <th pSortableColumn="projectReportId" class="th-report">
-            <div class="th-content">
-              <i class="fas fa-clipboard-list"></i>
-              <span>Informe</span>
-              <p-sortIcon field="projectReportId" />
-            </div>
-          </th>
           <th pSortableColumn="total" class="th-total">
             <div class="th-content">
               <i class="fas fa-dollar-sign"></i>
@@ -294,19 +287,6 @@
             </p-dropdown>
           </td>
           
-          <!-- Informe -->
-          <td class="td-report">
-            <c-badge 
-              *ngIf="budget.projectReportId && budget.projectReportId !== 0" 
-              class="report-badge">
-              <i class="fas fa-clipboard-check"></i>
-              {{ budget.projectReportId }}
-            </c-badge>
-            <span *ngIf="!budget.projectReportId || budget.projectReportId === 0" class="no-report">
-              -
-            </span>
-          </td>
-          
           <!-- Total -->
           <td class="td-total">
             <span class="total-value">
@@ -360,7 +340,7 @@
       <!-- Empty Message -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="9" class="empty-state">
+          <td colspan="8" class="empty-state">
             <div class="empty-content">
               <i class="fas fa-folder-open empty-icon"></i>
               <h3>No hay cotizaciones</h3>
