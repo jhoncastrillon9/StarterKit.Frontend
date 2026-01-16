@@ -1,71 +1,97 @@
-<c-row class="mt-3">
+<c-row class="widget-row g-4">
+  <!-- Cotizaciones Widget -->
   <c-col sm="6" xl="3">
-    <c-widget-stat-a
-      class="mb-4"
-      color="primary"
-      title="Consultar, crear..."
-      style="cursor: pointer;"
-      [routerLink]="['/budgets/budgets']"
-    >
-      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        Cotizaciones
-      </ng-template>
-      <ng-template cTemplateId="widgetActionTemplate">
-
-      </ng-template>
-      <ng-template cTemplateId="widgetChartTemplate">
-        <c-chart [data]="data[0]" [options]="options[0]" class="mt-3 mx-3" height="70" [type]="'line'"></c-chart>
-      </ng-template>
-    </c-widget-stat-a>
-  </c-col>
-  <c-col sm="6" xl="3">
-    <c-widget-stat-a
-      [title]="'Analisis de Precios Unitarios'"
-      class="mb-4"
-      color="info"
-      [routerLink]="['/apus/apus']"
-      style="cursor: pointer;"
-    >
-      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>APU</span>
-      </ng-template>
-      <ng-template cTemplateId="widgetChartTemplate">
-        <c-chart [data]="data[1]" [options]="options[1]" class="mt-3 mx-3" height="70" type="line"></c-chart>
-      </ng-template>
-    </c-widget-stat-a>
+    <div class="widget-card primary" [routerLink]="['/budgets/budgets']">
+      <div class="widget-bg-icon">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
+      <div class="widget-content">
+        <div class="widget-icon-wrapper">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <div class="widget-info">
+          <h3 class="widget-title">Cotizaciones</h3>
+          <p class="widget-subtitle">Consultar, crear y gestionar</p>
+        </div>
+        <div class="widget-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      <div class="widget-chart">
+        <c-chart [data]="data[0]" [options]="options[0]" height="50" [type]="'line'"></c-chart>
+      </div>
+    </div>
   </c-col>
 
+  <!-- APU Widget -->
   <c-col sm="6" xl="3">
-    <c-widget-stat-a
-    [title]="'Consultar, crear...'"
-      class="mb-4"
-      color="warning"
-      [routerLink]="['/customers/customers']"
-      style="cursor: pointer;"
-    >
-      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>Clientes</span>
-      </ng-template>
-      <ng-template cTemplateId="widgetChartTemplate">
-        <c-chart [data]="data[2]" [options]="options[2]" class="mt-3" height="70" type="line"></c-chart>
-      </ng-template>
-    </c-widget-stat-a>
+    <div class="widget-card info" [routerLink]="['/apus/apus']">
+      <div class="widget-bg-icon">
+        <i class="fas fa-calculator"></i>
+      </div>
+      <div class="widget-content">
+        <div class="widget-icon-wrapper">
+          <i class="fas fa-calculator"></i>
+        </div>
+        <div class="widget-info">
+          <h3 class="widget-title">APU</h3>
+          <p class="widget-subtitle">Análisis de Precios Unitarios</p>
+        </div>
+        <div class="widget-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      <div class="widget-chart">
+        <c-chart [data]="data[1]" [options]="options[1]" height="50" type="line"></c-chart>
+      </div>
+    </div>
   </c-col>
 
+  <!-- Clientes Widget -->
   <c-col sm="6" xl="3">
-    <c-widget-stat-a
-      [title]="'Web, email, logo...'"
-      class="mb-4"
-      color="danger"
-      [routerLink]="['/configurations/companyConfig']"
-      style="cursor: pointer;"
-    >
-      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>Configuraciones</span>
-      </ng-template>
-      <ng-template cTemplateId="widgetChartTemplate">
-        <c-chart [data]="data[3]" [options]="options[3]" class="mt-3 mx-3" height="70" type="bar"></c-chart>
-      </ng-template>
-    </c-widget-stat-a>
+    <div class="widget-card warning" [routerLink]="['/customers/customers']">
+      <div class="widget-bg-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="widget-content">
+        <div class="widget-icon-wrapper">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="widget-info">
+          <h3 class="widget-title">Clientes</h3>
+          <p class="widget-subtitle">Base de datos de clientes</p>
+        </div>
+        <div class="widget-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      <div class="widget-chart">
+        <c-chart [data]="data[2]" [options]="options[2]" height="50" type="line"></c-chart>
+      </div>
+    </div>
+  </c-col>
+
+  <!-- Configuraciones Widget -->
+  <c-col sm="6" xl="3">
+    <div class="widget-card danger" [routerLink]="['/configurations/companyConfig']">
+      <div class="widget-bg-icon">
+        <i class="fas fa-cog"></i>
+      </div>
+      <div class="widget-content">
+        <div class="widget-icon-wrapper">
+          <i class="fas fa-cog"></i>
+        </div>
+        <div class="widget-info">
+          <h3 class="widget-title">Configuraciones</h3>
+          <p class="widget-subtitle">Web, email, logo y más</p>
+        </div>
+        <div class="widget-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      <div class="widget-chart">
+        <c-chart [data]="data[3]" [options]="options[3]" height="50" type="bar"></c-chart>
+      </div>
+    </div>
   </c-col>
 </c-row>

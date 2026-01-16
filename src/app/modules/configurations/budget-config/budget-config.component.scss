@@ -152,7 +152,7 @@ $transition: all 0.3s ease;
 // ========================================
 .templates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
@@ -217,12 +217,13 @@ $transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     background: $light-bg;
-    height: 180px;
+    height: 420px;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: top;
       transition: $transition;
     }
 
@@ -453,13 +454,13 @@ $transition: all 0.3s ease;
   }
 
   .templates-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
   }
 
   .template-card {
     .template-image {
-      height: 140px;
+      height: 300px;
     }
 
     .template-name {
