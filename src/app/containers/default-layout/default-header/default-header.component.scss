@@ -14,6 +14,7 @@ $info-color: #0dcaf0;
 $whatsapp-color: #25D366;
 $light-bg: #f8f9fa;
 $white: #ffffff;
+$dark-text: #333;
 $border-radius: 12px;
 $border-radius-sm: 8px;
 $shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -39,9 +40,10 @@ $transition: all 0.3s ease;
 // MAIN CONTAINER
 // ========================================
 .header-modern-container {
-  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  background: $white;
   padding: 0.75rem 0;
-  box-shadow: $shadow-md;
+  box-shadow: $shadow-sm;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   width: 100%;
 
   .header-inner {
@@ -63,9 +65,9 @@ $transition: all 0.3s ease;
     width: 40px;
     height: 40px;
     border: none;
-    background: rgba(255, 255, 255, 0.15);
+    background: $light-bg;
     border-radius: $border-radius-sm;
-    color: $white;
+    color: $primary-color;
     cursor: pointer;
     transition: $transition;
     display: flex;
@@ -73,7 +75,7 @@ $transition: all 0.3s ease;
     justify-content: center;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba($primary-color, 0.1);
       transform: scale(1.05);
     }
 
@@ -93,7 +95,7 @@ $transition: all 0.3s ease;
       align-items: center;
       gap: 0.5rem;
       padding: 0.5rem 1rem;
-      color: rgba(255, 255, 255, 0.85);
+      color: $secondary-color;
       text-decoration: none;
       border-radius: 50px;
       font-weight: 500;
@@ -102,13 +104,13 @@ $transition: all 0.3s ease;
       background: transparent;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: $white;
+        background: $light-bg;
+        color: $primary-color;
       }
 
       &.active {
-        background: rgba(255, 255, 255, 0.2);
-        color: $white;
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
       }
 
       i {
@@ -158,12 +160,11 @@ $transition: all 0.3s ease;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.15);
-    color: $white;
+    background: $light-bg;
+    color: $dark-text;
     border-radius: 50px;
     font-weight: 500;
     font-size: 0.875rem;
-    backdrop-filter: blur(10px);
 
     i {
       font-size: 1rem;
@@ -195,7 +196,7 @@ $transition: all 0.3s ease;
     border-radius: 50%;
     overflow: visible;
     transition: $transition;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba($primary-color, 0.2);
 
     .avatar-img {
       width: 100%;
