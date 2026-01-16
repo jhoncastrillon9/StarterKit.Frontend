@@ -68,6 +68,55 @@ getSubtotalDetail(budgetDetailsDto:BudgetDetailModel){
 return budgetDetailsDto.quantity*budgetDetailsDto.price;
 }
 
+/**
+ * Verifica si el item en el índice dado es el último item de una sección
+ */
+isLastItemOfSection(index: number): boolean {
+  const details = this.budgetDto?.budgetDetailsDto;
+  if (!details) return false;
+  
+  const currentItem = details[index];
+  
+  // Si el item actual es un título, no es un item de sección
+  if (currentItem?.isTitle) {
+    return false;
+  }
+  
+  // Si es el último item de la lista
+  if (index === details.length - 1) {
+    return true;
+  }
+  
+  // Si el siguiente item es un título
+  const nextItem = details[index + 1];
+  if (nextItem?.isTitle) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Calcula el subtotal de la sección que termina en el índice dado
+ */
+getSectionSubtotal(endIndex: number): number {
+  const details = this.budgetDto?.budgetDetailsDto;
+  if (!details) return 0;
+  
+  let subtotal = 0;
+  
+  // Buscar hacia atrás hasta encontrar un título o el inicio
+  for (let i = endIndex; i >= 0; i--) {
+    const item = details[i];
+    if (item?.isTitle) {
+      break;
+    }
+    subtotal += (item?.quantity || 0) * (item?.price || 0);
+  }
+  
+  return subtotal;
+}
+
 
 generatePDF = () => {
   this.spinner.show();

@@ -425,6 +425,18 @@
                   </div>
                 </td>
               </tr>
+              
+              <!-- Section Subtotal Row - shown after the last item before a title or at the end -->
+              <tr *ngIf="isLastItemOfSection(i)" class="table-row-section-subtotal">
+                <td class="td-drag"></td>
+                <td colspan="4" class="td-section-subtotal-label">
+                  <span>Subtotal de sección</span>
+                </td>
+                <td class="td-section-subtotal-value">
+                  <span>$ {{ getSectionSubtotal(i).toLocaleString('es-CO') }}</span>
+                </td>
+                <td class="td-actions"></td>
+              </tr>
               </ng-container>
             </tbody>
           </table>

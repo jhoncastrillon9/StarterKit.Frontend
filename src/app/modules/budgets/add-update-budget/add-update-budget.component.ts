@@ -286,6 +286,58 @@ export class AddUpdateBudgetComponent implements OnInit {
     return this.budgetForm.get('budgetDetailsDto') as FormArray;
   }
 
+  /**
+   * Verifica si el item en el índice dado es el último item de una sección
+   * (es decir, el siguiente item es un título o es el último item de la lista)
+   */
+  isLastItemOfSection(index: number): boolean {
+    const controls = this.budgetDetails.controls;
+    const currentItem = controls[index];
+    
+    // Si el item actual es un título, no es un item de sección
+    if (currentItem?.get('isTitle')?.value) {
+      return false;
+    }
+    
+    // Si es el último item de la lista
+    if (index === controls.length - 1) {
+      return true;
+    }
+    
+    // Si el siguiente item es un título
+    const nextItem = controls[index + 1];
+    if (nextItem?.get('isTitle')?.value) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Calcula el subtotal de la sección que termina en el índice dado
+   * Suma todos los items desde el título anterior (o el inicio) hasta este índice
+   */
+  getSectionSubtotal(endIndex: number): number {
+    const controls = this.budgetDetails.controls;
+    let subtotal = 0;
+    
+    // Buscar hacia atrás hasta encontrar un título o el inicio
+    for (let i = endIndex; i >= 0; i--) {
+      const control = controls[i];
+      if (control?.get('isTitle')?.value) {
+        break; // Encontramos un título, detenemos
+      }
+      
+      const itemSubtotal = control?.get('subtotal')?.value;
+      if (itemSubtotal !== null && itemSubtotal !== undefined) {
+        const sanitized = String(itemSubtotal).replace(/,/g, '').replace(/\./g, '');
+        subtotal += parseFloat(sanitized) || 0;
+      }
+    }
+    
+    return subtotal;
+  }
+
   onAddUpdateBudget() {
     this.budgetForm.markAllAsTouched();
     if (this.budgetForm.valid) {

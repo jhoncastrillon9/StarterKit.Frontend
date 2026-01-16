@@ -76,6 +76,15 @@
           <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{budgetDetailsDto.price.toLocaleString()}}</td>
           <td style="border: 1px solid #ddd; padding: 10px; text-align: left;text-align: right;">${{getSubtotalDetail(budgetDetailsDto).toLocaleString()}}</td>        
         </tr>
+        <!-- Section Subtotal Row -->
+        <tr *ngIf="isLastItemOfSection(i)" style="background-color: #f0fdf4; border-bottom: 2px solid #bbf7d0;">
+          <td colspan="4" style="padding: 8px 10px; text-align: right; font-style: italic; color: #166534; font-size: 18px;">
+            Subtotal de sección
+          </td>
+          <td style="border: 1px solid #bbf7d0; padding: 8px 10px; text-align: right; font-weight: 700; color: #166534; font-size: 18px; background-color: rgba(255,255,255,0.6);">
+            ${{getSectionSubtotal(i).toLocaleString()}}
+          </td>
+        </tr>
       </ng-container>
       
     </tbody>
