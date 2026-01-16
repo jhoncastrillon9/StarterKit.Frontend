@@ -1,746 +1,694 @@
-<c-col xs="12">
-  <div
-    style="display: flex; justify-content: space-between; align-items: center"
-    class="p-1"
-  >
-    <span
-      style="
-        color: #6610f2;
-        font-size: 2rem;
-        font-weight: 500;
-        font-family: Yanone Kaffeesatz;
-      "
-      color="primary"
-      class="cui-primary"
-      >{{ titlePage }}</span
-    >
-    <div style="color: #6610f2; font-weight: 600">
-      <span *ngIf="internalCode">Cotización N° {{ internalCode }} | </span>Fecha {{ currentDate | date : "dd MMM yyyy" }}
+<!-- Header Principal Moderno -->
+<div class="budget-page-container">
+  <div class="budget-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ titlePage }}</h1>
+          <p class="page-subtitle" *ngIf="internalCode">Cotización N° {{ internalCode }}</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="date-badge">
+          <i class="far fa-calendar-alt"></i>
+          <span>{{ currentDate | date : "dd MMM yyyy" }}</span>
+        </div>
+      </div>
     </div>
   </div>
-</c-col>
 
-<c-col xs="12">
   <form
     cForm
-    class="row g-3"
+    class="budget-form"
     [formGroup]="budgetForm"
     (ngSubmit)="onAddUpdateBudget()"
   >
     <input cFormControl formControlName="budgetId" style="display: none" />
 
-    <!-- Nombre -->
-    <c-col xs="12" sm="6" md="6" lg="3">
-      <label cLabel for="budgetName">Nombre de la Obra o cotización:*</label>
-      <input
-        cFormControl
-        formControlName="budgetName"
-        class="form-control-sm"
-          maxlength="500"
-        [ngClass]="{
-          'is-invalid':
-            budgetForm.get('budgetName')?.invalid &&
-            (budgetForm.get('budgetName')?.touched ||
-              budgetForm.get('budgetName')?.dirty)
-        }"
-      />
-
-      <div
-        class="text-medium-emphasis small text-danger-error"
-        *ngIf="
-          budgetForm.get('budgetName')?.invalid &&
-          (budgetForm.get('budgetName')?.touched ||
-            budgetForm.get('budgetName')?.dirty)
-        "
-      >
-        El nombre de la obra o cotización es obligatorio.
+    <!-- Card de Información General -->
+    <div class="budget-card info-card">
+      <div class="card-header-custom">
+        <i class="fas fa-info-circle"></i>
+        <span>Información General</span>
       </div>
-    </c-col>
-
-    <!-- Cliente -->
-    <c-col xs="12" sm="6" md="6" lg="3">
-      <label cLabel for="customerId">Cliente:*</label>
-      <select
-        aria-label="Default select example"
-        cFormControl
-        cSelect
-        formControlName="customerId"
-        [ngClass]="{
-          'is-invalid':
-            budgetForm.get('customerId')?.invalid &&
-            (budgetForm.get('customerId')?.touched ||
-              budgetForm.get('customerId')?.dirty)
-        }"
-        class="form-select-sm form-control-sm"
-      >
-        <option value="" disabled selected>Seleccione un cliente</option>
-        <!-- Opción por defecto -->
-        <option
-          *ngFor="let customer of customers"
-          [value]="customer.customerId"
-        >
-          {{ customer.customerName }}
-        </option>
-      </select>
-      <div
-        class="text-medium-emphasis small text-danger-error"
-        *ngIf="
-          budgetForm.get('customerId')?.invalid &&
-          (budgetForm.get('customerId')?.touched ||
-            budgetForm.get('customerId')?.dirty)
-        "
-      >
-        El cliente es obligatorio.
-      </div>
-    </c-col>
-
-    <!-- IVA, AIU y Sumar AIU -->
-    <c-col xs="12" sm="12" md="12" lg="6" class="mb-2 mb-lg-0">
-      <label cLabel class="d-block mb-2">Opciones:</label>
-      <div class="d-flex flex-wrap gap-3 align-items-center">
-        <div class="form-check">
-          <input
-            cFormCheckInput
-            type="checkbox"
-            cFormControl
-            formControlName="hasIVA"
-            (change)="updateCheckStatusIVA()"
-          />
-          <label class="form-check-label">IVA</label>
-        </div>
-        <div class="form-check">
-          <input
-            cFormCheckInput
-            type="checkbox"
-            cFormControl
-            formControlName="hasAIU"
-            (change)="updateCheckStatusAIU()"
-          />
-          <label class="form-check-label">Aplicar AIU</label>
-        </div>
-        <div class="form-check">
-          <input
-            cFormCheckInput
-            type="checkbox"
-            cFormControl
-            formControlName="sumAIU"
-            (change)="updateAmount()"
-          />
-          <label class="form-check-label">Sumar AIU Al Total</label>
-        </div>
-      </div>
-    </c-col>
-
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th class="drag-handle colo-frayforTable" style="width: 40px;"></th>
-            <th class="descripcion colo-frayforTable">Descripción</th>
-            <th class="und colo-frayforTable">Und</th>
-            <th class="cantidad colo-frayforTable">Cantidad</th>
-            <th class="precio colo-frayforTable">Precio</th>
-            <th class="subtotal colo-frayforTable">Subtotal</th>
-            <th class="acciones colo-frayforTable">Acciones</th>
-          </tr>
-        </thead>
-        <tbody formArrayName="budgetDetailsDto">
-          <tr
-            *ngFor="let detail of budgetDetails.controls; let i = index"
-            [formGroupName]="i"
-            (dragover)="dragOver($event, i)"
-            (drop)="drop($event, i)"
-            (dragleave)="dragLeave($event)"
-            [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
-          >
-            <td class="align-middle text-center drag-handle" style="cursor: grab;">
-              <i 
-                class="fas fa-bars" 
-                style="color: #6c757d; font-size: 1.2rem; cursor: grab;"
-                draggable="true"
-                (dragstart)="dragStart($event, i)"
-                (dragend)="dragEnd($event)"
-              ></i>
-            </td>
-            <td>
-              <!-- Description -->
-              <textarea
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <!-- Nombre -->
+          <c-col xs="12" sm="6" md="6" lg="4">
+            <div class="form-group-modern">
+              <label cLabel for="budgetName" class="label-modern">
+                <i class="fas fa-building"></i>
+                Nombre de la Obra o Cotización
+                <span class="required-star">*</span>
+              </label>
+              <input
                 cFormControl
-                formControlName="description"
-                placeholder="Descripción"
+                formControlName="budgetName"
+                class="input-modern"
+                placeholder="Ej: Construcción edificio residencial"
                 maxlength="500"
-                style="
-                  min-height: 50px;
-                  resize: vertical;
-                  max-height: 200px;
-                  width: 100%;
-                "
-                rows="2"
                 [ngClass]="{
                   'is-invalid':
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('description')
-                      ?.hasError('required') &&
-                    (budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('description')?.touched ||
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('description')?.dirty)
-                }"
-              >
-              </textarea>
-              <div
-                class="text-medium-emphasis small text-danger-error"
-                *ngIf="
-                  budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('description')
-                    ?.hasError('required') &&
-                  (budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('description')?.touched ||
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('description')?.dirty)
-                "
-              >
-                La descripción es obligatoria.
-              </div>
-            </td>
-            <td class="align-middle">
-              <select
-                class="form-select form-select-sm"
-                aria-label="Und"
-                cFormControl
-                formControlName="unitMeasurement"
-              >
-                <option value="Und" selected>Und</option>
-                <option value="M2">M2</option>
-                <option value="M3">M3</option>
-                <option value="ML">ML</option>
-                <option value="kg">kg</option>
-                <option value="hr">hr</option>
-                <option value="mes">mes</option>
-                <option value="km">km</option>
-                <option value="Carga">Carga</option>
-                <option value="M3-km">M3-km</option>
-                <option value="jgo">jgo</option>
-                <option value="lt">lt</option>
-                <option value="ton-m">ton-m</option>
-                <option value="HA">HA</option>
-              </select>
-            </td>
-            <td class="align-middle">
-              <!-- quantity -->
-              <input
-                cFormControl
-                formControlName="quantity"
-                placeholder="Cantidad"
-                type="text"
-                (keypress)="onlyNumbers($event)"
-                (change)="calculateSubtotalForDetails(i)"
-                (blur)="calculateSubtotalForDetails(i)"
-                (input)="calculateSubtotalForDetails(i)"
-                class="form-control-sm"
-                [ngClass]="{
-                  'is-invalid':
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')
-                      ?.hasError('required') &&
-                    (budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')?.touched ||
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('quantity')?.dirty)
+                    budgetForm.get('budgetName')?.invalid &&
+                    (budgetForm.get('budgetName')?.touched ||
+                      budgetForm.get('budgetName')?.dirty)
                 }"
               />
-
               <div
-                class="text-medium-emphasis small text-danger-error"
+                class="error-message"
                 *ngIf="
-                  budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('quantity')
-                    ?.hasError('required') &&
-                  (budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('quantity')?.touched ||
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')?.dirty)
+                  budgetForm.get('budgetName')?.invalid &&
+                  (budgetForm.get('budgetName')?.touched ||
+                    budgetForm.get('budgetName')?.dirty)
                 "
               >
-                La cantidad es obligatoria.
+                <i class="fas fa-exclamation-circle"></i>
+                El nombre de la obra o cotización es obligatorio.
               </div>
-            </td>
-            <td class="align-middle">
-              <input
-                cFormControl
-                formControlName="price"
-                placeholder="Precio"
-                type="text"
-                appThousandSeparator
-                (change)="calculateSubtotalForDetails(i)"
-                (blur)="calculateSubtotalForDetails(i)"
-                (input)="calculateSubtotalForDetails(i)"
-                class="form-control-sm"
-                [ngClass]="{
-                  'is-invalid':
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')
-                      ?.hasError('required') &&
-                    (budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')?.touched ||
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('price')?.dirty)
-                }"
-                [ngClass]="{
-                  'is-invalid':
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')
-                      ?.hasError('pattern') &&
-                    (budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')?.touched ||
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('price')?.dirty)
-                }"
-                [ngClass]="{
-                  'is-invalid':
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')
-                      ?.hasError('pattern') &&
-                    (budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')?.touched ||
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('quantity')?.dirty)
-                }"
-              />
-
-              <div
-                class="text-medium-emphasis small text-danger-error"
-                *ngIf="
-                  budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('price')
-                    ?.hasError('required') &&
-                  (budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('price')?.touched ||
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')?.dirty)
-                "
-              >
-                El precio es obligatorio.
-              </div>
-
-              <div
-                class="text-medium-emphasis small text-danger-error"
-                *ngIf="
-                  budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('price')
-                    ?.hasError('pattern') &&
-                  (budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('price')?.touched ||
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('price')?.dirty)
-                "
-                class="text-danger"
-              >
-                El precio debe ser un número válido.
-              </div>
-              <div
-                class="text-medium-emphasis small text-danger-error"
-                *ngIf="
-                  budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('quantity')
-                    ?.hasError('pattern') &&
-                  (budgetForm
-                    .get('budgetDetailsDto')
-                    ?.get(i.toString())
-                    ?.get('quantity')?.touched ||
-                    budgetForm
-                      .get('budgetDetailsDto')
-                      ?.get(i.toString())
-                      ?.get('quantity')?.dirty)
-                "
-                class="text-danger"
-              >
-                La cantidad debe ser un número válido.
-              </div>
-            </td>
-            <td class="align-middle">
-              <input
-                cFormControl
-                formControlName="subtotal"
-                placeholder="0"
-                readonly
-                name="subtotal"
-                class="form-control-sm"
-              />
-            </td>
-            <td class="align-middle">
-              <a
-                style="color: #0d6efd; cursor: pointer"
-                class="me-3"
-                (click)="duplicateBudgetDetail(i)"
-                title="Duplicar item"
-              >
-                <svg cIcon name="cilCopy" size="lg"></svg>
-              </a>
-              <a
-                style="color: #dc3545; cursor: pointer"
-                (click)="removeBudgetDetail(i)"
-                title="Eliminar item"
-              >
-                <svg cIcon name="cilXCircle" size="lg"></svg>
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <c-col xs="12" class="text-center">
-      <div class="d-flex justify-content-between align-items-end flex-wrap audio-actions-group">
-        <button
-          cButton
-          color="primary"
-          type="button"
-          class="btn-sm"
-          (click)="addBudgetDetail()"
-        >
-          Agregar Item nuevo
-        </button>
-
-        <!-- Botón de Grabación de Audio con IA -->
-        <button 
-          type="button" 
-          class="btn-ai-recording"
-          [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
-          (click)="toggleRecording()"
-          [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'">
-          <div class="btn-ai-content">
-            <div class="mic-container" [class.pulse-animation]="isRecording">
-              <i class="pi pi-microphone"></i>
             </div>
-            <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Agregar con IA' }}</span>
-          </div>
-          <div *ngIf="isRecording" class="recording-waves">
-            <span class="wave"></span>
-            <span class="wave"></span>
-            <span class="wave"></span>
-            <span class="wave"></span>
-          </div>
-        </button>
+          </c-col>
 
-        <button
-          cButton
-          color="primary"
-          type="button"
-          class="btn-sm"
-          (click)="addBudgetDetailFromAPU()"
-        >
-          Agregar Item desde APU
-        </button>
-      </div>
-    </c-col>
-
-    <c-col md="3">
-      <input
-        cFormControl
-        formControlName="amount"
-        sizing="sm"
-        readonly
-        style="display: none"
-      />
-    </c-col>
-    <c-col md="12">
-      <div class="row">
-        <c-col md="9">
-          <div class="row mb-3">
-            <!-- Margen inferior para separar del siguiente bloque -->
-            <c-col md="8">
-              <label cLabel for="wayToPay">Forma de pago:</label>
-              <input
-                cFormControl
-                formControlName="wayToPay"
-                class="form-control-sm"
-                maxlength="500"
-              />
-            </c-col>
-            <c-col md="2">
-              <label cLabel for="deliveryTime">Plazo de entrega:</label>
-              <input
-                cFormControl
-                formControlName="deliveryTime"
-                class="form-control-sm"
-                maxlength="500"
-              />
-            </c-col>
-            <c-col md="2">
-              <label cLabel for="validityOffer">Validez de oferta:</label>
-              <input
-                cFormControl
-                formControlName="validityOffer"
-                class="form-control-sm"
-                maxlength="500"
-              />
-            </c-col>
-          </div>
-          <div class="row mb-3">
-            <!-- Margen inferior para separar del siguiente bloque -->
-            <c-col md="8">
-              <label cLabel for="note">Nota:</label>
-              <textarea
-                cFormControl
-                formControlName="note"
-                placeholder="Escribe una nota para el cliente o detalles importantes"
-                rows="2"
-                maxlength="500"
-              ></textarea>
-            </c-col>
-            <c-col md="2">
-              <label cLabel for="externalInvoice">Factura:</label>
-              <input
-                cFormControl
-                formControlName="externalInvoice"
-                class="form-control-sm"
-                placeholder="Número de factura"
-                maxlength="15"
-              />
-            </c-col>
-          </div>
-          <div class="row mb-3">
-            <!-- Margen inferior para separar del siguiente bloque -->
-            <c-col md="8">
-              <label cLabel for="estado">Estado:</label>
+          <!-- Cliente -->
+          <c-col xs="12" sm="6" md="6" lg="4">
+            <div class="form-group-modern">
+              <label cLabel for="customerId" class="label-modern">
+                <i class="fas fa-user-tie"></i>
+                Cliente
+                <span class="required-star">*</span>
+              </label>
               <select
+                aria-label="Seleccionar cliente"
                 cFormControl
                 cSelect
-                formControlName="estado"
-                class="form-select-sm form-control-sm"
+                formControlName="customerId"
+                [ngClass]="{
+                  'is-invalid':
+                    budgetForm.get('customerId')?.invalid &&
+                    (budgetForm.get('customerId')?.touched ||
+                      budgetForm.get('customerId')?.dirty)
+                }"
+                class="input-modern select-modern"
               >
-                <option value="">-- Seleccionar estado --</option>
-                <option *ngFor="let estado of estadoOptions" [value]="estado">
-                  {{ estado }}
+                <option value="" disabled selected>Seleccione un cliente</option>
+                <option
+                  *ngFor="let customer of customers"
+                  [value]="customer.customerId"
+                >
+                  {{ customer.customerName }}
                 </option>
               </select>
-            </c-col>
-          </div>
-        </c-col>
+              <div
+                class="error-message"
+                *ngIf="
+                  budgetForm.get('customerId')?.invalid &&
+                  (budgetForm.get('customerId')?.touched ||
+                    budgetForm.get('customerId')?.dirty)
+                "
+              >
+                <i class="fas fa-exclamation-circle"></i>
+                El cliente es obligatorio.
+              </div>
+            </div>
+          </c-col>
 
-        <c-col md="3" class="text-end">
-          <h5>
-            <strong>SubTotal: {{ amount.toLocaleString() }}</strong>
-          </h5>
-          <h5 *ngIf="budgetForm.get('hasAIU')?.value">
-            <strong>AIU: {{ aiu.toLocaleString() }}</strong>
-          </h5>
-          <h5 *ngIf="budgetForm.get('hasIVA')?.value">
-            <strong>IVA: {{ iva.toLocaleString() }}</strong>
-          </h5>
-          <h5>
-            <strong>TOTAL: {{ total.toLocaleString() }}</strong>
-          </h5>
-        </c-col>
+          <!-- Opciones IVA, AIU -->
+          <c-col xs="12" sm="12" md="12" lg="4">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern">
+                <i class="fas fa-cog"></i>
+                Opciones de Cálculo
+              </label>
+              <div class="options-container">
+                <label class="option-chip" [class.active]="budgetForm.get('hasIVA')?.value">
+                  <input
+                    type="checkbox"
+                    formControlName="hasIVA"
+                    (change)="updateCheckStatusIVA()"
+                  />
+                  <span class="chip-content">
+                    <i class="fas fa-percentage"></i>
+                    IVA
+                  </span>
+                </label>
+                <label class="option-chip" [class.active]="budgetForm.get('hasAIU')?.value">
+                  <input
+                    type="checkbox"
+                    formControlName="hasAIU"
+                    (change)="updateCheckStatusAIU()"
+                  />
+                  <span class="chip-content">
+                    <i class="fas fa-calculator"></i>
+                    AIU
+                  </span>
+                </label>
+                <label class="option-chip" [class.active]="budgetForm.get('sumAIU')?.value">
+                  <input
+                    type="checkbox"
+                    formControlName="sumAIU"
+                    (change)="updateAmount()"
+                  />
+                  <span class="chip-content">
+                    <i class="fas fa-plus-circle"></i>
+                    Sumar AIU
+                  </span>
+                </label>
+              </div>
+            </div>
+          </c-col>
+        </div>
       </div>
-    </c-col>
+    </div>
+
+    <!-- Card de Detalles del Presupuesto -->
+    <div class="budget-card details-card">
+      <div class="card-header-custom">
+        <i class="fas fa-list-alt"></i>
+        <span>Detalle de Items</span>
+        <span class="items-count">{{ budgetDetails.length }} items</span>
+      </div>
+      <div class="card-body-custom p-0">
+        <div class="table-modern-container">
+          <table class="table-modern">
+            <thead>
+              <tr>
+                <th class="th-drag"><i class="fas fa-grip-vertical"></i></th>
+                <th class="th-description">Descripción</th>
+                <th class="th-unit">Und</th>
+                <th class="th-quantity">Cantidad</th>
+                <th class="th-price">Precio</th>
+                <th class="th-subtotal">Subtotal</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="budgetDetailsDto">
+              <tr
+                *ngFor="let detail of budgetDetails.controls; let i = index"
+                [formGroupName]="i"
+                (dragover)="dragOver($event, i)"
+                (drop)="drop($event, i)"
+                (dragleave)="dragLeave($event)"
+                [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
+                class="table-row-modern"
+              >
+                <td class="td-drag">
+                  <div 
+                    class="drag-handle-modern"
+                    draggable="true"
+                    (dragstart)="dragStart($event, i)"
+                    (dragend)="dragEnd($event)"
+                  >
+                    <i class="fas fa-grip-vertical"></i>
+                  </div>
+                </td>
+                <td class="td-description">
+                  <textarea
+                    cFormControl
+                    formControlName="description"
+                    placeholder="Describe el item aquí..."
+                    maxlength="500"
+                    class="textarea-modern"
+                    rows="2"
+                    [ngClass]="{
+                      'is-invalid':
+                        budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('description')
+                          ?.hasError('required') &&
+                        (budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('description')?.touched ||
+                          budgetForm
+                            .get('budgetDetailsDto')
+                            ?.get(i.toString())
+                            ?.get('description')?.dirty)
+                    }"
+                  ></textarea>
+                  <div
+                    class="error-message-inline"
+                    *ngIf="
+                      budgetForm
+                        .get('budgetDetailsDto')
+                        ?.get(i.toString())
+                        ?.get('description')
+                        ?.hasError('required') &&
+                      (budgetForm
+                        .get('budgetDetailsDto')
+                        ?.get(i.toString())
+                        ?.get('description')?.touched ||
+                        budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('description')?.dirty)
+                    "
+                  >
+                    Descripción requerida
+                  </div>
+                </td>
+                <td class="td-unit">
+                  <select
+                    class="select-modern-sm"
+                    aria-label="Und"
+                    cFormControl
+                    formControlName="unitMeasurement"
+                  >
+                    <option value="Und" selected>Und</option>
+                    <option value="M2">M2</option>
+                    <option value="M3">M3</option>
+                    <option value="ML">ML</option>
+                    <option value="kg">kg</option>
+                    <option value="hr">hr</option>
+                    <option value="mes">mes</option>
+                    <option value="km">km</option>
+                    <option value="Carga">Carga</option>
+                    <option value="M3-km">M3-km</option>
+                    <option value="jgo">jgo</option>
+                    <option value="lt">lt</option>
+                    <option value="ton-m">ton-m</option>
+                    <option value="HA">HA</option>
+                  </select>
+                </td>
+                <td class="td-quantity">
+                  <input
+                    cFormControl
+                    formControlName="quantity"
+                    placeholder="0"
+                    type="text"
+                    (keypress)="onlyNumbers($event)"
+                    (change)="calculateSubtotalForDetails(i)"
+                    (blur)="calculateSubtotalForDetails(i)"
+                    (input)="calculateSubtotalForDetails(i)"
+                    class="input-modern-sm text-center"
+                    [ngClass]="{
+                      'is-invalid':
+                        budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('quantity')
+                          ?.hasError('required') &&
+                        (budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('quantity')?.touched ||
+                          budgetForm
+                            .get('budgetDetailsDto')
+                            ?.get(i.toString())
+                            ?.get('quantity')?.dirty)
+                    }"
+                  />
+                </td>
+                <td class="td-price">
+                  <input
+                    cFormControl
+                    formControlName="price"
+                    placeholder="$ 0"
+                    type="text"
+                    appThousandSeparator
+                    (change)="calculateSubtotalForDetails(i)"
+                    (blur)="calculateSubtotalForDetails(i)"
+                    (input)="calculateSubtotalForDetails(i)"
+                    class="input-modern-sm text-end"
+                    [ngClass]="{
+                      'is-invalid':
+                        (budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('price')
+                          ?.hasError('required') ||
+                        budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('price')
+                          ?.hasError('pattern')) &&
+                        (budgetForm
+                          .get('budgetDetailsDto')
+                          ?.get(i.toString())
+                          ?.get('price')?.touched ||
+                          budgetForm
+                            .get('budgetDetailsDto')
+                            ?.get(i.toString())
+                            ?.get('price')?.dirty)
+                    }"
+                  />
+                </td>
+                <td class="td-subtotal">
+                  <div class="subtotal-display">
+                    <span class="subtotal-value">{{ detail.get('subtotal')?.value || '0' }}</span>
+                  </div>
+                </td>
+                <td class="td-actions">
+                  <div class="action-buttons">
+                    <button
+                      type="button"
+                      class="btn-action btn-duplicate"
+                      (click)="duplicateBudgetDetail(i)"
+                      title="Duplicar item"
+                    >
+                      <i class="far fa-copy"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-action btn-delete"
+                      (click)="removeBudgetDetail(i)"
+                      title="Eliminar item"
+                    >
+                      <i class="far fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="budgetDetails.length === 0">
+          <i class="fas fa-inbox"></i>
+          <p>No hay items agregados</p>
+          <span>Agrega items usando los botones de abajo</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card-footer-custom">
+        <div class="action-buttons-container">
+          <button
+            cButton
+            type="button"
+            class="btn-modern btn-add-item"
+            (click)="addBudgetDetail()"
+          >
+            <i class="fas fa-plus"></i>
+            <span>Agregar Item</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn-ai-recording"
+            [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
+            (click)="toggleRecording()"
+            [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'">
+            <div class="btn-ai-content">
+              <div class="mic-container" [class.pulse-animation]="isRecording">
+                <i class="pi pi-microphone"></i>
+              </div>
+              <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Agregar con IA' }}</span>
+            </div>
+            <div *ngIf="isRecording" class="recording-waves">
+              <span class="wave"></span>
+              <span class="wave"></span>
+              <span class="wave"></span>
+              <span class="wave"></span>
+            </div>
+          </button>
+
+          <button
+            cButton
+            type="button"
+            class="btn-modern btn-add-apu"
+            (click)="addBudgetDetailFromAPU()"
+          >
+            <i class="fas fa-database"></i>
+            <span>Desde APU</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Configuración y Totales -->
+    <div class="budget-card config-totals-card">
+      <div class="row g-0">
+        <!-- Columna de Configuración -->
+        <div class="col-lg-8 config-section">
+          <div class="card-header-custom">
+            <i class="fas fa-sliders-h"></i>
+            <span>Configuración de Pago</span>
+          </div>
+          <div class="card-body-custom">
+            <div class="row g-3">
+              <c-col md="6" lg="5">
+                <div class="form-group-modern">
+                  <label cLabel for="wayToPay" class="label-modern-sm">
+                    <i class="fas fa-credit-card"></i>
+                    Forma de Pago
+                  </label>
+                  <input
+                    cFormControl
+                    formControlName="wayToPay"
+                    class="input-modern"
+                    maxlength="500"
+                  />
+                </div>
+              </c-col>
+              <c-col md="3" lg="3">
+                <div class="form-group-modern">
+                  <label cLabel for="deliveryTime" class="label-modern-sm">
+                    <i class="fas fa-clock"></i>
+                    Plazo de Entrega
+                  </label>
+                  <input
+                    cFormControl
+                    formControlName="deliveryTime"
+                    class="input-modern"
+                    maxlength="500"
+                  />
+                </div>
+              </c-col>
+              <c-col md="3" lg="4">
+                <div class="form-group-modern">
+                  <label cLabel for="validityOffer" class="label-modern-sm">
+                    <i class="fas fa-calendar-check"></i>
+                    Validez de Oferta
+                  </label>
+                  <input
+                    cFormControl
+                    formControlName="validityOffer"
+                    class="input-modern"
+                    maxlength="500"
+                  />
+                </div>
+              </c-col>
+              <c-col md="8">
+                <div class="form-group-modern">
+                  <label cLabel for="note" class="label-modern-sm">
+                    <i class="fas fa-sticky-note"></i>
+                    Nota para el Cliente
+                  </label>
+                  <textarea
+                    cFormControl
+                    formControlName="note"
+                    placeholder="Escribe una nota para el cliente o detalles importantes"
+                    rows="2"
+                    maxlength="500"
+                    class="textarea-modern"
+                  ></textarea>
+                </div>
+              </c-col>
+              <c-col md="4">
+                <div class="form-group-modern">
+                  <label cLabel for="externalInvoice" class="label-modern-sm">
+                    <i class="fas fa-file-invoice"></i>
+                    N° Factura
+                  </label>
+                  <input
+                    cFormControl
+                    formControlName="externalInvoice"
+                    class="input-modern"
+                    placeholder="Número de factura"
+                    maxlength="15"
+                  />
+                </div>
+              </c-col>
+              <c-col md="6">
+                <div class="form-group-modern">
+                  <label cLabel for="estado" class="label-modern-sm">
+                    <i class="fas fa-flag"></i>
+                    Estado
+                  </label>
+                  <select
+                    cFormControl
+                    cSelect
+                    formControlName="estado"
+                    class="input-modern select-modern"
+                  >
+                    <option value="">-- Seleccionar estado --</option>
+                    <option *ngFor="let estado of estadoOptions" [value]="estado">
+                      {{ estado }}
+                    </option>
+                  </select>
+                </div>
+              </c-col>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna de Totales -->
+        <div class="col-lg-4 totals-section">
+          <div class="totals-container">
+            <div class="totals-header">
+              <i class="fas fa-calculator"></i>
+              <span>Resumen</span>
+            </div>
+            <div class="totals-body">
+              <div class="total-row">
+                <span class="total-label">SubTotal</span>
+                <span class="total-value">$ {{ formatNumberParts(amount).integer }}<span class="decimals">{{ formatNumberParts(amount).decimal }}</span></span>
+              </div>
+              <div class="total-row" *ngIf="budgetForm.get('hasAIU')?.value">
+                <span class="total-label">AIU</span>
+                <span class="total-value">$ {{ formatNumberParts(aiu).integer }}<span class="decimals">{{ formatNumberParts(aiu).decimal }}</span></span>
+              </div>
+              <div class="total-row" *ngIf="budgetForm.get('hasIVA')?.value">
+                <span class="total-label">IVA</span>
+                <span class="total-value">$ {{ formatNumberParts(iva).integer }}<span class="decimals">{{ formatNumberParts(iva).decimal }}</span></span>
+              </div>
+              <div class="total-row total-final">
+                <span class="total-label">TOTAL</span>
+                <span class="total-value-big">$ {{ formatNumberParts(total).integer }}<span class="decimals">{{ formatNumberParts(total).decimal }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input
+      cFormControl
+      formControlName="amount"
+      sizing="sm"
+      readonly
+      style="display: none"
+    />
 
     <p
-      class="text-medium-emphasis small"
+      class="error-message"
       *ngIf="
         budgetForm.get('email')?.invalid &&
         (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)
       "
-      class="text-danger"
     >
+      <i class="fas fa-exclamation-circle"></i>
       Email no es válido.
     </p>
     <p
-      class="text-medium-emphasis small"
+      class="error-message"
       *ngIf="showErrors"
-      class="text-danger"
     >
+      <i class="fas fa-exclamation-circle"></i>
       {{ msjError }}
     </p>
 
-    <c-col xs="12" class="text-end mb-3"> <!-- Añadido mb-3 para margen inferior -->
+    <!-- Footer Actions -->
+    <div class="form-actions">
       <a
         cButton
         type="button"
-        class="me-3 btn-sm d-none d-md-inline"
-        variant="outline"
+        class="btn-modern btn-back"
         [routerLink]="'/budgets/budgets'"
       >
-        Regresar
+        <i class="fas fa-arrow-left"></i>
+        <span>Regresar</span>
       </a>
 
-      <a
-      cButton
-      type="button"
-      class="me-3 btn-sm d-inline d-md-none" 
-      variant="outline"
-      [routerLink]="'/budgets/budgets'"
-    >
-      Regresar
-    </a>
-    
       <button
         cButton
         type="submit"
-        class="me-md-2 btn-sm"
-        style="margin-right: 10px"
+        class="btn-modern btn-save"
       >
-        {{ budgetForm.get("budgetId")?.value > 0 ? "Actualizar" : "Guardar" }}
+        <i class="fas" [ngClass]="budgetForm.get('budgetId')?.value > 0 ? 'fa-sync-alt' : 'fa-save'"></i>
+        <span>{{ budgetForm.get("budgetId")?.value > 0 ? "Actualizar" : "Guardar" }}</span>
       </button>
-      
-
-    </c-col>
-    
+    </div>
   </form>
-</c-col>
+</div>
 
-<!-- Modal de confirmación -->
+<!-- Modal de selección APU -->
 <c-modal
   id="liveDemoModal"
   [visible]="visible"
   (visibleChange)="handleLiveDemoChange($event)"
   size="xl"
 >
-  <div class="modal-dialog">
-    <div class="modal-content text-center" style="border: none">
-      <!-- Título del modal -->
-      <div
-        class="modal-header justify-content-center"
-        style="border-bottom: none; position: relative"
-      >
-        <h5 cModalTitle>
-          <i
-            class="bi bi-check-circle"
-            style="color: green; margin-right: 10px"
-          ></i>
-          <span
-            class="cui-primary"
-            style="
-              color: #6610f2;
-              font-size: 2.5rem;
-              font-weight: 500;
-              font-family: Yanone Kaffeesatz;
-            "
-            >¡Agregar Item desde APU!</span
-          >
-        </h5>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-modern">
+      <div class="modal-header-modern">
+        <div class="modal-title-container">
+          <div class="modal-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <div>
+            <h5 class="modal-title-modern">Agregar Item desde APU</h5>
+            <p class="modal-subtitle">Selecciona los items que deseas agregar</p>
+          </div>
+        </div>
         <button
           (click)="closeModal()"
-          cButtonClose
-          style="position: absolute; top: 10px; right: 10px"
+          class="modal-close-btn"
+          type="button"
         >
-          <i class="bi bi-x"></i>
+          <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <!-- Cuerpo del modal con tabla y scroll -->
-      <div class="modal-body">
-        <!-- Campo de búsqueda -->
-        <div class="mb-3">
+      <div class="modal-body-modern">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            class="form-control"
-            placeholder="Buscar item..."
+            class="search-input-modern"
+            placeholder="Buscar por nombre de item..."
           />
         </div>
 
-        <!-- Tabla de selección con estilo tipo Excel y scroll -->
-        <div style="max-height: 300px; overflow-y: auto">
-          <!-- Contenedor con scroll -->
-          <table class="table table-bordered table-hover table-striped">
+        <div class="table-modal-container">
+          <table class="table-modal-modern">
             <thead>
               <tr>
-                <th scope="col">Seleccionar</th>
-                <th scope="col">Nombre del Item</th>
-                <th scope="col">Unidad de Medida</th>
-                <th scope="col">Precio Total</th>
+                <th class="th-select">
+                  <i class="fas fa-check-square"></i>
+                </th>
+                <th class="th-name">Nombre del Item</th>
+                <th class="th-unit">Unidad</th>
+                <th class="th-price">Precio Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let apu of filteredApuModels">
-                <td>
-                  <input type="checkbox" [(ngModel)]="apu.selected" />
-                  <!-- Checkbox para selección -->
+              <tr *ngFor="let apu of filteredApuModels" class="table-row-hover">
+                <td class="td-select">
+                  <label class="checkbox-modern">
+                    <input type="checkbox" [(ngModel)]="apu.selected" />
+                    <span class="checkmark"></span>
+                  </label>
                 </td>
-                <td>{{ apu.itemName | capitalize }}</td>
-                <td>{{ apu.unitMeasurement }}</td>
-                <td>$ {{ apu.totalPrice.toLocaleString("es-ES") }}</td>
+                <td class="td-name">{{ apu.itemName | capitalize }}</td>
+                <td class="td-unit">{{ apu.unitMeasurement }}</td>
+                <td class="td-price">$ {{ apu.totalPrice.toLocaleString("es-ES") }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Pie del modal con botones -->
-      <div class="modal-footer justify-content-center" style="border-top: none">
+      <div class="modal-footer-modern">
         <button
           (click)="closeModalAPU()"
-          cButton
-          variant="outline"
-          class="btn-sm"
+          class="btn-modern btn-cancel"
+          type="button"
         >
-          Salir
+          <i class="fas fa-times"></i>
+          Cancelar
         </button>
         <button
           (click)="addToList()"
-          cButton
-          color="primary"
-          style="color: white"
-          class="btn-sm"
+          class="btn-modern btn-confirm"
+          type="button"
         >
+          <i class="fas fa-plus"></i>
           Agregar Seleccionados
         </button>
       </div>

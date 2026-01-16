@@ -61,6 +61,28 @@ export class AddUpdateBudgetComponent implements OnInit {
   draggedIndex: number | null = null;
   dragOverIndex: number | null = null;
 
+  /**
+   * Formatea un número y retorna un objeto con la parte entera y decimal separadas
+   * Usa locale 'es-CO' para que el separador de miles sea "." y el de decimales ","
+   * Busca la última "," para separar los decimales
+   */
+  formatNumberParts(value: number): { integer: string; decimal: string } {
+    // Formatear con locale es-CO: miles con "." y decimales con ","
+    const formatted = value.toLocaleString('es-CO');
+    
+    // Buscar la última coma (separador decimal en es-CO)
+    const lastComma = formatted.lastIndexOf(',');
+    
+    if (lastComma > 0) {
+      return {
+        integer: formatted.substring(0, lastComma),
+        decimal: formatted.substring(lastComma)
+      };
+    }
+    
+    return { integer: formatted, decimal: '' };
+  }
+
   // Propiedades para grabación de audio
   isRecording: boolean = false;
   mediaRecorder: MediaRecorder | null = null;
@@ -138,7 +160,7 @@ export class AddUpdateBudgetComponent implements OnInit {
                 unitMeasurement: detail.unitMeasurement,
                 quantity: detail.quantity,
                 price: [String(detail.price).replace(/\D/g, '')], // Convertir a string numérico sin formato
-                subtotal: subtotal.toLocaleString(),
+                subtotal: subtotal.toLocaleString('es-CO'),
               });
               detailsArray.push(budgetDetailGroup);
             });
@@ -296,7 +318,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     const price = this.budgetDetails.at(index).get('price')?.value;
     if (quantity !== null && price !== null) {
       const subtotal = quantity * price;
-      this.budgetDetails.at(index).get('subtotal')?.setValue(subtotal.toLocaleString());
+      this.budgetDetails.at(index).get('subtotal')?.setValue(subtotal.toLocaleString('es-CO'));
       this.updateAmount();
     }
   }
