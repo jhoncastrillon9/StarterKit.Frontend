@@ -1,20 +1,101 @@
-// Header de cotizaciones
-.header-cotizaciones {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+// ========================================
+// MODERN BUDGET LIST STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// ========================================
+// CONTAINER
+// ========================================
+.budget-list-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+// ========================================
+// HEADER STYLES
+// ========================================
+.budget-list-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.5rem;
+      color: $white;
+    }
+  }
+  
+  .header-text {
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $white;
+      margin: 0;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 }
 
-// Botón de IA con micrófono
+// ========================================
+// AI RECORDING BUTTON
+// ========================================
 .btn-ai-recording {
   position: relative;
   display: flex;
@@ -28,19 +109,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
-  min-height: 44px; // Tamaño mínimo para touch en móvil
+  min-height: 44px;
   
   &.idle {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
     
     &:hover {
+      background: rgba(255, 255, 255, 0.3) !important;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-    }
-    
-    &:active {
-      transform: translateY(0);
     }
   }
   
@@ -82,7 +159,6 @@
   white-space: nowrap;
 }
 
-// Ondas de grabación
 .recording-waves {
   position: absolute;
   bottom: 6px;
@@ -106,7 +182,711 @@
   &:nth-child(4) { animation-delay: 0.3s; height: 10px; }
 }
 
-// Animaciones
+// ========================================
+// NEW BUDGET BUTTON
+// ========================================
+.btn-new-budget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.7rem 1.5rem;
+  background: $white;
+  color: $primary-color;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: $transition;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &:hover {
+    background: $light-bg;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: $primary-dark;
+  }
+}
+
+// ========================================
+// STATS ROW
+// ========================================
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  background: $white;
+  border-radius: $border-radius;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: $shadow-sm;
+  transition: $transition;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-md;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1.3rem;
+      color: $white;
+    }
+  }
+  
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.2;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: $secondary-color;
+      margin-top: 2px;
+    }
+  }
+  
+  &.stat-total .stat-icon {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  }
+  
+  &.stat-approved .stat-icon {
+    background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
+  }
+  
+  &.stat-pending .stat-icon {
+    background: linear-gradient(135deg, $warning-color 0%, #f59e0b 100%);
+  }
+  
+  &.stat-invoiced .stat-icon {
+    background: linear-gradient(135deg, $info-color 0%, #06b6d4 100%);
+  }
+}
+
+// ========================================
+// MAIN CARD
+// ========================================
+.budget-list-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+// ========================================
+// TABLE HEADER / SEARCH
+// ========================================
+.table-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-section {
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    z-index: 1;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.7rem 2.5rem 0.7rem 2.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: $transition;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+  
+  .clear-search-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: $transition;
+    
+    &:hover {
+      color: $danger-color;
+      background: rgba($danger-color, 0.1);
+    }
+  }
+}
+
+.btn-filter-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.6rem 1.2rem;
+  background: $white;
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $secondary-color;
+  cursor: pointer;
+  transition: $transition;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+    background: rgba($primary-color, 0.05);
+  }
+}
+
+// ========================================
+// TABLE STYLES
+// ========================================
+.table-header-row {
+  background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+  
+  th {
+    padding: 1rem !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $primary-dark;
+    border-bottom: 2px solid rgba($primary-color, 0.2) !important;
+    white-space: nowrap;
+    
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.table-body-row {
+  transition: $transition;
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:hover {
+    background: #faf5ff;
+  }
+  
+  td {
+    padding: 0.75rem 1rem !important;
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+}
+
+// Code Badge
+.code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: $white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Date
+.date-text {
+  color: $secondary-color;
+  font-size: 0.85rem;
+}
+
+// Name
+.name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .budget-name {
+    color: #1f2937;
+    font-weight: 500;
+  }
+  
+  .invoice-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: $success-color;
+    color: $white;
+    border-radius: 50%;
+    font-size: 0.65rem;
+  }
+}
+
+// Customer
+.customer-name {
+  color: #4b5563;
+}
+
+// Invoice
+.invoice-value {
+  cursor: pointer;
+  transition: $transition;
+  
+  .no-invoice {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    i {
+      font-size: 0.75rem;
+    }
+  }
+  
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.invoice-edit-wrapper {
+  .invoice-input {
+    width: 100px;
+    padding: 0.4rem 0.6rem;
+    border: 2px solid $primary-color;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+    }
+  }
+}
+
+// Status Badge
+.status-badge-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  
+  i {
+    font-size: 0.7rem;
+  }
+  
+  &.status-cotizada {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+  }
+  
+  &.status-aprobada {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+  }
+  
+  &.status-rechazada {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+  }
+  
+  &.status-pendiente {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #3730a3;
+  }
+  
+  &.status-facturada {
+    background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+    color: #0e7490;
+  }
+  
+  &.status-option {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.5rem 0.75rem;
+    margin: 2px 0;
+  }
+}
+
+// Status Dropdown
+::ng-deep .status-dropdown {
+  border: none !important;
+  
+  .p-dropdown-trigger {
+    width: 1.5rem;
+  }
+  
+  .p-dropdown-label {
+    padding: 0 !important;
+  }
+}
+
+// Report Badge
+.report-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.3rem 0.6rem;
+  background: linear-gradient(135deg, $success-color 0%, #22c55e 100%);
+  color: $white;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.no-report {
+  color: #d1d5db;
+  font-size: 1rem;
+}
+
+// Total
+.total-value {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+  
+  i {
+    font-size: 0.85rem;
+  }
+  
+  &.action-edit {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    
+    &:hover {
+      background: $primary-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-pdf {
+    background: rgba($danger-color, 0.1);
+    color: $danger-color;
+    
+    &:hover {
+      background: $danger-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-excel {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+    
+    &:hover {
+      background: $success-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-copy {
+    background: rgba($warning-color, 0.15);
+    color: #b45309;
+    
+    &:hover {
+      background: $warning-color;
+      color: #1f2937;
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.action-more {
+    background: rgba($secondary-color, 0.1);
+    color: $secondary-color;
+    
+    &:hover {
+      background: $secondary-color;
+      color: $white;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========================================
+// EMPTY STATE
+// ========================================
+.empty-state {
+  padding: 4rem 2rem !important;
+  text-align: center;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    color: #e5e7eb;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    color: #374151;
+    margin: 0;
+  }
+  
+  p {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .btn-create-first {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: $transition;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// ========================================
+// DIALOG STYLES
+// ========================================
+.dialog-content {
+  padding: 1rem 0;
+}
+
+.form-group-modern {
+  margin-bottom: 0;
+  
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+    
+    .required-star {
+      color: $danger-color;
+      font-weight: 700;
+    }
+  }
+}
+
+.input-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+  
+  &.disabled {
+    background: #f3f4f6;
+    color: $secondary-color;
+  }
+}
+
+.textarea-modern {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  resize: vertical;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.btn-dialog {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+  
+  i {
+    font-size: 0.85rem;
+  }
+  
+  &.btn-cancel {
+    background: #f3f4f6;
+    color: $secondary-color;
+    
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+  
+  &.btn-confirm {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.dropdown-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+  .dropdown-code {
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 0.85rem;
+  }
+  
+  .dropdown-name {
+    color: $secondary-color;
+    font-size: 0.8rem;
+  }
+}
+
+// ========================================
+// ANIMATIONS
+// ========================================
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -140,83 +920,156 @@
   }
 }
 
-// Botón Nueva Cotización
-.btn-nueva-cotizacion {
-  min-height: 44px; // Tamaño mínimo para touch en móvil
-  display: flex;
-  align-items: center;
-  justify-content: center;
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .budget-list-header {
+    padding: 1rem 1.25rem;
+    
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-right {
+      width: 100%;
+    }
+    
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  .table-header-modern {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .search-section {
+      max-width: 100%;
+    }
+    
+    .table-actions {
+      justify-content: flex-end;
+    }
+  }
+  
+  .action-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    
+    i {
+      font-size: 0.75rem;
+    }
+  }
 }
 
-// Responsive para móviles
 @media (max-width: 576px) {
-  .header-cotizaciones {
-    flex-direction: column;
-    align-items: flex-start;
+  .budget-list-container {
+    padding: 0 0.25rem 1rem;
   }
   
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .btn-ai-recording {
-    flex: 1;
-    padding: 0.8rem 1rem !important;
-  }
-  
-  .btn-ai-text {
+  .btn-new-budget {
+    padding: 0.6rem 1rem;
     font-size: 0.85rem;
+    
+    span {
+      display: none;
+    }
   }
   
-  .btn-nueva-cotizacion {
-    flex: 1;
-    text-align: center;
-  }
-}
-
-@media (max-width: 400px) {
-  .header-actions {
-    flex-direction: column;
+  .stats-row {
+    gap: 0.75rem;
   }
   
-  .btn-ai-recording,
-  .btn-nueva-cotizacion {
-    width: 100%;
+  .stat-card {
+    padding: 1rem;
+    
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      
+      i {
+        font-size: 1.1rem;
+      }
+    }
+    
+    .stat-info .stat-value {
+      font-size: 1.25rem;
+    }
   }
 }
 
-// Estilos existentes de la tabla
-.TableCustomCotiza td {
-    padding: 0.2rem 0.5rem !important;
+// ========================================
+// PRIMENG OVERRIDES
+// ========================================
+::ng-deep {
+  .p-datatable-modern {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+    
+    .p-paginator {
+      padding: 1rem;
+      background: $light-bg;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      
+      .p-paginator-element {
+        border-radius: 8px;
+        min-width: 36px;
+        height: 36px;
+        
+        &:hover {
+          background: rgba($primary-color, 0.1);
+          color: $primary-color;
+        }
+        
+        &.p-highlight {
+          background: $primary-color;
+          color: $white;
+        }
+      }
+    }
+    
+    .p-datatable-loading-overlay {
+      background: rgba(255, 255, 255, 0.9);
+    }
+  }
+  
+  .modern-dialog {
+    .p-dialog-header {
+      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+      color: $white;
+      border-radius: 12px 12px 0 0;
+      padding: 1.25rem 1.5rem;
+      
+      .p-dialog-title {
+        font-weight: 600;
+      }
+      
+      .p-dialog-header-icon {
+        color: $white;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+    }
+    
+    .p-dialog-content {
+      padding: 1.5rem;
+    }
+    
+    .p-dialog-footer {
+      padding: 1rem 1.5rem;
+      background: $light-bg;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+  }
 }
-
-.TableCustomCotiza th {
-    padding: 0.4rem 0.5rem !important;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.TableCustomCotiza {    
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
-
-.ButtonClear.p-button {
-    border-radius: 6px !important;
-    padding: 0.3rem 0.5rem !important;
-    font-size: 0.8rem !important;
-}
-
-
-.ButtonSearchValue {
-    font-size: 0.8rem !important;
-    padding: 0.5rem 2rem !important;
-}
-
-.dropdown-status {
-    border: 0px !important;    
-}
-
-.dropdown-status > span{
-    padding: 0rem 0rem !important; 
-}
-

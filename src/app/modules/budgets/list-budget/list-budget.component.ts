@@ -359,6 +359,42 @@ export class ListBudgetComponent implements OnInit {
     return colores[estado] || '#6c757d'; // Color por defecto (gris) si no coincide
   }
 
+  // Métodos para las estadísticas del header
+  getCountByStatus(status: string): number {
+    return this.budgets.filter(b => b.estado === status).length;
+  }
+
+  getCountWithInvoice(): number {
+    return this.budgets.filter(b => b.externalInvoice && b.externalInvoice !== '0' && b.externalInvoice !== '').length;
+  }
+
+  // Métodos para los badges de estado con clases CSS
+  getStatusClass(estado: string): string {
+    const clases: { [key: string]: string } = {
+      'Cotizada': 'status-cotizada',
+      'Aprobada': 'status-aprobada',
+      'Rechazada': 'status-rechazada',
+      'En Desarrollo': 'status-pendiente',
+      'Finalizado': 'status-aprobada',
+      'Facturada': 'status-facturada',
+      'Pagada': 'status-aprobada'
+    };
+    return clases[estado] || 'status-pendiente';
+  }
+
+  getStatusIcon(estado: string): string {
+    const iconos: { [key: string]: string } = {
+      'Cotizada': 'fas fa-file-alt',
+      'Aprobada': 'fas fa-check-circle',
+      'Rechazada': 'fas fa-times-circle',
+      'En Desarrollo': 'fas fa-cogs',
+      'Finalizado': 'fas fa-flag-checkered',
+      'Facturada': 'fas fa-file-invoice-dollar',
+      'Pagada': 'fas fa-money-check-alt'
+    };
+    return iconos[estado] || 'fas fa-question-circle';
+  }
+
 
   private handleError(consoleMessage: string, modalMessage: string) {
     console.error(consoleMessage);

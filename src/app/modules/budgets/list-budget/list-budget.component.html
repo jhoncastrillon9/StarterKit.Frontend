@@ -1,273 +1,448 @@
-<c-col xs="12">  
-  <div class="header-cotizaciones p-1">
-    <span style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;" color="primary" class="cui-primary">Cotizaciones</span>    
-    <div class="header-actions">
-      <button 
-        pButton 
-        type="button" 
-        class="btn-ai-recording"
-        [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
-        (click)="toggleRecordingAI()"
-        [pTooltip]="isRecording ? 'Toca para detener' : 'Crear cotización con IA'"
-        tooltipPosition="bottom">
-        <div class="btn-ai-content">
-          <div class="mic-container" [class.pulse-animation]="isRecording">
-            <i class="pi pi-microphone"></i>
-          </div>
-          <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Crear con IA' }}</span>
+<!-- Container Principal Moderno -->
+<div class="budget-list-container">
+  <!-- Header Principal Moderno -->
+  <div class="budget-list-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-file-invoice-dollar"></i>
         </div>
-        <div *ngIf="isRecording" class="recording-waves">
-          <span class="wave"></span>
-          <span class="wave"></span>
-          <span class="wave"></span>
-          <span class="wave"></span>
+        <div class="header-text">
+          <h1 class="page-title">Cotizaciones</h1>
+          <p class="page-subtitle">Gestiona y administra tus cotizaciones</p>
         </div>
-      </button>
-      <a cButton type="button" [routerLink]="'/budgets/add'" class="btn btn-primary btn-sm btn-nueva-cotizacion">Nueva Cotización</a>
+      </div>
+      <div class="header-right">
+        <div class="header-actions">
+          <button 
+            pButton 
+            type="button" 
+            class="btn-ai-recording"
+            [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
+            (click)="toggleRecordingAI()"
+            [pTooltip]="isRecording ? 'Toca para detener' : 'Crear cotizacion con IA'"
+            tooltipPosition="bottom">
+            <div class="btn-ai-content">
+              <div class="mic-container" [class.pulse-animation]="isRecording">
+                <i class="pi pi-microphone"></i>
+              </div>
+              <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Crear con IA' }}</span>
+            </div>
+            <div *ngIf="isRecording" class="recording-waves">
+              <span class="wave"></span>
+              <span class="wave"></span>
+              <span class="wave"></span>
+              <span class="wave"></span>
+            </div>
+          </button>
+          <a [routerLink]="'/budgets/add'" class="btn-new-budget">
+            <i class="fas fa-plus"></i>
+            <span>Nueva Cotizacion</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
-</c-col>
-<c-col xs="12">
-      <p-table #dt 
-        class="p-datatable-sm" 
-        styleClass="p-datatable-gridlines"        
-        [value]="budgets" 
-        [paginator]="true" 
-        [rows]="20"         
-        [filterDelay]="3" 
-        [loading]="loading" 
-        
-        [rowHover]="true"
-        sortField="date,budgetId" 
-        [sortOrder]="-1"
-        [rowsPerPageOptions]="[20, 40, 60, 100]"
-        currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
-        [globalFilterFields]="['budgetId', 'internalCode', 'date', 'budgetName', 'customerDto.customerName', 'total', 'estado', 'externalInvoice']"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        >
 
+  <!-- Stats Cards Row -->
+  <div class="stats-row">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ budgets.length }}</span>
+        <span class="stat-label">Total Cotizaciones</span>
+      </div>
+    </div>
+    <div class="stat-card stat-approved">
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getCountByStatus('Aprobada') }}</span>
+        <span class="stat-label">Aprobadas</span>
+      </div>
+    </div>
+    <div class="stat-card stat-pending">
+      <div class="stat-icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getCountByStatus('Cotizada') }}</span>
+        <span class="stat-label">Cotizadas</span>
+      </div>
+    </div>
+    <div class="stat-card stat-invoiced">
+      <div class="stat-icon">
+        <i class="fas fa-file-invoice"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ getCountWithInvoice() }}</span>
+        <span class="stat-label">Facturadas</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- Main Content Card -->
+  <div class="budget-list-card">
+    <!-- Table Container -->
+    <p-table #dt 
+      class="budget-table-modern" 
+      styleClass="p-datatable-modern"        
+      [value]="budgets" 
+      [paginator]="true" 
+      [rows]="20"         
+      [filterDelay]="3" 
+      [loading]="loading" 
+      [rowHover]="true"
+      sortField="date,budgetId" 
+      [sortOrder]="-1"
+      [rowsPerPageOptions]="[20, 40, 60, 100]"
+      currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
+      [globalFilterFields]="['budgetId', 'internalCode', 'date', 'budgetName', 'customerDto.customerName', 'total', 'estado', 'externalInvoice']"
+      [tableStyle]="{ 'min-width': '50rem' }">
 
-      <ng-template pTemplate="caption" >
-        <div style="display: flex; justify-content: space-between; align-items: center;" >          
-            <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
-
-            <!-- <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/budgets/add']" title="Nuevoa cotización"><svg cIcon class="me-2" name="cilNoteAdd" ></svg>Nueva Cotización</span> -->
-
-
-            <span class="p-input-icon-left ml-auto">
-                <i class="pi pi-search"></i>
-            <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
-            </span>
+      <!-- Caption / Search Bar -->
+      <ng-template pTemplate="caption">
+        <div class="table-header-modern">
+          <div class="search-section">
+            <div class="search-input-wrapper">
+              <i class="fas fa-search search-icon"></i>
+              <input 
+                pInputText 
+                type="text" 
+                [(ngModel)]="searchValue" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Buscar por codigo, cliente, obra..." 
+                class="search-input"/>
+              <button 
+                *ngIf="searchValue" 
+                class="clear-search-btn" 
+                (click)="searchValue = ''; dt.filterGlobal('', 'contains')">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <div class="table-actions">
+            <button 
+              class="btn-filter-action" 
+              (click)="clear(dt)"
+              pTooltip="Limpiar filtros"
+              tooltipPosition="bottom">
+              <i class="fas fa-filter-circle-xmark"></i>
+              <span>Limpiar</span>
+            </button>
+          </div>
         </div>
-    </ng-template>
-
-        <ng-template pTemplate="header">
-          <tr class="TableCustomCotiza">
-              <th >
-                  <div pSortableColumn="budgetId" class="flex align-items-center">
-                      Cod
-                      <p-sortIcon field="budgetId" />
-                  </div>
-              </th>
-              <th  pSortableColumn="date">
-                  <div class="flex align-items-center">
-                      Fecha
-                      <p-sortIcon field="date" />
-                  </div>
-              </th>   
-              <th pSortableColumn="budgetName" >
-                <div class="flex align-items-center">
-                    Obra
-                    <p-sortIcon field="budgetName" />
-                </div>
-            </th>  
-              <th  pSortableColumn="customerDto.customerName" >
-                  <div class="flex align-items-center">
-                      Cliente   
-                      <p-sortIcon field="customerDto.customerName" />                  
-                  </div>
-              </th>
-              <th  pSortableColumn="externalInvoice" >
-                <div class="flex align-items-center">
-                    Factura   
-                    <p-sortIcon field="externalInvoice" />                  
-                </div>
-            </th>
-            <th pSortableColumn="estado">
-              <div class="flex align-items-center">
-                  Estado
-                  <p-sortIcon field="estado" />
-              </div>
-            </th>
-            <th  pSortableColumn="projectReportId" >
-              <div class="flex align-items-center">
-                  Informe   
-                  <p-sortIcon field="projectReportId" />                  
-              </div>
-          </th>
-              <th  pSortableColumn="total" style="min-width:10rem">
-                  <div class="flex align-items-center">
-                      Total
-                      <p-sortIcon field="total" />
-                  </div>
-              </th>
-              <th style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Opciones
-                  
-                </div>
-            </th>
-
-          </tr>
       </ng-template>
 
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr class="table-header-row">
+          <th pSortableColumn="budgetId" class="th-code">
+            <div class="th-content">
+              <i class="fas fa-hashtag"></i>
+              <span>Codigo</span>
+              <p-sortIcon field="budgetId" />
+            </div>
+          </th>
+          <th pSortableColumn="date" class="th-date">
+            <div class="th-content">
+              <i class="far fa-calendar-alt"></i>
+              <span>Fecha</span>
+              <p-sortIcon field="date" />
+            </div>
+          </th>
+          <th pSortableColumn="budgetName" class="th-name">
+            <div class="th-content">
+              <i class="fas fa-building"></i>
+              <span>Obra</span>
+              <p-sortIcon field="budgetName" />
+            </div>
+          </th>
+          <th pSortableColumn="customerDto.customerName" class="th-customer">
+            <div class="th-content">
+              <i class="fas fa-user-tie"></i>
+              <span>Cliente</span>
+              <p-sortIcon field="customerDto.customerName" />
+            </div>
+          </th>
+          <th pSortableColumn="externalInvoice" class="th-invoice">
+            <div class="th-content">
+              <i class="fas fa-file-invoice"></i>
+              <span>Factura</span>
+              <p-sortIcon field="externalInvoice" />
+            </div>
+          </th>
+          <th pSortableColumn="estado" class="th-status">
+            <div class="th-content">
+              <i class="fas fa-flag"></i>
+              <span>Estado</span>
+              <p-sortIcon field="estado" />
+            </div>
+          </th>
+          <th pSortableColumn="projectReportId" class="th-report">
+            <div class="th-content">
+              <i class="fas fa-clipboard-list"></i>
+              <span>Informe</span>
+              <p-sortIcon field="projectReportId" />
+            </div>
+          </th>
+          <th pSortableColumn="total" class="th-total">
+            <div class="th-content">
+              <i class="fas fa-dollar-sign"></i>
+              <span>Total</span>
+              <p-sortIcon field="total" />
+            </div>
+          </th>
+          <th class="th-actions">
+            <div class="th-content">
+              <i class="fas fa-cog"></i>
+              <span>Acciones</span>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
 
-
-
-        <ng-template pTemplate="body" let-budget >
-          <tr  class="TableCustomCotiza">
-            <td>{{ budget.internalCode }}</td>
-            <td>{{ budget.date | date: 'dd MMM yyyy' }}</td>
-            <td>{{ budget.budgetName  | capitalize | truncate:50}} 
-              <span *ngIf="budget.isInvoice" class="badge bg-success me-1" title="Factura">F</span>
-            </td>
-            <td>{{ budget.customerDto.customerName | capitalize | truncate:30}}</td>
-             
-            <td>
-              <span 
-                *ngIf="editingInvoiceBudgetId !== budget.budgetId" 
-                (click)="startEditingInvoice(budget)" 
-                style="cursor: pointer;" 
-                title="Clic para editar">
-                <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
-                  {{ budget.externalInvoice }}
-                </c-badge>
-                <span *ngIf="!budget.externalInvoice || budget.externalInvoice === '0'" style="color: #999; font-style: italic;">
-                  Sin factura
-                </span>
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-budget>
+        <tr class="table-body-row">
+          <!-- Codigo -->
+          <td class="td-code">
+            <span class="code-badge">{{ budget.internalCode }}</span>
+          </td>
+          
+          <!-- Fecha -->
+          <td class="td-date">
+            <span class="date-text">{{ budget.date | date: 'dd MMM yyyy' }}</span>
+          </td>
+          
+          <!-- Obra -->
+          <td class="td-name">
+            <div class="name-wrapper">
+              <span class="budget-name">{{ budget.budgetName | capitalize | truncate:50 }}</span>
+              <span *ngIf="budget.isInvoice" class="invoice-indicator" pTooltip="Facturada" tooltipPosition="top">
+                <i class="fas fa-receipt"></i>
               </span>
+            </div>
+          </td>
+          
+          <!-- Cliente -->
+          <td class="td-customer">
+            <span class="customer-name">{{ budget.customerDto.customerName | capitalize | truncate:30 }}</span>
+          </td>
+          
+          <!-- Factura -->
+          <td class="td-invoice">
+            <span 
+              *ngIf="editingInvoiceBudgetId !== budget.budgetId" 
+              (click)="startEditingInvoice(budget)" 
+              class="invoice-value"
+              [class.has-invoice]="budget.externalInvoice && budget.externalInvoice !== '0'"
+              pTooltip="Clic para editar"
+              tooltipPosition="top">
+              <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">
+                {{ budget.externalInvoice }}
+              </c-badge>
+              <span *ngIf="!budget.externalInvoice || budget.externalInvoice === '0'" class="no-invoice">
+                <i class="far fa-file"></i> Sin factura
+              </span>
+            </span>
+            <div *ngIf="editingInvoiceBudgetId === budget.budgetId" class="invoice-edit-wrapper">
               <input 
-                *ngIf="editingInvoiceBudgetId === budget.budgetId"
                 pInputText 
                 [(ngModel)]="editingInvoiceValue" 
                 (blur)="saveExternalInvoice(budget)"
                 (keyup.enter)="saveExternalInvoice(budget)"
                 (keyup.escape)="cancelEditingInvoice()"
-                class="p-inputtext-sm"
-                style="width: 100px;"
+                class="invoice-input"
                 placeholder="Factura"
                 #invoiceInput>
-            </td>
-            <td>
-              <p-dropdown 
-                [options]="statusOptions" 
-                [(ngModel)]="budget.estado" 
-                (onChange)="onStatusChange(budget)" 
-                appendTo="body"
-                styleClass="compact-dropdown dropdown-status"
-                optionLabel="label" 
-                optionValue="value">
-                <ng-template pTemplate="selectedItem">
-                    <c-badge *ngIf="budget.estado" [ngStyle]="{'background-color': getEstadoColor(budget.estado), 'color': 'white', 'font-size': '0.7rem', 'padding': '0.15rem 0.4rem'}">
-                        {{ budget.estado }}
-                    </c-badge>
-                </ng-template>
-                <ng-template let-option pTemplate="item"  styleClass="dropdown-status-item">
-                    <c-badge styleClass="dropdown-status-item-badge" [ngStyle]="{'background-color': getEstadoColor(option.value), 'color': 'white'}">
-                        {{ option.label }}
-                    </c-badge>
-                </ng-template>
-              </p-dropdown>
-            </td>
-            <td>
-              <c-badge *ngIf="budget.projectReportId && budget.projectReportId !== 0" color="success">
-                {{ budget.projectReportId}}
-              </c-badge>
-            </td>
+            </div>
+          </td>
           
-            <td style="text-align: right;">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</td>
-            <td>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span [routerLink]="['/budgets/update', budget.budgetId]" title="Editar Cotización" style="cursor: pointer; color: blueviolet; display: flex; align-items: center;">
-                  <svg cIcon name="cilPencil"></svg>
+          <!-- Estado -->
+          <td class="td-status">
+            <p-dropdown 
+              [options]="statusOptions" 
+              [(ngModel)]="budget.estado" 
+              (onChange)="onStatusChange(budget)" 
+              appendTo="body"
+              styleClass="status-dropdown"
+              optionLabel="label" 
+              optionValue="value">
+              <ng-template pTemplate="selectedItem">
+                <div class="status-badge-wrapper">
+                  <span 
+                    *ngIf="budget.estado" 
+                    class="status-badge"
+                    [ngClass]="getStatusClass(budget.estado)">
+                    <i [class]="getStatusIcon(budget.estado)"></i>
+                    {{ budget.estado }}
+                  </span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <span 
+                  class="status-badge status-option"
+                  [ngClass]="getStatusClass(option.value)">
+                  <i [class]="getStatusIcon(option.value)"></i>
+                  {{ option.label }}
                 </span>
-                <span (click)="downloadBudget(budget)" title="Descargar PDF" style="cursor: pointer; color: blue; display: flex; align-items: center;">
-                  <svg cIcon name="cilCloudDownload"></svg>
-                </span>
-                <span (click)="downloadExcel(budget)" title="Descargar Excel" style="cursor: pointer; color: green; display: flex; align-items: center;">
-                  <i class="pi pi-file-excel" style="font-size: 1.1rem;"></i>
-                </span>
-                <span (click)="copybudget(budget)" title="Duplicar Cotización" style="cursor: pointer; color: orange; display: flex; align-items: center;">
-                  <svg cIcon name="cilCopy"></svg>
-                </span>
-                <p-button 
-                  icon="pi pi-bars" 
-                  [text]="true" 
-                  (onClick)="onMenuClick($event, budget)" 
-                  aria-label="Opciones"
-                  styleClass="p-button-sm"
-                ></p-button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>  
-</c-col>
+              </ng-template>
+            </p-dropdown>
+          </td>
+          
+          <!-- Informe -->
+          <td class="td-report">
+            <c-badge 
+              *ngIf="budget.projectReportId && budget.projectReportId !== 0" 
+              class="report-badge">
+              <i class="fas fa-clipboard-check"></i>
+              {{ budget.projectReportId }}
+            </c-badge>
+            <span *ngIf="!budget.projectReportId || budget.projectReportId === 0" class="no-report">
+              -
+            </span>
+          </td>
+          
+          <!-- Total -->
+          <td class="td-total">
+            <span class="total-value">
+              $ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}
+            </span>
+          </td>
+          
+          <!-- Acciones -->
+          <td class="td-actions">
+            <div class="action-buttons">
+              <button 
+                class="action-btn action-edit" 
+                [routerLink]="['/budgets/update', budget.budgetId]" 
+                pTooltip="Editar" 
+                tooltipPosition="top">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button 
+                class="action-btn action-pdf" 
+                (click)="downloadBudget(budget)" 
+                pTooltip="Descargar PDF" 
+                tooltipPosition="top">
+                <i class="fas fa-file-pdf"></i>
+              </button>
+              <button 
+                class="action-btn action-excel" 
+                (click)="downloadExcel(budget)" 
+                pTooltip="Descargar Excel" 
+                tooltipPosition="top">
+                <i class="fas fa-file-excel"></i>
+              </button>
+              <button 
+                class="action-btn action-copy" 
+                (click)="copybudget(budget)" 
+                pTooltip="Duplicar" 
+                tooltipPosition="top">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button 
+                class="action-btn action-more" 
+                (click)="onMenuClick($event, budget)" 
+                pTooltip="Mas opciones" 
+                tooltipPosition="top">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="empty-state">
+            <div class="empty-content">
+              <i class="fas fa-folder-open empty-icon"></i>
+              <h3>No hay cotizaciones</h3>
+              <p>No se encontraron cotizaciones que coincidan con tu busqueda</p>
+              <a [routerLink]="'/budgets/add'" class="btn-create-first">
+                <i class="fas fa-plus"></i>
+                Crear primera cotizacion
+              </a>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
-<!-- Modal de confirmación -->
+    <!-- Context Menu -->
+    <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+  </div>
+</div>
+
+<!-- Modal de confirmacion -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
 
-<!-- Dialog para parámetros del cronograma -->
+<!-- Dialog para parametros del cronograma -->
 <p-dialog 
   [(visible)]="displayScheduleDialog" 
   [header]="'Descargar Cronograma'" 
   [modal]="true" 
   [style]="{width: '450px'}"
   [draggable]="false"
-  [resizable]="false">
-  <div class="p-fluid">
-    <div class="field">
-      <label for="weeks">Número de Semanas</label>
+  [resizable]="false"
+  styleClass="modern-dialog">
+  <div class="p-fluid dialog-content">
+    <div class="form-group-modern">
+      <label class="label-modern">
+        <i class="fas fa-calendar-week"></i>
+        Numero de Semanas
+      </label>
       <p-inputNumber 
         id="weeks" 
         [(ngModel)]="scheduleParams.weeks" 
         [min]="1" 
         [max]="52"
-        [showButtons]="true">
+        [showButtons]="true"
+        styleClass="input-modern">
       </p-inputNumber>
     </div>
-    <div class="field mt-3">
-      <label for="startDate">Fecha de Inicio</label>
+    <div class="form-group-modern mt-3">
+      <label class="label-modern">
+        <i class="far fa-calendar-alt"></i>
+        Fecha de Inicio
+      </label>
       <p-calendar 
         id="startDate" 
         [(ngModel)]="scheduleParams.startDate" 
         dateFormat="yy-mm-dd"
-        [showIcon]="true">
+        [showIcon]="true"
+        styleClass="input-modern">
       </p-calendar>
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <p-button 
-      label="Cancelar" 
-      icon="pi pi-times" 
-      (onClick)="displayScheduleDialog = false" 
-      styleClass="p-button-text">
-    </p-button>
-    <p-button 
-      label="Descargar" 
-      icon="pi pi-download" 
-      (onClick)="downloadSchedule()" 
-      [disabled]="!scheduleParams.weeks || !scheduleParams.startDate">
-    </p-button>
+    <div class="dialog-footer">
+      <button 
+        class="btn-dialog btn-cancel" 
+        (click)="displayScheduleDialog = false">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      <button 
+        class="btn-dialog btn-confirm" 
+        (click)="downloadSchedule()" 
+        [disabled]="!scheduleParams.weeks || !scheduleParams.startDate">
+        <i class="fas fa-download"></i>
+        Descargar
+      </button>
+    </div>
   </ng-template>
 </p-dialog>
 
@@ -278,81 +453,100 @@
   [modal]="true" 
   [style]="{width: '500px'}"
   [draggable]="false"
-  [resizable]="false">
-  <div class="p-fluid">
-    <div class="field">
-      <label for="budget1">Primera Cotización (seleccionada)</label>
+  [resizable]="false"
+  styleClass="modern-dialog">
+  <div class="p-fluid dialog-content">
+    <div class="form-group-modern">
+      <label class="label-modern">
+        <i class="fas fa-file-alt"></i>
+        Primera Cotizacion (seleccionada)
+      </label>
       <input 
         pInputText 
-        id="budget1" 
         [value]="getSelectedBudgetLabel()"
         [disabled]="true"
-        class="p-inputtext-sm">
+        class="input-modern disabled">
     </div>
-    <div class="field mt-3">
-      <label for="budget2">Segunda Cotización *</label>
+    <div class="form-group-modern mt-3">
+      <label class="label-modern">
+        <i class="fas fa-file-alt"></i>
+        Segunda Cotizacion <span class="required-star">*</span>
+      </label>
       <p-dropdown 
-        id="budget2" 
         [options]="getAvailableBudgetsForMerge()" 
         [(ngModel)]="mergeParams.budgetId2" 
         optionLabel="internalCode" 
         optionValue="budgetId"
-        placeholder="Selecciona una cotización"
+        placeholder="Selecciona una cotizacion"
         [filter]="true"
         filterBy="internalCode,budgetName"
         appendTo="body"
-        [showClear]="true">
+        [showClear]="true"
+        styleClass="dropdown-modern">
         <ng-template let-budget pTemplate="item">
-          <div>{{ budget.internalCode }} - {{ budget.budgetName | truncate:40 }}</div>
+          <div class="dropdown-item-content">
+            <span class="dropdown-code">{{ budget.internalCode }}</span>
+            <span class="dropdown-name">{{ budget.budgetName | truncate:40 }}</span>
+          </div>
         </ng-template>
       </p-dropdown>
     </div>
-    <div class="field mt-3">
-      <label for="newBudgetName">Nombre de la Nueva Cotización *</label>
+    <div class="form-group-modern mt-3">
+      <label class="label-modern">
+        <i class="fas fa-tag"></i>
+        Nombre de la Nueva Cotizacion <span class="required-star">*</span>
+      </label>
       <input 
         pInputText 
-        id="newBudgetName" 
         [(ngModel)]="mergeParams.newBudgetName" 
         placeholder="Ingresa el nombre"
-        class="p-inputtext-sm">
+        class="input-modern">
     </div>
-    <div class="field mt-3">
-      <label for="note">Nota (opcional)</label>
+    <div class="form-group-modern mt-3">
+      <label class="label-modern">
+        <i class="fas fa-sticky-note"></i>
+        Nota (opcional)
+      </label>
       <textarea 
         pInputTextarea 
-        id="note" 
         [(ngModel)]="mergeParams.note" 
         rows="3" 
-        placeholder="Agrega una nota sobre la unión"
-        class="p-inputtextarea-sm">
+        placeholder="Agrega una nota sobre la union"
+        class="textarea-modern">
       </textarea>
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <p-button 
-      label="Cancelar" 
-      icon="pi pi-times" 
-      (onClick)="displayMergeDialog = false" 
-      styleClass="p-button-text">
-    </p-button>
-    <p-button 
-      label="Unir Cotizaciones" 
-      icon="pi pi-plus-circle" 
-      (onClick)="mergeBudgets()" 
-      [disabled]="!mergeParams.budgetId1 || !mergeParams.budgetId2 || !mergeParams.newBudgetName">
-    </p-button>
+    <div class="dialog-footer">
+      <button 
+        class="btn-dialog btn-cancel" 
+        (click)="displayMergeDialog = false">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      <button 
+        class="btn-dialog btn-confirm" 
+        (click)="mergeBudgets()" 
+        [disabled]="!mergeParams.budgetId1 || !mergeParams.budgetId2 || !mergeParams.newBudgetName">
+        <i class="fas fa-plus-circle"></i>
+        Unir Cotizaciones
+      </button>
+    </div>
   </ng-template>
 </p-dialog>
 
-<!-- Modal de selección de emails -->
+<!-- Modal de seleccion de emails -->
 <app-email-selector-modal 
   #emailSelectorModal
   [emails]="availableEmails"
   (confirmAction)="onEmailsSelected($event)">
 </app-email-selector-modal>
 
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
-
-
-
-
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.8)" 
+  size="medium" 
+  color="#fff" 
+  type="square-jelly-box" 
+  [fullScreen]="true">
+  <p style="color: white">Cargando...</p>
+</ngx-spinner>
