@@ -1,137 +1,253 @@
-<c-row>
-  <c-col xs="12">
-    <c-card class="mb-4">
-      <c-card-header>
-        <strong>Mi Perfil</strong>
-      </c-card-header>
-      <c-card-body>
-        <!-- Datos del usuario -->
-        <c-row class="mb-4">
-          <c-col md="12">
-            <div class="text-center mb-4">
-              <img src="./assets/img/avatars/3d_1.png" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-            </div>
-          </c-col>
-        </c-row>
+<!-- Profile Page Container -->
+<div class="profile-page-container">
+  <!-- Header Principal con Avatar -->
+  <div class="profile-header">
+    <div class="avatar-container">
+      <img 
+        src="./assets/img/avatars/3d_1.png" 
+        alt="Avatar del usuario" 
+        class="avatar-image"
+      />
+      <div class="avatar-badge">
+        <i class="fas fa-check"></i>
+      </div>
+    </div>
+    <h1 class="user-name">{{ userProfile?.name || 'Usuario' }}</h1>
+    <div class="user-role" *ngIf="userProfile?.role">
+      <i class="fas fa-shield-alt"></i>
+      <span>{{ userProfile?.role }}</span>
+    </div>
+  </div>
 
-        <c-row class="mb-3">
-          <c-col md="6">
-            <div class="mb-3">
-              <label cLabel class="fw-bold">Correo electrónico</label>
-              <p class="form-control-plaintext">{{ userProfile?.email || 'No disponible' }}</p>
-            </div>
-          </c-col>
-          <c-col md="6" *ngIf="userProfile?.name">
-            <div class="mb-3">
-              <label cLabel class="fw-bold">Nombre</label>
-              <p class="form-control-plaintext">{{ userProfile?.name }}</p>
-            </div>
-          </c-col>
-        </c-row>
+  <!-- Card de Información Personal -->
+  <div class="profile-card">
+    <div class="card-header-custom">
+      <i class="fas fa-user-circle"></i>
+      <span>Información Personal</span>
+    </div>
+    <div class="card-body-custom">
+      <div class="info-grid">
+        <!-- Email -->
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Correo Electrónico: </span>
+            <span class="info-value">{{ userProfile?.email || 'No disponible' }}</span>
+          </div>
+        </div>
 
-        <c-row class="mb-3" *ngIf="userProfile?.role">
-          <c-col md="6">
-            <div class="mb-3">
-              <label cLabel class="fw-bold">Rol</label>
-              <p class="form-control-plaintext">{{ userProfile?.role }}</p>
-            </div>
-          </c-col>
-        </c-row>
+        <!-- Nombre -->
+        <div class="info-item" *ngIf="userProfile?.name">
+          <div class="info-icon">
+            <i class="fas fa-id-card"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Nombre Completo</span>
+            <span class="info-value">{{ userProfile?.name }}</span>
+          </div>
+        </div>
 
-        <hr class="my-4">
+        <!-- Rol -->
+        <div class="info-item" *ngIf="userProfile?.role">
+          <div class="info-icon">
+            <i class="fas fa-user-tag"></i>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Rol en el Sistema</span>
+            <span class="info-value">{{ userProfile?.role }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Sección de seguridad -->
-        <c-row>
-          <c-col xs="12">
-            <h5 class="mb-3">
-              <svg cIcon name="cilLockLocked" class="me-2"></svg>
-              Seguridad
-            </h5>
-            <button cButton color="primary" (click)="openChangePasswordModal()">
-              <svg cIcon name="cilSettings" class="me-2"></svg>
-              Cambiar contraseña
-            </button>
-          </c-col>
-        </c-row>
-      </c-card-body>
-    </c-card>
-  </c-col>
-</c-row>
+  <!-- Card de Seguridad -->
+  <div class="profile-card">
+    <div class="card-header-custom">
+      <i class="fas fa-lock"></i>
+      <span>Seguridad de la Cuenta</span>
+    </div>
+    <div class="card-body-custom">
+      <div class="security-section">
+        <div class="security-info">
+          <div class="security-icon">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="security-text">
+            <h4>Contraseña</h4>
+            <p>Mantén tu cuenta segura actualizando tu contraseña regularmente</p>
+          </div>
+        </div>
+        <button 
+          type="button" 
+          class="btn-modern btn-primary-modern" 
+          (click)="openChangePasswordModal()"
+        >
+          <i class="fas fa-edit"></i>
+          Cambiar Contraseña
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-<!-- Modal para cambiar contraseña -->
-<c-modal [visible]="showChangePasswordModal" (visibleChange)="showChangePasswordModal = $event" alignment="center">
-  <c-modal-header>
-    <h5 cModalTitle>Cambiar contraseña</h5>
-    <button cButtonClose (click)="closeChangePasswordModal()"></button>
+<!-- Modal Moderno para Cambiar Contraseña -->
+<c-modal 
+  [visible]="showChangePasswordModal" 
+  (visibleChange)="showChangePasswordModal = $event" 
+  alignment="center"
+  class="modal-modern"
+>
+  <c-modal-header class="modal-header-custom">
+    <h5>
+      <i class="fas fa-lock me-2"></i>
+      Cambiar Contraseña
+    </h5>
+    <button type="button" class="btn-close-modern" (click)="closeChangePasswordModal()">
+      <i class="fas fa-times"></i>
+    </button>
   </c-modal-header>
-  <c-modal-body>
+  
+  <c-modal-body class="modal-body-custom">
     <!-- Mensaje de éxito -->
-    <c-alert *ngIf="showSuccessMessage" color="success" [dismissible]="true" (visibleChange)="showSuccessMessage = $event">
-      {{ successMessage }}
-    </c-alert>
+    <div class="alert-modern alert-success" *ngIf="showSuccessMessage">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ successMessage }}</span>
+    </div>
 
     <!-- Mensaje de error -->
-    <c-alert *ngIf="showErrorMessage" color="danger" [dismissible]="true" (visibleChange)="showErrorMessage = $event">
-      {{ errorMessage }}
-    </c-alert>
+    <div class="alert-modern alert-danger" *ngIf="showErrorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
 
     <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()">
-      <div class="mb-3">
-        <label cLabel for="currentPassword">Contraseña actual</label>
-        <input 
-          cFormControl 
-          type="password" 
-          id="currentPassword" 
-          formControlName="currentPassword"
-          placeholder="Ingresa tu contraseña actual"
-          [valid]="f['currentPassword'].touched ? f['currentPassword'].valid : undefined">
-        <c-form-feedback *ngIf="f['currentPassword'].touched && f['currentPassword'].errors?.['required']" [valid]="false">
+      <!-- Contraseña Actual -->
+      <div class="form-group-modern">
+        <label class="label-modern">
+          <i class="fas fa-lock"></i>
+          Contraseña Actual
+        </label>
+        <div class="password-field">
+          <input 
+            [type]="showCurrentPassword ? 'text' : 'password'"
+            class="input-modern"
+            formControlName="currentPassword"
+            placeholder="Ingresa tu contraseña actual"
+            [ngClass]="{
+              'is-invalid': f['currentPassword'].touched && f['currentPassword'].invalid,
+              'is-valid': f['currentPassword'].touched && f['currentPassword'].valid
+            }"
+          />
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="showCurrentPassword = !showCurrentPassword"
+          >
+            <i class="fas" [ngClass]="showCurrentPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="f['currentPassword'].touched && f['currentPassword'].errors?.['required']">
+          <i class="fas fa-exclamation-circle"></i>
           La contraseña actual es requerida
-        </c-form-feedback>
-        <c-form-feedback *ngIf="f['currentPassword'].touched && f['currentPassword'].errors?.['minlength']" [valid]="false">
+        </div>
+        <div class="error-message" *ngIf="f['currentPassword'].touched && f['currentPassword'].errors?.['minlength']">
+          <i class="fas fa-exclamation-circle"></i>
           La contraseña debe tener al menos 6 caracteres
-        </c-form-feedback>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <label cLabel for="newPassword">Nueva contraseña</label>
-        <input 
-          cFormControl 
-          type="password" 
-          id="newPassword" 
-          formControlName="newPassword"
-          placeholder="Ingresa tu nueva contraseña"
-          [valid]="f['newPassword'].touched ? f['newPassword'].valid : undefined">
-        <c-form-feedback *ngIf="f['newPassword'].touched && f['newPassword'].errors?.['required']" [valid]="false">
+      <!-- Nueva Contraseña -->
+      <div class="form-group-modern">
+        <label class="label-modern">
+          <i class="fas fa-key"></i>
+          Nueva Contraseña
+        </label>
+        <div class="password-field">
+          <input 
+            [type]="showNewPassword ? 'text' : 'password'"
+            class="input-modern"
+            formControlName="newPassword"
+            placeholder="Ingresa tu nueva contraseña"
+            [ngClass]="{
+              'is-invalid': f['newPassword'].touched && f['newPassword'].invalid,
+              'is-valid': f['newPassword'].touched && f['newPassword'].valid
+            }"
+          />
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="showNewPassword = !showNewPassword"
+          >
+            <i class="fas" [ngClass]="showNewPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="f['newPassword'].touched && f['newPassword'].errors?.['required']">
+          <i class="fas fa-exclamation-circle"></i>
           La nueva contraseña es requerida
-        </c-form-feedback>
-        <c-form-feedback *ngIf="f['newPassword'].touched && f['newPassword'].errors?.['minlength']" [valid]="false">
+        </div>
+        <div class="error-message" *ngIf="f['newPassword'].touched && f['newPassword'].errors?.['minlength']">
+          <i class="fas fa-exclamation-circle"></i>
           La contraseña debe tener al menos 6 caracteres
-        </c-form-feedback>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <label cLabel for="confirmPassword">Confirmar nueva contraseña</label>
-        <input 
-          cFormControl 
-          type="password" 
-          id="confirmPassword" 
-          formControlName="confirmPassword"
-          placeholder="Confirma tu nueva contraseña"
-          [valid]="f['confirmPassword'].touched ? f['confirmPassword'].valid : undefined">
-        <c-form-feedback *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['required']" [valid]="false">
+      <!-- Confirmar Contraseña -->
+      <div class="form-group-modern" style="margin-bottom: 0;">
+        <label class="label-modern">
+          <i class="fas fa-check-double"></i>
+          Confirmar Nueva Contraseña
+        </label>
+        <div class="password-field">
+          <input 
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            class="input-modern"
+            formControlName="confirmPassword"
+            placeholder="Confirma tu nueva contraseña"
+            [ngClass]="{
+              'is-invalid': f['confirmPassword'].touched && f['confirmPassword'].invalid,
+              'is-valid': f['confirmPassword'].touched && f['confirmPassword'].valid
+            }"
+          />
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="showConfirmPassword = !showConfirmPassword"
+          >
+            <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['required']">
+          <i class="fas fa-exclamation-circle"></i>
           Debes confirmar la nueva contraseña
-        </c-form-feedback>
-        <c-form-feedback *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['passwordMismatch']" [valid]="false">
+        </div>
+        <div class="error-message" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['passwordMismatch']">
+          <i class="fas fa-exclamation-circle"></i>
           Las contraseñas no coinciden
-        </c-form-feedback>
+        </div>
       </div>
     </form>
   </c-modal-body>
-  <c-modal-footer>
-    <button cButton color="secondary" (click)="closeChangePasswordModal()">Cancelar</button>
-    <button cButton color="primary" (click)="onChangePassword()" [disabled]="changePasswordForm.invalid">
-      Guardar cambios
+  
+  <c-modal-footer class="modal-footer-custom">
+    <button 
+      type="button" 
+      class="btn-modern btn-secondary-modern" 
+      (click)="closeChangePasswordModal()"
+    >
+      <i class="fas fa-times"></i>
+      Cancelar
+    </button>
+    <button 
+      type="button" 
+      class="btn-modern btn-primary-modern" 
+      (click)="onChangePassword()" 
+      [disabled]="changePasswordForm.invalid"
+    >
+      <i class="fas fa-save"></i>
+      Guardar Cambios
     </button>
   </c-modal-footer>
 </c-modal>

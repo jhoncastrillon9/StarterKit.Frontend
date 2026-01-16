@@ -5,7 +5,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-profile',
-  templateUrl: './profile.component.html'
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
   userProfile: UserProfile | null = null;
@@ -16,6 +17,11 @@ export class ProfileComponent implements OnInit {
   showErrorMessage: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
+
+  // Toggle password visibility
+  showCurrentPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private profileService: ProfileService,

@@ -1,102 +1,133 @@
-<!-- Título de la sección -->
-<c-col xs="12">  
-    <div class="d-flex justify-content-between align-items-center p-1">          
-      <span class="cui-primary" style="color: #6610f2; font-size: 2rem; font-weight: 500; font-family: Yanone Kaffeesatz;">Formato Cotizaciones</span>    
+<!-- Budget Config Page Container -->
+<div class="config-page-container">
+  <!-- Header Principal Moderno -->
+  <div class="config-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Formato Cotizaciones</h1>
+          <p class="page-subtitle">Personaliza el diseño de tus documentos</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-badge">
+          <i class="fas fa-palette"></i>
+          <span>Configuración</span>
+        </div>
+      </div>
     </div>
-  </c-col>
-  
-  <br>
-  
-  <!-- Formulario principal -->
-  <c-col xs="12">
-    <c-col xs="12">
-      <label cLabel for="telephones"><strong>Selecionar formato</strong></label>  
+  </div>
 
-    </c-col>
+  <form cForm class="config-form" [formGroup]="companyForm" (ngSubmit)="updateBudgetConfig()">
+    <!-- IDs ocultos -->
+    <input cFormControl formControlName="companyId" style="display: none;" />
+    <input cFormControl formControlName="budgetConfigId" style="display: none;" />
+    <input cFormControl formControlName="budgetTemplateId" style="display: none;" />
 
-    <br>
-    <form cForm class="row g-3" [formGroup]="companyForm" (ngSubmit)="updateBudgetConfig()">
-  
-      <!-- IDs de la empresa (ocultos) -->
-      <input cFormControl formControlName="companyId" style="display: none;" />
-      <input cFormControl formControlName="budgetConfigId" style="display: none;" />
-      <input cFormControl formControlName="budgetTemplateId" style="display: none;" />
-
-  
-      <!-- Tarjetas de selección responsivas -->
-      <div class="row justify-content-center"> <!-- Centra las tarjetas horizontalmente -->
-        
-        <c-col xs="12" sm="6" md="4" lg="2" class="mb-3" *ngFor="let template of budgetTemplates">
-            <div class="form-check form-check-inline">
-                <div class="card" [ngClass]="{'selected-card': selectedOption === template.budgetTemplateId}">
-                    <div class="card-body text-center">
-                        <p class="card-text">{{template.budgetTemplateName}}</p>
-                        <input 
-                            class="form-check-input" 
-                            type="radio" 
-                            name="inlineRadioOptions" 
-                            id="inlineRadio{{template.budgetTemplateId}}" 
-                            [value]="template.budgetTemplateId" 
-                            (change)="selectOption(template.budgetTemplateId)" 
-                            style="display: none;">
-                        <label class="form-check-label" for="inlineRadio{{template.budgetTemplateId}}">
-                            <img src="{{template.urlImageExample}}" class="card-img-top" alt="Opción {{template.budgetTemplateId}}" style="max-width: 300px;">
-                        </label>
-                    </div>
-                </div>
+    <!-- Card de Selección de Plantilla -->
+    <div class="config-card">
+      <div class="card-header-custom">
+        <i class="fas fa-th-large"></i>
+        <span>Seleccionar Plantilla</span>
+        <span class="template-count" *ngIf="budgetTemplates?.length">{{ budgetTemplates.length }} disponibles</span>
+      </div>
+      <div class="card-body-custom">
+        <!-- Grid de Templates -->
+        <div class="templates-grid" *ngIf="budgetTemplates?.length; else emptyTemplates">
+          <div 
+            class="template-card"
+            *ngFor="let template of budgetTemplates"
+            [class.selected]="selectedOption === template.budgetTemplateId"
+            (click)="selectOption(template.budgetTemplateId)"
+          >
+            <div class="template-check">
+              <i class="fas fa-check"></i>
             </div>
-        </c-col>  
+            <div class="template-image">
+              <img 
+                [src]="template.urlImageExample" 
+                [alt]="template.budgetTemplateName"
+                loading="lazy"
+              />
+              <div class="template-overlay"></div>
+            </div>
+            <div class="template-name">
+              {{ template.budgetTemplateName }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado vacío -->
+        <ng-template #emptyTemplates>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-file-image"></i>
+            </div>
+            <h4>No hay plantillas disponibles</h4>
+            <p>Las plantillas de cotización se cargarán pronto</p>
+          </div>
+        </ng-template>
       </div>
-  
-      <!-- Inputs para Template y Introducción -->
-      <div class="row">
+    </div>
 
-        <c-col xs="12" md="6" class="mb-3">
-          <label cLabel for="telephones"><strong>Introducción</strong></label>       
-          <textarea cFormControl type="text" formControlName="introduction" placeholder="Ej: 3001234567" class="form-control form-control-sm" rows="3"></textarea>
-
-        </c-col>
+    <!-- Card de Texto de Introducción -->
+    <div class="config-card">
+      <div class="card-header-custom">
+        <i class="fas fa-align-left"></i>
+        <span>Texto de Introducción</span>
       </div>
+      <div class="card-body-custom">
+        <div class="form-group-modern">
+          <label class="label-modern">
+            <i class="fas fa-paragraph"></i>
+            Introducción para las cotizaciones
+            <span class="helper-badge">Opcional</span>
+          </label>
+          <textarea 
+            cFormControl 
+            formControlName="introduction" 
+            class="textarea-modern"
+            placeholder="Escribe aquí el texto introductorio que aparecerá en tus cotizaciones. Por ejemplo: 'Nos complace presentarle nuestra propuesta comercial...'"
+            rows="4"
+            maxlength="1000"
+          ></textarea>
+          <div class="char-counter">
+            {{ companyForm.get('introduction')?.value?.length || 0 }} / 1000 caracteres
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Textarea con row de 3 -->
-
-  
-
-      <c-col xs="12" class="text-end mb-4"> 
-        <a 
-          cButton 
-          type="button" 
-          class="me-3 btn-sm" 
-          variant="outline" 
-          [routerLink]="'/'"
-        >
-          Salir
-        </a>
-      
-        <button 
-          cButton 
-          type="submit" 
-          class="btn-sm"         
-        >
-          Actualizar
-        </button>
-      </c-col>
-
-
-    </form>
-  </c-col>
- 
+    <!-- Botones de acción -->
+    <div class="form-actions">
+      <a 
+        class="btn-modern btn-back"
+        [routerLink]="'/'"
+      >
+        <i class="fas fa-arrow-left"></i>
+        Salir
+      </a>
+      <button type="submit" class="btn-modern btn-save">
+        <i class="fas fa-save"></i>
+        Guardar Configuración
+      </button>
+    </div>
+  </form>
+</div>
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
-  
-  <!-- Spinner de carga -->
-  <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
-    <p style="color: white">Cargando...</p>
-  </ngx-spinner>
+
+<!-- Spinner de carga -->
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
+  <p style="color: white">Cargando...</p>
+</ngx-spinner>

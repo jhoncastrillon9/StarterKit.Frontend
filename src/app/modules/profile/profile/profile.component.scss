@@ -1,0 +1,584 @@
+// ========================================
+// MODERN PROFILE STYLES
+// ========================================
+
+// Variables
+$primary-color: #6610f2;
+$primary-light: #8540f5;
+$primary-dark: #520dc2;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$transition: all 0.3s ease;
+
+// Page Container
+.profile-page-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// ========================================
+// HEADER STYLES
+// ========================================
+.profile-header {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-radius: $border-radius;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-md;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+  }
+
+  .avatar-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+    z-index: 1;
+
+    .avatar-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      transition: $transition;
+
+      &:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .avatar-badge {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 32px;
+      height: 32px;
+      background: $success-color;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid $white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      i {
+        color: $white;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .user-name {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: $white;
+    margin: 0 0 0.25rem;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .user-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    color: $white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
+
+    i {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ========================================
+// CARD STYLES
+// ========================================
+.profile-card {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: $transition;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  .card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, $light-bg 0%, #fff 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1rem;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  .card-body-custom {
+    padding: 1.5rem;
+  }
+}
+
+// ========================================
+// INFO ITEM STYLES
+// ========================================
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: $light-bg;
+  border-radius: $border-radius-sm;
+  transition: $transition;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($primary-light, 0.05) 100%);
+    transform: translateX(5px);
+  }
+
+  .info-icon {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+
+    i {
+      font-size: 1.1rem;
+      color: $white;
+    }
+  }
+
+  .info-content {
+    flex: 1;
+    min-width: 0;
+
+    .info-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 0.95rem;
+      color: #374151;
+      font-weight: 500;
+      word-break: break-word;
+    }
+  }
+}
+
+// ========================================
+// SECURITY SECTION
+// ========================================
+.security-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($primary-light, 0.08) 100%);
+  border-radius: $border-radius-sm;
+  border: 1px dashed rgba($primary-color, 0.3);
+
+  .security-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .security-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba($primary-color, 0.3);
+
+      i {
+        font-size: 1.25rem;
+        color: $white;
+      }
+    }
+
+    .security-text {
+      h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 0.25rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin: 0;
+      }
+    }
+  }
+}
+
+// ========================================
+// BUTTON STYLES
+// ========================================
+.btn-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &.btn-primary-modern {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+    }
+  }
+
+  &.btn-secondary-modern {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+
+    &:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========================================
+// MODAL STYLES
+// ========================================
+.modal-modern {
+  .modal-header-custom {
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    color: $white;
+    padding: 1.25rem 1.5rem;
+    border: none;
+
+    h5 {
+      font-weight: 600;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      letter-spacing: 0.5px;
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    .btn-close-modern {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition;
+
+      i {
+        color: $white;
+        font-size: 1rem;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+
+  .modal-body-custom {
+    padding: 1.5rem;
+  }
+
+  .modal-footer-custom {
+    padding: 1rem 1.5rem;
+    background: $light-bg;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+}
+
+// ========================================
+// FORM STYLES
+// ========================================
+.form-group-modern {
+  margin-bottom: 1.25rem;
+
+  .label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+
+    i {
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.input-modern {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  font-size: 0.9rem;
+  transition: $transition;
+  background: $white;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &.is-invalid {
+    border-color: $danger-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($danger-color, 0.15);
+    }
+  }
+
+  &.is-valid {
+    border-color: $success-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($success-color, 0.15);
+    }
+  }
+}
+
+// Password Field with Toggle
+.password-field {
+  position: relative;
+
+  .input-modern {
+    padding-right: 3rem;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: $transition;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+// Error Messages
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $danger-color;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// Alert Styles
+.alert-modern {
+  padding: 1rem 1.25rem;
+  border-radius: $border-radius-sm;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.1rem;
+  }
+
+  &.alert-success {
+    background: rgba($success-color, 0.1);
+    border: 1px solid rgba($success-color, 0.2);
+    color: darken($success-color, 10%);
+  }
+
+  &.alert-danger {
+    background: rgba($danger-color, 0.1);
+    border: 1px solid rgba($danger-color, 0.2);
+    color: darken($danger-color, 10%);
+  }
+}
+
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
+@media (max-width: 768px) {
+  .profile-header {
+    padding: 1.5rem 1rem;
+
+    .avatar-container {
+      .avatar-image {
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    .user-name {
+      font-size: 1.5rem;
+    }
+  }
+
+  .profile-card {
+    .card-header-custom {
+      padding: 0.875rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .card-body-custom {
+      padding: 1rem;
+    }
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .security-section {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .btn-modern {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-page-container {
+    padding: 0 0.25rem 1.5rem;
+  }
+
+  .profile-header {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+
+  .profile-card {
+    border-radius: $border-radius-sm;
+    margin-bottom: 1rem;
+  }
+
+  .info-item {
+    padding: 0.875rem;
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
