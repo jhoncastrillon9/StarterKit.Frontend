@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Product } from '../models/product.model';
 import { ProductService } from '../services/product.service';
+import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 
 @Component({
   selector: 'app-add-update-product',
@@ -11,6 +12,8 @@ import { ProductService } from '../services/product.service';
   styleUrls: ['./add-update-product.component.scss']
 })
 export class AddUpdateProductComponent implements OnInit {
+  @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  
   productForm!: FormGroup;
   isEditMode: boolean = false;
   productId: number | null = null;
@@ -147,25 +150,39 @@ export class AddUpdateProductComponent implements OnInit {
     this.isModalError = false;
     this.modalTitle = title;
     this.modalMessage = message;
-    this.visible = true;
+    // Asignar valores directamente al modal antes de abrirlo
+    this.confirmationModal.title = title;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isModalError = false;
+    this.confirmationModal.isConfirmation = false;
+    this.confirmationModal.openModal();
+    // Navegar después de un breve delay para que el usuario vea el mensaje
+    setTimeout(() => {
+      this.confirmationModal.closeModal();
+      this.router.navigate(['/products/products']);
+    }, 1500);
   }
 
   showErrorModal(message: string): void {
     this.isModalError = true;
     this.modalTitle = this.errorTitle;
     this.modalMessage = message;
-    this.visible = true;
+    // Asignar valores directamente al modal antes de abrirlo
+    this.confirmationModal.title = this.errorTitle;
+    this.confirmationModal.messageModal = message;
+    this.confirmationModal.isModalError = true;
+    this.confirmationModal.isConfirmation = false;
+    this.confirmationModal.openModal();
   }
 
   onModalConfirm(): void {
-    this.visible = false;
     if (!this.isModalError) {
-      this.router.navigate(['/products']);
+      this.router.navigate(['/products/products']);
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/products/products']);
   }
 
   // Getters para validación

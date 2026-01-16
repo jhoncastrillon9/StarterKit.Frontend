@@ -153,6 +153,15 @@
               <button 
                 pButton 
                 type="button" 
+                class="btn-action btn-duplicate"
+                (click)="duplicateProduct(product)"
+                pTooltip="Duplicar"
+                tooltipPosition="bottom">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button 
+                pButton 
+                type="button" 
                 class="btn-action btn-edit"
                 (click)="goToEdit(product)"
                 pTooltip="Editar"
@@ -194,16 +203,15 @@
 </div>
 
 <!-- Modal de Confirmación -->
-<app-reusable-modal 
+<app-confirmation-modal 
   #confirmationModal
-  [(visible)]="visible"
   [title]="title"
-  [message]="messageModal"
-  [isError]="isModalError"
-  [showCancelButton]="isModalForDelete"
-  (confirm)="onModalConfirm()"
-  (cancel)="onModalCancel()">
-</app-reusable-modal>
+  [messageModal]="messageModal"
+  [isModalError]="isModalError"
+  [isConfirmation]="isModalForDelete"
+  [titleButtonComfimationYes]="'Eliminar'"
+  (confirmAction)="onModalConfirm()">
+</app-confirmation-modal>
 
 <ngx-spinner 
   bdColor="rgba(0, 0, 0, 0.8)" 

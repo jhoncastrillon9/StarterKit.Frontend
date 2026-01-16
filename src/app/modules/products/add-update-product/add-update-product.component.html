@@ -119,14 +119,14 @@
 </div>
 
 <!-- Modal de Confirmación -->
-<app-reusable-modal 
-  [(visible)]="visible"
+<app-confirmation-modal 
+  #confirmationModal
   [title]="modalTitle"
-  [message]="modalMessage"
-  [isError]="isModalError"
-  [showCancelButton]="false"
-  (confirm)="onModalConfirm()">
-</app-reusable-modal>
+  [messageModal]="modalMessage"
+  [isModalError]="isModalError"
+  [isConfirmation]="false"
+  (confirmAction)="onModalConfirm()">
+</app-confirmation-modal>
 
 <ngx-spinner 
   bdColor="rgba(0, 0, 0, 0.8)" 

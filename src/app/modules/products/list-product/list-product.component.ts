@@ -18,7 +18,10 @@ export class ListProductComponent implements OnInit {
 
   private readonly successDeleteMessage: string = "¡El producto ha sido eliminado correctamente!";
   private readonly successDeleteTitle: string = "¡Eliminación Completada!";
+  private readonly successDuplicateMessage: string = "¡El producto ha sido duplicado correctamente!";
+  private readonly successDuplicateTitle: string = "¡Producto Duplicado!";
   private readonly errorDeleteMessage: string = "Hubo un problema al intentar eliminar el producto.";
+  private readonly errorDuplicateMessage: string = "Hubo un problema al intentar duplicar el producto.";
   private readonly errorTitle: string = "¡Ups! ocurrió un error.";
   private readonly loadDataError: string = "Algo falló al obtener los productos. Refresca la página.";
   private readonly deleteMessage: string = "Una vez eliminado, no hay vuelta atrás... ¿Estás seguro de eliminar este producto?";
@@ -102,19 +105,24 @@ export class ListProductComponent implements OnInit {
     this.isModalError = false;
     this.title = this.deleteTitleConfirmation;
     this.messageModal = this.deleteMessage;
-    this.visible = true;
+    // Asignar valores directamente al modal antes de abrirlo
+    setTimeout(() => {
+      this.confirmationModal.title = this.deleteTitleConfirmation;
+      this.confirmationModal.messageModal = this.deleteMessage;
+      this.confirmationModal.isModalError = false;
+      this.confirmationModal.isConfirmation = true;
+      this.confirmationModal.titleButtonComfimationYes = 'Eliminar';
+      this.confirmationModal.openModal();
+    }, 0);
   }
 
   onModalConfirm(): void {
     if (this.isModalForDelete && this.productToDelete) {
       this.deleteProduct();
-    } else {
-      this.visible = false;
     }
   }
 
   onModalCancel(): void {
-    this.visible = false;
     this.productToDelete = null;
     this.isModalForDelete = false;
   }
@@ -126,7 +134,7 @@ export class ListProductComponent implements OnInit {
     this.productService.delete(this.productToDelete.productId).subscribe({
       next: () => {
         this.spinner.hide();
-        this.visible = false;
+        this.productToDelete = null;
         this.isModalForDelete = false;
         this.showSuccessModal(this.successDeleteTitle, this.successDeleteMessage);
         this.loadProducts();
@@ -134,7 +142,6 @@ export class ListProductComponent implements OnInit {
       error: (error) => {
         console.error('Error deleting product:', error);
         this.spinner.hide();
-        this.visible = false;
         this.showErrorModal(this.errorDeleteMessage);
       }
     });
@@ -145,7 +152,14 @@ export class ListProductComponent implements OnInit {
     this.isModalForDelete = false;
     this.title = title;
     this.messageModal = message;
-    this.visible = true;
+    // Usar setTimeout para asegurar que Angular detecte los cambios antes de abrir el modal
+    setTimeout(() => {
+      this.confirmationModal.title = title;
+      this.confirmationModal.messageModal = message;
+      this.confirmationModal.isModalError = false;
+      this.confirmationModal.isConfirmation = false;
+      this.confirmationModal.openModal();
+    }, 0);
   }
 
   showErrorModal(message: string): void {
@@ -153,7 +167,39 @@ export class ListProductComponent implements OnInit {
     this.isModalForDelete = false;
     this.title = this.errorTitle;
     this.messageModal = message;
-    this.visible = true;
+    // Usar setTimeout para asegurar que Angular detecte los cambios antes de abrir el modal
+    setTimeout(() => {
+      this.confirmationModal.title = this.errorTitle;
+      this.confirmationModal.messageModal = message;
+      this.confirmationModal.isModalError = true;
+      this.confirmationModal.isConfirmation = false;
+      this.confirmationModal.openModal();
+    }, 0);
+  }
+
+  duplicateProduct(product: Product): void {
+    this.spinner.show();
+    
+    const duplicatedProduct: Product = {
+      productId: 0,
+      name: product.name + ' (Copia)',
+      description: product.description,
+      price: product.price,
+      productInternalCode: product.productInternalCode + '-COPY'
+    };
+
+    this.productService.add(duplicatedProduct).subscribe({
+      next: () => {
+        this.spinner.hide();
+        this.showSuccessModal(this.successDuplicateTitle, this.successDuplicateMessage);
+        this.loadProducts();
+      },
+      error: (error) => {
+        console.error('Error duplicating product:', error);
+        this.spinner.hide();
+        this.showErrorModal(this.errorDuplicateMessage);
+      }
+    });
   }
 
   formatPrice(price: number): string {
