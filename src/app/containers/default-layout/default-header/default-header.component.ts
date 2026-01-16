@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -7,6 +7,8 @@ import { ClassToggleService, HeaderComponent } from '@coreui/angular';
 @Component({
   selector: 'app-default-header',
   templateUrl: './default-header.component.html',
+  styleUrls: ['./default-header.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class DefaultHeaderComponent extends HeaderComponent implements OnInit {
 
