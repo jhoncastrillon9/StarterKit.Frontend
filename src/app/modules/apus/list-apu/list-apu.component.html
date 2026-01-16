@@ -1,13 +1,33 @@
-<c-col xs="12">  
-    <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-      <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 500; font-family:  Yanone Kaffeesatz;" color="primary" class="cui-primary">Analisis de precios unitarios</span>    
-      
+<!-- ========================================
+     MODERN APU LIST COMPONENT
+     ======================================== -->
+<div class="apu-list-container">
+  
+  <!-- Header Section -->
+  <div class="apu-list-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-calculator"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Análisis de Precios Unitarios</h1>
+          <p class="page-subtitle">Gestión y consulta de APUs del sistema</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-badge">
+          <i class="fas fa-list-ol"></i>
+          <span>{{ apus.length }} APUs</span>
+        </div>
+      </div>
     </div>
-  </c-col>
- 
- <c-col xs="12">
-      <p-table #dt 
-      class="p-datatable-sm" 
+  </div>
+
+  <!-- Main Card -->
+  <div class="apu-list-card">
+    <p-table #dt 
+      class="p-datatable-modern" 
       styleClass="p-datatable-gridlines"        
       [value]="apus" 
       [paginator]="true" 
@@ -20,97 +40,122 @@
       [rowsPerPageOptions]="[25, 50, 100, 500]"
       currentPageReportTemplate="{first} al {last} de {totalRecords}"
       [globalFilterFields]="['itemName','subChapterName']"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      >
+      [tableStyle]="{ 'min-width': '50rem' }">
 
+      <!-- Table Caption / Search -->
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <div class="caption-left">
+            <button class="btn-clear" (click)="clear(dt)">
+              <i class="fas fa-filter-circle-xmark"></i>
+              Limpiar
+            </button>
+          </div>
+          <div class="caption-right">
+            <div class="search-wrapper">
+              <i class="fas fa-search search-icon"></i>
+              <input 
+                type="text" 
+                class="search-input"
+                [(ngModel)]="searchValue" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Buscar APU..." />
+            </div>
+          </div>
+        </div>
+      </ng-template>
 
-
-    <ng-template pTemplate="caption" >
-      <div style="display: flex; justify-content: space-between; align-items: center;" >          
-          <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
-          
-
-          <span class="p-input-icon-left ml-auto">
-              <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
-          </span>
-      </div>
-  </ng-template>
-
+      <!-- Table Header -->
       <ng-template pTemplate="header">
-        <tr class="TableCustomCotiza">
-            <th style="min-width:5rem">
-                <div pSortableColumn="unitPriceAnalysisId" class="flex align-items-center">
-                    Cod
-                    <p-sortIcon field="unitPriceAnalysisId" />
-                </div>
-            </th>
-
-            <th pSortableColumn="subChapterName" >
-              <div class="flex align-items-center">
-                  Capitulo
-                  <p-sortIcon field="subChapterName" />
-              </div>
-          </th>  
-
-
-            <th  pSortableColumn="itemName">
-                <div class="flex align-items-center">
-                    Item
-                    <p-sortIcon field="itemName" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="unitMeasurement" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Und
-                    <p-sortIcon field="unitMeasurement" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="laborCost" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Mano de Obra
-                    <p-sortIcon field="laborCost" />
-                </div>
-            </th>
-
-            <th  pSortableColumn="totalPrice" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Valor Total
-                    <p-sortIcon field="totalPrice" />
-                </div>
-            </th>
-
-            <th style="min-width:10rem">
-              <div class="flex align-items-center">
-                  Opciones
-                
-              </div>
+        <tr class="table-header-row">
+          <th pSortableColumn="unitPriceAnalysisId" style="width: 80px;">
+            <div class="th-content">
+              <i class="fas fa-hashtag"></i>
+              Cod
+              <p-sortIcon field="unitPriceAnalysisId" />
+            </div>
           </th>
-
+          <th pSortableColumn="subChapterName">
+            <div class="th-content">
+              <i class="fas fa-folder"></i>
+              Capítulo
+              <p-sortIcon field="subChapterName" />
+            </div>
+          </th>
+          <th pSortableColumn="itemName">
+            <div class="th-content">
+              <i class="fas fa-cube"></i>
+              Item
+              <p-sortIcon field="itemName" />
+            </div>
+          </th>
+          <th pSortableColumn="unitMeasurement" style="width: 100px;">
+            <div class="th-content">
+              <i class="fas fa-ruler"></i>
+              Und
+              <p-sortIcon field="unitMeasurement" />
+            </div>
+          </th>
+          <th pSortableColumn="laborCost" style="width: 140px;">
+            <div class="th-content">
+              <i class="fas fa-hard-hat"></i>
+              Mano de Obra
+              <p-sortIcon field="laborCost" />
+            </div>
+          </th>
+          <th pSortableColumn="totalPrice" style="width: 140px;">
+            <div class="th-content">
+              <i class="fas fa-coins"></i>
+              Valor Total
+              <p-sortIcon field="totalPrice" />
+            </div>
+          </th>
         </tr>
-    </ng-template>
+      </ng-template>
 
-      <ng-template pTemplate="body" let-apu >
-        <tr  class="TableCustomCotiza">
-          <td>{{ apu.unitPriceAnalysisId }}</td>   
-          <td>{{ apu.subChapterName  | capitalize | truncate:50}} </td>
-          <td>{{ apu.itemName  | capitalize }} </td>
-          <td>{{ apu.unitMeasurement }}</td>
-          <!-- <td>$ {{ apu.laborCost.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }} </td> -->
-          <td>$ {{ apu.laborCost.toLocaleString() }} </td>
-          <td>$ {{ apu.totalPrice.toLocaleString('es-ES') }} </td>
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-apu>
+        <tr class="table-body-row">
+          <td>
+            <span class="code-badge">{{ apu.unitPriceAnalysisId }}</span>
+          </td>
+          <td>
+            <span class="chapter-text">{{ apu.subChapterName | capitalize | truncate:50 }}</span>
+          </td>
+          <td>
+            <span class="item-name">{{ apu.itemName | capitalize }}</span>
+          </td>
+          <td>
+            <span class="unit-badge">{{ apu.unitMeasurement }}</span>
+          </td>
+          <td>
+            <span class="price-text">$ {{ apu.laborCost.toLocaleString() }}</span>
+          </td>
+          <td>
+            <span class="price-total">$ {{ apu.totalPrice.toLocaleString('es-ES') }}</span>
+          </td>
+        </tr>
+      </ng-template>
 
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-state">
+            <div class="empty-content">
+              <i class="fas fa-calculator empty-icon"></i>
+              <h3>No hay APUs disponibles</h3>
+              <p>No se encontraron análisis de precios unitarios</p>
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>
-</c-col>
+  </div>
+</div>
 
-
-<!-- Modal de confirmaciÃ³n -->
+<!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"

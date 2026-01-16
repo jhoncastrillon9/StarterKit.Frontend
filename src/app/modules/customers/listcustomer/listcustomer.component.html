@@ -1,97 +1,183 @@
-<c-col xs="12">  
-  <div style="display: flex; justify-content: space-between; align-items: center;" class="p-1" >          
-    <span style="color:  #6610f2 ; font-size: 2rem; font-weight: 550;" color="primary" class="cui-primary">Clientes</span>    
-    <a cButton type="button" [routerLink]="'/customers/add'" class="btn btn-primary btn-sm">Nuevo Cliente</a>    
+<!-- ========================================
+     MODERN CUSTOMER LIST COMPONENT
+     ======================================== -->
+<div class="customer-list-container">
+  
+  <!-- Header Section -->
+  <div class="customer-list-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Clientes</h1>
+          <p class="page-subtitle">Gestión de clientes del sistema</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-stats">
+          <div class="stat-badge">
+            <i class="fas fa-user-check"></i>
+            <span>{{ customers.length }} Clientes</span>
+          </div>
+        </div>
+        <a [routerLink]="'/customers/add'" class="btn-new">
+          <i class="fas fa-user-plus"></i>
+          Nuevo Cliente
+        </a>
+      </div>
+    </div>
   </div>
-</c-col>
 
-<c-col xs="12">
-      <p-table #dt 
-      class="p-datatable-sm" 
+  <!-- Main Card -->
+  <div class="customer-list-card">
+    <p-table #dt 
+      class="p-datatable-modern" 
       styleClass="p-datatable-gridlines"        
       [value]="customers" 
       [paginator]="true" 
       [rows]="20"         
       [filterDelay]="3" 
-      [loading]="loading" 
-      
+      [loading]="loading"       
       [rowHover]="true"
       sortField="date" 
       [sortOrder]="-1"
       [rowsPerPageOptions]="[20, 40, 60, 100]"
       currentPageReportTemplate="{first} al {last} de {totalRecords} Clientes"
       [globalFilterFields]="['customerId', 'customId', 'budgetName', 'customerName', 'email', 'address']"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      >
+      [tableStyle]="{ 'min-width': '50rem' }">
 
+      <!-- Table Caption / Search -->
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <div class="caption-left">
+            <button class="btn-clear" (click)="clear(dt)">
+              <i class="fas fa-filter-circle-xmark"></i>
+              Limpiar
+            </button>
+          </div>
+          <div class="caption-right">
+            <div class="search-wrapper">
+              <i class="fas fa-search search-icon"></i>
+              <input 
+                type="text" 
+                class="search-input"
+                [(ngModel)]="searchValue" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Buscar cliente..." />
+            </div>
+          </div>
+        </div>
+      </ng-template>
 
-
-    <ng-template pTemplate="caption" >
-      <div style="display: flex; justify-content: space-between; align-items: center;" >          
-          <p-button label="Limpiar" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt)" styleClass="ButtonClear"/>
-
-          <span class="p-input-icon-left ml-auto">
-              <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar" class="ButtonSearchValue"/>
-          </span>
-      </div>
-  </ng-template>
-
+      <!-- Table Header -->
       <ng-template pTemplate="header">
-        <tr class="TableCustomCotiza">
-            <th  pSortableColumn="customId" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Nit
-                    <p-sortIcon field="customId" />
-                </div>
-            </th>   
-            <th pSortableColumn="customerName" style="min-width:15rem">
-              <div class="flex align-items-center">
-                  Nombre
-                  <p-sortIcon field="customerName" />
-              </div>
-          </th>  
-            <th  pSortableColumn="email" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Email   
-                    <p-sortIcon field="email" />                  
-                </div>
-            </th>
-            <th  pSortableColumn="address" style="min-width:10rem">
-                <div class="flex align-items-center">
-                    DirecciÃ³n
-                    <p-sortIcon field="address" />
-                </div>
-            </th>
-            <th style="min-width:10rem">
-              <div class="flex align-items-center">
-                  Opciones
-                
-              </div>
+        <tr class="table-header-row">
+          <th pSortableColumn="customId" style="width: 150px;">
+            <div class="th-content">
+              <i class="fas fa-id-card"></i>
+              NIT
+              <p-sortIcon field="customId" />
+            </div>
           </th>
-
+          <th pSortableColumn="customerName">
+            <div class="th-content">
+              <i class="fas fa-user"></i>
+              Nombre
+              <p-sortIcon field="customerName" />
+            </div>
+          </th>
+          <th pSortableColumn="email">
+            <div class="th-content">
+              <i class="fas fa-envelope"></i>
+              Email
+              <p-sortIcon field="email" />
+            </div>
+          </th>
+          <th pSortableColumn="address">
+            <div class="th-content">
+              <i class="fas fa-map-marker-alt"></i>
+              Dirección
+              <p-sortIcon field="address" />
+            </div>
+          </th>
+          <th style="width: 120px;">
+            <div class="th-content">
+              <i class="fas fa-cog"></i>
+              Acciones
+            </div>
+          </th>
         </tr>
-    </ng-template>
+      </ng-template>
 
-      <ng-template pTemplate="body" let-customer >
-        <tr  class="TableCustomCotiza">
-          <td>{{ customer.customId }}</td>
-          <td>{{ customer.customerName  | capitalize | truncate:60}} </td>
-          <td>{{ customer.email | capitalize | truncate:60}}</td>
-          <td>{{ customer.address | capitalize | truncate:60}}</td>          
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-customer>
+        <tr class="table-body-row">
           <td>
-            <span style="cursor: pointer; color: blueviolet;" color="primary" variant="outline" [routerLink]="['/customers/update', customer.customerId]" title="Ver Cliente"><svg cIcon class="me-2" name="cilPencil"></svg></span>                
-            <span style="cursor: pointer; color: red;" color="danger" variant="outline" (click)="confirmDeleteCustomer(customer)" title="Eliminar Cliente CotizaciÃ³n"><svg cIcon class="me-2" name="cilXCircle"></svg></span>
+            <span class="nit-badge">{{ customer.customId }}</span>
+          </td>
+          <td>
+            <div class="customer-name-wrapper">
+              <span class="customer-avatar">
+                {{ customer.customerName?.charAt(0)?.toUpperCase() || 'C' }}
+              </span>
+              <span class="customer-name">{{ customer.customerName | capitalize | truncate:60 }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="email-wrapper">
+              <i class="fas fa-envelope email-icon"></i>
+              <span class="email-text">{{ customer.email | truncate:60 }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="address-text">{{ customer.address | capitalize | truncate:60 }}</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                class="action-btn action-edit" 
+                [routerLink]="['/customers/update', customer.customerId]"
+                pTooltip="Editar Cliente" 
+                tooltipPosition="top">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button 
+                class="action-btn action-delete" 
+                (click)="confirmDeleteCustomer(customer)"
+                pTooltip="Eliminar Cliente" 
+                tooltipPosition="top">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="empty-state">
+            <div class="empty-content">
+              <i class="fas fa-users empty-icon"></i>
+              <h3>No hay clientes registrados</h3>
+              <p>Comienza agregando tu primer cliente</p>
+              <a [routerLink]="'/customers/add'" class="btn-add-first">
+                <i class="fas fa-user-plus"></i>
+                Agregar Cliente
+              </a>
+            </div>
           </td>
         </tr>
       </ng-template>
     </p-table>
-</c-col>
+  </div>
+</div>
 
-
-<!-- Modal de confirmaciÃ³n -->
+<!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
