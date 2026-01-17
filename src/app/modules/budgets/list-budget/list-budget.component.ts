@@ -110,6 +110,8 @@ export class ListBudgetComponent implements OnInit {
   isRecording: boolean = false;
   mediaRecorder: MediaRecorder | null = null;
   audioChunks: Blob[] = [];
+  aiProcessingStatus: string = ''; // Estado del procesamiento de IA
+  isProcessingAI: boolean = false; // Indica si está procesando con IA
 
   constructor(private budgetService: BudgetService,
     public iconSet: IconSetService,
@@ -643,13 +645,19 @@ export class ListBudgetComponent implements OnInit {
       this.mediaRecorder.onerror = (event) => {
         console.error('Error en grabación:', event);
         this.isRecording = false;
+        this.isProcessingAI = false;
+        this.aiProcessingStatus = '';
         this.handleError('Grabación', 'Error durante la grabación de audio.');
       };
 
       this.mediaRecorder.start();
       this.isRecording = true;
+      this.isProcessingAI = true;
+      this.aiProcessingStatus = '🎤 Escuchando...';
     } catch (error) {
       console.error('Error al iniciar la grabación:', error);
+      this.isProcessingAI = false;
+      this.aiProcessingStatus = '';
       this.handleError('Grabación', 'No se pudo acceder al micrófono. Verifica los permisos.');
     }
   }
@@ -663,9 +671,13 @@ export class ListBudgetComponent implements OnInit {
 
   async processRecordingAI() {
     if (this.audioChunks.length === 0) {
+      this.isProcessingAI = false;
+      this.aiProcessingStatus = '';
       this.handleError('Grabación', 'No se pudo grabar audio.');
       return;
     }
+
+    this.aiProcessingStatus = '🔄 Procesando Audio...';
 
     // Unir los fragmentos grabados
     const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
@@ -676,6 +688,8 @@ export class ListBudgetComponent implements OnInit {
       await this.sendAudioToGenerateBudget(wavBlob, 'wav');
     } catch (error) {
       console.error('Error al convertir audio a WAV:', error);
+      this.isProcessingAI = false;
+      this.aiProcessingStatus = '';
       this.handleError('Conversión de Audio', 'No se pudo convertir el audio a formato WAV PCM 16kHz, 16bit, mono.');
     }
   }
@@ -688,24 +702,59 @@ export class ListBudgetComponent implements OnInit {
       const formData = new FormData();
       formData.append('audioFile', audioBlob, `recording.${fileExtension}`);
 
-      // Llamar al servicio para generar cotización por audio
-      this.budgetService.generateBudgetByAudio(formData).subscribe({
-        next: (response: any) => {
-          this.spinner.hide();
-          this.loading = false;
-          this.loadBudgets(); // Recargar listado de cotizaciones
-          this.showModal(false, '¡La cotización ha sido creada exitosamente con IA!', '¡Cotización Creada!');
+      // Paso 1: Convertir audio a texto
+      this.aiProcessingStatus = '🔊 Convirtiendo audio a texto...';
+      
+      this.budgetService.audioToText(formData).subscribe({
+        next: (audioResponse: any) => {
+          // audioResponse tiene { text: string, fileName: string }
+          const transcribedText = audioResponse?.text;
+          
+          if (!transcribedText || transcribedText.trim() === '') {
+            this.spinner.hide();
+            this.loading = false;
+            this.isProcessingAI = false;
+            this.aiProcessingStatus = '';
+            this.handleError('Audio no reconocido', 'No se pudo entender el audio. Por favor, habla más claro y fuerte e inténtalo de nuevo.');
+            return;
+          }
+
+          // Paso 2: Generar cotización con IA usando el texto transcrito
+          this.aiProcessingStatus = '🧠 Creando Cotización con IA...';
+          
+          this.budgetService.generateByAI(transcribedText).subscribe({
+            next: (budgetResponse: any) => {
+              this.spinner.hide();
+              this.loading = false;
+              this.isProcessingAI = false;
+              this.aiProcessingStatus = '';
+              this.loadBudgets(); // Recargar listado de cotizaciones
+              this.showModal(false, '¡La cotización ha sido creada exitosamente con IA!', '¡Cotización Creada!');
+            },
+            error: (error: any) => {
+              this.spinner.hide();
+              this.loading = false;
+              this.isProcessingAI = false;
+              this.aiProcessingStatus = '';
+              console.error('Error al generar cotización con IA:', error);
+              this.handleError('Error al crear cotización', 'No se pudo generar la cotización con IA. Por favor, intenta de nuevo.');
+            }
+          });
         },
         error: (error: any) => {
           this.spinner.hide();
           this.loading = false;
-          console.error('Error al generar cotización por audio:', error);
-          this.handleError('Procesamiento de Audio', 'No se pudo generar la cotización con IA. Intenta de nuevo.');
+          this.isProcessingAI = false;
+          this.aiProcessingStatus = '';
+          console.error('Error al convertir audio a texto:', error);
+          this.handleError('Audio no reconocido', 'No se pudo entender el audio. Por favor, habla más claro y fuerte e inténtalo de nuevo.');
         }
       });
     } catch (error) {
       this.spinner.hide();
       this.loading = false;
+      this.isProcessingAI = false;
+      this.aiProcessingStatus = '';
       console.error('Error al enviar audio:', error);
       this.handleError('Envío de Audio', 'Error al enviar el audio al servidor.');
     }

@@ -18,15 +18,16 @@
             pButton 
             type="button" 
             class="btn-ai-recording"
-            [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
+            [ngClass]="{'recording': isRecording, 'processing': isProcessingAI && !isRecording, 'idle': !isRecording && !isProcessingAI}"
             (click)="toggleRecordingAI()"
-            [pTooltip]="isRecording ? 'Toca para detener' : 'Crear cotizacion con IA'"
+            [disabled]="isProcessingAI && !isRecording"
+            [pTooltip]="isRecording ? 'Toca para detener' : (isProcessingAI ? aiProcessingStatus : 'Crear cotizacion con IA')"
             tooltipPosition="bottom">
             <div class="btn-ai-content">
-              <div class="mic-container" [class.pulse-animation]="isRecording">
-                <i class="pi pi-microphone"></i>
+              <div class="mic-container" [class.pulse-animation]="isRecording || isProcessingAI">
+                <i class="pi" [ngClass]="{'pi-microphone': !isProcessingAI || isRecording, 'pi-spin pi-spinner': isProcessingAI && !isRecording}"></i>
               </div>
-              <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Crear con IA' }}</span>
+              <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : (isProcessingAI ? aiProcessingStatus : 'Crear con IA') }}</span>
             </div>
             <div *ngIf="isRecording" class="recording-waves">
               <span class="wave"></span>

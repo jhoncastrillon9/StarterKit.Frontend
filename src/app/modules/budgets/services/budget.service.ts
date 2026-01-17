@@ -234,4 +234,45 @@ export class BudgetService {
       })
     );
   }
+
+  /**
+   * Convierte audio a texto usando el endpoint de Speech
+   * @param formData FormData con el archivo de audio
+   * @returns Observable con { text: string, fileName: string }
+   */
+  audioToText(formData: FormData): Observable<any> {
+    const headers = this.getHeaders();
+    const headersWithoutContentType = new HttpHeaders({
+      'Authorization': headers.get('Authorization') || ''
+    });
+
+    return this.http.post(`${this.apiUrl}/api/Speech/audio-to-text`, formData, {
+      headers: headersWithoutContentType,
+      observe: 'response'
+    }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
+
+  /**
+   * Genera un presupuesto usando IA a partir de un prompt de texto
+   * @param prompt Texto del prompt para generar el presupuesto
+   * @returns Observable con el presupuesto generado
+   */
+  generateByAI(prompt: string): Observable<any> {
+    const headers = this.getHeaders();
+    return this.http.post(`${this.apiUrl}/api/Budget/generate-by-ai`, { prompt }, { headers, observe: 'response' }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
 }

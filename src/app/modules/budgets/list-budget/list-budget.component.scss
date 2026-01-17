@@ -126,6 +126,22 @@ $transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
     animation: glow 1.5s ease-in-out infinite alternate;
   }
+
+  &.processing {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    cursor: wait;
+    
+    .btn-ai-text {
+      min-width: 180px;
+      text-align: left;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.9;
+    cursor: wait;
+  }
 }
 
 .btn-ai-content {
