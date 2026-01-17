@@ -9,6 +9,8 @@ import { IconSetService } from '@coreui/icons-angular';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApuModel } from '../../apus/models/apu.Model';
 import { ApuService } from '../../apus/services/apu.service';
+import { Product } from '../../products/models/product.model';
+import { ProductService } from '../../products/services/product.service';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
@@ -50,6 +52,13 @@ export class AddUpdateBudgetComponent implements OnInit {
   apuModels: ApuModel[] = [];
   private localStorageKey = 'apuModelsData';
   private expiryKey = 'apuModelsExpiry';
+
+  // Propiedades para productos
+  visibleProductModal = false;
+  searchTermProduct = '';
+  productModels: (Product & { selected?: boolean })[] = [];
+  private productLocalStorageKey = 'productModelsData';
+  private productExpiryKey = 'productModelsExpiry';
 
   //Campos calculados
   amount: number = 0;
@@ -109,6 +118,7 @@ export class AddUpdateBudgetComponent implements OnInit {
     private budgetService: BudgetService,
     private customerService: CustomerService,
     private apuService: ApuService,
+    private productService: ProductService,
     public iconSet: IconSetService,
     private spinner: NgxSpinnerService
   ) {
@@ -563,6 +573,124 @@ export class AddUpdateBudgetComponent implements OnInit {
     this.spinner.hide();
     this.resetSelections(); // Reseteamos las selecciones al cerrar el modal
   }
+
+  // ===================== MÉTODOS PARA PRODUCTOS =====================
+
+  loadProducts() {
+    const storedData = localStorage.getItem(this.productLocalStorageKey);
+    const storedExpiry = localStorage.getItem(this.productExpiryKey);
+
+    const now = new Date().getTime();
+    const fiveMinutes = 5 * 60 * 1000; // Cinco minutos en milisegundos
+
+    // Verificamos si hay datos almacenados y si no han caducado
+    if (storedData && storedExpiry && (now - parseInt(storedExpiry) < fiveMinutes)) {
+      this.productModels = JSON.parse(storedData);
+    } else {
+      // Si no hay datos o han caducado, cargamos desde la API
+      this.productService.getPaged('', 1, 1000).subscribe(
+        response => {
+          this.productModels = response.items.map(item => ({ ...item, selected: false }));
+          // Guardamos los datos en LocalStorage y registramos el timestamp actual
+          localStorage.setItem(this.productLocalStorageKey, JSON.stringify(this.productModels));
+          localStorage.setItem(this.productExpiryKey, now.toString());
+        },
+        error => {
+          console.error('Error al cargar productos', error);
+        }
+      );
+    }
+  }
+
+  addBudgetDetailFromProduct() {
+    const storedData = localStorage.getItem(this.productLocalStorageKey);
+    const storedExpiry = localStorage.getItem(this.productExpiryKey);
+
+    const now = new Date().getTime();
+    const fiveMinutes = 5 * 60 * 1000; // Cinco minutos en milisegundos
+
+    const isLocalDataValid = storedData && storedExpiry && (now - parseInt(storedExpiry) < fiveMinutes);
+
+    if (!this.productModels || this.productModels.length === 0 || !isLocalDataValid) {
+      this.loadProducts();
+    }
+
+    this.showProductModal();
+  }
+
+  showProductModal() {
+    this.visibleProductModal = true;
+  }
+
+  closeProductModal() {
+    this.visibleProductModal = false;
+  }
+
+  closeModalProduct() {
+    this.visibleProductModal = false;
+    this.resetProductSelections();
+  }
+
+  resetProductSelections() {
+    this.searchTermProduct = '';
+    this.productModels.forEach(item => item.selected = false);
+  }
+
+  handleProductModalChange(event: any) {
+    this.visibleProductModal = event;
+  }
+
+  get filteredProductModels() {
+    if (!this.searchTermProduct) {
+      return this.productModels;
+    }
+
+    const searchTermLower = this.searchTermProduct.toLowerCase();
+
+    // Configuración de opciones para Fuse.js
+    const options = {
+      keys: ['name', 'description', 'productInternalCode'],
+      includeScore: true,
+      threshold: 0.3,
+    };
+
+    const fuse = new Fuse(this.productModels, options);
+    const resultados = fuse.search(searchTermLower);
+    
+    return resultados.map(result => result.item);
+  }
+
+  addProductsToList() {
+    this.closeProductModal();
+    this.spinner.show();
+    const selectedProducts = this.productModels.filter(item => item.selected);
+
+    selectedProducts.forEach(product => {
+      // Descripción = Nombre del producto + Descripción
+      const fullDescription = product.description 
+        ? `${product.name} - ${product.description}` 
+        : product.name;
+
+      const budgetDetailGroup = this.fb.group({
+        budgetDetailId: [0],
+        budgetId: [0],
+        unitMeasurement: [product.unitMeasurement || 'Und'],
+        description: [fullDescription, [Validators.required]],
+        quantity: [1, [Validators.required, Validators.pattern(/^\d+$/)]],
+        price: [product.price, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+        subtotal: [product.price],
+        isTitle: [false],
+      });
+
+      this.budgetDetails.push(budgetDetailGroup);
+    });
+
+    this.updateAmount();
+    this.spinner.hide();
+    this.resetProductSelections();
+  }
+
+  // ===================== FIN MÉTODOS PARA PRODUCTOS =====================
 
 
   private handleError(consoleMessage: string, modalMessage: string) {

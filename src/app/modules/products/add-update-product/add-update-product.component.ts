@@ -52,7 +52,8 @@ export class AddUpdateProductComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['', [Validators.maxLength(500)]],
       price: [0, [Validators.required, Validators.min(0)]],
-      productInternalCode: ['', [Validators.required, Validators.maxLength(50)]]
+      productInternalCode: ['', [Validators.required, Validators.maxLength(50)]],
+      unitMeasurement: ['Und', [Validators.maxLength(20)]]
     });
   }
 
@@ -76,7 +77,8 @@ export class AddUpdateProductComponent implements OnInit {
           name: product.name,
           description: product.description,
           price: product.price,
-          productInternalCode: product.productInternalCode
+          productInternalCode: product.productInternalCode,
+          unitMeasurement: product.unitMeasurement || 'Und'
         });
         this.spinner.hide();
       },
@@ -101,7 +103,8 @@ export class AddUpdateProductComponent implements OnInit {
       name: this.productForm.value.name,
       description: this.productForm.value.description || '',
       price: this.productForm.value.price,
-      productInternalCode: this.productForm.value.productInternalCode
+      productInternalCode: this.productForm.value.productInternalCode,
+      unitMeasurement: this.productForm.value.unitMeasurement || 'Und'
     };
 
     if (this.isEditMode && this.productId) {
@@ -115,6 +118,7 @@ export class AddUpdateProductComponent implements OnInit {
     this.productService.add(product).subscribe({
       next: () => {
         this.spinner.hide();
+        this.clearProductCache();
         this.showSuccessModal(this.successAddTitle, this.successAddMessage);
       },
       error: (error) => {
@@ -131,6 +135,7 @@ export class AddUpdateProductComponent implements OnInit {
     this.productService.update(this.productId, product).subscribe({
       next: () => {
         this.spinner.hide();
+        this.clearProductCache();
         this.showSuccessModal(this.successUpdateTitle, this.successUpdateMessage);
       },
       error: (error) => {
@@ -139,6 +144,11 @@ export class AddUpdateProductComponent implements OnInit {
         this.showErrorModal(this.errorMessage);
       }
     });
+  }
+
+  clearProductCache(): void {
+    localStorage.removeItem('productModelsData');
+    localStorage.removeItem('productModelsExpiry');
   }
 
   markFormGroupTouched(): void {

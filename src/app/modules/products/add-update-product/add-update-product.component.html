@@ -112,7 +112,7 @@
       <div class="card-body-custom">
         <div class="row g-4">
           <!-- Precio -->
-          <c-col xs="12" sm="6" md="4">
+          <c-col xs="12" sm="6" md="3">
             <div class="form-group-modern">
               <label cLabel for="price" class="label-modern">
                 <i class="fas fa-dollar-sign"></i>
@@ -150,8 +150,39 @@
             </div>
           </c-col>
 
+          <!-- Unidad de Medida -->
+          <c-col xs="12" sm="6" md="3">
+            <div class="form-group-modern">
+              <label cLabel for="unitMeasurement" class="label-modern">
+                <i class="fas fa-ruler"></i>
+                Unidad de Medida
+              </label>
+              <select
+                cFormControl
+                cSelect
+                formControlName="unitMeasurement"
+                class="input-modern select-modern"
+              >
+                <option value="Und" selected>Und</option>
+                <option value="M2">M2</option>
+                <option value="M3">M3</option>
+                <option value="ML">ML</option>
+                <option value="kg">kg</option>
+                <option value="hr">hr</option>
+                <option value="mes">mes</option>
+                <option value="km">km</option>
+                <option value="Carga">Carga</option>
+                <option value="M3-km">M3-km</option>
+                <option value="jgo">jgo</option>
+                <option value="lt">lt</option>
+                <option value="ton-m">ton-m</option>
+                <option value="HA">HA</option>
+              </select>
+            </div>
+          </c-col>
+
           <!-- Descripción -->
-          <c-col xs="12" sm="12" md="8">
+          <c-col xs="12" sm="12" md="6">
             <div class="form-group-modern">
               <label cLabel for="description" class="label-modern">
                 <i class="fas fa-align-left"></i>

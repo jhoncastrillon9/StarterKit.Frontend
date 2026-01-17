@@ -680,6 +680,16 @@ $transition: all 0.3s ease;
       box-shadow: 0 4px 12px rgba(#059669, 0.4);
     }
   }
+
+  &.btn-add-product {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: $white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(#2563eb, 0.4);
+    }
+  }
   
   &.btn-back {
     background: #f3f4f6;
@@ -987,6 +997,8 @@ $transition: all 0.3s ease;
       text-align: left;
       
       &.th-select { width: 50px; text-align: center; }
+      &.th-code { width: 100px; }
+      &.th-unit { width: 80px; }
       &.th-price { text-align: right; }
     }
   }
@@ -1004,6 +1016,8 @@ $transition: all 0.3s ease;
         padding: 0.75rem 1rem;
         
         &.td-select { text-align: center; }
+        &.td-code { font-family: monospace; font-size: 0.85rem; color: $secondary-color; }
+        &.td-unit { color: $secondary-color; }
         &.td-price { text-align: right; font-weight: 600; color: $success-color; }
       }
     }

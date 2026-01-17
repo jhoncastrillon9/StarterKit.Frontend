@@ -136,6 +136,7 @@ export class ListProductComponent implements OnInit {
         this.spinner.hide();
         this.productToDelete = null;
         this.isModalForDelete = false;
+        this.clearProductCache();
         this.showSuccessModal(this.successDeleteTitle, this.successDeleteMessage);
         this.loadProducts();
       },
@@ -185,12 +186,14 @@ export class ListProductComponent implements OnInit {
       name: product.name + ' (Copia)',
       description: product.description,
       price: product.price,
-      productInternalCode: product.productInternalCode + '-COPY'
+      productInternalCode: product.productInternalCode + '-COPY',
+      unitMeasurement: product.unitMeasurement || 'Und'
     };
 
     this.productService.add(duplicatedProduct).subscribe({
       next: () => {
         this.spinner.hide();
+        this.clearProductCache();
         this.showSuccessModal(this.successDuplicateTitle, this.successDuplicateMessage);
         this.loadProducts();
       },
@@ -200,6 +203,11 @@ export class ListProductComponent implements OnInit {
         this.showErrorModal(this.errorDuplicateMessage);
       }
     });
+  }
+
+  clearProductCache(): void {
+    localStorage.removeItem('productModelsData');
+    localStorage.removeItem('productModelsExpiry');
   }
 
   formatPrice(price: number): string {

@@ -502,6 +502,16 @@
             <i class="fas fa-database"></i>
             <span>Desde APU</span>
           </button>
+
+          <button
+            cButton
+            type="button"
+            class="btn-modern btn-add-product"
+            (click)="addBudgetDetailFromProduct()"
+          >
+            <i class="fas fa-box"></i>
+            <span>Desde Producto</span>
+          </button>
         </div>
       </div>
     </div>
@@ -772,6 +782,98 @@
         </button>
         <button
           (click)="addToList()"
+          class="btn-modern btn-confirm"
+          type="button"
+        >
+          <i class="fas fa-plus"></i>
+          Agregar Seleccionados
+        </button>
+      </div>
+    </div>
+  </div>
+</c-modal>
+
+<!-- Modal de selección de Productos -->
+<c-modal
+  id="productModal"
+  [visible]="visibleProductModal"
+  (visibleChange)="handleProductModalChange($event)"
+  size="xl"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-modern">
+      <div class="modal-header-modern">
+        <div class="modal-title-container">
+          <div class="modal-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div>
+            <h5 class="modal-title-modern">Agregar Item desde Producto</h5>
+            <p class="modal-subtitle">Selecciona los productos que deseas agregar</p>
+          </div>
+        </div>
+        <button
+          (click)="closeProductModal()"
+          class="modal-close-btn"
+          type="button"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-modern">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTermProduct"
+            class="search-input-modern"
+            placeholder="Buscar por nombre, código o descripción..."
+          />
+        </div>
+
+        <div class="table-modal-container">
+          <table class="table-modal-modern">
+            <thead>
+              <tr>
+                <th class="th-select">
+                  <i class="fas fa-check-square"></i>
+                </th>
+                <th class="th-code">Código</th>
+                <th class="th-name">Nombre del Producto</th>
+                <th class="th-unit">Unidad</th>
+                <th class="th-price">Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProductModels" class="table-row-hover">
+                <td class="td-select">
+                  <label class="checkbox-modern">
+                    <input type="checkbox" [(ngModel)]="product.selected" />
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
+                <td class="td-code">{{ product.productInternalCode }}</td>
+                <td class="td-name">{{ product.name | capitalize }}</td>
+                <td class="td-unit">{{ product.unitMeasurement || 'Und' }}</td>
+                <td class="td-price">$ {{ product.price.toLocaleString("es-ES") }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer-modern">
+        <button
+          (click)="closeModalProduct()"
+          class="btn-modern btn-cancel"
+          type="button"
+        >
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+        <button
+          (click)="addProductsToList()"
           class="btn-modern btn-confirm"
           type="button"
         >
