@@ -3,7 +3,7 @@ import { BudgetModel } from '../models/budget.Model';
 import { SendBudgetPdfRequest } from '../models/sendBudgetRequest';
 import { BudgetService } from '../services/budget.service';
 import { IconSetService } from '@coreui/icons-angular';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone } from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
@@ -116,6 +116,7 @@ export class ListBudgetComponent implements OnInit {
   constructor(private budgetService: BudgetService,
     public iconSet: IconSetService,
     private router: Router,
+    private route: ActivatedRoute,
     private spinner: NgxSpinnerService) {
     iconSet.icons = { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone };
   }
@@ -123,6 +124,16 @@ export class ListBudgetComponent implements OnInit {
 
   ngOnInit() {
     this.loadBudgets();
+    
+    // Verificar si debe iniciar grabación IA automáticamente
+    this.route.queryParams.subscribe(params => {
+      if (params['startAI'] === 'true') {
+        // Esperar un poco para que el componente esté listo
+        setTimeout(() => {
+          this.toggleRecordingAI();
+        }, 500);
+      }
+    });
   }
 
   clear(table: Table) {

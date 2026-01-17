@@ -143,6 +143,15 @@ $transition: all 0.3s ease;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         background: $light-bg;
       }
+
+      &.ai {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: $white;
+        
+        &:hover {
+          background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+      }
     }
   }
 
