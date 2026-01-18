@@ -3,6 +3,12 @@ import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signal
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environment';
 
+// Ajusta esta función para obtener el token real del usuario
+function getUserToken(): string | null {
+  // Ejemplo: return localStorage.getItem('token');
+  return localStorage.getItem('token');
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,7 +23,9 @@ export class ChatbotSignalRService {
 
   private startConnection(): void {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/hubs/chat`)
+      .withUrl(`${environment.apiUrl}/hubs/chat`, {
+        accessTokenFactory: () => getUserToken() || ''
+      })
       .configureLogging(LogLevel.Information)
       .build();
 
@@ -33,7 +41,11 @@ export class ChatbotSignalRService {
 
   public sendMessage(message: string): void {
     if (this.hubConnection) {
-      this.hubConnection.invoke('SendMessage', message)
+      const chatRequest = {
+        Message: message,
+        ConversationId: null // Puedes cambiar esto si tienes un ID de conversación
+      };
+      this.hubConnection.invoke('SendMessage', chatRequest)
         .catch(err => console.error('SendMessage Error:', err));
     }
   }
