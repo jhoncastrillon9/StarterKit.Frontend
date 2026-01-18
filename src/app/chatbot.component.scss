@@ -16,8 +16,30 @@
 .chat-message {
   margin-bottom: 8px;
   padding: 8px 12px;
-  background: #f1f1f1;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-message.user {
+  justify-content: flex-end;
+}
+.chat-message.bot {
+  justify-content: flex-start;
+}
+.user-message {
+  background: #d1e7dd;
+  color: #0f5132;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.bot-message {
+  background: #e2e3e5;
+  color: #495057;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 .chat-input {
   display: flex;

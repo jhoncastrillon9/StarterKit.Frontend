@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ChatbotSignalRService } from './shared/services/chatbot-signalr.service';
+import { ChatbotSignalRService, ChatMessage } from './shared/services/chatbot-signalr.service';
 
 @Component({
   selector: 'app-chatbot',
@@ -8,15 +8,18 @@ import { ChatbotSignalRService } from './shared/services/chatbot-signalr.service
 })
 export class ChatbotComponent {
   message = '';
-  messages: string[] = [];
+  messages: ChatMessage[] = [];
+  conversationId: string = 'default'; // Puedes cambiar esto por un id real
 
   constructor(private chatService: ChatbotSignalRService) {
-    this.chatService.messages$.subscribe((msgs: string[]) => this.messages = msgs);
+    this.chatService.messages$.subscribe((msgs: ChatMessage[]) => this.messages = msgs);
+    // Obtener historial al iniciar
+    this.chatService.getHistory(this.conversationId);
   }
 
   sendMessage() {
     if (this.message.trim()) {
-      this.chatService.sendMessage(this.message);
+      this.chatService.sendMessage(this.message, this.conversationId);
       this.message = '';
     }
   }
