@@ -33,9 +33,22 @@ export class ChatbotSignalRService {
       .then(() => console.log('SignalR Connected'))
       .catch(err => console.error('SignalR Connection Error:', err));
 
-    this.hubConnection.on('ReceiveMessage', (message: string) => {
+    this.hubConnection.on('ReceiveMessage', (response: any) => {
+      // Esperamos un objeto ChatResponseDTO
+      console.log('Received message from SignalR:', response);
+      let displayMessage = '';
+      if (response && response.message && response.message.content) {
+        displayMessage = response.message.content;
+        console.log('Received message content:', displayMessage);
+      } else if (response && response.errorMessage) {
+        displayMessage = `Error: ${response.errorMessage}`;
+        console.error('Received error message:', displayMessage);
+      } else {
+        displayMessage = JSON.stringify(response);
+        console.warn('Received unexpected message format:', displayMessage);
+      }
       const current = this.messagesSubject.value;
-      this.messagesSubject.next([...current, message]);
+      this.messagesSubject.next([...current, displayMessage]);
     });
   }
 
