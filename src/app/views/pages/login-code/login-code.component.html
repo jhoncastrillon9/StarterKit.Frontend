@@ -1,15 +1,71 @@
+<div class="auth-page-container">
+  <div class="auth-card-wrapper">
+    <!-- Logo Section -->
+    <div class="auth-logo-section">
+      <img
+        src="../../../../assets/img/logos/logocotiza.png"
+        alt="Logo Cotiza"
+        class="auth-logo"
+      />
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-icon">
+          <svg cIcon name="cilShieldAlt"></svg>
+        </div>
+        <h1 class="auth-title">Verificando código</h1>
+        <p class="auth-subtitle">Por favor, espera mientras validamos tu código de acceso</p>
+      </div>
+
+      <div class="auth-card-body text-center">
+        <div class="verification-loading">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3 text-muted">Validando código de seguridad...</p>
+        </div>
+      </div>
+
+      <div class="auth-card-footer">
+        <p class="auth-footer-text">
+          Si tienes problemas, <a routerLink="/login">vuelve al inicio</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
 <c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
-    <c-modal-header>
-      <h5 cModalTitle>Upppss!!!</h5>
-      <button (click)="toggleLiveDemo()" cButtonClose></button>
-    </c-modal-header>
-    <c-modal-body>{{messageModal}}</c-modal-body>
-    <c-modal-footer>
-      <button (click)="toggleLiveDemo()" cButton color="primary">
-        Cerrar
-      </button>    
-    </c-modal-footer>
-  </c-modal>
-  
-  
-  <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "square-jelly-box" [fullScreen] = "true"><p style="color: white" > Cargando... </p></ngx-spinner>
+  <c-modal-header>
+    <h5 cModalTitle>
+      <svg cIcon name="cilWarning" class="me-2 text-warning"></svg>
+      ¡Ups! Algo salió mal
+    </h5>
+    <button (click)="toggleLiveDemo()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <div class="text-center py-3">
+      <div class="auth-icon mx-auto mb-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); width: 60px; height: 60px;">
+        <svg cIcon name="cilX" style="color: white;"></svg>
+      </div>
+      <p class="mb-0">{{messageModal}}</p>
+    </div>
+  </c-modal-body>
+  <c-modal-footer>
+    <button (click)="toggleLiveDemo()" cButton class="auth-btn-primary" style="width: auto; padding: 0.5rem 1.5rem;">
+      Cerrar
+    </button>    
+  </c-modal-footer>
+</c-modal>
+
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.8)" 
+  size="medium" 
+  color="#fff" 
+  type="ball-clip-rotate-multiple" 
+  [fullScreen]="true">
+  <p style="color: white; margin-top: 1rem;">Cargando...</p>
+</ngx-spinner>

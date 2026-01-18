@@ -1,127 +1,129 @@
-<div
-  class="bg-light min-vh-100 d-flex flex-column justify-content-center align-items-center text-center text-md-start"
-  style="
-    background-color: #212294 !important;;
-    background-size: cover;    
-  "
->
+<div class="auth-page-container">
+  <div class="auth-card-wrapper-wide">
+    <!-- Logo Section -->
+    <div class="auth-logo-section">
+      <img
+        src="../../../../assets/img/logos/logocotiza.png"
+        alt="Logo Cotiza"
+        class="auth-logo"
+      />
+    </div>
 
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <div class="auth-login-grid">
+        <!-- Login Form Section -->
+        <div class="auth-login-form">
+          <div class="auth-card-header">
+            <div class="auth-icon">
+              <svg cIcon name="cilUser"></svg>
+            </div>
+            <h1 class="auth-title">¡Bienvenido!</h1>
+            <p class="auth-subtitle">Inicia sesión para acceder a tu cuenta</p>
+          </div>
 
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-12 col-lg-10 col-xl-8">
-                            <!-- Logo centrado -->
-                            <div class="text-center mb-4">
-                              <img
-                                src="../../../../assets/img/logos/logocotiza.png"
-                                alt="Logo"
-                                class="img-fluid"
-                                style="max-height: 100px"
-                              />
-                            </div>
-        <c-card-group>
-          <!-- Tarjeta de inicio de sesión -->
-          <c-card class="p-4">
-            <c-card-body>
-              <h1>Inicio de sesión</h1>
-              <p class="text-medium-emphasis">Inicia sesión en tu cuenta</p>
-              <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-                <!-- Campo de correo electrónico -->
-                <c-input-group class="mb-3">
-                  <span cInputGroupText>
-                    <svg cIcon name="cilUser"></svg>
-                  </span>
+          <div class="auth-card-body">
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+              <!-- Email Field -->
+              <div class="auth-form-group">
+                <label class="auth-label">
+                  Correo electrónico
+                  <span class="required-star">*</span>
+                </label>
+                <div class="auth-input-wrapper icon-left">
                   <input
-                    autoComplete="username"
-                    cFormControl
+                    type="email"
+                    class="auth-input"
                     formControlName="email"
-                    placeholder="Email"
-                    class="form-control"
+                    placeholder="ejemplo@correo.com"
+                    autocomplete="username"
+                    [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)}"
                   />
-                </c-input-group>
-                <!-- Campo de contraseña -->
-                <c-input-group class="mb-4">
-                  <span cInputGroupText>
-                    <svg cIcon name="cilLockLocked"></svg>
+                  <span class="auth-input-icon">
+                    <svg cIcon name="cilEnvelopeClosed"></svg>
                   </span>
-                  <input
-                    autoComplete="current-password"
-                    cFormControl
-                    formControlName="password"
-                    placeholder="Contraseña"
-                    type="password"
-                    class="form-control"
-                  />
-                </c-input-group>
-
-                <!-- Validación de campos -->
+                </div>
                 <div
                   *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)"
-                  class="text-danger"
+                  class="auth-error-message"
                 >
-                  Email no válido.
+                  <svg cIcon name="cilWarning"></svg>
+                  Por favor, ingresa un email válido.
+                </div>
+              </div>
+
+              <!-- Password Field -->
+              <div class="auth-form-group">
+                <label class="auth-label">
+                  Contraseña
+                  <span class="required-star">*</span>
+                </label>
+                <div class="auth-input-wrapper icon-left">
+                  <input
+                    type="password"
+                    class="auth-input"
+                    formControlName="password"
+                    placeholder="Ingresa tu contraseña"
+                    autocomplete="current-password"
+                    [ngClass]="{'is-invalid': loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)}"
+                  />
+                  <span class="auth-input-icon">
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
                 </div>
                 <div
                   *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)"
-                  class="text-danger"
+                  class="auth-error-message"
                 >
+                  <svg cIcon name="cilWarning"></svg>
                   La contraseña es obligatoria.
                 </div>
+              </div>
 
-                <div class="row mt-4">
-                  <div class="col-12 col-md-6 text-center">
-                    <button cButton class="px-4 blueButtom w-100" color="primary" type="submit">
-                      Iniciar sesión
-                    </button>
-                  </div>
-                  <div class="col-12 col-md-6 text-center d-md-none mt-2 mt-md-0">
-                    <button cButton color="secondary" routerLink="/register" class="w-100">
-                      ¡Regístrate!
-                    </button>
-                  </div>
-                </div>
-                
-                <div class="row">
-                  <div class="col-12 text-center">
-                    <button cButton class="px-0" color="link" routerLink="/recoveryPassword" style="font-size: 0.9rem;">
-                      Olvide mi contraseña
-                    </button>
-                  </div>
-                </div>
-                
-                <div class="row mt-3">
-                  <div class="col-12">
-                    <span style="font-size: 0.8rem;">Versión: 17-ENERO-2026</span>
-                  </div>
-                </div>
-                
+              <!-- Forgot Password Link -->
+              <div class="text-end mb-3">
+                <a routerLink="/recoveryPassword" class="auth-link">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
 
-                <!-- Botón de registro en pantallas pequeñas -->
+              <!-- Login Button -->
+              <button type="submit" class="auth-btn-primary">
+                <svg cIcon name="cilArrowRight" class="me-2"></svg>
+                Iniciar sesión
+              </button>
 
-              </form>
-            </c-card-body>
-          </c-card>
-
-          <!-- Tarjeta de registro, visible en pantallas medianas y grandes -->
-          <c-card
-            class="d-none d-md-flex text-white bg-primary py-5 backgroundBlue"
-            style="flex: 1; max-width: 450px;"
-          >
-            <c-card-body class="text-center">
-              <div>
-                <h2>Registrarse</h2>
-                <p>
-                  ¡Únete a la plataforma líder para constructores!
-                  <br />
-                  Crea cotizaciones GRATIS, consulta análisis de precios unitarios APU, facturas.
-                </p>
-                <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register" class="yellowButtom">
-                  ¡Regístrate Ahora!
+              <!-- Mobile Register Button -->
+              <div class="auth-mobile-register">
+                <button type="button" class="auth-btn-secondary" routerLink="/register">
+                  ¿No tienes cuenta? ¡Regístrate!
                 </button>
               </div>
-            </c-card-body>
-          </c-card>
-        </c-card-group>
+            </form>
+          </div>
+
+          <!-- Footer -->
+          <div class="auth-card-footer">
+            <p class="auth-footer-text">
+              Versión: 17-ENERO-2026
+            </p>
+          </div>
+        </div>
+
+        <!-- Register Panel (Desktop) -->
+        <div class="auth-register-panel">
+          <div class="register-panel-icon">
+            <svg cIcon name="cilUserPlus"></svg>
+          </div>
+          <h2 class="register-panel-title">¡Únete a nosotros!</h2>
+          <p class="register-panel-text">
+            ¡Únete a la plataforma líder para constructores!<br />
+            Crea cotizaciones GRATIS, consulta análisis de precios unitarios APU, facturas y mucho más.
+          </p>
+          <button type="button" class="auth-btn-yellow" routerLink="/register">
+            ¡Regístrate Ahora!
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -129,13 +131,18 @@
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal 
-#confirmationModal  
+  #confirmationModal  
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
   [alignment]="'top'">
 </app-confirmation-modal>
 
-<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
-  <p style="color: white">Cargando...</p>
+<ngx-spinner 
+  bdColor="rgba(0, 0, 0, 0.8)" 
+  size="medium" 
+  color="#fff" 
+  type="ball-clip-rotate-multiple" 
+  [fullScreen]="true">
+  <p style="color: white; margin-top: 1rem;">Cargando...</p>
 </ngx-spinner>
