@@ -41,6 +41,7 @@
     "@coreui/icons-angular": "~5.2.18",
     "@coreui/utils": "^2.0.2",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@microsoft/signalr": "^10.0.0",
     "@types/jspdf": "^2.0.0",
     "chart.js": "^4.4.4",
     "fuse.js": "^7.0.0",

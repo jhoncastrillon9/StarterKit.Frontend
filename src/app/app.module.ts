@@ -45,45 +45,54 @@ const APP_CONTAINERS = [
   DefaultLayoutComponent
 ];
 
-@NgModule({ declarations: [AppComponent, ...APP_CONTAINERS],
-    bootstrap: [AppComponent], 
-    
-    
-    imports: [BrowserModule,
-        BrowserAnimationsModule,
-        AppRoutingModule,
-        AvatarModule,
-        BreadcrumbModule,
-        FooterModule,
-        DropdownModule,
-        GridModule,
-        HeaderModule,
-        SidebarModule,
-        IconModule,
-        NavModule,
-        ButtonModule,
-        FormModule,
-        UtilitiesModule,
-        ButtonGroupModule,
-        ReactiveFormsModule,
-        SidebarModule,
-        SharedModule,
-        TabsModule,
-        ListGroupModule,
-        ProgressModule,
-        BadgeModule,
-        ListGroupModule,
-        CardModule,
-        NgScrollbarModule], 
-        providers: [
-        {
-            provide: LocationStrategy,
-            useClass: HashLocationStrategy
-        },
-        
-        IconSetService,
-        Title,
-        provideHttpClient(withInterceptorsFromDi())
-    ] })
-export class AppModule {
-}
+
+import { FormsModule } from '@angular/forms';
+import { ChatbotComponent } from './chatbot.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ...APP_CONTAINERS,
+    ChatbotComponent
+  ],
+  bootstrap: [AppComponent],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    AvatarModule,
+    BreadcrumbModule,
+    FooterModule,
+    DropdownModule,
+    GridModule,
+    HeaderModule,
+    SidebarModule,
+    IconModule,
+    NavModule,
+    ButtonModule,
+    FormModule,
+    UtilitiesModule,
+    ButtonGroupModule,
+    ReactiveFormsModule,
+    FormsModule,
+    SidebarModule,
+    SharedModule,
+    TabsModule,
+    ListGroupModule,
+    ProgressModule,
+    BadgeModule,
+    ListGroupModule,
+    CardModule,
+    NgScrollbarModule
+  ],
+  providers: [
+    {
+      provide: LocationStrategy,
+      useClass: HashLocationStrategy
+    },
+    IconSetService,
+    Title,
+    provideHttpClient(withInterceptorsFromDi())
+  ]
+})
+export class AppModule {}
