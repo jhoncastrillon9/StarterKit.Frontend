@@ -44,11 +44,11 @@ export class ChatbotSignalRService {
       .withUrl(`${environment.apiUrl}/hubs/chat`, {
         accessTokenFactory: () => getUserToken() || ''
       })
-      .configureLogging(LogLevel.Information)
+      .configureLogging(LogLevel.Error)
       .build();
 
     this.hubConnection.start()
-      .then(() => console.log('SignalR Connected'))
+       .then(() => console.log('SConnected')) 
       .catch(err => console.error('SignalR Connection Error:', err));
 
     this.hubConnection.on('ReceiveMessage', (response: any) => {
@@ -82,7 +82,7 @@ export class ChatbotSignalRService {
 
     // Evento de conexión cerrada
     this.hubConnection.onclose(() => {
-      console.log('SignalR connection closed');
+      // Quitar log de cierre de conexión
     });
 
     // Evento de historial recibido - ACTUALIZADO para manejar el objeto wrapper
