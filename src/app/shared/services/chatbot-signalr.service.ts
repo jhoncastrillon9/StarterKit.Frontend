@@ -4,9 +4,20 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../../environment';
 
 export interface ChatMessage {
-  sender: 'user' | 'bot';
+  id?: string;
+  sender: 'user' | 'bot' | 'assistant';
   content: string;
   timestamp?: string;
+  isStreaming?: boolean;
+}
+
+// DTO que viene del backend
+export interface ChatMessageDTO {
+  id: string;
+  content: string;
+  role: string; // 'user' | 'assistant' | 'system'
+  timestamp: string;
+  isStreaming: boolean;
 }
 
 // Función para obtener el token real del usuario
@@ -43,17 +54,23 @@ export class ChatbotSignalRService {
     this.hubConnection.on('ReceiveMessage', (response: any) => {
       // Mensaje del bot recibido
       let botMessage: ChatMessage = {
-        sender: 'bot',
+        id: response?.message?.id || response?.id,
+        sender: this.mapRoleToSender(response?.message?.role || response?.role || 'assistant'),
         content: '',
-        timestamp: response?.message?.timestamp || new Date().toISOString()
+        timestamp: response?.message?.timestamp || response?.timestamp || new Date().toISOString(),
+        isStreaming: response?.message?.isStreaming || false
       };
+      
       if (response && response.message && response.message.content) {
         botMessage.content = response.message.content;
+      } else if (response && response.content) {
+        botMessage.content = response.content;
       } else if (response && response.errorMessage) {
         botMessage.content = `Error: ${response.errorMessage}`;
       } else {
         botMessage.content = JSON.stringify(response);
       }
+      
       const current = this.messagesSubject.value;
       this.messagesSubject.next([...current, botMessage]);
     });
@@ -65,23 +82,57 @@ export class ChatbotSignalRService {
 
     // Evento de conexión cerrada
     this.hubConnection.onclose(() => {
-      this.messagesSubject.next([]);
+      console.log('SignalR connection closed');
     });
 
-    // Evento de historial recibido
-    this.hubConnection.on('ReceiveHistory', (history: any[]) => {
-      const mapped = history.map(msg => ({
-        sender: msg.sender,
-        content: msg.content,
-        timestamp: msg.timestamp
+    // Evento de historial recibido - ACTUALIZADO para manejar el objeto wrapper
+    this.hubConnection.on('ReceiveHistory', (response: any) => {
+      console.log('Historial recibido:', response);
+      
+      // El backend envía: { conversationId: "...", messages: [...] }
+      let history: ChatMessageDTO[] = [];
+      
+      if (Array.isArray(response)) {
+        // Si viene directo como array
+        history = response;
+      } else if (response && Array.isArray(response.messages)) {
+        // Si viene envuelto en un objeto con propiedad 'messages'
+        history = response.messages;
+      } else {
+        console.error('Formato de historial no reconocido:', response);
+        return;
+      }
+      
+      console.log('📋 Procesando', history.length, 'mensajes del historial');
+      
+      const mapped: ChatMessage[] = history.map(dto => ({
+        id: dto.id,
+        sender: this.mapRoleToSender(dto.role),
+        content: dto.content,
+        timestamp: dto.timestamp,
+        isStreaming: dto.isStreaming
       }));
+      
+      console.log('✅ Mensajes mapeados:', mapped);
       this.messagesSubject.next(mapped);
     });
 
     // Evento de historial borrado
     this.hubConnection.on('HistoryCleared', (conversationId: string) => {
+      console.log('Historial borrado para conversación:', conversationId);
       this.messagesSubject.next([]);
     });
+  }
+
+  /**
+   * Mapea el role del backend ('user', 'assistant', 'system') al sender del frontend
+   */
+  private mapRoleToSender(role: string): 'user' | 'bot' | 'assistant' {
+    console.log('🔄 Mapeando role:', role);
+    if (role === 'user') return 'user';
+    if (role === 'assistant' || role === 'bot') return 'bot';
+    console.warn('⚠️ Role desconocido:', role, '- usando "bot" por defecto');
+    return 'bot'; // default
   }
 
   /**
@@ -113,9 +164,11 @@ export class ChatbotSignalRService {
       };
       // Agregar mensaje del usuario al historial local
       const userMessage: ChatMessage = {
+        id: new Date().getTime().toString(), // ID temporal
         sender: 'user',
         content: message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isStreaming: false
       };
       const current = this.messagesSubject.value;
       this.messagesSubject.next([...current, userMessage]);
