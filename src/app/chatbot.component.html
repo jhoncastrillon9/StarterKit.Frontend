@@ -1,12 +1,26 @@
 <div class="chatbot-container">
   <div class="chat-messages">
     <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.sender">
-      <span *ngIf="msg.sender === 'user'" class="user-message">👤 {{ msg.content }}</span>
-      <span *ngIf="msg.sender === 'bot'" class="bot-message">🤖 {{ msg.content }}</span>
+      <div *ngIf="msg.sender === 'user'" class="bubble user-bubble">
+        {{ msg.content }}
+      </div>
+      <div *ngIf="msg.sender === 'bot'" class="bubble bot-bubble">
+        {{ msg.content }}
+      </div>
+    </div>
+    <div *ngIf="isBotTyping" class="typing-indicator">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="typing-text">El bot está escribiendo...</span>
     </div>
   </div>
   <div class="chat-input">
     <input [(ngModel)]="message" (keyup.enter)="sendMessage()" placeholder="Escribe un mensaje..." />
     <button (click)="sendMessage()">Enviar</button>
   </div>
+</div>
+<div class="chat-header">
+  <span class="chat-title">Chatbot</span>
+  <button class="clear-btn" (click)="clearConversation()" title="Borrar conversación">
+    🗑
+  </button>
 </div>

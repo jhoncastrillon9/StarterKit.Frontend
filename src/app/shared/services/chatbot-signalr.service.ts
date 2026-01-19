@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { environment } from '../../../environment';
 
 export interface ChatMessage {
   sender: 'user' | 'bot';
   content: string;
   timestamp?: string;
 }
-import { environment } from '../../../environment';
 
-// Ajusta esta función para obtener el token real del usuario
+// Función para obtener el token real del usuario
 function getUserToken(): string | null {
-  // Ejemplo: return localStorage.getItem('token');
   return localStorage.getItem('token');
 }
 
@@ -22,6 +21,8 @@ export class ChatbotSignalRService {
   private hubConnection: HubConnection | null = null;
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   public messages$: Observable<ChatMessage[]> = this.messagesSubject.asObservable();
+  private botTypingSubject = new Subject<boolean>();
+  public botTyping$ = this.botTypingSubject.asObservable();
 
   constructor() {
     this.startConnection();
@@ -57,12 +58,18 @@ export class ChatbotSignalRService {
       this.messagesSubject.next([...current, botMessage]);
     });
 
-    // Obtener historial al conectar
+    // Evento BotTyping
+    this.hubConnection.on('BotTyping', (isTyping: boolean) => {
+      this.botTypingSubject.next(isTyping);
+    });
+
+    // Evento de conexión cerrada
     this.hubConnection.onclose(() => {
       this.messagesSubject.next([]);
     });
+
+    // Evento de historial recibido
     this.hubConnection.on('ReceiveHistory', (history: any[]) => {
-      // Esperamos un array de mensajes con sender, content, timestamp
       const mapped = history.map(msg => ({
         sender: msg.sender,
         content: msg.content,
@@ -70,14 +77,34 @@ export class ChatbotSignalRService {
       }));
       this.messagesSubject.next(mapped);
     });
+
+    // Evento de historial borrado
+    this.hubConnection.on('HistoryCleared', (conversationId: string) => {
+      this.messagesSubject.next([]);
+    });
   }
 
-  public getHistory(conversationId: string): void {
-    if (this.hubConnection) {
-      this.hubConnection.invoke('GetHistory', conversationId)
-        .catch(err => console.error('GetHistory Error:', err));
-    }
+  /**
+   * Espera a que la conexión esté en estado Connected
+   */
+  public async waitForConnection(): Promise<void> {
+    if (!this.hubConnection) return;
+    if (this.hubConnection.state === 'Connected') return;
+    return new Promise((resolve) => {
+      const check = () => {
+        if (this.hubConnection && this.hubConnection.state === 'Connected') {
+          resolve();
+        } else {
+          setTimeout(check, 50);
+        }
+      };
+      check();
+    });
   }
+
+  /**
+   * Envía un mensaje al bot
+   */
   public sendMessage(message: string, conversationId: string | null = null): void {
     if (this.hubConnection) {
       const chatRequest = {
@@ -94,6 +121,26 @@ export class ChatbotSignalRService {
       this.messagesSubject.next([...current, userMessage]);
       this.hubConnection.invoke('SendMessage', chatRequest)
         .catch(err => console.error('SendMessage Error:', err));
+    }
+  }
+
+  /**
+   * Solicita el historial de la conversación al backend
+   */
+  public getHistory(conversationId: string): void {
+    if (this.hubConnection) {
+      this.hubConnection.invoke('GetHistory', conversationId)
+        .catch(err => console.error('GetHistory Error:', err));
+    }
+  }
+
+  /**
+   * Solicita al backend borrar el historial de la conversación
+   */
+  public clearHistory(conversationId: string): void {
+    if (this.hubConnection) {
+      this.hubConnection.invoke('ClearHistory', conversationId)
+        .catch(err => console.error('ClearHistory Error:', err));
     }
   }
 }
