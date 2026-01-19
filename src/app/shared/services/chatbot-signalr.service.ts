@@ -87,7 +87,7 @@ export class ChatbotSignalRService {
 
     // Evento de historial recibido - ACTUALIZADO para manejar el objeto wrapper
     this.hubConnection.on('ReceiveHistory', (response: any) => {
-      console.log('Historial recibido:', response);
+
       
       // El backend envía: { conversationId: "...", messages: [...] }
       let history: ChatMessageDTO[] = [];
@@ -103,7 +103,7 @@ export class ChatbotSignalRService {
         return;
       }
       
-      console.log('📋 Procesando', history.length, 'mensajes del historial');
+
       
       const mapped: ChatMessage[] = history.map(dto => ({
         id: dto.id,
@@ -111,15 +111,14 @@ export class ChatbotSignalRService {
         content: dto.content,
         timestamp: dto.timestamp,
         isStreaming: dto.isStreaming
-      }));
+      }));      
       
-      console.log('✅ Mensajes mapeados:', mapped);
       this.messagesSubject.next(mapped);
     });
 
     // Evento de historial borrado
     this.hubConnection.on('HistoryCleared', (conversationId: string) => {
-      console.log('Historial borrado para conversación:', conversationId);
+      
       this.messagesSubject.next([]);
     });
   }
@@ -128,10 +127,8 @@ export class ChatbotSignalRService {
    * Mapea el role del backend ('user', 'assistant', 'system') al sender del frontend
    */
   private mapRoleToSender(role: string): 'user' | 'bot' | 'assistant' {
-    console.log('🔄 Mapeando role:', role);
     if (role === 'user') return 'user';
     if (role === 'assistant' || role === 'bot') return 'bot';
-    console.warn('⚠️ Role desconocido:', role, '- usando "bot" por defecto');
     return 'bot'; // default
   }
 
@@ -156,11 +153,10 @@ export class ChatbotSignalRService {
   /**
    * Envía un mensaje al bot
    */
-  public sendMessage(message: string, conversationId: string | null = null): void {
+  public sendMessage(message: string): void {
     if (this.hubConnection) {
       const chatRequest = {
-        Message: message,
-        ConversationId: conversationId
+        Message: message
       };
       // Agregar mensaje del usuario al historial local
       const userMessage: ChatMessage = {
@@ -180,9 +176,9 @@ export class ChatbotSignalRService {
   /**
    * Solicita el historial de la conversación al backend
    */
-  public getHistory(conversationId: string): void {
+  public getHistory(): void {
     if (this.hubConnection) {
-      this.hubConnection.invoke('GetHistory', conversationId)
+      this.hubConnection.invoke('GetHistory')
         .catch(err => console.error('GetHistory Error:', err));
     }
   }
@@ -190,9 +186,9 @@ export class ChatbotSignalRService {
   /**
    * Solicita al backend borrar el historial de la conversación
    */
-  public clearHistory(conversationId: string): void {
+  public clearHistory(): void {
     if (this.hubConnection) {
-      this.hubConnection.invoke('ClearHistory', conversationId)
+      this.hubConnection.invoke('ClearHistory')
         .catch(err => console.error('ClearHistory Error:', err));
     }
   }

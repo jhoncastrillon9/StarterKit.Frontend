@@ -48,6 +48,7 @@ const APP_CONTAINERS = [
 
 import { FormsModule } from '@angular/forms';
 import { ChatbotComponent } from './chatbot.component';
+import { CustomSharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -83,7 +84,8 @@ import { ChatbotComponent } from './chatbot.component';
     BadgeModule,
     ListGroupModule,
     CardModule,
-    NgScrollbarModule
+    NgScrollbarModule,
+    CustomSharedModule
   ],
   providers: [
     {

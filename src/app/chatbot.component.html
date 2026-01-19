@@ -1,7 +1,7 @@
 <div class="chatbot-container">
   <div class="chat-header">
     <span class="chat-title">Chatbot</span>
-    <button class="clear-btn" (click)="clearConversation()" title="Borrar conversación">
+    <button class="clear-btn" (click)="openConfirmationModal()" title="Borrar conversación">
       🗑
     </button>
   </div>
@@ -40,4 +40,12 @@
       Enviar
     </button>
   </div>
+  <app-confirmation-modal
+    #confirmationModal
+    [title]="'Confirmar'"
+    [messageModal]="confirmationMessage"
+    [isConfirmation]="true"
+    [titleButtonComfimationYes]="'Sí, borrar'"
+    (confirmAction)="onConfirmDelete()">
+  </app-confirmation-modal>
 </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
 import { ChatbotSignalRService, ChatMessage } from './shared/services/chatbot-signalr.service';
 import { Subscription } from 'rxjs';
 
@@ -9,6 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer?: ElementRef;
+  @ViewChild('confirmationModal') confirmationModal?: ConfirmationModalComponent;
   
   message = '';
   messages: ChatMessage[] = [];
@@ -16,6 +18,10 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   isBotTyping = false;
   private subs: Subscription[] = [];
   private shouldScrollToBottom = false;
+
+  // Modal de confirmación
+  showConfirmationModal = false;
+  confirmationMessage = '¿Estás seguro de que quieres borrar toda la conversación?';
 
   constructor(private chatService: ChatbotSignalRService) {
     // Obtener o crear conversationId
@@ -37,23 +43,9 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async ngOnInit() {
-    console.log('🚀 Iniciando chatbot con conversationId:', this.conversationId);
-    
-    // Suscribirse a los mensajes
+        // Suscribirse a los mensajes
     this.subs.push(
       this.chatService.messages$.subscribe((msgs: ChatMessage[]) => {
-        console.log('📩 Mensajes recibidos:', msgs);
-        console.log('📊 Total de mensajes:', msgs.length);
-        
-        // Log detallado de cada mensaje para debugging
-        msgs.forEach((msg, index) => {
-          console.log(`  Mensaje ${index + 1}:`, {
-            sender: msg.sender,
-            content: msg.content.substring(0, 50) + '...',
-            timestamp: msg.timestamp
-          });
-        });
-        
         this.messages = msgs;
         this.shouldScrollToBottom = true;
       })
@@ -62,7 +54,6 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     // Suscribirse al evento BotTyping
     this.subs.push(
       this.chatService.botTyping$.subscribe((typing: boolean) => {
-        console.log('⌨️ Bot typing:', typing);
         this.isBotTyping = typing;
       })
     );
@@ -70,8 +61,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     // Esperar a que la conexión esté lista antes de pedir historial
     try {
       await this.chatService.waitForConnection();
-      console.log('✅ Conexión establecida, solicitando historial...');
-      this.chatService.getHistory(this.conversationId);
+      this.chatService.getHistory();
     } catch (error) {
       console.error('❌ Error al conectar con SignalR:', error);
     }
@@ -100,22 +90,28 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   sendMessage() {
-    if (this.message.trim()) {
-      console.log('📤 Enviando mensaje:', this.message);
-      this.chatService.sendMessage(this.message, this.conversationId);
+    if (this.message.trim()) {      
+      this.chatService.sendMessage(this.message);
       this.message = '';
       this.shouldScrollToBottom = true;
     }
   }
 
-  clearConversation() {
-    if (confirm('¿Estás seguro de que quieres borrar toda la conversación?')) {
-      this.chatService.clearHistory(this.conversationId);
-      // Crear nuevo conversationId para empezar de cero
-      const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('chatbot_conversation_id', newId);
-      this.conversationId = newId;
-      console.log('Nueva conversación creada:', newId);
+  openConfirmationModal() {
+    if (this.confirmationModal) {
+      this.confirmationModal.title = 'Confirmar';
+      this.confirmationModal.messageModal = this.confirmationMessage;
+      this.confirmationModal.isConfirmation = true;
+      this.confirmationModal.titleButtonComfimationYes = 'Sí, borrar';
+      this.confirmationModal.openModal();
     }
   }
+
+  onConfirmDelete() {
+    this.chatService.clearHistory();
+    // Crear nuevo conversationId para empezar de cero
+    const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('chatbot_conversation_id', newId);
+    this.conversationId = newId;
+    }
 }
