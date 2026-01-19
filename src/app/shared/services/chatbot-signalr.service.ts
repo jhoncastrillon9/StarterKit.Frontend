@@ -34,6 +34,9 @@ export class ChatbotSignalRService {
   public messages$: Observable<ChatMessage[]> = this.messagesSubject.asObservable();
   private botTypingSubject = new Subject<boolean>();
   public botTyping$ = this.botTypingSubject.asObservable();
+  
+  // ID del mensaje que está siendo transmitido en streaming
+  private currentStreamingMessageId: string | null = null;
 
   constructor() {
     this.startConnection();
@@ -48,11 +51,76 @@ export class ChatbotSignalRService {
       .build();
 
     this.hubConnection.start()
-       .then(() => console.log('SConnected')) 
+      .then(() => console.log('SConnected')) 
       .catch(err => console.error('SignalR Connection Error:', err));
 
+    // Evento de inicio de streaming
+    this.hubConnection.on('StreamStart', (userId: string) => {
+      this.botTypingSubject.next(true);
+      
+      // Crear mensaje vacío del bot para empezar a acumular chunks
+      const messageId = new Date().getTime().toString();
+      this.currentStreamingMessageId = messageId;
+      
+      const botMessage: ChatMessage = {
+        id: messageId,
+        sender: 'bot',
+        content: '',
+        timestamp: new Date().toISOString(),
+        isStreaming: true
+      };
+      
+      const current = this.messagesSubject.value;
+      this.messagesSubject.next([...current, botMessage]);
+    });
+
+    // Evento para recibir fragmentos de streaming
+    this.hubConnection.on('StreamChunk', (response: any) => {
+      const chunk = response?.chunk || '';
+      
+      if (!this.currentStreamingMessageId) {
+        console.error('No hay mensaje de streaming activo');
+        return;
+      }
+      
+      const current = this.messagesSubject.value;
+      const existingIndex = current.findIndex(m => m.id === this.currentStreamingMessageId);
+      
+      if (existingIndex >= 0) {
+        // Actualizar mensaje existente agregando el fragmento
+        const updated = [...current];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          content: updated[existingIndex].content + chunk
+        };
+        this.messagesSubject.next(updated);
+      }
+    });
+
+    // Evento de fin de streaming
+    this.hubConnection.on('StreamEnd', (userId: string) => {
+      if (this.currentStreamingMessageId) {
+        const current = this.messagesSubject.value;
+        const existingIndex = current.findIndex(m => m.id === this.currentStreamingMessageId);
+        
+        if (existingIndex >= 0) {
+          // Marcar el mensaje como completado
+          const updated = [...current];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            isStreaming: false
+          };
+          this.messagesSubject.next(updated);
+        }
+        
+        this.currentStreamingMessageId = null;
+      }
+      
+      this.botTypingSubject.next(false);
+    });
+
+    // Mantener el evento ReceiveMessage por compatibilidad (si el backend lo usa)
     this.hubConnection.on('ReceiveMessage', (response: any) => {
-      // Mensaje del bot recibido
       let botMessage: ChatMessage = {
         id: response?.message?.id || response?.id,
         sender: this.mapRoleToSender(response?.message?.role || response?.role || 'assistant'),
@@ -75,35 +143,23 @@ export class ChatbotSignalRService {
       this.messagesSubject.next([...current, botMessage]);
     });
 
-    // Evento BotTyping
-    this.hubConnection.on('BotTyping', (isTyping: boolean) => {
-      this.botTypingSubject.next(isTyping);
-    });
-
     // Evento de conexión cerrada
     this.hubConnection.onclose(() => {
       // Quitar log de cierre de conexión
     });
 
-    // Evento de historial recibido - ACTUALIZADO para manejar el objeto wrapper
+    // Evento de historial recibido
     this.hubConnection.on('ReceiveHistory', (response: any) => {
-
-      
-      // El backend envía: { conversationId: "...", messages: [...] }
       let history: ChatMessageDTO[] = [];
       
       if (Array.isArray(response)) {
-        // Si viene directo como array
         history = response;
       } else if (response && Array.isArray(response.messages)) {
-        // Si viene envuelto en un objeto con propiedad 'messages'
         history = response.messages;
       } else {
         console.error('Formato de historial no reconocido:', response);
         return;
       }
-      
-
       
       const mapped: ChatMessage[] = history.map(dto => ({
         id: dto.id,
@@ -118,7 +174,6 @@ export class ChatbotSignalRService {
 
     // Evento de historial borrado
     this.hubConnection.on('HistoryCleared', (conversationId: string) => {
-      
       this.messagesSubject.next([]);
     });
   }
@@ -151,16 +206,17 @@ export class ChatbotSignalRService {
   }
 
   /**
-   * Envía un mensaje al bot
+   * Envía un mensaje al bot usando streaming
    */
   public sendMessage(message: string): void {
     if (this.hubConnection) {
       const chatRequest = {
         Message: message
       };
+      
       // Agregar mensaje del usuario al historial local
       const userMessage: ChatMessage = {
-        id: new Date().getTime().toString(), // ID temporal
+        id: new Date().getTime().toString(),
         sender: 'user',
         content: message,
         timestamp: new Date().toISOString(),
@@ -168,8 +224,13 @@ export class ChatbotSignalRService {
       };
       const current = this.messagesSubject.value;
       this.messagesSubject.next([...current, userMessage]);
-      this.hubConnection.invoke('SendMessage', chatRequest)
-        .catch(err => console.error('SendMessage Error:', err));
+      
+      // Invocar el método de streaming
+      this.hubConnection.invoke('SendMessageStreaming', chatRequest)
+        .catch(err => {
+          console.error('SendMessageStreaming Error:', err);
+          this.botTypingSubject.next(false);
+        });
     }
   }
 
