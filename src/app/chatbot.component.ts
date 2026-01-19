@@ -14,7 +14,6 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   
   message = '';
   messages: ChatMessage[] = [];
-  conversationId: string = '';
   isBotTyping = false;
   private subs: Subscription[] = [];
   private shouldScrollToBottom = false;
@@ -24,23 +23,9 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   confirmationMessage = '¿Estás seguro de que quieres borrar toda la conversación?';
 
   constructor(private chatService: ChatbotSignalRService) {
-    // Obtener o crear conversationId
-    this.conversationId = this.getOrCreateConversationId();
   }
 
-  /**
-   * Obtiene el conversationId guardado o crea uno nuevo
-   */
-  private getOrCreateConversationId(): string {
-    const stored = localStorage.getItem('chatbot_conversation_id');
-    if (stored) {
-      return stored;
-    }
-    // Crear nuevo ID único
-    const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('chatbot_conversation_id', newId);
-    return newId;
-  }
+
 
   async ngOnInit() {
         // Suscribirse a los mensajes
@@ -109,9 +94,5 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   onConfirmDelete() {
     this.chatService.clearHistory();
-    // Crear nuevo conversationId para empezar de cero
-    const newId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('chatbot_conversation_id', newId);
-    this.conversationId = newId;
     }
 }
