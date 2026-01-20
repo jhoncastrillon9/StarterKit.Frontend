@@ -237,7 +237,9 @@ export class ChatbotSignalRService {
   /**
    * Solicita el historial de la conversación al backend
    */
-  public getHistory(): void {
+
+  public async getHistory(): Promise<void> {
+    await this.waitForConnection();
     if (this.hubConnection) {
       this.hubConnection.invoke('GetHistory')
         .catch(err => console.error('GetHistory Error:', err));
@@ -247,7 +249,9 @@ export class ChatbotSignalRService {
   /**
    * Solicita al backend borrar el historial de la conversación
    */
-  public clearHistory(): void {
+
+  public async clearHistory(): Promise<void> {
+    await this.waitForConnection();
     if (this.hubConnection) {
       this.hubConnection.invoke('ClearHistory')
         .catch(err => console.error('ClearHistory Error:', err));
