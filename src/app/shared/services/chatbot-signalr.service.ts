@@ -51,8 +51,16 @@ export class ChatbotSignalRService {
       .build();
 
     this.hubConnection.start()
-      .then(() => console.log('SConnected')) 
-      .catch(err => console.error('SignalR Connection Error:', err));
+      .then(() => console.log('SConnected'))
+      .catch(err => {
+        console.error('SignalR Connection Error (primer intento):', err);
+        // Segundo intento tras 1 segundo
+        setTimeout(() => {
+          this.hubConnection?.start()
+            .then(() => console.log('SConnected (segundo intento)'))
+            .catch(err2 => console.error('SignalR Connection Error (segundo intento):', err2));
+        }, 1000);
+      });
 
     // Evento de inicio de streaming
     this.hubConnection.on('StreamStart', (userId: string) => {
