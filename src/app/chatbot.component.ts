@@ -22,34 +22,49 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   showConfirmationModal = false;
   confirmationMessage = '¿Estás seguro de que quieres borrar toda la conversación?';
 
+  isMobile = false;
+  showChat = false;
+
   constructor(private chatService: ChatbotSignalRService) {
   }
 
 
 
   async ngOnInit() {
+        // Detectar si es móvil
+        this.isMobile = window.innerWidth <= 600;
+        this.showChat = !this.isMobile;
+
         // Suscribirse a los mensajes
-    this.subs.push(
-      this.chatService.messages$.subscribe((msgs: ChatMessage[]) => {
-        this.messages = msgs;
-        this.shouldScrollToBottom = true;
-      })
-    );
+        this.subs.push(
+          this.chatService.messages$.subscribe((msgs: ChatMessage[]) => {
+            this.messages = msgs;
+            this.shouldScrollToBottom = true;
+          })
+        );
 
-    // Suscribirse al evento BotTyping
-    this.subs.push(
-      this.chatService.botTyping$.subscribe((typing: boolean) => {
-        this.isBotTyping = typing;
-      })
-    );
+        // Suscribirse al evento BotTyping
+        this.subs.push(
+          this.chatService.botTyping$.subscribe((typing: boolean) => {
+            this.isBotTyping = typing;
+          })
+        );
 
-    // Esperar a que la conexión esté lista antes de pedir historial
-    try {
-      await this.chatService.waitForConnection();
-      this.chatService.getHistory();
-    } catch (error) {
-      console.error('❌ Error al conectar con SignalR:', error);
-    }
+        // Esperar a que la conexión esté lista antes de pedir historial
+        try {
+          await this.chatService.waitForConnection();
+          this.chatService.getHistory();
+        } catch (error) {
+          console.error('❌ Error al conectar con SignalR:', error);
+        }
+
+        // Escuchar cambios de tamaño de pantalla
+        window.addEventListener('resize', () => {
+          this.isMobile = window.innerWidth <= 600;
+          if (!this.isMobile) {
+            this.showChat = true;
+          }
+        });
   }
 
   ngAfterViewChecked() {
