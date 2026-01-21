@@ -17,12 +17,19 @@
     <div class="header-left">
       <div class="bot-avatar">
         <i class="pi pi-android"></i>
-        <span class="online-indicator"></span>
+        <span class="status-indicator"
+              [class.online]="connectionStatus === 'connected'"
+              [class.offline]="connectionStatus === 'disconnected'"
+              [class.connecting]="connectionStatus === 'connecting' || connectionStatus === 'reconnecting'">
+        </span>
       </div>
       <div class="header-info">
         <span class="bot-name">Asistente Virtual</span>
-        <span class="bot-status" *ngIf="!isBotTyping">En linea</span>
-        <span class="bot-status typing" *ngIf="isBotTyping">Escribiendo...</span>
+        <span class="bot-status" *ngIf="connectionStatus === 'connected' && !isBotTyping">En linea</span>
+        <span class="bot-status typing" *ngIf="connectionStatus === 'connected' && isBotTyping">Escribiendo...</span>
+        <span class="bot-status connecting" *ngIf="connectionStatus === 'connecting'">Conectando...</span>
+        <span class="bot-status reconnecting" *ngIf="connectionStatus === 'reconnecting'">Reconectando...</span>
+        <span class="bot-status disconnected" *ngIf="connectionStatus === 'disconnected'">Desconectado</span>
       </div>
     </div>
     <div class="header-actions">
@@ -36,6 +43,17 @@
         <i class="pi pi-times"></i>
       </button>
     </div>
+  </div>
+
+  <!-- Connection banner -->
+  <div class="connection-banner" *ngIf="connectionStatus === 'disconnected' || connectionStatus === 'reconnecting'">
+    <span *ngIf="connectionStatus === 'reconnecting'">
+      <i class="pi pi-spin pi-spinner"></i> Reconectando...
+    </span>
+    <span *ngIf="connectionStatus === 'disconnected'">
+      <i class="pi pi-exclamation-circle"></i> Sin conexion
+      <button class="reconnect-btn" (click)="manualReconnect()">Reintentar</button>
+    </span>
   </div>
 
   <!-- Messages area -->

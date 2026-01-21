@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
-import { ChatbotSignalRService, ChatMessage } from './shared/services/chatbot-signalr.service';
+import { ChatbotSignalRService, ChatMessage, ConnectionStatus } from './shared/services/chatbot-signalr.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -43,6 +43,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   // Chat state
   isOpen = false;
   isMobile = false;
+  connectionStatus: ConnectionStatus = 'disconnected';
 
   // Confirmation modal
   showConfirmationModal = false;
@@ -69,6 +70,13 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (typing) {
           this.shouldScrollToBottom = true;
         }
+      })
+    );
+
+    // Subscribe to connection status
+    this.subs.push(
+      this.chatService.connectionStatus$.subscribe((status: ConnectionStatus) => {
+        this.connectionStatus = status;
       })
     );
 
@@ -146,6 +154,10 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     } catch {
       return '';
     }
+  }
+
+  async manualReconnect(): Promise<void> {
+    await this.chatService.reconnect();
   }
 
   openConfirmationModal(): void {
