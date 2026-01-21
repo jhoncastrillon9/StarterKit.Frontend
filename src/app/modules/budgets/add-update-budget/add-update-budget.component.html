@@ -122,11 +122,10 @@
                 Opciones de Cálculo
               </label>
               <div class="options-container">
-                <label class="option-chip" [class.active]="budgetForm.get('hasIVA')?.value">
+                <label class="option-chip active">
                   <input
                     type="checkbox"
-                    formControlName="hasIVA"
-                    (change)="updateCheckStatusIVA()"
+                    checked
                     disabled
                   />
                   <span class="chip-content">
