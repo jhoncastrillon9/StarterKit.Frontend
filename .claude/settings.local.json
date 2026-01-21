@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nImprove chatbot UI/UX and add SignalR auto-reconnection\n\n- Redesign chatbot interface with professional modern look\n- Add floating action button with pulse animation\n- Implement minimize/close functionality\n- Add responsive design for mobile devices\n- Implement SignalR auto-reconnection with exponential backoff\n- Add connection status indicator \\(online/offline/reconnecting\\)\n- Add manual reconnect button when disconnected\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
