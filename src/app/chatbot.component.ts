@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
 import { ChatbotSignalRService, ChatMessage } from './shared/services/chatbot-signalr.service';
 import { Subscription } from 'rxjs';
@@ -6,65 +7,87 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-chatbot',
   templateUrl: './chatbot.component.html',
-  styleUrls: ['./chatbot.component.scss']
+  styleUrls: ['./chatbot.component.scss'],
+  animations: [
+    trigger('fabAnimation', [
+      transition(':enter', [
+        style({ transform: 'scale(0)', opacity: 0 }),
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'scale(1)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'scale(0)', opacity: 0 }))
+      ])
+    ]),
+    trigger('chatWindowAnimation', [
+      transition(':enter', [
+        style({ transform: 'translateY(20px) scale(0.95)', opacity: 0 }),
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateY(0) scale(1)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateY(20px) scale(0.95)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer?: ElementRef;
   @ViewChild('confirmationModal') confirmationModal?: ConfirmationModalComponent;
-  
+  @ViewChild('messageInput') messageInput?: ElementRef;
+
   message = '';
   messages: ChatMessage[] = [];
   isBotTyping = false;
   private subs: Subscription[] = [];
   private shouldScrollToBottom = false;
 
-  // Modal de confirmación
-  showConfirmationModal = false;
-  confirmationMessage = '¿Estás seguro de que quieres borrar toda la conversación?';
-
+  // Chat state
+  isOpen = false;
   isMobile = false;
-  showChat = false;
 
-  constructor(private chatService: ChatbotSignalRService) {
-  }
+  // Confirmation modal
+  showConfirmationModal = false;
+  confirmationMessage = '¿Estas seguro de que quieres borrar toda la conversacion?';
 
-
+  constructor(private chatService: ChatbotSignalRService) {}
 
   async ngOnInit() {
-        // Detectar si es móvil
-        this.isMobile = window.innerWidth <= 600;
-        this.showChat = !this.isMobile;
+    // Detect mobile
+    this.checkMobile();
 
-        // Suscribirse a los mensajes
-        this.subs.push(
-          this.chatService.messages$.subscribe((msgs: ChatMessage[]) => {
-            this.messages = msgs;
-            this.shouldScrollToBottom = true;
-          })
-        );
+    // Subscribe to messages
+    this.subs.push(
+      this.chatService.messages$.subscribe((msgs: ChatMessage[]) => {
+        this.messages = msgs;
+        this.shouldScrollToBottom = true;
+      })
+    );
 
-        // Suscribirse al evento BotTyping
-        this.subs.push(
-          this.chatService.botTyping$.subscribe((typing: boolean) => {
-            this.isBotTyping = typing;
-          })
-        );
-
-        // Esperar a que la conexión esté lista antes de pedir historial
-        try {
-          await this.chatService.waitForConnection();
-          this.chatService.getHistory();
-        } catch (error) {
-          console.error('❌ Error al conectar con SignalR:', error);
+    // Subscribe to bot typing
+    this.subs.push(
+      this.chatService.botTyping$.subscribe((typing: boolean) => {
+        this.isBotTyping = typing;
+        if (typing) {
+          this.shouldScrollToBottom = true;
         }
+      })
+    );
 
-        // Escuchar cambios de tamaño de pantalla
-        window.addEventListener('resize', () => {
-          this.isMobile = window.innerWidth <= 600;
-          if (!this.isMobile) {
-            this.showChat = true;
-          }
-        });
+    // Wait for connection and get history
+    try {
+      await this.chatService.waitForConnection();
+      this.chatService.getHistory();
+    } catch (error) {
+      console.error('Error connecting to SignalR:', error);
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.checkMobile();
+  }
+
+  private checkMobile(): void {
+    this.isMobile = window.innerWidth <= 600;
   }
 
   ngAfterViewChecked() {
@@ -81,7 +104,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         element.scrollTop = element.scrollHeight;
       }
     } catch (err) {
-      console.error('Error al hacer scroll:', err);
+      console.error('Error scrolling:', err);
     }
   }
 
@@ -89,25 +112,53 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.subs.forEach(s => s.unsubscribe());
   }
 
-  sendMessage() {
-    if (this.message.trim()) {      
+  toggleChat(): void {
+    this.isOpen = !this.isOpen;
+    if (this.isOpen) {
+      this.shouldScrollToBottom = true;
+      // Focus input after animation
+      setTimeout(() => {
+        this.messageInput?.nativeElement?.focus();
+      }, 350);
+    }
+  }
+
+  closeChat(): void {
+    this.isOpen = false;
+  }
+
+  sendMessage(): void {
+    if (this.message.trim()) {
       this.chatService.sendMessage(this.message);
       this.message = '';
       this.shouldScrollToBottom = true;
     }
   }
 
-  openConfirmationModal() {
+  formatTime(timestamp: string): string {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  openConfirmationModal(): void {
     if (this.confirmationModal) {
       this.confirmationModal.title = 'Confirmar';
       this.confirmationModal.messageModal = this.confirmationMessage;
       this.confirmationModal.isConfirmation = true;
-      this.confirmationModal.titleButtonComfimationYes = 'Sí, borrar';
+      this.confirmationModal.titleButtonComfimationYes = 'Si, borrar';
       this.confirmationModal.openModal();
     }
   }
 
-  onConfirmDelete() {
+  onConfirmDelete(): void {
     this.chatService.clearHistory();
-    }
+  }
 }

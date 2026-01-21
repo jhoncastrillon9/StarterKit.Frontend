@@ -1,54 +1,120 @@
-<div class="chatbot-bubble" *ngIf="isMobile && !showChat" (click)="showChat = true">
-  <i class="pi pi-comments"></i>
+<!-- Floating chat button -->
+<div class="chatbot-fab" *ngIf="!isOpen" (click)="toggleChat()" [@fabAnimation]>
+  <div class="fab-icon">
+    <i class="pi pi-comments"></i>
+  </div>
+  <div class="fab-pulse"></div>
 </div>
-<div class="chatbot-container" [class.chatbot-mobile]="isMobile" *ngIf="!isMobile || showChat">
+
+<!-- Chat window -->
+<div class="chatbot-window"
+     *ngIf="isOpen"
+     [class.mobile]="isMobile"
+     [@chatWindowAnimation]>
+
+  <!-- Header -->
   <div class="chat-header">
-    <span class="chat-title">Chatbot</span>
-    <button class="clear-btn" (click)="openConfirmationModal()" title="Borrar conversación">
-      🗑
-    </button>
+    <div class="header-left">
+      <div class="bot-avatar">
+        <i class="pi pi-android"></i>
+        <span class="online-indicator"></span>
+      </div>
+      <div class="header-info">
+        <span class="bot-name">Asistente Virtual</span>
+        <span class="bot-status" *ngIf="!isBotTyping">En linea</span>
+        <span class="bot-status typing" *ngIf="isBotTyping">Escribiendo...</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" (click)="openConfirmationModal()" title="Borrar conversacion">
+        <i class="pi pi-trash"></i>
+      </button>
+      <button class="header-btn minimize-btn" (click)="toggleChat()" title="Minimizar">
+        <i class="pi pi-minus"></i>
+      </button>
+      <button class="header-btn close-btn" (click)="closeChat()" title="Cerrar">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
   </div>
 
+  <!-- Messages area -->
   <div class="chat-messages" #messagesContainer>
-    <!-- Mensaje cuando no hay historial -->
+    <!-- Empty state -->
     <div *ngIf="messages.length === 0 && !isBotTyping" class="empty-state">
-      <p>👋 No hay mensajes. ¡Comienza la conversación!</p>
+      <div class="empty-icon">
+        <i class="pi pi-comments"></i>
+      </div>
+      <h4>Hola, bienvenido</h4>
+      <p>Soy tu asistente virtual. ¿En que puedo ayudarte hoy?</p>
     </div>
 
-    <!-- Mensajes del chat -->
-    <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.sender">
-      <div *ngIf="msg.sender === 'user'" class="bubble user-bubble">
-        {{ msg.content }}
+    <!-- Chat messages -->
+    <div *ngFor="let msg of messages; let i = index"
+         class="message-wrapper"
+         [class.user]="msg.sender === 'user'"
+         [class.bot]="msg.sender === 'bot' || msg.sender === 'assistant'">
+
+      <!-- Bot avatar for bot messages -->
+      <div class="message-avatar" *ngIf="msg.sender === 'bot' || msg.sender === 'assistant'">
+        <i class="pi pi-android"></i>
       </div>
-      <!-- CORRECCIÓN: Aceptar 'bot' O 'assistant' -->
-      <div *ngIf="msg.sender === 'bot' || msg.sender === 'assistant'" class="bubble bot-bubble">
-        {{ msg.content }}
+
+      <div class="message-content">
+        <div class="message-bubble"
+             [class.user-bubble]="msg.sender === 'user'"
+             [class.bot-bubble]="msg.sender === 'bot' || msg.sender === 'assistant'">
+          <p class="message-text">{{ msg.content }}</p>
+          <span class="message-time" *ngIf="msg.timestamp">
+            {{ formatTime(msg.timestamp) }}
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- Indicador de escritura -->
-    <div *ngIf="isBotTyping" class="typing-indicator">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="typing-text">El bot está escribiendo...</span>
+    <!-- Typing indicator -->
+    <div *ngIf="isBotTyping" class="message-wrapper bot">
+      <div class="message-avatar">
+        <i class="pi pi-android"></i>
+      </div>
+      <div class="message-content">
+        <div class="typing-indicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="chat-input">
-    <input 
-      [(ngModel)]="message" 
-      (keyup.enter)="sendMessage()" 
-      placeholder="Escribe un mensaje..."
-      [disabled]="isBotTyping" />
-    <button (click)="sendMessage()" [disabled]="!message.trim() || isBotTyping">
-      Enviar
-    </button>
+  <!-- Input area -->
+  <div class="chat-input-area">
+    <div class="input-wrapper">
+      <input
+        type="text"
+        [(ngModel)]="message"
+        (keyup.enter)="sendMessage()"
+        placeholder="Escribe un mensaje..."
+        [disabled]="isBotTyping"
+        #messageInput />
+      <button
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!message.trim() || isBotTyping"
+        [class.active]="message.trim()">
+        <i class="pi pi-send"></i>
+      </button>
+    </div>
+    <span class="powered-by">Powered by AI</span>
   </div>
-  <app-confirmation-modal
-    #confirmationModal
-    [title]="'Confirmar'"
-    [messageModal]="confirmationMessage"
-    [isConfirmation]="true"
-    [titleButtonComfimationYes]="'Sí, borrar'"
-    (confirmAction)="onConfirmDelete()">
-  </app-confirmation-modal>
 </div>
+
+<!-- Confirmation modal -->
+<app-confirmation-modal
+  #confirmationModal
+  [title]="'Confirmar'"
+  [messageModal]="confirmationMessage"
+  [isConfirmation]="true"
+  [titleButtonComfimationYes]="'Si, borrar'"
+  (confirmAction)="onConfirmDelete()">
+</app-confirmation-modal>
