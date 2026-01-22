@@ -9,6 +9,7 @@ export interface ChatMessage {
   content: string;
   timestamp?: string;
   isStreaming?: boolean;
+  fileResponse?: ChatFileResponse;
 }
 
 export interface ChatMessageDTO {
@@ -17,6 +18,16 @@ export interface ChatMessageDTO {
   role: string;
   timestamp: string;
   isStreaming: boolean;
+}
+
+export interface ChatFileResponse {
+  type: 'file_download' | 'error';
+  fileName: string;
+  url: string;
+  mimeType: string;
+  message: string;
+  budgetId?: number;
+  internalCode?: number;
 }
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'reconnecting';
@@ -129,8 +140,13 @@ export class ChatbotSignalRService {
 
         if (existingIndex >= 0) {
           const updated = [...current];
+          const existingMessage = updated[existingIndex];
+          const processed = this.processMessageContent(existingMessage.content);
+
           updated[existingIndex] = {
-            ...updated[existingIndex],
+            ...existingMessage,
+            content: processed.content,
+            fileResponse: processed.fileResponse,
             isStreaming: false
           };
           this.messagesSubject.next(updated);
@@ -144,23 +160,28 @@ export class ChatbotSignalRService {
 
     // Receive message event (fallback)
     this.hubConnection.on('ReceiveMessage', (response: any) => {
-      let botMessage: ChatMessage = {
+      let rawContent = '';
+
+      if (response && response.message && response.message.content) {
+        rawContent = response.message.content;
+      } else if (response && response.content) {
+        rawContent = response.content;
+      } else if (response && response.errorMessage) {
+        rawContent = `Error: ${response.errorMessage}`;
+      } else {
+        rawContent = JSON.stringify(response);
+      }
+
+      const processed = this.processMessageContent(rawContent);
+
+      const botMessage: ChatMessage = {
         id: response?.message?.id || response?.id,
         sender: this.mapRoleToSender(response?.message?.role || response?.role || 'assistant'),
-        content: '',
+        content: processed.content,
+        fileResponse: processed.fileResponse,
         timestamp: response?.message?.timestamp || response?.timestamp || new Date().toISOString(),
         isStreaming: response?.message?.isStreaming || false
       };
-
-      if (response && response.message && response.message.content) {
-        botMessage.content = response.message.content;
-      } else if (response && response.content) {
-        botMessage.content = response.content;
-      } else if (response && response.errorMessage) {
-        botMessage.content = `Error: ${response.errorMessage}`;
-      } else {
-        botMessage.content = JSON.stringify(response);
-      }
 
       const current = this.messagesSubject.value;
       this.messagesSubject.next([...current, botMessage]);
@@ -179,13 +200,17 @@ export class ChatbotSignalRService {
         return;
       }
 
-      const mapped: ChatMessage[] = history.map(dto => ({
-        id: dto.id,
-        sender: this.mapRoleToSender(dto.role),
-        content: dto.content,
-        timestamp: dto.timestamp,
-        isStreaming: dto.isStreaming
-      }));
+      const mapped: ChatMessage[] = history.map(dto => {
+        const processed = this.processMessageContent(dto.content);
+        return {
+          id: dto.id,
+          sender: this.mapRoleToSender(dto.role),
+          content: processed.content,
+          fileResponse: processed.fileResponse,
+          timestamp: dto.timestamp,
+          isStreaming: dto.isStreaming
+        };
+      });
 
       this.messagesSubject.next(mapped);
     });
@@ -285,6 +310,164 @@ export class ChatbotSignalRService {
     if (role === 'user') return 'user';
     if (role === 'assistant' || role === 'bot') return 'bot';
     return 'bot';
+  }
+
+  /**
+   * Parse content to check if it's a file download response (JSON format)
+   */
+  private parseJsonFileResponse(content: string): ChatFileResponse | null {
+    if (!content) return null;
+
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed && (parsed.type === 'file_download' || parsed.type === 'error')) {
+        return parsed as ChatFileResponse;
+      }
+    } catch {
+      // Not JSON
+    }
+    return null;
+  }
+
+  /**
+   * Parse Markdown links to detect file downloads
+   * Detects patterns like: [Descargar Cotización 555 (PDF)](https://storage.blob.core.windows.net/...)
+   */
+  private parseMarkdownFileResponse(content: string): { fileResponse: ChatFileResponse; cleanContent: string } | null {
+    if (!content) return null;
+
+    // Regex to match Markdown links: [text](url)
+    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    const matches = [...content.matchAll(markdownLinkRegex)];
+
+    if (matches.length === 0) return null;
+
+    // Look for download links (blob storage, file extensions like .pdf, .docx, etc.)
+    for (const match of matches) {
+      const linkText = match[1];
+      const url = match[2];
+
+      // Check if it's a downloadable file (blob storage or common file extensions)
+      const isDownloadable =
+        url.includes('blob.core.windows.net') ||
+        url.includes('/temp-budgets') ||
+        /\.(pdf|docx?|xlsx?|zip|rar)(\?|$)/i.test(url) ||
+        /descargar|download/i.test(linkText);
+
+      if (isDownloadable) {
+        // Extract file name from link text or URL
+        let fileName = linkText;
+        const urlFileName = this.extractFileNameFromUrl(url);
+        if (urlFileName) {
+          fileName = urlFileName;
+        }
+
+        // Determine MIME type
+        const mimeType = this.getMimeTypeFromUrl(url) || this.getMimeTypeFromText(linkText);
+
+        // Extract quotation number if present
+        const quotationMatch = content.match(/cotizaci[oó]n\s*#?(\d+)/i) || linkText.match(/(\d+)/);
+        const internalCode = quotationMatch ? parseInt(quotationMatch[1], 10) : undefined;
+
+        // Get the message (text before the link)
+        const linkIndex = content.indexOf(match[0]);
+        let message = content.substring(0, linkIndex).trim();
+        // Clean up the message
+        message = message.replace(/:\s*$/, '').trim();
+        if (!message) {
+          message = 'Archivo listo para descargar';
+        }
+
+        // Clean content is only the text AFTER the link
+        const afterLinkIndex = linkIndex + match[0].length;
+        const cleanContent = content.substring(afterLinkIndex).trim();
+
+        return {
+          fileResponse: {
+            type: 'file_download',
+            fileName,
+            url,
+            mimeType,
+            message,
+            internalCode
+          },
+          cleanContent
+        };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract file name from URL
+   */
+  private extractFileNameFromUrl(url: string): string | null {
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const segments = pathname.split('/');
+      const lastSegment = segments[segments.length - 1];
+
+      if (lastSegment && lastSegment.includes('.')) {
+        // Decode URL encoding and clean up
+        return decodeURIComponent(lastSegment).replace(/_/g, ' ');
+      }
+    } catch {
+      // Invalid URL
+    }
+    return null;
+  }
+
+  /**
+   * Get MIME type from URL extension
+   */
+  private getMimeTypeFromUrl(url: string): string {
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.includes('.pdf')) return 'application/pdf';
+    if (lowerUrl.includes('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if (lowerUrl.includes('.doc')) return 'application/msword';
+    if (lowerUrl.includes('.xlsx')) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    if (lowerUrl.includes('.xls')) return 'application/vnd.ms-excel';
+    if (lowerUrl.includes('.zip')) return 'application/zip';
+    return 'application/octet-stream';
+  }
+
+  /**
+   * Get MIME type from link text
+   */
+  private getMimeTypeFromText(text: string): string {
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('pdf')) return 'application/pdf';
+    if (lowerText.includes('word') || lowerText.includes('doc')) return 'application/msword';
+    if (lowerText.includes('excel') || lowerText.includes('xls')) return 'application/vnd.ms-excel';
+    if (lowerText.includes('zip')) return 'application/zip';
+    return 'application/octet-stream';
+  }
+
+  /**
+   * Process message content and extract file response if present
+   */
+  private processMessageContent(content: string): { content: string; fileResponse?: ChatFileResponse } {
+    // First try JSON format
+    const jsonResponse = this.parseJsonFileResponse(content);
+    if (jsonResponse) {
+      return {
+        content: jsonResponse.message || content,
+        fileResponse: jsonResponse.type === 'file_download' ? jsonResponse : undefined
+      };
+    }
+
+    // Then try Markdown format
+    const markdownResponse = this.parseMarkdownFileResponse(content);
+    if (markdownResponse) {
+      return {
+        content: markdownResponse.cleanContent,
+        fileResponse: markdownResponse.fileResponse
+      };
+    }
+
+    return { content };
   }
 
   /**

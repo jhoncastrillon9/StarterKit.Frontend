@@ -79,7 +79,42 @@
       </div>
 
       <div class="message-content">
+        <!-- File download message -->
+        <ng-container *ngIf="msg.fileResponse">
+          <!-- Intro message bubble -->
+          <div class="message-bubble bot-bubble" *ngIf="msg.fileResponse.message">
+            <p class="message-text">{{ msg.fileResponse.message }}</p>
+          </div>
+
+          <!-- File download card -->
+          <div class="file-download-card">
+            <div class="file-icon">
+              <i [class]="getFileIcon(msg.fileResponse.mimeType)"></i>
+            </div>
+            <div class="file-info">
+              <span class="file-name">{{ msg.fileResponse.fileName }}</span>
+              <span class="file-badge" *ngIf="msg.fileResponse.internalCode">
+                Cotizacion #{{ msg.fileResponse.internalCode }}
+              </span>
+            </div>
+            <button class="download-btn" (click)="downloadFile(msg.fileResponse)">
+              <i class="pi pi-download"></i>
+              Descargar
+            </button>
+          </div>
+
+          <!-- Additional text after the download link -->
+          <div class="message-bubble bot-bubble" *ngIf="msg.content">
+            <p class="message-text">{{ msg.content }}</p>
+            <span class="message-time" *ngIf="msg.timestamp">
+              {{ formatTime(msg.timestamp) }}
+            </span>
+          </div>
+        </ng-container>
+
+        <!-- Regular message bubble (no file) -->
         <div class="message-bubble"
+             *ngIf="!msg.fileResponse"
              [class.user-bubble]="msg.sender === 'user'"
              [class.bot-bubble]="msg.sender === 'bot' || msg.sender === 'assistant'">
           <p class="message-text">{{ msg.content }}</p>

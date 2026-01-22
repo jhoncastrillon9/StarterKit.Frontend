@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
-import { ChatbotSignalRService, ChatMessage, ConnectionStatus } from './shared/services/chatbot-signalr.service';
+import { ChatbotSignalRService, ChatMessage, ChatFileResponse, ConnectionStatus } from './shared/services/chatbot-signalr.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -172,5 +172,43 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   onConfirmDelete(): void {
     this.chatService.clearHistory();
+  }
+
+  getFileIcon(mimeType: string): string {
+    if (!mimeType) return 'pi pi-file';
+
+    if (mimeType.includes('pdf')) {
+      return 'pi pi-file-pdf';
+    } else if (mimeType.includes('word') || mimeType.includes('document')) {
+      return 'pi pi-file-word';
+    } else if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) {
+      return 'pi pi-file-excel';
+    } else if (mimeType.includes('image')) {
+      return 'pi pi-image';
+    } else if (mimeType.includes('zip') || mimeType.includes('compressed')) {
+      return 'pi pi-file-zip';
+    }
+    return 'pi pi-file';
+  }
+
+  async downloadFile(fileResponse: ChatFileResponse): Promise<void> {
+    if (!fileResponse?.url) return;
+
+    try {
+      const response = await fetch(fileResponse.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileResponse.fileName || 'archivo';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      // Fallback: abrir en nueva pestaña si falla la descarga directa
+      window.open(fileResponse.url, '_blank');
+    }
   }
 }
