@@ -144,6 +144,18 @@ export class BudgetService {
     );
   }
 
+  sendEmailBudgetExcel(data: any) {
+    const headers = this.getHeaders();
+    return this.http.post(`${this.apiUrl}/api/Budget/sendBudgetExcel`, data, { headers, observe: 'response' }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
+
   delete(data: any) {
     const headers = this.getHeaders();
     return this.http.delete(`${this.apiUrl}/api/Budget/budget?id=${data}`, { headers, observe: 'response' }).pipe(

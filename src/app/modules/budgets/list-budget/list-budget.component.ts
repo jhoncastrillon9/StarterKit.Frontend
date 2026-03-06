@@ -86,6 +86,7 @@ export class ListBudgetComponent implements OnInit {
   public budgetToSendEmail: BudgetModel = new BudgetModel;
   public availableEmails: string[] = [];
   public selectedEmailsToSend: string[] = [];
+  public emailSendType: 'pdf' | 'excel' = 'pdf'; // Tipo de envío: PDF o Excel
 
   public budgetToSetInvoice: BudgetModel | null = null;
   private originalStatuses: Map<number, string> = new Map();
@@ -258,6 +259,7 @@ export class ListBudgetComponent implements OnInit {
   }
 
   sendEmailBudgetWithComfirm(budgetModel: BudgetModel) {
+    this.emailSendType = 'pdf'; // Establecer tipo de envío como PDF
     this.budgetToSendEmail = budgetModel;
     // Extraer emails del cliente (separados por ; o ,)
     const emailString = budgetModel.customerDto.email || '';
@@ -265,12 +267,12 @@ export class ListBudgetComponent implements OnInit {
       .split(/[;,]/)
       .map(e => e.trim())
       .filter(e => e.length > 0);
-    
+
     if (this.availableEmails.length === 0) {
       this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
       return;
     }
-    
+
     // Abrir el modal de selección de emails
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
@@ -278,9 +280,35 @@ export class ListBudgetComponent implements OnInit {
     this.emailSelectorModal.openModal();
   }
 
+  sendEmailBudgetExcelWithConfirm(budgetModel: BudgetModel) {
+    this.emailSendType = 'excel'; // Establecer tipo de envío como Excel
+    this.budgetToSendEmail = budgetModel;
+    // Extraer emails del cliente (separados por ; o ,)
+    const emailString = budgetModel.customerDto.email || '';
+    this.availableEmails = emailString
+      .split(/[;,]/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+
+    if (this.availableEmails.length === 0) {
+      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+      return;
+    }
+
+    // Abrir el modal de selección de emails
+    this.emailSelectorModal.emails = this.availableEmails;
+    this.emailSelectorModal.title = '¡Excel en camino! 📊';
+    this.emailSelectorModal.confirmButtonText = 'Enviar Excel';
+    this.emailSelectorModal.openModal();
+  }
+
   onEmailsSelected(selectedEmails: string[]) {
     this.selectedEmailsToSend = selectedEmails;
-    this.sendEmailbudget();
+    if (this.emailSendType === 'pdf') {
+      this.sendEmailbudget();
+    } else {
+      this.sendEmailBudgetExcel();
+    }
   }
 
   sendEmailbudget() {
@@ -298,6 +326,27 @@ export class ListBudgetComponent implements OnInit {
         this.spinner.hide();
         this.loading = false;
         this.handleError('Error to send Bugets', this.errorToSendEmailMessage);
+      }
+    );
+    this.budgetToSendEmail = new BudgetModel;
+    this.selectedEmailsToSend = [];
+  }
+
+  sendEmailBudgetExcel() {
+    this.spinner.show()
+    this.loading = true;
+    var request = new SendBudgetPdfRequest(this.budgetToSendEmail, this.selectedEmailsToSend);
+    this.budgetService.sendEmailBudgetExcel(request).subscribe(
+      (response: any) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+        this.showModal(false, this.successSendBusgetMessage, this.successSendBusgetTitle,)
+      },
+      (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleError('Error to send Budget Excel', this.errorToSendEmailMessage);
       }
     );
     this.budgetToSendEmail = new BudgetModel;
@@ -468,9 +517,14 @@ export class ListBudgetComponent implements OnInit {
         command: () => this.openMergeDialog(budget)
       },
       {
-        label: 'Enviar',
+        label: 'Enviar PDF',
         icon: 'pi pi-send',
         command: () => this.sendEmailBudgetWithComfirm(budget)
+      },
+      {
+        label: 'Enviar Excel',
+        icon: 'pi pi-file-excel',
+        command: () => this.sendEmailBudgetExcelWithConfirm(budget)
       },
       {
         separator: true
