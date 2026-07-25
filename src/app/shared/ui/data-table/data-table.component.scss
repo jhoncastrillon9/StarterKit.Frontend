@@ -1,0 +1,59 @@
+@use '../_dc-tokens' as dc;
+
+:host { display: block; font-family: dc.$dc-font-body; color: dc.$dc-text; }
+
+.dc-table { display: flex; flex-direction: column; gap: 14px; }
+
+.dc-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: dc.$dc-primary; border-radius: 14px; padding: 14px 18px;
+  &__left { display: flex; align-items: center; gap: 12px; }
+  &__icon {
+    width: 34px; height: 34px; border-radius: 9px; background: rgba(255,255,255,.16);
+    display: flex; align-items: center; justify-content: center;
+    font-family: dc.$dc-font-head; font-weight: 800; font-size: 15px; color: #fff;
+  }
+  &__title { font-family: dc.$dc-font-head; font-weight: 800; font-size: 19px; color: #fff; letter-spacing: -.2px; }
+  &__subtitle { font-size: 12px; color: rgba(255,255,255,.72); font-weight: 600; }
+  &__actions { display: flex; align-items: center; gap: 8px; }
+}
+
+.dc-kpis { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.dc-card {
+  background: #fff; border: 1px solid dc.$dc-border; border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(24,20,45,.05); overflow: hidden;
+}
+
+.dc-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dc-search {
+  position: relative; flex: 0 1 320px; display: flex; align-items: center;
+  &__icon { position: absolute; left: 11px; font-size: 13px; color: #a09ab5; }
+  input {
+    width: 100%; height: 34px; padding: 0 12px 0 28px; border-radius: 8px;
+    border: 1px solid #e2e0ec; background: #fafafc; font-family: dc.$dc-font-body;
+    font-size: 13px; color: dc.$dc-text; outline: none;
+    &:focus { border-color: #a78bfa; background: #fff; }
+  }
+}
+.dc-toolbar__count { margin-left: auto; font-size: 12px; font-weight: 600; color: #8b85a1; }
+
+// ---- p-table theming, scoped under :host so it never leaks to the Lara-blue app ----
+:host ::ng-deep .dc-datatable {
+  .p-datatable-thead > tr > th {
+    background: #fafafc; border-bottom: 1px solid #ebe9f3; color: #8b85a1;
+    font-family: dc.$dc-font-body; font-size: 10.5px; font-weight: 800;
+    letter-spacing: .09em; text-transform: uppercase; padding: 9px 14px;
+  }
+  .p-datatable-tbody > tr { transition: background .12s ease; }
+  .p-datatable-tbody > tr:hover { background: #faf9ff; }
+  .p-datatable-tbody > tr > td { border-bottom: 1px solid #f2f1f7; padding: 8px 14px; font-size: 13px; }
+  .p-sortable-column.p-highlight,
+  .p-sortable-column.p-highlight .p-sortable-column-icon { color: dc.$dc-primary-dark; }
+  .p-paginator {
+    background: #fafafc; border-top: 1px solid #efedf5;
+    .p-highlight { background: dc.$dc-primary; color: #fff; }
+  }
+  .align-right { text-align: right; }
+  .align-center { text-align: center; }
+}

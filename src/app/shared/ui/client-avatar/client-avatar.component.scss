@@ -1,0 +1,7 @@
+@use '../_dc-tokens' as dc;
+
+.dc-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex: none; border-radius: 6px;
+  font-family: dc.$dc-font-head; font-size: 10px; font-weight: 800; line-height: 1;
+}

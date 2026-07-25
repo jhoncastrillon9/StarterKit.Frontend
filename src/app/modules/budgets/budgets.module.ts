@@ -111,6 +111,12 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { SharedModule as CustomSharedModulePipes } from '../../shared.module';
 import { CustomSharedModule } from '../../shared/shared.module';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
+import { KpiCardComponent } from 'src/app/shared/ui/kpi-card/kpi-card.component';
+import { FilterChipsComponent } from 'src/app/shared/ui/filter-chips/filter-chips.component';
+import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.component';
+import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-avatar.component';
 
 import {
   AlertModule,
@@ -171,7 +177,13 @@ import {
     MenuModule,
     CalendarModule,
     DialogModule,
-    PrimeToastModule
+    PrimeToastModule,
+    DataTableComponent,
+    DataTableColumnDirective,
+    KpiCardComponent,
+    FilterChipsComponent,
+    StatusPillComponent,
+    ClientAvatarComponent,
   ],
   providers: [MessageService]
 })

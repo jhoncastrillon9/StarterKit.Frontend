@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { BudgetModel } from '../models/budget.Model';
 import { SendBudgetPdfRequest } from '../models/sendBudgetRequest';
 import { BudgetService } from '../services/budget.service';
@@ -9,13 +9,14 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { MessageService } from 'primeng/api';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { Table, TableModule } from 'primeng/table';
-import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 
 
 
@@ -52,6 +53,52 @@ export class ListBudgetComponent implements OnInit {
   messageModal: string = this.successDeleteMessage;
 
   searchValue: string | undefined;
+
+  activeStatusFilter: string = 'Todas';
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'internalCode', header: 'Codigo', sortable: true, sortField: 'budgetId' },
+    { field: 'date', header: 'Fecha', sortable: true },
+    { field: 'budgetName', header: 'Obra', sortable: true },
+    { field: 'customerDto.customerName', header: 'Cliente', sortable: true },
+    { field: 'externalInvoice', header: 'Factura', sortable: true },
+    { field: 'estado', header: 'Estado', sortable: true },
+    { field: 'total', header: 'Total', sortable: true, align: 'right' },
+    { field: 'acciones', header: 'Acciones', align: 'right' },
+  ];
+
+  /** 'Todas' = all; 'Facturadas' = has external invoice; else exact estado. */
+  private matchesStatus(b: BudgetModel, status: string): boolean {
+    if (status === 'Todas') return true;
+    if (status === 'Facturadas') return !!b.externalInvoice && b.externalInvoice !== '0' && b.externalInvoice !== '';
+    return b.estado === status;
+  }
+
+  get filteredBudgets(): BudgetModel[] {
+    return this.budgets.filter(b => this.matchesStatus(b, this.activeStatusFilter));
+  }
+
+  get kpiCards(): KpiDef[] {
+    return [
+      { key: 'Todas',      label: 'Total Cotizaciones', value: this.budgets.length,               dotColor: '#6d28d9' },
+      { key: 'Aprobada',   label: 'Aprobadas',          value: this.getCountByStatus('Aprobada'), dotColor: '#1aa35c' },
+      { key: 'Cotizada',   label: 'Cotizadas',          value: this.getCountByStatus('Cotizada'), dotColor: '#f0a500' },
+      { key: 'Facturadas', label: 'Facturadas',         value: this.getCountWithInvoice(),        dotColor: '#12a0d8' },
+    ];
+  }
+
+  get chipOptions(): ChipOption[] {
+    return [
+      { label: 'Todas',     value: 'Todas',     count: this.budgets.length },
+      { label: 'Cotizada',  value: 'Cotizada',  count: this.getCountByStatus('Cotizada') },
+      { label: 'Aprobada',  value: 'Aprobada',  count: this.getCountByStatus('Aprobada') },
+      { label: 'Facturada', value: 'Facturada', count: this.getCountByStatus('Facturada') },
+    ];
+  }
+
+  onKpiClick(key: string): void { this.activeStatusFilter = key; }
+  onChipChange(value: string): void { this.activeStatusFilter = value; }
+
   loading: boolean = true;
   budgets: BudgetModel[] = [];
   menuItems: MenuItem[] = [];
