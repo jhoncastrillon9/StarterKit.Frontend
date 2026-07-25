@@ -263,8 +263,8 @@
                 />
               </div>
 
-              <!-- N.º de factura -->
-              <div class="nc-field">
+              <!-- N.º de factura (solo al editar) -->
+              <div class="nc-field" *ngIf="budgetId">
                 <label class="nc-label" for="externalInvoice">N.º de factura</label>
                 <input
                   id="externalInvoice"
