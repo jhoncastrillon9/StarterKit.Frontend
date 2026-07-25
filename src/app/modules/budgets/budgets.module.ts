@@ -57,6 +57,8 @@ import { ListboxModule } from 'primeng/listbox';
 import { MegaMenuModule } from 'primeng/megamenu';
 import { MenuModule } from 'primeng/menu';
 import { MenubarModule } from 'primeng/menubar';
+import { ToastModule as PrimeToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -168,7 +170,9 @@ import {
     DropdownModule,
     MenuModule,
     CalendarModule,
-    DialogModule
-  ]
+    DialogModule,
+    PrimeToastModule
+  ],
+  providers: [MessageService]
 })
 export class BudgetsModule { }

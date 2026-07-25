@@ -1089,3 +1089,48 @@ $transition: all 0.3s ease;
     }
   }
 }
+
+// ========================================
+// FEEDBACK SUTIL AL EDITAR ESTADO / FACTURA
+// ========================================
+
+// Envuelve el dropdown de estado + su indicador para alinearlos en línea
+.status-cell-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+// La celda de factura muestra valor + indicador en línea
+.td-invoice {
+  .inline-saving-spinner,
+  .saved-check {
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+}
+
+// Spinner pequeño mientras guarda
+.inline-saving-spinner {
+  font-size: 0.85rem;
+  color: $primary-color;
+}
+
+// Chulito verde de confirmación (móvil). Oculto en desktop: allí se usa el toast.
+.saved-check {
+  font-size: 0.85rem;
+  color: $success-color;
+  animation: saved-check-pop 0.25s ease-out;
+}
+
+@keyframes saved-check-pop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (min-width: 768px) {
+  .saved-check {
+    display: none;
+  }
+}
