@@ -15,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
+import { OverlayPanel } from 'primeng/overlaypanel';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 
@@ -31,6 +32,8 @@ export class ListBudgetComponent implements OnInit {
   @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
   @ViewChild('menu') menu!: Menu;
   @ViewChild('statusMenu') statusMenu!: Menu;
+  @ViewChild('estadoPanel') estadoPanel!: OverlayPanel;
+  @ViewChild('accionesPanel') accionesPanel!: OverlayPanel;
   isModalError: boolean = false;
   private readonly successDeleteMessage: string = "¡La cotización ha sido eliminada correctamente!";
   private readonly successSendBusgetMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
@@ -152,6 +155,12 @@ export class ListBudgetComponent implements OnInit {
     { label: 'Facturada', value: 'Facturada' },
     { label: 'Pagada', value: 'Pagada' }
   ];
+
+  // Colores del punto por estado (consistentes con el pill del diseño)
+  private statusDotColors: { [k: string]: string } = {
+    'Cotizada': '#f0a500', 'Aprobada': '#1aa35c', 'Facturada': '#12a0d8',
+    'Rechazada': '#e5484d', 'En Desarrollo': '#ff9800', 'Finalizado': '#2e7d32', 'Pagada': '#9333ea',
+  };
 
 
   // Propiedades para grabación de audio con IA
@@ -556,25 +565,51 @@ export class ListBudgetComponent implements OnInit {
     console.log('show notify');
   }
 
-  // Abre el listado de estados como menú popup anclado al pill (sin p-dropdown)
+  // Abre el panel custom de estado (diseño Claude) anclado al pill
   openStatusMenu(event: Event, budget: BudgetModel) {
-    this.statusMenuItems = this.statusOptions.map(option => ({
-      label: option.label,
-      icon: this.getStatusIcon(option.value),
-      command: () => {
-        if (budget.estado !== option.value) {
-          budget.estado = option.value;
-          this.onStatusChange(budget);
-        }
-      }
-    }));
-    this.statusMenu.toggle(event);
+    this.currentBudget = budget;
+    this.estadoPanel.toggle(event);
   }
 
+  getStatusDot(estado: string): string {
+    return this.statusDotColors[estado] || '#9a94ad';
+  }
+
+  selectStatus(value: string) {
+    const budget = this.currentBudget;
+    if (budget && budget.estado !== value) {
+      budget.estado = value;
+      this.onStatusChange(budget);
+    }
+  }
+
+  statusNote(): string {
+    return this.currentBudget?.estado === 'Facturada'
+      ? 'Al facturar se pide el número de factura.'
+      : 'El cambio queda en el historial de la cotización.';
+  }
+
+  // Abre el panel custom de acciones (diseño Claude) anclado al botón ⋯
   onMenuClick(event: Event, budget: BudgetModel) {
     this.currentBudget = budget;
-    this.menuItems = this.getMenuItems(budget);
-    this.menu.toggle(event);
+    this.accionesPanel.toggle(event);
+  }
+
+  // Items del menú de acciones con el estilo del diseño (icono + label + hint)
+  actionMenu: Array<{ label: string; icon: string; iconClass: string; itemClass: string; hint: string; run: (b: BudgetModel) => void }> = [
+    { label: 'Editar',               icon: '✎', iconClass: '',               itemClass: '',                     hint: '',       run: (b) => this.router.navigate(['/budgets/update', b.budgetId]) },
+    { label: 'Duplicar',             icon: '⧉', iconClass: '',               itemClass: '',                     hint: '',       run: (b) => this.copybudget(b) },
+    { label: 'Descargar PDF',        icon: 'P', iconClass: 'dc-icon-pdf',    itemClass: '',                     hint: '',       run: (b) => this.downloadBudget(b) },
+    { label: 'Descargar Excel',      icon: 'X', iconClass: 'dc-icon-xls',    itemClass: '',                     hint: '',       run: (b) => this.downloadExcel(b) },
+    { label: 'Descargar Cronograma', icon: '◷', iconClass: '',               itemClass: '',                     hint: '',       run: (b) => this.openScheduleDialog(b) },
+    { label: 'Unir Cotizaciones',    icon: '⊕', iconClass: 'dc-icon-accent', itemClass: 'dc-menu-item--accent', hint: '',       run: (b) => this.openMergeDialog(b) },
+    { label: 'Enviar PDF',           icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetWithComfirm(b) },
+    { label: 'Enviar Excel',         icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetExcelWithConfirm(b) },
+  ];
+
+  runAction(item: { run: (b: BudgetModel) => void }, panel: OverlayPanel) {
+    if (this.currentBudget) item.run(this.currentBudget);
+    panel.hide();
   }
 
   getMenuItems(budget: BudgetModel): MenuItem[] {

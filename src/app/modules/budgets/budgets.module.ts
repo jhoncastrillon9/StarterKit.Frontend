@@ -175,6 +175,7 @@ import {
     BadgeModule,
     DropdownModule,
     MenuModule,
+    OverlayPanelModule,
     CalendarModule,
     DialogModule,
     PrimeToastModule,

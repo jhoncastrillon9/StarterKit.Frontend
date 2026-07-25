@@ -122,8 +122,43 @@
   </app-data-table>
 
   <!-- Context menu (preserved) -->
-  <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
-  <p-menu #statusMenu [model]="statusMenuItems" [popup]="true" appendTo="body" styleClass="status-menu"></p-menu>
+  <!-- Panel de estado (diseño Claude): dot + opción + check, con nota -->
+  <p-overlayPanel #estadoPanel appendTo="body" styleClass="dc-menu-panel">
+    <div class="dc-menu dc-menu--status" *ngIf="currentBudget as b">
+      <div class="dc-menu__title">Cambiar estado</div>
+      <button *ngFor="let opt of statusOptions" type="button" class="dc-status-opt"
+        [class.dc-status-opt--active]="b.estado === opt.value"
+        (click)="selectStatus(opt.value); estadoPanel.hide()">
+        <span class="dc-status-opt__dot" [style.background]="getStatusDot(opt.value)"></span>
+        <span class="dc-status-opt__label">{{ opt.label }}</span>
+        <span class="dc-status-opt__check" *ngIf="b.estado === opt.value">✓</span>
+      </button>
+      <div class="dc-menu__sep"></div>
+      <div class="dc-menu__note">{{ statusNote() }}</div>
+    </div>
+  </p-overlayPanel>
+
+  <!-- Panel de acciones (diseño Claude): cabecera + items + eliminar -->
+  <p-overlayPanel #accionesPanel appendTo="body" styleClass="dc-menu-panel">
+    <div class="dc-menu dc-menu--actions" *ngIf="currentBudget as b">
+      <div class="dc-menu__header">
+        <span class="dc-menu__code">{{ b.internalCode }} · $ {{ b.total.toLocaleString('es-ES', { maximumFractionDigits: 0 }) }}</span>
+        <span class="dc-menu__obra">{{ b.budgetName | capitalize }}</span>
+      </div>
+      <button *ngFor="let m of actionMenu" type="button" class="dc-menu-item" [ngClass]="m.itemClass"
+        (click)="runAction(m, accionesPanel)">
+        <span class="dc-menu-item__icon" [ngClass]="m.iconClass">{{ m.icon }}</span>
+        <span class="dc-menu-item__label">{{ m.label }}</span>
+        <span class="dc-menu-item__hint" *ngIf="m.hint">{{ m.hint }}</span>
+      </button>
+      <div class="dc-menu__sep"></div>
+      <button type="button" class="dc-menu-item dc-menu-item--danger"
+        (click)="deleteBudgetWithComfirm(b); accionesPanel.hide()">
+        <span class="dc-menu-item__icon">×</span>
+        <span class="dc-menu-item__label">Eliminar cotización</span>
+      </button>
+    </div>
+  </p-overlayPanel>
 </div>
 
 <!-- Modal de confirmacion -->

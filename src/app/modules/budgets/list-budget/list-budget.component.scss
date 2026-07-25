@@ -245,6 +245,79 @@ $transition: all 0.3s ease;
   &:hover .dc-pill { filter: brightness(0.97); }
 }
 
+// ============================================
+// PANELES CUSTOM (Estado / Acciones) - diseño Claude
+// Se renderizan en <body> via p-overlayPanel; estilos globales (encapsulation None)
+// ============================================
+.dc-menu-panel.p-overlaypanel {
+  border: 1px solid #e4e1ee;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(24, 20, 45, .18);
+  margin-top: 6px;
+
+  .p-overlaypanel-content { padding: 6px; }
+  &::after, &::before { display: none; } // quitar la flechita
+}
+
+.dc-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Nunito Sans', system-ui, sans-serif;
+
+  &--status  { width: 214px; }
+  &--actions { width: 232px; gap: 1px; }
+
+  &__title {
+    padding: 5px 8px 3px;
+    font-size: 9.5px; font-weight: 800; letter-spacing: .09em;
+    text-transform: uppercase; color: #a09ab5;
+  }
+  &__header {
+    padding: 6px 9px 5px;
+    display: flex; flex-direction: column; gap: 1px;
+    border-bottom: 1px solid #f0eef6; margin-bottom: 4px;
+  }
+  &__code { font-family: 'Nunito', system-ui, sans-serif; font-size: 13px; font-weight: 800; color: #1f1b2e; }
+  &__obra { font-size: 11px; font-weight: 600; color: #a09ab5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 214px; }
+  &__sep  { height: 1px; background: #f0eef6; margin: 4px 2px; }
+  &__note { padding: 2px 9px 5px; font-size: 11px; font-weight: 600; color: #a09ab5; line-height: 1.35; }
+}
+
+.dc-status-opt {
+  display: flex; align-items: center; gap: 9px; width: 100%; height: 34px; padding: 0 9px;
+  border: none; border-radius: 8px; cursor: pointer; background: transparent;
+  font-family: 'Nunito Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: #4b4560; text-align: left;
+
+  &:hover { background: #f5f3ff; }
+  &--active { background: #f5f3ff; color: #5b21b6; }
+  &__dot   { width: 8px; height: 8px; flex: none; border-radius: 50%; }
+  &__label { flex: 1; }
+  &__check { font-size: 11px; color: #6d28d9; }
+}
+
+.dc-menu-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; padding: 0 9px;
+  border: none; border-radius: 8px; cursor: pointer; background: transparent;
+  font-family: 'Nunito Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: #3b3552; text-align: left;
+
+  &:hover { background: #f5f3ff; }
+  &__icon  { width: 18px; flex: none; text-align: center; font-size: 11px; font-weight: 800; color: #7c7691; }
+  &__label { flex: 1; }
+  &__hint  { font-size: 10.5px; font-weight: 600; color: #c2bed0; }
+
+  &--accent { color: #5b21b6; &:hover { background: #f1eefe; } }
+  &--danger {
+    color: #c0392b;
+    &:hover { background: #fdeeee; }
+    .dc-menu-item__icon { color: #c0392b; font-size: 12px; }
+  }
+
+  .dc-icon-pdf    { color: #c0392b; }
+  .dc-icon-xls    { color: #15703f; }
+  .dc-icon-accent { color: #6d28d9; }
+}
+
 // Report Badge
 .report-badge {
   display: inline-flex;
