@@ -1,7 +1,9 @@
 <div class="dc-table">
   <div class="dc-header">
     <div class="dc-header__left">
-      <div class="dc-header__icon">$</div>
+      <div class="dc-header__icon">
+        @if (headerIcon()) { <i [class]="headerIcon()"></i> } @else { $ }
+      </div>
       <div class="dc-header__text">
         <div class="dc-header__title">{{ title() }}</div>
         @if (subtitle()) { <div class="dc-header__subtitle">{{ subtitle() }}</div> }

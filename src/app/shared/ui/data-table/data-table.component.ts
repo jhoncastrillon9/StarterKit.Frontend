@@ -24,6 +24,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   rowKey = input<string>('');
   title = input<string>('');
   subtitle = input<string>('');
+  headerIcon = input<string>('');
   kpis = input<KpiDef[]>([]);
   activeKpi = input<string>('');
   chips = input<ChipOption[]>([]);
