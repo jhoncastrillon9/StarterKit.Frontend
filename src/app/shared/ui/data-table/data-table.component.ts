@@ -29,6 +29,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   chips = input<ChipOption[]>([]);
   activeChip = input<string>('');
   searchPlaceholder = input<string>('Buscar…');
+  showSearch = input<boolean>(true);
   globalFilterFields = input<string[]>([]);
   rows = input<number>(20);
   rowsPerPageOptions = input<number[]>([20, 40, 60, 100]);
@@ -91,17 +92,37 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   setPageSize(n: number): void {
     this.pageSize.set(n);
     this.first.set(0);
+    if (this.lazy()) this.emitLazy();
   }
 
   prevPage(): void {
     this.first.set(Math.max(0, this.first() - this.pageSize()));
+    if (this.lazy()) this.emitLazy();
   }
 
   nextPage(dt: Table): void {
-    if (!this.isLastPage(dt)) this.first.set(this.first() + this.pageSize());
+    if (this.isLastPage(dt)) return;
+    this.first.set(this.first() + this.pageSize());
+    if (this.lazy()) this.emitLazy();
+  }
+
+  /** Reinicia a la primera página. Llamar al aplicar/limpiar filtros server-side. */
+  resetToFirstPage(): void {
+    this.first.set(0);
+    if (this.lazy()) this.emitLazy();
+  }
+
+  private emitLazy(): void {
+    this.lazyLoad.emit({
+      first: this.first(),
+      rows: this.pageSize(),
+      sortField: this.sortField() || undefined,
+      sortOrder: this.sortOrder(),
+    });
   }
 
   totalCount(dt: Table): number {
+    if (this.lazy()) return this.totalRecords();
     const filtered = (dt as unknown as { filteredValue?: unknown[] | null }).filteredValue;
     return filtered ? filtered.length : (this.value()?.length ?? 0);
   }

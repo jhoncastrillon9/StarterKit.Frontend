@@ -5,10 +5,11 @@ import { IconSetService } from '@coreui/icons-angular';
 import { Router } from '@angular/router';
 import { cilReload, cilZoom, cilHistory } from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { Subscription } from 'rxjs';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-list-budget-history',
@@ -18,7 +19,17 @@ import { Subscription } from 'rxjs';
 })
 export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
-  
+  @ViewChild('dt') dataTable!: DataTableComponent;
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'internalCode', header: 'Codigo', align: 'center' },
+    { field: 'fecha', header: 'Fecha' },
+    { field: 'budgetName', header: 'Obra' },
+    { field: 'estado', header: 'Estado' },
+    { field: 'logCambio', header: 'Log de Cambio' },
+    { field: 'acciones', header: 'Acciones', align: 'right' },
+  ];
+
   private readonly successRestoreMessage: string = "¡El presupuesto ha sido restaurado correctamente!";
   private readonly successRestoreTitle: string = "¡Restauración Completada!";
   private readonly errorGeneralMessage: string = "Algo salió mal. Por favor, intenta de nuevo más tarde. Si el problema persiste, no dudes en contactar con el soporte técnico o intenta refrescar la página";
@@ -66,15 +77,14 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  clear(table: Table) {
-    table.clear();
+  clear() {
     this.searchValue = '';
     this.internalCodeFilter = null;
     this.logCambioFilter = "";
     this.fromDateFilter = null;
     this.toDateFilter = null;
     this.filterRequest = new BudgetHistoryFilterRequest();
-    this.loadHistory();
+    if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadHistory(); }
   }
 
   loadHistory(event?: any) {
@@ -109,7 +119,7 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
 
   applyFilters() {
     this.filterRequest.page = 1; // Resetear a la primera página al aplicar filtros
-    this.loadHistory();
+    if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadHistory(); }
   }
 
   restoreBudgetWithConfirm(history: BudgetHistoryModel) {

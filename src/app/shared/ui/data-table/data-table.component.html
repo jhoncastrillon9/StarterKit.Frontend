@@ -26,24 +26,30 @@
       [rowsPerPageOptions]="rowsPerPageOptions()" [globalFilterFields]="globalFilterFields()"
       [sortField]="sortField()" [sortOrder]="sortOrder()" [rowHover]="true"
       [dataKey]="rowKey()" [lazy]="lazy()" [totalRecords]="totalRecords()"
-      (onLazyLoad)="onLazy($event)" (onPage)="onPage($event)"
+      (onPage)="onPage($event)"
       [currentPageReportTemplate]="currentPageReportTemplate()"
       styleClass="dc-datatable" [tableStyle]="{ 'min-width': '60rem' }">
 
-      <ng-template pTemplate="caption">
-        <div class="dc-toolbar">
-          <div class="dc-search">
-            <span class="dc-search__icon">⌕</span>
-            <input pInputText type="text" [placeholder]="searchPlaceholder()"
-              (input)="onSearch(dt, $any($event.target).value)" />
+      @if (showSearch() || chips().length) {
+        <ng-template pTemplate="caption">
+          <div class="dc-toolbar">
+            @if (showSearch()) {
+              <div class="dc-search">
+                <span class="dc-search__icon">⌕</span>
+                <input pInputText type="text" [placeholder]="searchPlaceholder()"
+                  (input)="onSearch(dt, $any($event.target).value)" />
+              </div>
+            }
+            @if (chips().length) {
+              <app-filter-chips [options]="chips()" [value]="activeChip()"
+                (valueChange)="chipChange.emit($event)"></app-filter-chips>
+            }
+            @if (!lazy()) {
+              <span class="dc-toolbar__count">{{ value().length }} visibles</span>
+            }
           </div>
-          @if (chips().length) {
-            <app-filter-chips [options]="chips()" [value]="activeChip()"
-              (valueChange)="chipChange.emit($event)"></app-filter-chips>
-          }
-          <span class="dc-toolbar__count">{{ value().length }} visibles</span>
-        </div>
-      </ng-template>
+        </ng-template>
+      }
 
       <ng-template pTemplate="header">
         <tr>
