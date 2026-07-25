@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
@@ -16,6 +16,7 @@ import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import { STATUS_COLORS } from 'src/app/shared/ui/status-pill/status-pill.component';
 import * as _ from 'lodash';
 
 
@@ -111,6 +112,15 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   estadoOptions = BUDGET_ESTADOS;
 
+  // ===== UI state para dropdowns del rediseño =====
+  // Misma paleta de puntos de color usada por app-status-pill (STATUS_COLORS)
+  private readonly neutralDotColor = '#9a94ad';
+
+  estadoOpen = false;
+  pagoOpen = false;
+  pagoCustom = false;
+  pagoOptions: string[] = ['Contado', '50% anticipo', 'Crédito 30 días', 'Crédito 60 días'];
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -180,6 +190,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.updateAmount();
             this.spinner.hide();
           }
+          this.initPagoMode();
         }, (error) => {
           this.spinner.hide();
           this.handleError('Load Data', this.errorGeneralMessage);
@@ -191,6 +202,7 @@ export class AddUpdateBudgetComponent implements OnInit {
         this.budgetForm.patchValue({
           estado: 'Cotizada'
         });
+        this.initPagoMode();
       }
     });
 
@@ -924,6 +936,72 @@ export class AddUpdateBudgetComponent implements OnInit {
     
     this.draggedIndex = null;
     this.dragOverIndex = null;
+  }
+
+  // ===================== UI del rediseño (dropdowns / notas) =====================
+
+  /** Cierra los paneles flotantes al hacer click fuera. */
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.estadoOpen = false;
+    this.pagoOpen = false;
+  }
+
+  /** Color del punto para un estado (misma paleta que app-status-pill). */
+  estadoColor(estado: string | null | undefined): string {
+    if (!estado) {
+      return this.neutralDotColor;
+    }
+    return STATUS_COLORS[estado]?.dot ?? this.neutralDotColor;
+  }
+
+  toggleEstado(event: Event) {
+    event.stopPropagation();
+    this.estadoOpen = !this.estadoOpen;
+    this.pagoOpen = false;
+  }
+
+  selectEstado(estado: string) {
+    this.budgetForm.get('estado')?.setValue(estado);
+    this.budgetForm.get('estado')?.markAsDirty();
+    this.estadoOpen = false;
+  }
+
+  togglePago(event: Event) {
+    event.stopPropagation();
+    this.pagoOpen = !this.pagoOpen;
+    this.estadoOpen = false;
+  }
+
+  selectPago(option: string) {
+    this.budgetForm.get('wayToPay')?.setValue(option);
+    this.budgetForm.get('wayToPay')?.markAsDirty();
+    this.pagoCustom = false;
+    this.pagoOpen = false;
+  }
+
+  /** Activa el modo de texto libre para la forma de pago. */
+  enablePagoCustom() {
+    this.pagoCustom = true;
+    this.pagoOpen = false;
+  }
+
+  /** Determina si la forma de pago actual es una opción predefinida o texto libre. */
+  private initPagoMode() {
+    const current = this.budgetForm.get('wayToPay')?.value;
+    this.pagoCustom = !!current && !this.pagoOptions.includes(current);
+  }
+
+  /** Anexa un fragmento de texto al campo de notas. */
+  addSnippet(text: string) {
+    const control = this.budgetForm.get('note');
+    const current = control?.value ? String(control.value) : '';
+    // Solo recorta el espacio en blanco final para conservar el formato interno;
+    // si la nota está vacía, simplemente usa el fragmento.
+    const trimmedTrailing = current.replace(/\s+$/, '');
+    const next = trimmedTrailing ? `${trimmedTrailing}\n${text}` : text;
+    control?.setValue(next);
+    control?.markAsDirty();
   }
 }
 
