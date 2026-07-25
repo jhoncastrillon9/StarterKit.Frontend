@@ -43,6 +43,16 @@
       <i class="fas fa-plus"></i><span>Nueva Cotizacion</span>
     </a>
 
+    <!-- Codigo -->
+    <ng-template dtColumn="internalCode" let-budget>
+      <span class="code-value">{{ budget.internalCode }}</span>
+    </ng-template>
+
+    <!-- Fecha -->
+    <ng-template dtColumn="date" let-budget>
+      <span class="date-value">{{ budget.date | date:'dd MMM yyyy' }}</span>
+    </ng-template>
+
     <!-- Obra -->
     <ng-template dtColumn="budgetName" let-budget>
       <div class="name-wrapper">
@@ -67,7 +77,7 @@
         class="invoice-value" [class.has-invoice]="budget.externalInvoice && budget.externalInvoice !== '0'"
         pTooltip="Clic para editar" tooltipPosition="top">
         <c-badge *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'" color="success">{{ budget.externalInvoice }}</c-badge>
-        <span *ngIf="!budget.externalInvoice || budget.externalInvoice === '0'" class="no-invoice"><i class="far fa-file"></i> Sin factura</span>
+        <span *ngIf="!budget.externalInvoice || budget.externalInvoice === '0'" class="no-invoice">—</span>
       </span>
       <div *ngIf="editingInvoiceBudgetId === budget.budgetId" class="invoice-edit-wrapper">
         <input pInputText [(ngModel)]="editingInvoiceValue" (blur)="saveExternalInvoice(budget)"
@@ -102,9 +112,8 @@
     <ng-template dtColumn="acciones" let-budget>
       <div class="action-buttons">
         <button class="action-btn action-edit" [routerLink]="['/budgets/update', budget.budgetId]" pTooltip="Editar" tooltipPosition="top"><i class="fas fa-pen"></i></button>
-        <button class="action-btn action-pdf" (click)="downloadBudget(budget)" pTooltip="Descargar PDF" tooltipPosition="top"><i class="fas fa-file-pdf"></i></button>
-        <button class="action-btn action-excel" (click)="downloadExcel(budget)" pTooltip="Descargar Excel" tooltipPosition="top"><i class="fas fa-file-excel"></i></button>
-        <button class="action-btn action-copy" (click)="copybudget(budget)" pTooltip="Duplicar" tooltipPosition="top"><i class="fas fa-copy"></i></button>
+        <button class="action-btn action-pdf" (click)="downloadBudget(budget)" pTooltip="Descargar PDF" tooltipPosition="top">PDF</button>
+        <button class="action-btn action-excel" (click)="downloadExcel(budget)" pTooltip="Descargar Excel" tooltipPosition="top">XLS</button>
         <button class="action-btn action-more" (click)="onMenuClick($event, budget)" pTooltip="Mas opciones" tooltipPosition="top"><i class="fas fa-ellipsis-v"></i></button>
       </div>
     </ng-template>

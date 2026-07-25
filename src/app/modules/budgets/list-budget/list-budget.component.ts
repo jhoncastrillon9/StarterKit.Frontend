@@ -57,7 +57,7 @@ export class ListBudgetComponent implements OnInit {
   activeStatusFilter: string = 'Todas';
 
   tableColumns: DataTableColumn[] = [
-    { field: 'internalCode', header: 'Codigo', sortable: true, sortField: 'budgetId' },
+    { field: 'internalCode', header: 'Codigo', sortable: true, sortField: 'budgetId', align: 'center' },
     { field: 'date', header: 'Fecha', sortable: true },
     { field: 'budgetName', header: 'Obra', sortable: true },
     { field: 'customerDto.customerName', header: 'Cliente', sortable: true },

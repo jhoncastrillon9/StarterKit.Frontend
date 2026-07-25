@@ -43,16 +43,25 @@
   .p-datatable-thead > tr > th {
     background: #fafafc; border-bottom: 1px solid #ebe9f3; color: #8b85a1;
     font-family: dc.$dc-font-body; font-size: 10.5px; font-weight: 800;
-    letter-spacing: .09em; text-transform: uppercase; padding: 9px 14px;
+    letter-spacing: .09em; text-transform: uppercase; padding: 7px 14px;
   }
+  // Filas compactas
   .p-datatable-tbody > tr { transition: background .12s ease; }
   .p-datatable-tbody > tr:hover { background: #faf9ff; }
-  .p-datatable-tbody > tr > td { border-bottom: 1px solid #f2f1f7; padding: 8px 14px; font-size: 13px; }
+  .p-datatable-tbody > tr > td { border-bottom: 1px solid #f2f1f7; padding: 4px 14px; font-size: 13px; }
   .p-sortable-column.p-highlight,
   .p-sortable-column.p-highlight .p-sortable-column-icon { color: dc.$dc-primary-dark; }
+  // Paginado más bonito
   .p-paginator {
-    background: #fafafc; border-top: 1px solid #efedf5;
+    background: #fafafc; border-top: 1px solid #efedf5; padding: 8px 14px;
+    .p-paginator-element {
+      min-width: 30px; height: 30px; border-radius: 8px; margin: 0 2px;
+      color: #6f6987; border: 1px solid transparent; transition: all .12s ease;
+    }
+    .p-paginator-element:not(.p-disabled):not(.p-highlight):hover { background: #f1eefe; color: dc.$dc-primary-dark; }
     .p-highlight { background: dc.$dc-primary; color: #fff; }
+    .p-paginator-current { color: #8b85a1; font-size: 12px; font-weight: 600; }
+    .p-dropdown { border-radius: 8px; border-color: #e2e0ec; }
   }
   .align-right { text-align: right; }
   .align-center { text-align: center; }
