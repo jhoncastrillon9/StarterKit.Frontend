@@ -1361,115 +1361,13 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
     justify-content: flex-start;
   }
 
-  // Ítems: de grid a tarjetas — sin scroll horizontal en móvil
-  .nc-items__scroll { overflow-x: visible; }
-  .nc-items { min-width: 0; width: 100%; }
-
-  .nc-items__row--header { display: none; }
-
-  .nc-items__row--item {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 10px;
-    padding: 14px;
-    margin: 12px 14px;
-    border: 1px solid $card-border;
-    border-radius: 12px;
-    background: #fff;
-    box-sizing: border-box;
-    width: auto;
-    max-width: 100%;
-
-    // Todo hijo respeta el ancho de la tarjeta (evita desbordes horizontales).
-    * { box-sizing: border-box; }
-    .nc-input,
-    .nc-select,
-    .nc-input--desc { max-width: 100%; }
-
-    .nc-cell { max-width: 100%; }
-    .nc-cell--handle { display: none; }
-
-    // Header row: "Ítem n" label with actions aligned to the right.
-    .nc-item-mobile-head {
-      flex: 1 1 100%;
-      display: flex;
-      align-items: center;
-      min-height: 28px;
-      padding-right: 64px; // deja espacio para los botones de acción
-    }
-
-    .nc-item-mobile-head__label {
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: $muted;
-    }
-
-    // Duplicate button is always visible on mobile cards.
-    .nc-icon-btn--dup {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .nc-cell__label {
-      display: block;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: $label-color;
-      margin-bottom: 4px;
-    }
-
-    .nc-cell--desc { flex: 1 1 100%; }
-    .nc-cell--unit { flex: 0 0 64px; }
-    .nc-cell--qty  { flex: 0 0 70px; text-align: left; }
-    .nc-cell--price { flex: 1 1 110px; text-align: left; }
-
-    .nc-input--desc,
-    .nc-input--sm { border-color: $input-border; background: #fff; }
-    .nc-input--num { text-align: left; }
-
-    .nc-cell--sub {
-      flex: 1 1 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 10px;
-      border-top: 1px dashed $card-border;
-      text-align: left;
-
-      .nc-cell__label { margin-bottom: 0; }
-      .nc-subtotal { font-size: 15px; }
-    }
-
-    .nc-cell--act {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      gap: 6px;
-    }
-  }
-
-  .nc-items__row--title {
-    grid-template-columns: 1fr 40px;
-    margin: 0;
-    padding: 10px 14px;
-
-    .nc-cell--handle { display: none; }
-    .nc-cell--title-input { grid-column: 1; }
-    .nc-cell--act { grid-column: 2; }
-  }
-
-  .nc-section-subtotal {
-    grid-template-columns: 1fr auto;
-    padding: 10px 14px;
-
-    .nc-cell--handle { display: none; }
-    .nc-section-subtotal__label { grid-column: 1; text-align: left; }
-    .nc-section-subtotal__value { grid-column: 2; }
+  // Ítems: se conserva la MISMA grilla que en escritorio con scroll horizontal
+  // (la base ya define .nc-items { min-width: 720px } y .nc-items__scroll { overflow-x: auto },
+  //  así el usuario se desplaza a la derecha igual que en PC). No se transforma en tarjetas.
+  // En pantallas táctiles no hay hover, así que el botón de duplicar se muestra siempre.
+  .nc-items__row--item .nc-icon-btn--dup {
+    opacity: 1;
+    visibility: visible;
   }
 
   .nc-totals__left { border-right: none; border-bottom: 1px solid $card-border; }
