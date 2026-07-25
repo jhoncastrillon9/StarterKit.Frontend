@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
@@ -16,6 +16,7 @@ import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import { STATUS_COLORS } from 'src/app/shared/ui/status-pill/status-pill.component';
 import * as _ from 'lodash';
 
 
@@ -111,6 +112,23 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   estadoOptions = BUDGET_ESTADOS;
 
+  // ===== UI state para dropdowns del rediseño =====
+  // Misma paleta de puntos de color usada por app-status-pill (STATUS_COLORS)
+  private readonly neutralDotColor = '#9a94ad';
+
+  estadoOpen = false;
+  pagoOpen = false;
+  pagoOptions: string[] = ['Contado', '50% anticipo', 'Crédito 30 días', 'Crédito 60 días'];
+
+  // Forma de pago personalizada (valor libre que se muestra como ítem seleccionable)
+  customPago: string = '';
+  pagoPopupOpen: boolean = false;
+  pagoDraft: string = '';
+
+  // Cliente dropdown (custom, con búsqueda)
+  clienteOpen = false;
+  clienteSearch = '';
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -180,6 +198,7 @@ export class AddUpdateBudgetComponent implements OnInit {
             this.updateAmount();
             this.spinner.hide();
           }
+          this.initPagoMode();
         }, (error) => {
           this.spinner.hide();
           this.handleError('Load Data', this.errorGeneralMessage);
@@ -191,6 +210,7 @@ export class AddUpdateBudgetComponent implements OnInit {
         this.budgetForm.patchValue({
           estado: 'Cotizada'
         });
+        this.initPagoMode();
       }
     });
 
@@ -924,6 +944,132 @@ export class AddUpdateBudgetComponent implements OnInit {
     
     this.draggedIndex = null;
     this.dragOverIndex = null;
+  }
+
+  // ===================== UI del rediseño (dropdowns / notas) =====================
+
+  /** Cierra los paneles flotantes al hacer click fuera. */
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.estadoOpen = false;
+    this.pagoOpen = false;
+    this.clienteOpen = false;
+    // NOTA: pagoPopupOpen NO se cierra aquí. El popup de "Personalizado…" es una
+    // capa tipo modal y sólo se cierra mediante sus botones Guardar/Cancelar.
+  }
+
+  /** Color del punto para un estado (misma paleta que app-status-pill). */
+  estadoColor(estado: string | null | undefined): string {
+    if (!estado) {
+      return this.neutralDotColor;
+    }
+    return STATUS_COLORS[estado]?.dot ?? this.neutralDotColor;
+  }
+
+  toggleEstado(event: Event) {
+    event.stopPropagation();
+    this.estadoOpen = !this.estadoOpen;
+    this.pagoOpen = false;
+  }
+
+  selectEstado(estado: string) {
+    this.budgetForm.get('estado')?.setValue(estado);
+    this.budgetForm.get('estado')?.markAsDirty();
+    this.estadoOpen = false;
+  }
+
+  togglePago(event: Event) {
+    event.stopPropagation();
+    this.pagoOpen = !this.pagoOpen;
+    this.estadoOpen = false;
+  }
+
+  selectPago(option: string) {
+    this.budgetForm.get('wayToPay')?.setValue(option);
+    this.budgetForm.get('wayToPay')?.markAsDirty();
+    this.pagoOpen = false;
+  }
+
+  /** Abre el popup para editar/crear la forma de pago personalizada. */
+  openPagoPopup() {
+    this.pagoDraft = this.customPago || '';
+    this.pagoPopupOpen = true;
+    this.pagoOpen = false;
+  }
+
+  /** Guarda el texto personalizado, lo selecciona como forma de pago y cierra el popup. */
+  savePagoPopup() {
+    const text = (this.pagoDraft || '').trim();
+    if (text) {
+      this.customPago = text;
+      this.budgetForm.get('wayToPay')?.setValue(text);
+      this.budgetForm.get('wayToPay')?.markAsDirty();
+    }
+    this.pagoPopupOpen = false;
+    this.pagoOpen = false;
+  }
+
+  /** Cierra el popup sin aplicar cambios. */
+  cancelPagoPopup() {
+    this.pagoPopupOpen = false;
+  }
+
+  /**
+   * Inicializa el valor personalizado a partir de la forma de pago actual cuando
+   * ésta no corresponde a una de las opciones base. Así el valor por defecto
+   * (wayToPayDefault) aparece como ítem personalizado y seleccionado.
+   */
+  private initPagoMode() {
+    const current = this.budgetForm.get('wayToPay')?.value;
+    this.customPago = (!!current && !this.pagoOptions.includes(current)) ? current : '';
+  }
+
+  // ===================== Cliente (dropdown custom con búsqueda) =====================
+
+  /** Lista de clientes filtrada por el término de búsqueda (case-insensitive). */
+  get filteredCustomers(): CustomerModel[] {
+    const term = this.clienteSearch?.toLowerCase().trim();
+    if (!term) {
+      return this.customers;
+    }
+    return this.customers.filter(c => c.customerName?.toLowerCase().includes(term));
+  }
+
+  /** Nombre del cliente actualmente seleccionado (para el toggle). */
+  get selectedCustomerName(): string {
+    const id = this.budgetForm.get('customerId')?.value;
+    if (id === null || id === undefined || id === '') {
+      return '';
+    }
+    const found = this.customers.find(c => String(c.customerId) === String(id));
+    return found?.customerName || '';
+  }
+
+  toggleCliente(event: Event) {
+    event.stopPropagation();
+    this.clienteOpen = !this.clienteOpen;
+    this.estadoOpen = false;
+    this.pagoOpen = false;
+  }
+
+  selectCliente(customer: CustomerModel) {
+    this.budgetForm.get('customerId')?.setValue(customer.customerId);
+    this.budgetForm.get('customerId')?.markAsDirty();
+    this.budgetForm.get('customerId')?.markAsTouched();
+    this.clienteOpen = false;
+    this.clienteSearch = '';
+  }
+
+  /** Anexa un fragmento de texto al campo de notas. */
+  addSnippet(text: string) {
+    const control = this.budgetForm.get('note');
+    const current = control?.value ? String(control.value) : '';
+    // Solo recorta el espacio en blanco final para conservar el formato interno;
+    // si la nota está vacía, simplemente usa el fragmento.
+    const trimmedTrailing = current.replace(/\s+$/, '');
+    const next = trimmedTrailing ? `${trimmedTrailing}\n${text}` : text;
+    control?.setValue(next);
+    control?.markAsDirty();
   }
 }
 
