@@ -1,6 +1,6 @@
 import {
-  AfterContentInit, Component, ContentChildren, DestroyRef, QueryList,
-  TemplateRef, inject, input, output,
+  AfterContentInit, Component, ContentChildren, DestroyRef, OnInit, QueryList,
+  TemplateRef, inject, input, output, signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TableModule, Table, TableLazyLoadEvent } from 'primeng/table';
@@ -17,7 +17,7 @@ import { FilterChipsComponent, ChipOption } from '../filter-chips/filter-chips.c
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
 })
-export class DataTableComponent implements AfterContentInit {
+export class DataTableComponent implements AfterContentInit, OnInit {
   columns = input<DataTableColumn[]>([]);
   value = input<any[]>([]);
   loading = input<boolean>(false);
@@ -47,6 +47,15 @@ export class DataTableComponent implements AfterContentInit {
   private templates = new Map<string, TemplateRef<{ $implicit: unknown }>>();
   private destroyRef = inject(DestroyRef);
 
+  // Paginación controlada por el footer custom (estilo diseño). p-table sigue
+  // paginando internamente; su paginador nativo se oculta por CSS.
+  readonly first = signal(0);
+  readonly pageSize = signal(20);
+
+  ngOnInit(): void {
+    this.pageSize.set(this.rows());
+  }
+
   ngAfterContentInit(): void {
     this.rebuildTemplateMap();
     const sub = this.columnDirectives.changes.subscribe(() => this.rebuildTemplateMap());
@@ -69,7 +78,44 @@ export class DataTableComponent implements AfterContentInit {
 
   onSearch(dt: Table, value: string): void {
     dt.filterGlobal(value, 'contains');
+    this.first.set(0);
     this.searchChange.emit(value);
+  }
+
+  // ---- Paginación (footer custom) ----
+  onPage(event: { first?: number; rows?: number }): void {
+    this.first.set(event.first ?? 0);
+    if (event.rows) this.pageSize.set(event.rows);
+  }
+
+  setPageSize(n: number): void {
+    this.pageSize.set(n);
+    this.first.set(0);
+  }
+
+  prevPage(): void {
+    this.first.set(Math.max(0, this.first() - this.pageSize()));
+  }
+
+  nextPage(dt: Table): void {
+    if (!this.isLastPage(dt)) this.first.set(this.first() + this.pageSize());
+  }
+
+  totalCount(dt: Table): number {
+    const filtered = (dt as unknown as { filteredValue?: unknown[] | null }).filteredValue;
+    return filtered ? filtered.length : (this.value()?.length ?? 0);
+  }
+
+  rangeStart(dt: Table): number {
+    return this.totalCount(dt) === 0 ? 0 : this.first() + 1;
+  }
+
+  rangeEnd(dt: Table): number {
+    return Math.min(this.first() + this.pageSize(), this.totalCount(dt));
+  }
+
+  isLastPage(dt: Table): boolean {
+    return this.first() + this.pageSize() >= this.totalCount(dt);
   }
 
   onLazy(event: TableLazyLoadEvent): void {

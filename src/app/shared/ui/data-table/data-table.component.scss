@@ -51,18 +51,39 @@
   .p-datatable-tbody > tr > td { border-bottom: 1px solid #f2f1f7; padding: 4px 14px; font-size: 13px; }
   .p-sortable-column.p-highlight,
   .p-sortable-column.p-highlight .p-sortable-column-icon { color: dc.$dc-primary-dark; }
-  // Paginado más bonito
-  .p-paginator {
-    background: #fafafc; border-top: 1px solid #efedf5; padding: 8px 14px;
-    .p-paginator-element {
-      min-width: 30px; height: 30px; border-radius: 8px; margin: 0 2px;
-      color: #6f6987; border: 1px solid transparent; transition: all .12s ease;
-    }
-    .p-paginator-element:not(.p-disabled):not(.p-highlight):hover { background: #f1eefe; color: dc.$dc-primary-dark; }
-    .p-highlight { background: dc.$dc-primary; color: #fff; }
-    .p-paginator-current { color: #8b85a1; font-size: 12px; font-weight: 600; }
-    .p-dropdown { border-radius: 8px; border-color: #e2e0ec; }
-  }
+  // Paginador nativo oculto: usamos el footer custom (.dc-footer)
+  .p-paginator { display: none !important; }
   .align-right { text-align: right; }
   .align-center { text-align: center; }
+}
+
+// Footer de paginación (estilo diseño): filas por página + rango + prev/next
+.dc-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 11px 16px; background: #fafafc; border-top: 1px solid #efedf5; flex-wrap: wrap;
+}
+.dc-footer__group { display: flex; align-items: center; gap: 10px; }
+.dc-footer__label, .dc-footer__range { font-size: 12px; font-weight: 600; color: dc.$dc-muted; }
+.dc-seg { display: inline-flex; gap: 3px; padding: 2px; background: #efedf5; border-radius: 7px; }
+.dc-seg__btn {
+  height: 24px; padding: 0 9px; border: none; border-radius: 5px; cursor: pointer;
+  font-family: dc.$dc-font-body; font-size: 12px; font-weight: 700; background: transparent; color: dc.$dc-muted;
+  &--active { background: #fff; color: dc.$dc-primary-dark; box-shadow: 0 1px 2px rgba(24, 20, 45, .12); }
+}
+.dc-pgbtn {
+  height: 28px; padding: 0 12px; border-radius: 7px; border: 1px solid #e2e0ec; background: #fff;
+  cursor: pointer; font-family: dc.$dc-font-body; font-size: 12px; font-weight: 700; color: #4b4560;
+  transition: border-color .12s ease;
+  &:hover:not(:disabled) { border-color: #c4b5fd; color: dc.$dc-primary-dark; }
+  &:disabled { opacity: .45; cursor: default; }
+}
+
+// ---- Móvil ----
+@media (max-width: 768px) {
+  .dc-header { padding: 12px 14px; }
+  // En móvil: ocultar los chips de filtro; dejar solo el buscador
+  .dc-toolbar app-filter-chips { display: none; }
+  .dc-search { flex: 1 1 100%; }
+  .dc-toolbar__count { display: none; }
+  .dc-footer { gap: 8px; }
 }

@@ -21,11 +21,14 @@ const NEUTRAL: PillColors = { bg: '#f2f1f7', fg: '#5b5670', border: '#e2e0ec', d
     <span class="dc-pill" [style.background]="colors().bg" [style.color]="colors().fg" [style.borderColor]="colors().border">
       <span class="dc-pill__dot" [style.background]="colors().dot"></span>
       <span>{{ status() }}</span>
+      @if (caret()) { <span class="dc-pill__caret">▾</span> }
     </span>
   `,
   styleUrls: ['./status-pill.component.scss'],
 })
 export class StatusPillComponent {
   status = input<string>('');
+  /** When true, renders a subtle dropdown caret inside the pill. */
+  caret = input<boolean>(false);
   colors = computed<PillColors>(() => STATUS_COLORS[this.status()] ?? NEUTRAL);
 }

@@ -15,7 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
-import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 
 
@@ -79,15 +79,6 @@ export class ListBudgetComponent implements OnInit {
     return this.budgets.filter(b => this.matchesStatus(b, this.activeStatusFilter));
   }
 
-  get kpiCards(): KpiDef[] {
-    return [
-      { key: 'Todas',      label: 'Total Cotizaciones', value: this.budgets.length,               dotColor: '#6d28d9' },
-      { key: 'Aprobada',   label: 'Aprobadas',          value: this.getCountByStatus('Aprobada'), dotColor: '#1aa35c' },
-      { key: 'Cotizada',   label: 'Cotizadas',          value: this.getCountByStatus('Cotizada'), dotColor: '#f0a500' },
-      { key: 'Facturadas', label: 'Facturadas',         value: this.getCountWithInvoice(),        dotColor: '#12a0d8' },
-    ];
-  }
-
   get chipOptions(): ChipOption[] {
     return [
       { label: 'Todas',     value: 'Todas',     count: this.budgets.length },
@@ -97,7 +88,6 @@ export class ListBudgetComponent implements OnInit {
     ];
   }
 
-  onKpiClick(key: string): void { this.activeStatusFilter = key; }
   onChipChange(value: string): void { this.activeStatusFilter = value; }
 
   loading: boolean = true;

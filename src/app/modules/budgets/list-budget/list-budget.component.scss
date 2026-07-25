@@ -232,19 +232,12 @@ $transition: all 0.3s ease;
 .status-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   padding: 0;
   border: none;
   background: none;
   cursor: pointer;
 
-  .status-caret {
-    font-size: 9px;
-    color: #b7b2c6;
-    transition: color .15s ease;
-  }
-
-  &:hover .status-caret { color: #8b85a1; }
+  &:hover .dc-pill { filter: brightness(0.97); }
 }
 
 // Report Badge
@@ -587,8 +580,8 @@ $transition: all 0.3s ease;
   }
   
   .action-buttons {
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
   }
   
   .action-btn {

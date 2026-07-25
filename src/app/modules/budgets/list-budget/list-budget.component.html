@@ -8,8 +8,6 @@
     rowKey="budgetId"
     title="Cotizaciones"
     [subtitle]="budgets.length + ' registros'"
-    [kpis]="kpiCards"
-    [activeKpi]="activeStatusFilter"
     [chips]="chipOptions"
     [activeChip]="activeStatusFilter"
     searchPlaceholder="Buscar por codigo, cliente, obra..."
@@ -19,7 +17,6 @@
     sortField="date,budgetId"
     [sortOrder]="-1"
     currentPageReportTemplate="{first} al {last} de {totalRecords} cotizaciones"
-    (kpiClick)="onKpiClick($event)"
     (chipChange)="onChipChange($event)">
 
     <!-- Header actions -->
@@ -93,8 +90,7 @@
       <div class="status-cell-wrapper">
         <button type="button" class="status-trigger" (click)="openStatusMenu($event, budget)"
           pTooltip="Cambiar estado" tooltipPosition="top">
-          <app-status-pill [status]="budget.estado"></app-status-pill>
-          <i class="fas fa-chevron-down status-caret"></i>
+          <app-status-pill [status]="budget.estado" [caret]="true"></app-status-pill>
         </button>
         <i *ngIf="savingStatusId === budget.budgetId" class="pi pi-spin pi-spinner inline-saving-spinner"></i>
         <i *ngIf="savedStatusId === budget.budgetId" class="fas fa-check saved-check"></i>
