@@ -80,10 +80,27 @@
 
 // ---- Móvil ----
 @media (max-width: 768px) {
-  .dc-header { padding: 12px 14px; }
-  // En móvil: ocultar los chips de filtro; dejar solo el buscador
+  // Header: el titulo arriba y las acciones (Crear con IA / Nueva Cotizacion)
+  // en su propia fila, con texto visible.
+  .dc-header {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .dc-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  // Ocultar los chips de filtro; dejar solo el buscador
   .dc-toolbar app-filter-chips { display: none; }
   .dc-search { flex: 1 1 100%; }
   .dc-toolbar__count { display: none; }
-  .dc-footer { gap: 8px; }
+  // Paginado ordenado y centrado (apilado)
+  .dc-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .dc-footer__group { justify-content: center; flex-wrap: wrap; }
 }
