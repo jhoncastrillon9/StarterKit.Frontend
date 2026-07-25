@@ -659,7 +659,7 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
 
 .nc-items__row {
   display: grid;
-  grid-template-columns: 26px minmax(180px, 1fr) 84px 84px 132px 140px 48px;
+  grid-template-columns: 26px minmax(180px, 1fr) 84px 84px 132px 140px 92px;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
@@ -800,20 +800,7 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
   &--del:hover { background: #fdeeee; color: $danger; }
 }
 
-// Desktop: only the delete (×) button is persistent; the duplicate button
-// appears on row hover (and on keyboard focus for accessibility).
-.nc-items__row--item {
-  .nc-icon-btn--dup {
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  &:hover .nc-icon-btn--dup,
-  &:focus-within .nc-icon-btn--dup {
-    opacity: 1;
-    visibility: visible;
-  }
-}
+// Ambos botones (duplicar y eliminar) siempre visibles, en escritorio y móvil.
 
 // Mobile-only card header ("Ítem n") — hidden on desktop grid.
 .nc-item-mobile-head { display: none; }
@@ -1364,11 +1351,6 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
   // Ítems: se conserva la MISMA grilla que en escritorio con scroll horizontal
   // (la base ya define .nc-items { min-width: 720px } y .nc-items__scroll { overflow-x: auto },
   //  así el usuario se desplaza a la derecha igual que en PC). No se transforma en tarjetas.
-  // En pantallas táctiles no hay hover, así que el botón de duplicar se muestra siempre.
-  .nc-items__row--item .nc-icon-btn--dup {
-    opacity: 1;
-    visibility: visible;
-  }
 
   .nc-totals__left { border-right: none; border-bottom: 1px solid $card-border; }
 
