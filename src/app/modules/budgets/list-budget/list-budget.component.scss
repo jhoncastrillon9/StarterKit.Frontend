@@ -227,23 +227,45 @@ $transition: all 0.3s ease;
 }
 
 // Status Dropdown
-// Estado: solo el pill, muy sutil; al hacer click se abre el listado
-::ng-deep .status-dropdown {
+// Estado: solo el pill de color + un caret sutil. El control p-dropdown se
+// colapsa a la altura del pill para NO engordar la fila. Click => opciones.
+::ng-deep .status-dropdown.p-dropdown {
+  display: inline-flex;
+  align-items: center;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: fit-content;
+  padding: 0 !important;
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  min-width: auto !important;
-  width: fit-content;
-
-  .p-dropdown-trigger { display: none !important; }
 
   .p-dropdown-label {
     padding: 0 !important;
-    display: flex;
+    margin: 0 !important;
+    line-height: 1 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: inline-flex;
     align-items: center;
   }
 
-  &:hover .dc-pill { filter: brightness(0.97); }
+  // Caret sutil (icono de despliegue)
+  .p-dropdown-trigger {
+    width: auto !important;
+    padding: 0 2px 0 5px !important;
+    color: #b7b2c6;
+  }
+  .p-dropdown-trigger .p-dropdown-trigger-icon,
+  .p-dropdown-trigger .p-icon,
+  .p-dropdown-trigger svg {
+    width: 9px !important;
+    height: 9px !important;
+    font-size: 9px !important;
+  }
+
+  &:hover .p-dropdown-trigger { color: #8b85a1; }
 }
 
 // Report Badge
