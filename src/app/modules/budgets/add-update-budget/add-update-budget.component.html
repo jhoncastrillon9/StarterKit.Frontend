@@ -26,12 +26,19 @@
             <span class="nc-breadcrumb">
               Cotizaciones / {{ budgetId ? 'Editar' : 'Nueva' }}
             </span>
-            <h1 class="nc-title">
-              {{ internalCode ? 'Cotización #' + internalCode : titlePage }}
-            </h1>
+            <div class="nc-title-row">
+              <h1 class="nc-title">
+                {{ budgetId ? 'Editar cotización' : 'Nueva cotización' }}
+              </h1>
+              <span class="nc-code-badge" *ngIf="internalCode">#{{ internalCode }}</span>
+            </div>
           </div>
         </div>
         <div class="nc-header__right">
+          <span class="nc-date-badge">
+            <i class="far fa-calendar-alt"></i>
+            <span>{{ budgetForm.get('date')?.value ? (budgetForm.get('date')?.value | date:'dd MMM yyyy') : (currentDate | date:'dd MMM yyyy') }}</span>
+          </span>
           <a
             *ngIf="budgetId"
             class="nc-preview-btn"
@@ -60,28 +67,56 @@
           </div>
           <div class="nc-card__body">
             <div class="nc-grid">
-              <!-- Cliente -->
+              <!-- Cliente (custom dropdown con búsqueda) -->
               <div class="nc-field nc-field--wide">
-                <label class="nc-label" for="customerId">Cliente <span class="nc-req">*</span></label>
-                <select
-                  id="customerId"
-                  aria-label="Seleccionar cliente"
-                  cFormControl
-                  cSelect
-                  formControlName="customerId"
-                  class="nc-input nc-select"
-                  [ngClass]="{
-                    'is-invalid':
-                      budgetForm.get('customerId')?.invalid &&
-                      (budgetForm.get('customerId')?.touched ||
-                        budgetForm.get('customerId')?.dirty)
-                  }"
-                >
-                  <option value="" disabled selected>Seleccione un cliente</option>
-                  <option *ngFor="let customer of customers" [value]="customer.customerId">
-                    {{ customer.customerName }}
-                  </option>
-                </select>
+                <label class="nc-label">Cliente <span class="nc-req">*</span></label>
+                <input type="hidden" cFormControl formControlName="customerId" />
+                <div class="nc-dropdown nc-dropdown--cliente" [class.open]="clienteOpen">
+                  <button
+                    type="button"
+                    class="nc-input nc-dropdown__toggle"
+                    aria-label="Seleccionar cliente"
+                    (click)="toggleCliente($event)"
+                    [ngClass]="{
+                      'is-invalid':
+                        budgetForm.get('customerId')?.invalid &&
+                        (budgetForm.get('customerId')?.touched ||
+                          budgetForm.get('customerId')?.dirty)
+                    }"
+                  >
+                    <span class="nc-dropdown__value nc-dropdown__value--text" [class.nc-dropdown__placeholder]="!selectedCustomerName">
+                      {{ selectedCustomerName || 'Seleccione un cliente' }}
+                    </span>
+                    <i class="fas fa-chevron-down nc-dropdown__caret"></i>
+                  </button>
+                  <div class="nc-dropdown__panel nc-dropdown__panel--search" *ngIf="clienteOpen" (click)="$event.stopPropagation()">
+                    <div class="nc-dropdown__search">
+                      <i class="fas fa-search nc-dropdown__search-icon"></i>
+                      <input
+                        type="text"
+                        class="nc-dropdown__search-input"
+                        placeholder="Buscar cliente…"
+                        [(ngModel)]="clienteSearch"
+                        [ngModelOptions]="{ standalone: true }"
+                        (click)="$event.stopPropagation()"
+                      />
+                    </div>
+                    <div class="nc-dropdown__list">
+                      <button
+                        type="button"
+                        class="nc-dropdown__item"
+                        *ngFor="let customer of filteredCustomers"
+                        (click)="selectCliente(customer)"
+                      >
+                        <span class="nc-dropdown__item-label">{{ customer.customerName }}</span>
+                        <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('customerId')?.value == customer.customerId"></i>
+                      </button>
+                      <div class="nc-dropdown__empty" *ngIf="filteredCustomers.length === 0">
+                        Sin resultados
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div
                   class="nc-error"
                   *ngIf="
@@ -123,18 +158,6 @@
                   <i class="fas fa-exclamation-circle"></i>
                   El nombre de la obra o cotización es obligatorio.
                 </div>
-              </div>
-
-              <!-- Fecha -->
-              <div class="nc-field">
-                <label class="nc-label" for="date">Fecha</label>
-                <input
-                  id="date"
-                  cFormControl
-                  type="date"
-                  formControlName="date"
-                  class="nc-input"
-                />
               </div>
 
               <!-- Plazo de entrega -->
@@ -183,18 +206,19 @@
               <!-- Forma de pago (custom dropdown + personalizado) -->
               <div class="nc-field nc-field--wide">
                 <label class="nc-label">Forma de pago</label>
+                <input type="hidden" cFormControl formControlName="wayToPay" />
                 <div class="nc-dropdown" [class.open]="pagoOpen">
                   <button
                     type="button"
                     class="nc-input nc-dropdown__toggle"
                     (click)="togglePago($event)"
                   >
-                    <span class="nc-dropdown__value nc-dropdown__value--text">
-                      {{ pagoCustom ? 'Personalizado…' : (budgetForm.get('wayToPay')?.value || 'Seleccionar forma de pago') }}
+                    <span class="nc-dropdown__value nc-dropdown__value--text" [class.nc-dropdown__placeholder]="!budgetForm.get('wayToPay')?.value">
+                      {{ budgetForm.get('wayToPay')?.value || 'Seleccionar forma de pago' }}
                     </span>
                     <i class="fas fa-chevron-down nc-dropdown__caret"></i>
                   </button>
-                  <div class="nc-dropdown__panel" *ngIf="pagoOpen">
+                  <div class="nc-dropdown__panel" *ngIf="pagoOpen" (click)="$event.stopPropagation()">
                     <button
                       type="button"
                       class="nc-dropdown__item"
@@ -202,26 +226,28 @@
                       (click)="selectPago(op)"
                     >
                       <span class="nc-dropdown__item-label">{{ op }}</span>
-                      <i class="fas fa-check nc-dropdown__check" *ngIf="!pagoCustom && budgetForm.get('wayToPay')?.value === op"></i>
+                      <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('wayToPay')?.value === op"></i>
+                    </button>
+                    <!-- Valor personalizado como ítem seleccionable -->
+                    <button
+                      type="button"
+                      class="nc-dropdown__item"
+                      *ngIf="customPago"
+                      (click)="selectPago(customPago)"
+                    >
+                      <span class="nc-dropdown__item-label">{{ customPago }}</span>
+                      <span class="nc-pago-tag">Personalizado</span>
+                      <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('wayToPay')?.value === customPago"></i>
                     </button>
                     <button
                       type="button"
                       class="nc-dropdown__item nc-dropdown__item--custom"
-                      (click)="enablePagoCustom()"
+                      (click)="openPagoPopup()"
                     >
-                      <span class="nc-dropdown__item-label">Personalizado…</span>
-                      <i class="fas fa-check nc-dropdown__check" *ngIf="pagoCustom"></i>
+                      <span class="nc-dropdown__item-label"><i class="fas fa-pen nc-pago-edit-icon"></i> Personalizado…</span>
                     </button>
                   </div>
                 </div>
-                <input
-                  *ngIf="pagoCustom"
-                  cFormControl
-                  formControlName="wayToPay"
-                  class="nc-input nc-input--custom"
-                  placeholder="Describe la forma de pago"
-                  maxlength="500"
-                />
               </div>
 
               <!-- Validez de oferta -->
@@ -270,21 +296,11 @@
             <div class="nc-items__actions">
               <button type="button" class="nc-ghost-btn" (click)="addBudgetDetailFromAPU()">
                 <i class="fas fa-layer-group"></i>
-                <span>Plantilla</span>
+                <span>Agregar desde APU</span>
               </button>
               <button type="button" class="nc-ghost-btn" (click)="addBudgetDetailFromProduct()">
                 <i class="fas fa-box"></i>
-                <span>Importar</span>
-              </button>
-              <button
-                type="button"
-                class="nc-ghost-btn nc-mic-btn"
-                [class.recording]="isRecording"
-                (click)="toggleRecording()"
-                [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'"
-              >
-                <i class="pi pi-microphone"></i>
-                <span>{{ isRecording ? 'Grabando…' : 'IA' }}</span>
+                <span>Agregar producto</span>
               </button>
             </div>
           </div>
@@ -526,6 +542,16 @@
             <button type="button" class="nc-add-btn" (click)="addTitleRow()">
               <i class="fas fa-plus"></i>
               <span>Capítulo</span>
+            </button>
+            <button
+              type="button"
+              class="nc-add-btn nc-add-btn--ia nc-mic-btn"
+              [class.recording]="isRecording"
+              (click)="toggleRecording()"
+              [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'"
+            >
+              <i class="pi pi-microphone"></i>
+              <span>{{ isRecording ? 'Grabando…' : 'Agregar desde IA' }}</span>
             </button>
           </div>
         </section>
@@ -820,6 +846,33 @@
     </div>
   </div>
 </c-modal>
+
+<!-- ================= Popup Forma de pago personalizada ================= -->
+<div class="nc-pago-popup" *ngIf="pagoPopupOpen" (click)="cancelPagoPopup()">
+  <div class="nc-pago-popup__card" (click)="$event.stopPropagation()">
+    <div class="nc-pago-popup__head">
+      <h5 class="nc-pago-popup__title">Forma de pago personalizada</h5>
+      <button type="button" class="nc-pago-popup__close" (click)="cancelPagoPopup()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="nc-pago-popup__body">
+      <label class="nc-label">Describe la forma de pago</label>
+      <textarea
+        class="nc-input nc-textarea"
+        [(ngModel)]="pagoDraft"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ej: 70% para iniciar, 20% durante la obra y 10% al finalizar"
+        maxlength="500"
+        rows="3"
+      ></textarea>
+    </div>
+    <div class="nc-pago-popup__foot">
+      <button type="button" class="nc-btn nc-btn--ghost" (click)="cancelPagoPopup()">Cancelar</button>
+      <button type="button" class="nc-btn nc-btn--primary" (click)="savePagoPopup()">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal

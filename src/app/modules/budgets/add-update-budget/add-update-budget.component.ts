@@ -118,8 +118,16 @@ export class AddUpdateBudgetComponent implements OnInit {
 
   estadoOpen = false;
   pagoOpen = false;
-  pagoCustom = false;
   pagoOptions: string[] = ['Contado', '50% anticipo', 'Crédito 30 días', 'Crédito 60 días'];
+
+  // Forma de pago personalizada (valor libre que se muestra como ítem seleccionable)
+  customPago: string = '';
+  pagoPopupOpen: boolean = false;
+  pagoDraft: string = '';
+
+  // Cliente dropdown (custom, con búsqueda)
+  clienteOpen = false;
+  clienteSearch = '';
 
   constructor(
     private fb: FormBuilder,
@@ -945,6 +953,9 @@ export class AddUpdateBudgetComponent implements OnInit {
   closeDropdowns() {
     this.estadoOpen = false;
     this.pagoOpen = false;
+    this.clienteOpen = false;
+    // NOTA: pagoPopupOpen NO se cierra aquí. El popup de "Personalizado…" es una
+    // capa tipo modal y sólo se cierra mediante sus botones Guardar/Cancelar.
   }
 
   /** Color del punto para un estado (misma paleta que app-status-pill). */
@@ -976,20 +987,77 @@ export class AddUpdateBudgetComponent implements OnInit {
   selectPago(option: string) {
     this.budgetForm.get('wayToPay')?.setValue(option);
     this.budgetForm.get('wayToPay')?.markAsDirty();
-    this.pagoCustom = false;
     this.pagoOpen = false;
   }
 
-  /** Activa el modo de texto libre para la forma de pago. */
-  enablePagoCustom() {
-    this.pagoCustom = true;
+  /** Abre el popup para editar/crear la forma de pago personalizada. */
+  openPagoPopup() {
+    this.pagoDraft = this.customPago || '';
+    this.pagoPopupOpen = true;
     this.pagoOpen = false;
   }
 
-  /** Determina si la forma de pago actual es una opción predefinida o texto libre. */
+  /** Guarda el texto personalizado, lo selecciona como forma de pago y cierra el popup. */
+  savePagoPopup() {
+    const text = (this.pagoDraft || '').trim();
+    if (text) {
+      this.customPago = text;
+      this.budgetForm.get('wayToPay')?.setValue(text);
+      this.budgetForm.get('wayToPay')?.markAsDirty();
+    }
+    this.pagoPopupOpen = false;
+    this.pagoOpen = false;
+  }
+
+  /** Cierra el popup sin aplicar cambios. */
+  cancelPagoPopup() {
+    this.pagoPopupOpen = false;
+  }
+
+  /**
+   * Inicializa el valor personalizado a partir de la forma de pago actual cuando
+   * ésta no corresponde a una de las opciones base. Así el valor por defecto
+   * (wayToPayDefault) aparece como ítem personalizado y seleccionado.
+   */
   private initPagoMode() {
     const current = this.budgetForm.get('wayToPay')?.value;
-    this.pagoCustom = !!current && !this.pagoOptions.includes(current);
+    this.customPago = (!!current && !this.pagoOptions.includes(current)) ? current : '';
+  }
+
+  // ===================== Cliente (dropdown custom con búsqueda) =====================
+
+  /** Lista de clientes filtrada por el término de búsqueda (case-insensitive). */
+  get filteredCustomers(): CustomerModel[] {
+    const term = this.clienteSearch?.toLowerCase().trim();
+    if (!term) {
+      return this.customers;
+    }
+    return this.customers.filter(c => c.customerName?.toLowerCase().includes(term));
+  }
+
+  /** Nombre del cliente actualmente seleccionado (para el toggle). */
+  get selectedCustomerName(): string {
+    const id = this.budgetForm.get('customerId')?.value;
+    if (id === null || id === undefined || id === '') {
+      return '';
+    }
+    const found = this.customers.find(c => String(c.customerId) === String(id));
+    return found?.customerName || '';
+  }
+
+  toggleCliente(event: Event) {
+    event.stopPropagation();
+    this.clienteOpen = !this.clienteOpen;
+    this.estadoOpen = false;
+    this.pagoOpen = false;
+  }
+
+  selectCliente(customer: CustomerModel) {
+    this.budgetForm.get('customerId')?.setValue(customer.customerId);
+    this.budgetForm.get('customerId')?.markAsDirty();
+    this.budgetForm.get('customerId')?.markAsTouched();
+    this.clienteOpen = false;
+    this.clienteSearch = '';
   }
 
   /** Anexa un fragmento de texto al campo de notas. */

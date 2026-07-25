@@ -85,7 +85,51 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
 
   &__right {
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
+}
+
+// Title + code badge on one row
+.nc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.nc-code-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: $font-head;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// Read-only date pill (top-right)
+.nc-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i { font-size: 12px; opacity: 0.85; }
 }
 
 .nc-back {
@@ -373,6 +417,157 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
   &__check {
     color: $primary;
     font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  &__placeholder { color: $muted; }
+
+  // Panel con buscador + lista scrollable (Cliente)
+  &__panel--search {
+    padding: 8px;
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__search {
+    position: relative;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $muted;
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  &__search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 32px;
+    border: 1px solid $input-border;
+    border-radius: 999px;
+    font-family: $font-body;
+    font-size: 13.5px;
+    color: $body-text;
+    background: #fff;
+
+    &::placeholder { color: $muted; }
+
+    &:focus {
+      outline: none;
+      border-color: $input-focus;
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.22);
+    }
+  }
+
+  &__list {
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  &__empty {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 12.5px;
+    color: $muted;
+  }
+}
+
+// Etiqueta "Personalizado" y icono en la forma de pago
+.nc-pago-tag {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1eefe;
+  color: $primary-hover;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nc-pago-edit-icon {
+  font-size: 11px;
+  margin-right: 4px;
+}
+
+// Popup modal — forma de pago personalizada
+.nc-pago-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(76, 29, 149, 0.35);
+  backdrop-filter: blur(2px);
+
+  &__card {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border-radius: $card-radius;
+    box-shadow: 0 24px 60px rgba(76, 29, 149, 0.32);
+    overflow: hidden;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background: $primary;
+  }
+
+  &__title {
+    margin: 0;
+    color: #fff;
+    font-family: $font-head;
+    font-weight: 800;
+    font-size: 15.5px;
+  }
+
+  &__close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.3); }
+  }
+
+  &__body {
+    padding: 18px;
+
+    .nc-label { display: block; }
+    .nc-textarea { margin-top: 6px; }
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 18px;
+    background: #faf9fc;
+    border-top: 1px solid $card-border;
   }
 }
 
@@ -663,8 +858,9 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
 // ---- Items footer ----
 .nc-items__foot {
   display: flex;
+  justify-content: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   flex-wrap: wrap;
 }
 
@@ -693,6 +889,12 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
     color: $primary-hover;
 
     &:hover { background: #f3eeff; }
+  }
+
+  &--ia {
+    border-style: solid;
+
+    i { font-size: 13px; }
   }
 }
 
@@ -1147,9 +1349,21 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
 
   .nc-title { font-size: 15.5px; }
 
-  // Ítems: de grid a tarjetas
+  // Cabecera de la tarjeta de ítems: permite que los botones (APU / Producto)
+  // bajen de línea en pantallas pequeñas en vez de desbordar.
+  .nc-items__head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .nc-items__actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  // Ítems: de grid a tarjetas — sin scroll horizontal en móvil
   .nc-items__scroll { overflow-x: visible; }
-  .nc-items { min-width: 0; }
+  .nc-items { min-width: 0; width: 100%; }
 
   .nc-items__row--header { display: none; }
 
@@ -1163,7 +1377,17 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
     border: 1px solid $card-border;
     border-radius: 12px;
     background: #fff;
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
 
+    // Todo hijo respeta el ancho de la tarjeta (evita desbordes horizontales).
+    * { box-sizing: border-box; }
+    .nc-input,
+    .nc-select,
+    .nc-input--desc { max-width: 100%; }
+
+    .nc-cell { max-width: 100%; }
     .nc-cell--handle { display: none; }
 
     // Header row: "Ítem n" label with actions aligned to the right.
@@ -1254,7 +1478,14 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
   .nc-btn--cancel { display: none; }
 }
 
+@media (max-width: 560px) {
+  // Aligera la cabecera: la vista previa se reduce a icono y la fecha se compacta.
+  .nc-preview-btn span { display: none; }
+  .nc-preview-btn { padding: 0 11px; }
+  .nc-date-badge { padding: 0 10px; font-size: 12px; }
+  .nc-header__right { gap: 7px; }
+}
+
 @media (max-width: 420px) {
-  .nc-items__actions .nc-ghost-btn span { display: none; }
   .nc-ghost-btn { padding: 0 10px; }
 }
