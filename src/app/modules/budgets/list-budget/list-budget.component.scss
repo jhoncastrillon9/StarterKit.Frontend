@@ -168,10 +168,15 @@ $transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
-  
+  min-width: 0;
+
   .budget-name {
     color: #1f2937;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
   
   .invoice-indicator {
