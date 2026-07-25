@@ -1,210 +1,103 @@
-<!-- Account Statement Page Container -->
+<!-- Estado de Cuenta rediseñado -->
 <div class="account-statement-container">
-  <!-- Header Principal Moderno -->
-  <div class="account-statement-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="header-icon">
-          <i class="fas fa-file-invoice-dollar"></i>
-        </div>
-        <div class="header-text">
-          <h1 class="page-title">Estados de Cuenta</h1>
-          <p class="page-subtitle">Consulta y gestiona los estados de cuenta por cliente</p>
-        </div>
+  <!-- Card selector de cliente -->
+  <div class="ac-card">
+    <div class="ac-card__head"><i class="fas fa-user-tie"></i><span>Seleccionar Cliente</span></div>
+    <div class="ac-card__body">
+      <div class="ac-field">
+        <label for="customerSelect"><i class="fas fa-users"></i> Cliente</label>
+        <select id="customerSelect" class="ac-select" (change)="onCustomerSelectChange($event)">
+          <option value="">-- Seleccione un cliente --</option>
+          <option *ngFor="let customer of customers()" [value]="customer.customerId">
+            {{ customer.customerName }}
+          </option>
+        </select>
       </div>
     </div>
   </div>
 
-  <!-- Card de Selección de Cliente -->
-  <div class="account-card filter-card">
-    <div class="card-header-custom">
-      <i class="fas fa-user-tie"></i>
-      <span>Seleccionar Cliente</span>
-    </div>
-    <div class="card-body-custom">
-      <div class="row g-4 align-items-end">
-        <c-col xs="12" sm="8" md="6">
-          <div class="form-group-modern">
-            <label for="customerSelect" class="label-modern">
-              <i class="fas fa-users"></i>
-              Cliente
-            </label>
-            <select 
-              id="customerSelect" 
-              class="input-modern select-modern" 
-              (change)="onCustomerSelectChange($event)"
-            >
-              <option value="">-- Seleccione un cliente --</option>
-              <option *ngFor="let customer of customers()" [value]="customer.customerId">
-                {{ customer.customerName }}
-              </option>
-            </select>
-          </div>
-        </c-col>
-        <c-col xs="12" sm="4" md="6" *ngIf="selectedCustomer()">
-          <button class="btn-modern btn-pdf" (click)="generarPDF()">
-            <i class="fas fa-file-pdf"></i>
-            Generar Reporte PDF
-          </button>
-        </c-col>
-      </div>
-    </div>
-  </div>
+  <!-- Tabla del estado de cuenta -->
+  <app-data-table *ngIf="selectedCustomer()"
+    [columns]="tableColumns"
+    [value]="filteredBudgets()"
+    [loading]="false"
+    rowKey="budgetId"
+    [title]="'Estado de Cuenta: ' + (selectedCustomer()?.customerName || '')"
+    headerIcon="fas fa-file-invoice-dollar"
+    [subtitle]="filteredBudgets().length + ' cotizaciones'"
+    [kpis]="statementKpis"
+    [showSearch]="false"
+    [rows]="100"
+    [rowsPerPageOptions]="[50,100,200]"
+    currentPageReportTemplate="{first} al {last} de {totalRecords}">
 
-  <!-- Card de Estado de Cuenta (visible cuando hay cliente seleccionado) -->
-  <div class="account-card statement-card" *ngIf="selectedCustomer()">
-    <div class="card-header-custom">
-      <i class="fas fa-receipt"></i>
-      <span>Estado de Cuenta: {{ selectedCustomer()?.customerName }}</span>
-      <div class="total-badge">
-        <i class="fas fa-dollar-sign"></i>
-        <span>Total: $ {{ total().toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
-      </div>
-    </div>
-    <div class="card-body-custom p-0">
-      <!-- Tabla Moderna -->
-      <div class="table-modern-container">
-        <table class="table-modern">
-          <thead>
-            <tr class="table-header-row">
-              <th class="th-code">
-                <div class="th-content">
-                  <i class="fas fa-hashtag"></i>
-                  <span>Código</span>
-                </div>
-              </th>
-              <th class="th-date">
-                <div class="th-content">
-                  <i class="far fa-calendar-alt"></i>
-                  <span>Fecha</span>
-                </div>
-              </th>
-              <th class="th-name">
-                <div class="th-content">
-                  <i class="fas fa-building"></i>
-                  <span>Nombre de la Obra</span>
-                </div>
-              </th>
-              <th class="th-invoice">
-                <div class="th-content">
-                  <i class="fas fa-file-invoice"></i>
-                  <span>Factura</span>
-                </div>
-              </th>
-              <th class="th-status">
-                <div class="th-content">
-                  <i class="fas fa-flag"></i>
-                  <span>Estado</span>
-                </div>
-              </th>
-              <th class="th-total">
-                <div class="th-content">
-                  <i class="fas fa-dollar-sign"></i>
-                  <span>Total</span>
-                </div>
-              </th>
-              <th class="th-action">
-                <div class="th-content">
-                  <i class="fas fa-cog"></i>
-                  <span>Acción</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let budget of filteredBudgets()" class="table-body-row">
-              <td>
-                <span class="code-badge">{{ budget.internalCode }}</span>
-              </td>
-              <td>
-                <span class="date-text">{{ budget.date | date: 'dd MMM yyyy' }}</span>
-              </td>
-              <td>
-                <span class="budget-name">{{ budget.budgetName }}</span>
-              </td>
-              <td>
-                <input 
-                  type="text" 
-                  class="input-modern-sm" 
-                  [value]="budget.externalInvoice" 
-                  (input)="onFacturaChange(budget.budgetId, $any($event.target).value)"
-                  placeholder="Nº Factura"
-                />
-              </td>
-              <td>
-                <select 
-                  class="input-modern-sm select-modern-sm" 
-                  [value]="budget.estado || ''" 
-                  (change)="onEstadoChange(budget.budgetId, $any($event.target).value)"
-                >
-                  <option value="">-- Seleccionar --</option>
-                  <option *ngFor="let estado of estadoOptions" 
-                          [value]="estado"
-                          [selected]="budget.estado && budget.estado.toLowerCase() === estado.toLowerCase()">
-                    {{ estado }}
-                  </option>
-                </select>
-              </td>
-              <td>
-                <span class="total-value">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
-              </td>
-              <td>
-                <button 
-                  class="btn-action btn-save-row" 
-                  (click)="saveBudget(budget)"
-                  [disabled]="!hasChanges(budget.budgetId)"
-                  [class.disabled]="!hasChanges(budget.budgetId)"
-                  pTooltip="Guardar cambios"
-                  tooltipPosition="top"
-                >
-                  <i class="fas fa-save"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="table-footer-row">
-              <td colspan="5" class="text-end">
-                <strong>Total Adeudado</strong>
-              </td>
-              <td>
-                <strong class="total-final">$ {{ total().toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</strong>
-              </td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+    <button dt-actions class="btn-pdf" (click)="generarPDF()">
+      <i class="fas fa-file-pdf"></i><span>Generar PDF</span>
+    </button>
 
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="filteredBudgets().length === 0">
-        <div class="empty-content">
-          <i class="fas fa-inbox empty-icon"></i>
-          <h3>Sin cotizaciones pendientes</h3>
-          <p>Este cliente no tiene cotizaciones con factura registrada</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Footer con botón de PDF -->
-    <div class="card-footer-custom" *ngIf="filteredBudgets().length > 0">
-      <button class="btn-modern btn-pdf-footer" (click)="generarPDF()">
-        <i class="fas fa-file-pdf"></i>
-        Generar Reporte PDF
+    <ng-template dtColumn="internalCode" let-budget>
+      <span class="code-value">{{ budget.internalCode }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="date" let-budget>
+      <span class="date-value">{{ budget.date | date:'dd MMM yyyy' }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="budgetName" let-budget>
+      <span class="obra-name">{{ budget.budgetName }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="externalInvoice" let-budget>
+      <input type="text" class="ac-input-sm" [value]="displayFacturaFor(budget)"
+        (input)="onFacturaChange(budget.budgetId, $any($event.target).value)" placeholder="Nº Factura" />
+    </ng-template>
+
+    <ng-template dtColumn="estado" let-budget>
+      <button type="button" class="status-trigger"
+        (click)="currentStatementBudget = budget; estadoPanel.toggle($event)">
+        <app-status-pill [status]="displayEstadoFor(budget)" [caret]="true"></app-status-pill>
       </button>
-    </div>
-  </div>
+    </ng-template>
 
-  <!-- Empty State cuando no hay cliente seleccionado -->
-  <div class="account-card empty-card" *ngIf="!selectedCustomer()">
-    <div class="empty-content-large">
-      <i class="fas fa-users"></i>
-      <h3>Selecciona un cliente</h3>
-      <p>Elige un cliente del listado para ver su estado de cuenta</p>
+    <ng-template dtColumn="total" let-budget>
+      <span class="total-value">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="acciones" let-budget>
+      <button class="action-btn action-save" (click)="saveBudget(budget)"
+        [disabled]="!hasChanges(budget.budgetId)" pTooltip="Guardar cambios" tooltipPosition="top">
+        <i class="fas fa-save"></i>
+      </button>
+    </ng-template>
+
+    <div dt-empty class="empty-content">
+      <i class="fas fa-inbox empty-icon"></i>
+      <h3>Sin cotizaciones pendientes</h3>
+      <p>Este cliente no tiene cotizaciones con factura registrada</p>
     </div>
+  </app-data-table>
+
+  <!-- Estado vacío sin cliente seleccionado -->
+  <div class="ac-card ac-empty" *ngIf="!selectedCustomer()">
+    <i class="fas fa-users"></i>
+    <h3>Selecciona un cliente</h3>
+    <p>Elige un cliente del listado para ver su estado de cuenta</p>
   </div>
 </div>
 
+<!-- Panel de estado -->
+<p-overlayPanel #estadoPanel appendTo="body" styleClass="dc-menu-panel">
+  <div class="dc-menu dc-menu--status" *ngIf="currentStatementBudget as b">
+    <div class="dc-menu__title">Cambiar estado</div>
+    <button *ngFor="let opt of estadoOptions" type="button" class="dc-status-opt"
+      [class.dc-status-opt--active]="displayEstadoFor(b) === opt"
+      (click)="selectEstadoStatement(opt); estadoPanel.hide()">
+      <span class="dc-status-opt__label">{{ opt }}</span>
+      <span class="dc-status-opt__check" *ngIf="displayEstadoFor(b) === opt">✓</span>
+    </button>
+  </div>
+</p-overlayPanel>
+
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
   <p style="color: white">Generando PDF...</p>
-</ngx-spinner> 
+</ngx-spinner>
