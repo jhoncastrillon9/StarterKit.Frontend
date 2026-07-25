@@ -654,7 +654,10 @@ $font-body: 'Nunito Sans', 'Nunito', sans-serif;
 }
 
 .nc-items {
-  min-width: 720px;
+  // Debe ser >= a la suma real de las columnas de la grilla, si no el fondo de
+  // las filas (cabecera/hover) se corta y la última columna se ve blanca.
+  // 26+84+84+132+140+92 = 558 + 6 gaps*8 = 48 + desc(min 180) = 786.
+  min-width: 800px;
 }
 
 .nc-items__row {
