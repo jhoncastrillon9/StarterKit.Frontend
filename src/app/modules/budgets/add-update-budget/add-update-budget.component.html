@@ -1,709 +1,709 @@
-<!-- Header Principal Moderno -->
-<div class="budget-page-container">
-  <div class="budget-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="header-icon">
-          <i class="fas fa-file-invoice-dollar"></i>
-        </div>
-        <div class="header-text">
-          <h1 class="page-title">{{ titlePage }}</h1>
-          <p class="page-subtitle" *ngIf="internalCode">Cotización N° {{ internalCode }}</p>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="date-badge">
-          <i class="far fa-calendar-alt"></i>
-          <span>{{ currentDate | date : "dd MMM yyyy" }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="nc-page">
+  <div class="nc-shell">
+    <form
+      cForm
+      class="nc-form"
+      [formGroup]="budgetForm"
+      (ngSubmit)="onAddUpdateBudget()"
+    >
+      <!-- hidden controls -->
+      <input cFormControl formControlName="budgetId" class="nc-hidden" />
+      <input cFormControl formControlName="amount" readonly class="nc-hidden" />
 
-  <form
-    cForm
-    class="budget-form"
-    [formGroup]="budgetForm"
-    (ngSubmit)="onAddUpdateBudget()"
-  >
-    <input cFormControl formControlName="budgetId" style="display: none" />
-
-    <!-- Card de Información General -->
-    <div class="budget-card info-card">
-      <div class="card-header-custom">
-        <i class="fas fa-info-circle"></i>
-        <span>Información General</span>
-      </div>
-      <div class="card-body-custom">
-        <div class="row g-4">
-          <!-- Nombre -->
-          <c-col xs="12" sm="6" md="6" lg="4">
-            <div class="form-group-modern">
-              <label cLabel for="budgetName" class="label-modern">
-                <i class="fas fa-building"></i>
-                Nombre de la Obra o Cotización
-                <span class="required-star">*</span>
-              </label>
-              <input
-                cFormControl
-                formControlName="budgetName"
-                class="input-modern"
-                placeholder="Ej: Construcción edificio residencial"
-                maxlength="500"
-                [ngClass]="{
-                  'is-invalid':
-                    budgetForm.get('budgetName')?.invalid &&
-                    (budgetForm.get('budgetName')?.touched ||
-                      budgetForm.get('budgetName')?.dirty)
-                }"
-              />
-              <div
-                class="error-message"
-                *ngIf="
-                  budgetForm.get('budgetName')?.invalid &&
-                  (budgetForm.get('budgetName')?.touched ||
-                    budgetForm.get('budgetName')?.dirty)
-                "
-              >
-                <i class="fas fa-exclamation-circle"></i>
-                El nombre de la obra o cotización es obligatorio.
-              </div>
+      <!-- ============================================================= -->
+      <!-- (1) STICKY HEADER -->
+      <!-- ============================================================= -->
+      <header class="nc-header">
+        <div class="nc-header__left">
+          <a
+            class="nc-back"
+            [routerLink]="'/budgets/budgets'"
+            title="Volver a cotizaciones"
+          >
+            <i class="fas fa-arrow-left"></i>
+          </a>
+          <div class="nc-header__titles">
+            <span class="nc-breadcrumb">
+              Cotizaciones / {{ budgetId ? 'Editar' : 'Nueva' }}
+            </span>
+            <div class="nc-title-row">
+              <h1 class="nc-title">
+                {{ budgetId ? 'Editar cotización' : 'Nueva cotización' }}
+              </h1>
+              <span class="nc-code-badge" *ngIf="internalCode">#{{ internalCode }}</span>
             </div>
-          </c-col>
+          </div>
+        </div>
+        <div class="nc-header__right">
+          <span class="nc-date-badge">
+            <i class="far fa-calendar-alt"></i>
+            <span>{{ budgetForm.get('date')?.value ? (budgetForm.get('date')?.value | date:'dd MMM yyyy') : (currentDate | date:'dd MMM yyyy') }}</span>
+          </span>
+          <a
+            *ngIf="budgetId"
+            class="nc-preview-btn"
+            [routerLink]="['/budgets/read', budgetId]"
+          >
+            <i class="far fa-eye"></i>
+            <span>Vista previa</span>
+          </a>
+        </div>
+      </header>
 
-          <!-- Cliente -->
-          <c-col xs="12" sm="6" md="6" lg="4">
-            <div class="form-group-modern">
-              <label cLabel for="customerId" class="label-modern">
-                <i class="fas fa-user-tie"></i>
-                Cliente
-                <span class="required-star">*</span>
-              </label>
-              <select
-                aria-label="Seleccionar cliente"
-                cFormControl
-                cSelect
-                formControlName="customerId"
-                [ngClass]="{
-                  'is-invalid':
+      <!-- ============================================================= -->
+      <!-- CONTENT -->
+      <!-- ============================================================= -->
+      <div class="nc-content">
+
+        <!-- ========================================================= -->
+        <!-- (2) CARD: Datos generales -->
+        <!-- ========================================================= -->
+        <section class="nc-card">
+          <div class="nc-card__head">
+            <div>
+              <h2 class="nc-card__title">Datos generales</h2>
+              <p class="nc-card__subtitle">Cliente, obra y condiciones</p>
+            </div>
+          </div>
+          <div class="nc-card__body">
+            <div class="nc-grid">
+              <!-- Cliente (custom dropdown con búsqueda) -->
+              <div class="nc-field nc-field--wide">
+                <label class="nc-label">Cliente <span class="nc-req">*</span></label>
+                <input type="hidden" cFormControl formControlName="customerId" />
+                <div class="nc-dropdown nc-dropdown--cliente" [class.open]="clienteOpen">
+                  <button
+                    type="button"
+                    class="nc-input nc-dropdown__toggle"
+                    aria-label="Seleccionar cliente"
+                    (click)="toggleCliente($event)"
+                    [ngClass]="{
+                      'is-invalid':
+                        budgetForm.get('customerId')?.invalid &&
+                        (budgetForm.get('customerId')?.touched ||
+                          budgetForm.get('customerId')?.dirty)
+                    }"
+                  >
+                    <span class="nc-dropdown__value nc-dropdown__value--text" [class.nc-dropdown__placeholder]="!selectedCustomerName">
+                      {{ selectedCustomerName || 'Seleccione un cliente' }}
+                    </span>
+                    <i class="fas fa-chevron-down nc-dropdown__caret"></i>
+                  </button>
+                  <div class="nc-dropdown__panel nc-dropdown__panel--search" *ngIf="clienteOpen" (click)="$event.stopPropagation()">
+                    <div class="nc-dropdown__search">
+                      <i class="fas fa-search nc-dropdown__search-icon"></i>
+                      <input
+                        type="text"
+                        class="nc-dropdown__search-input"
+                        placeholder="Buscar cliente…"
+                        [(ngModel)]="clienteSearch"
+                        [ngModelOptions]="{ standalone: true }"
+                        (click)="$event.stopPropagation()"
+                      />
+                    </div>
+                    <div class="nc-dropdown__list">
+                      <button
+                        type="button"
+                        class="nc-dropdown__item"
+                        *ngFor="let customer of filteredCustomers"
+                        (click)="selectCliente(customer)"
+                      >
+                        <span class="nc-dropdown__item-label">{{ customer.customerName }}</span>
+                        <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('customerId')?.value == customer.customerId"></i>
+                      </button>
+                      <div class="nc-dropdown__empty" *ngIf="filteredCustomers.length === 0">
+                        Sin resultados
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="nc-error"
+                  *ngIf="
                     budgetForm.get('customerId')?.invalid &&
                     (budgetForm.get('customerId')?.touched ||
                       budgetForm.get('customerId')?.dirty)
-                }"
-                class="input-modern select-modern"
-              >
-                <option value="" disabled selected>Seleccione un cliente</option>
-                <option
-                  *ngFor="let customer of customers"
-                  [value]="customer.customerId"
+                  "
                 >
-                  {{ customer.customerName }}
-                </option>
-              </select>
-              <div
-                class="error-message"
-                *ngIf="
-                  budgetForm.get('customerId')?.invalid &&
-                  (budgetForm.get('customerId')?.touched ||
-                    budgetForm.get('customerId')?.dirty)
-                "
-              >
-                <i class="fas fa-exclamation-circle"></i>
-                El cliente es obligatorio.
+                  <i class="fas fa-exclamation-circle"></i>
+                  El cliente es obligatorio.
+                </div>
+              </div>
+
+              <!-- Obra -->
+              <div class="nc-field nc-field--wide">
+                <label class="nc-label" for="budgetName">Obra <span class="nc-req">*</span></label>
+                <input
+                  id="budgetName"
+                  cFormControl
+                  formControlName="budgetName"
+                  class="nc-input"
+                  placeholder="Ej: Construcción edificio residencial"
+                  maxlength="500"
+                  [ngClass]="{
+                    'is-invalid':
+                      budgetForm.get('budgetName')?.invalid &&
+                      (budgetForm.get('budgetName')?.touched ||
+                        budgetForm.get('budgetName')?.dirty)
+                  }"
+                />
+                <div
+                  class="nc-error"
+                  *ngIf="
+                    budgetForm.get('budgetName')?.invalid &&
+                    (budgetForm.get('budgetName')?.touched ||
+                      budgetForm.get('budgetName')?.dirty)
+                  "
+                >
+                  <i class="fas fa-exclamation-circle"></i>
+                  El nombre de la obra o cotización es obligatorio.
+                </div>
+              </div>
+
+              <!-- Plazo de entrega -->
+              <div class="nc-field">
+                <label class="nc-label" for="deliveryTime">Plazo de entrega</label>
+                <input
+                  id="deliveryTime"
+                  cFormControl
+                  formControlName="deliveryTime"
+                  class="nc-input"
+                  placeholder="Ej: 1 Mes"
+                  maxlength="500"
+                />
+              </div>
+
+              <!-- Estado (custom dropdown) -->
+              <div class="nc-field">
+                <label class="nc-label">Estado</label>
+                <div class="nc-dropdown" [class.open]="estadoOpen">
+                  <button
+                    type="button"
+                    class="nc-input nc-dropdown__toggle"
+                    (click)="toggleEstado($event)"
+                  >
+                    <span class="nc-dropdown__value">
+                      <span class="nc-dot" [style.background]="estadoColor(budgetForm.get('estado')?.value)"></span>
+                      <span>{{ budgetForm.get('estado')?.value || 'Seleccionar estado' }}</span>
+                    </span>
+                    <i class="fas fa-chevron-down nc-dropdown__caret"></i>
+                  </button>
+                  <div class="nc-dropdown__panel" *ngIf="estadoOpen">
+                    <button
+                      type="button"
+                      class="nc-dropdown__item"
+                      *ngFor="let estado of estadoOptions"
+                      (click)="selectEstado(estado)"
+                    >
+                      <span class="nc-dot" [style.background]="estadoColor(estado)"></span>
+                      <span class="nc-dropdown__item-label">{{ estado }}</span>
+                      <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('estado')?.value === estado"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Forma de pago (custom dropdown + personalizado) -->
+              <div class="nc-field nc-field--wide">
+                <label class="nc-label">Forma de pago</label>
+                <input type="hidden" cFormControl formControlName="wayToPay" />
+                <div class="nc-dropdown" [class.open]="pagoOpen">
+                  <button
+                    type="button"
+                    class="nc-input nc-dropdown__toggle"
+                    (click)="togglePago($event)"
+                  >
+                    <span class="nc-dropdown__value nc-dropdown__value--text" [class.nc-dropdown__placeholder]="!budgetForm.get('wayToPay')?.value">
+                      {{ budgetForm.get('wayToPay')?.value || 'Seleccionar forma de pago' }}
+                    </span>
+                    <i class="fas fa-chevron-down nc-dropdown__caret"></i>
+                  </button>
+                  <div class="nc-dropdown__panel" *ngIf="pagoOpen" (click)="$event.stopPropagation()">
+                    <button
+                      type="button"
+                      class="nc-dropdown__item"
+                      *ngFor="let op of pagoOptions"
+                      (click)="selectPago(op)"
+                    >
+                      <span class="nc-dropdown__item-label">{{ op }}</span>
+                      <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('wayToPay')?.value === op"></i>
+                    </button>
+                    <!-- Valor personalizado como ítem seleccionable -->
+                    <button
+                      type="button"
+                      class="nc-dropdown__item"
+                      *ngIf="customPago"
+                      (click)="selectPago(customPago)"
+                    >
+                      <span class="nc-dropdown__item-label">{{ customPago }}</span>
+                      <span class="nc-pago-tag">Personalizado</span>
+                      <i class="fas fa-check nc-dropdown__check" *ngIf="budgetForm.get('wayToPay')?.value === customPago"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="nc-dropdown__item nc-dropdown__item--custom"
+                      (click)="openPagoPopup()"
+                    >
+                      <span class="nc-dropdown__item-label"><i class="fas fa-pen nc-pago-edit-icon"></i> Personalizado…</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Validez de oferta -->
+              <div class="nc-field">
+                <label class="nc-label" for="validityOffer">Validez de oferta</label>
+                <input
+                  id="validityOffer"
+                  cFormControl
+                  formControlName="validityOffer"
+                  class="nc-input"
+                  placeholder="Ej: 30 días"
+                  maxlength="500"
+                />
+              </div>
+
+              <!-- N.º de factura (solo al editar) -->
+              <div class="nc-field" *ngIf="budgetId">
+                <label class="nc-label" for="externalInvoice">N.º de factura</label>
+                <input
+                  id="externalInvoice"
+                  cFormControl
+                  formControlName="externalInvoice"
+                  class="nc-input"
+                  [class.nc-input--disabled]="budgetForm.get('estado')?.value !== 'Facturada'"
+                  [readonly]="budgetForm.get('estado')?.value !== 'Facturada'"
+                  placeholder="Número de factura"
+                  maxlength="15"
+                />
+                <p class="nc-hint">
+                  Se habilita cuando el estado de la cotización es «Facturada».
+                </p>
               </div>
             </div>
-          </c-col>
+          </div>
+        </section>
 
-          <!-- Opciones IVA, AIU -->
-          <c-col xs="12" sm="12" md="12" lg="4">
-            <div class="form-group-modern">
-              <label cLabel class="label-modern">
-                <i class="fas fa-cog"></i>
-                Opciones de Cálculo
-              </label>
-              <div class="options-container">
-                <label class="option-chip active">
-                  <input
-                    type="checkbox"
-                    checked
-                    disabled
-                  />
-                  <span class="chip-content">
-                    <i class="fas fa-percentage"></i>
-                    IVA
-                  </span>
-                </label>
-                <label class="option-chip" [class.active]="budgetForm.get('hasAIU')?.value">
-                  <input
-                    type="checkbox"
-                    formControlName="hasAIU"
-                    (change)="updateCheckStatusAIU()"
-                  />
-                  <span class="chip-content">
-                    <i class="fas fa-calculator"></i>
-                    AIU
-                  </span>
-                </label>
-                <label class="option-chip" [class.active]="budgetForm.get('sumAIU')?.value">
-                  <input
-                    type="checkbox"
-                    formControlName="sumAIU"
-                    (change)="updateAmount()"
-                  />
-                  <span class="chip-content">
-                    <i class="fas fa-plus-circle"></i>
-                    Sumar AIU
-                  </span>
-                </label>
-              </div>
+        <!-- ========================================================= -->
+        <!-- (3) CARD: Ítems -->
+        <!-- ========================================================= -->
+        <section class="nc-card nc-card--items">
+          <div class="nc-card__head nc-items__head">
+            <div class="nc-items__head-left">
+              <h2 class="nc-card__title">Ítems</h2>
+              <span class="nc-count-badge">{{ budgetDetails.length }} ítem(s)</span>
             </div>
-          </c-col>
-        </div>
-      </div>
-    </div>
+            <div class="nc-items__actions">
+              <button type="button" class="nc-ghost-btn" (click)="addBudgetDetailFromAPU()">
+                <i class="fas fa-layer-group"></i>
+                <span>Agregar desde APU</span>
+              </button>
+              <button type="button" class="nc-ghost-btn" (click)="addBudgetDetailFromProduct()">
+                <i class="fas fa-box"></i>
+                <span>Agregar producto</span>
+              </button>
+            </div>
+          </div>
 
-    <!-- Card de Detalles del Presupuesto -->
-    <div class="budget-card details-card">
-      <div class="card-header-custom">
-        <i class="fas fa-list-alt"></i>
-        <span>Detalle de Items</span>
-        <span class="items-count">{{ budgetDetails.length }} items</span>
-      </div>
-      <div class="card-body-custom p-0">
-        <div class="table-modern-container">
-          <table class="table-modern">
-            <thead>
-              <tr>
-                <th class="th-drag"><i class="fas fa-grip-vertical"></i></th>
-                <th class="th-description">Descripción</th>
-                <th class="th-unit">Und</th>
-                <th class="th-quantity">Cantidad</th>
-                <th class="th-price">Precio</th>
-                <th class="th-subtotal">Subtotal</th>
-                <th class="th-actions">Acciones</th>
-              </tr>
-            </thead>
-            <tbody formArrayName="budgetDetailsDto">
+          <div class="nc-items__scroll">
+            <div class="nc-items" formArrayName="budgetDetailsDto">
+              <!-- desktop header -->
+              <div class="nc-items__row nc-items__row--header">
+                <div class="nc-cell nc-cell--handle"></div>
+                <div class="nc-cell nc-cell--desc">Descripción</div>
+                <div class="nc-cell nc-cell--unit">Unidad</div>
+                <div class="nc-cell nc-cell--qty">Cant.</div>
+                <div class="nc-cell nc-cell--price">Vr. unitario</div>
+                <div class="nc-cell nc-cell--sub">Subtotal</div>
+                <div class="nc-cell nc-cell--act">Acciones</div>
+              </div>
+
               <ng-container *ngFor="let detail of budgetDetails.controls; let i = index">
-                <!-- Title Row -->
-                <tr
+                <!-- Capítulo (title) row -->
+                <div
                   *ngIf="detail.get('isTitle')?.value"
+                  class="nc-items__row nc-items__row--title"
                   [formGroupName]="i"
                   (dragover)="dragOver($event, i)"
                   (drop)="drop($event, i)"
                   (dragleave)="dragLeave($event)"
                   [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
-                  class="table-row-title"
                 >
-                  <td class="td-drag">
-                    <div 
-                      class="drag-handle-modern"
+                  <div class="nc-cell nc-cell--handle">
+                    <span
+                      class="nc-handle"
                       draggable="true"
                       (dragstart)="dragStart($event, i)"
                       (dragend)="dragEnd($event)"
                     >
                       <i class="fas fa-grip-vertical"></i>
-                    </div>
-                  </td>
-                  <td class="td-title-description" colspan="5">
-                    <div class="title-row-content">
-                      <i class="fas fa-bookmark title-icon"></i>
-                      <input
-                        cFormControl
-                        formControlName="description"
-                        placeholder="Escribe el título de la sección..."
-                        maxlength="200"
-                        class="input-title"
-                        [ngClass]="{
-                          'is-invalid':
-                            budgetForm
-                              .get('budgetDetailsDto')
-                              ?.get(i.toString())
-                              ?.get('description')
-                              ?.hasError('required') &&
-                            (budgetForm
-                              .get('budgetDetailsDto')
-                              ?.get(i.toString())
-                              ?.get('description')?.touched ||
-                              budgetForm
-                                .get('budgetDetailsDto')
-                                ?.get(i.toString())
-                                ?.get('description')?.dirty)
-                        }"
-                      />
-                    </div>
-                  </td>
-                  <td class="td-actions">
-                    <div class="action-buttons">
-                      <button
-                        type="button"
-                        class="btn-action btn-delete"
-                        (click)="removeBudgetDetail(i)"
-                        title="Eliminar título"
-                      >
-                        <i class="far fa-trash-alt"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                
-                <!-- Regular Item Row -->
-                <tr
+                    </span>
+                  </div>
+                  <div class="nc-cell nc-cell--title-input">
+                    <i class="fas fa-bookmark nc-title-icon"></i>
+                    <input
+                      cFormControl
+                      formControlName="description"
+                      placeholder="Nombre del capítulo…"
+                      maxlength="200"
+                      class="nc-input nc-input--title"
+                      [ngClass]="{
+                        'is-invalid':
+                          budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') &&
+                          (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched ||
+                            budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)
+                      }"
+                    />
+                  </div>
+                  <div class="nc-cell nc-cell--act">
+                    <button
+                      type="button"
+                      class="nc-icon-btn nc-icon-btn--del"
+                      (click)="removeBudgetDetail(i)"
+                      title="Eliminar capítulo"
+                    >
+                      <i class="far fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Regular item row -->
+                <div
                   *ngIf="!detail.get('isTitle')?.value"
+                  class="nc-items__row nc-items__row--item"
                   [formGroupName]="i"
                   (dragover)="dragOver($event, i)"
                   (drop)="drop($event, i)"
                   (dragleave)="dragLeave($event)"
                   [ngClass]="{'dragging': draggedIndex === i, 'drag-over': dragOverIndex === i}"
-                  class="table-row-modern"
                 >
-                <td class="td-drag">
-                  <div 
-                    class="drag-handle-modern"
-                    draggable="true"
-                    (dragstart)="dragStart($event, i)"
-                    (dragend)="dragEnd($event)"
-                  >
-                    <i class="fas fa-grip-vertical"></i>
+                  <!-- Mobile-only card header -->
+                  <div class="nc-item-mobile-head">
+                    <span class="nc-item-mobile-head__label">Ítem {{ i + 1 }}</span>
                   </div>
-                </td>
-                <td class="td-description">
-                  <textarea
-                    cFormControl
-                    formControlName="description"
-                    placeholder="Describe el item aquí..."
-                    maxlength="500"
-                    class="textarea-modern"
-                    rows="2"
-                    [ngClass]="{
-                      'is-invalid':
-                        budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('description')
-                          ?.hasError('required') &&
-                        (budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('description')?.touched ||
-                          budgetForm
-                            .get('budgetDetailsDto')
-                            ?.get(i.toString())
-                            ?.get('description')?.dirty)
-                    }"
-                  ></textarea>
-                  <div
-                    class="error-message-inline"
-                    *ngIf="
-                      budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('description')
-                        ?.hasError('required') &&
-                      (budgetForm
-                        .get('budgetDetailsDto')
-                        ?.get(i.toString())
-                        ?.get('description')?.touched ||
-                        budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('description')?.dirty)
-                    "
-                  >
-                    Descripción requerida
+
+                  <div class="nc-cell nc-cell--handle">
+                    <span
+                      class="nc-handle"
+                      draggable="true"
+                      (dragstart)="dragStart($event, i)"
+                      (dragend)="dragEnd($event)"
+                    >
+                      <i class="fas fa-grip-vertical"></i>
+                    </span>
                   </div>
-                </td>
-                <td class="td-unit">
-                  <select
-                    class="select-modern-sm"
-                    aria-label="Und"
-                    cFormControl
-                    formControlName="unitMeasurement"
-                  >
-                    <option value="Und" selected>Und</option>
-                    <option value="M2">M2</option>
-                    <option value="M3">M3</option>
-                    <option value="ML">ML</option>
-                    <option value="kg">kg</option>
-                    <option value="hr">hr</option>
-                    <option value="mes">mes</option>
-                    <option value="km">km</option>
-                    <option value="Carga">Carga</option>
-                    <option value="M3-km">M3-km</option>
-                    <option value="jgo">jgo</option>
-                    <option value="lt">lt</option>
-                    <option value="ton-m">ton-m</option>
-                    <option value="HA">HA</option>
-                  </select>
-                </td>
-                <td class="td-quantity">
-                  <input
-                    cFormControl
-                    formControlName="quantity"
-                    placeholder="0"
-                    type="text"
-                    (keypress)="onlyNumbers($event)"
-                    (change)="calculateSubtotalForDetails(i)"
-                    (blur)="calculateSubtotalForDetails(i)"
-                    (input)="calculateSubtotalForDetails(i)"
-                    class="input-modern-sm text-center"
-                    [ngClass]="{
-                      'is-invalid':
-                        budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('quantity')
-                          ?.hasError('required') &&
-                        (budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('quantity')?.touched ||
-                          budgetForm
-                            .get('budgetDetailsDto')
-                            ?.get(i.toString())
-                            ?.get('quantity')?.dirty)
-                    }"
-                  />
-                </td>
-                <td class="td-price">
-                  <input
-                    cFormControl
-                    formControlName="price"
-                    placeholder="$ 0"
-                    type="text"
-                    appThousandSeparator
-                    (change)="calculateSubtotalForDetails(i)"
-                    (blur)="calculateSubtotalForDetails(i)"
-                    (input)="calculateSubtotalForDetails(i)"
-                    class="input-modern-sm text-end"
-                    [ngClass]="{
-                      'is-invalid':
-                        (budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('price')
-                          ?.hasError('required') ||
-                        budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('price')
-                          ?.hasError('pattern')) &&
-                        (budgetForm
-                          .get('budgetDetailsDto')
-                          ?.get(i.toString())
-                          ?.get('price')?.touched ||
-                          budgetForm
-                            .get('budgetDetailsDto')
-                            ?.get(i.toString())
-                            ?.get('price')?.dirty)
-                    }"
-                  />
-                </td>
-                <td class="td-subtotal">
-                  <div class="subtotal-display">
-                    <span class="subtotal-value">{{ detail.get('subtotal')?.value || '0' }}</span>
+
+                  <div class="nc-cell nc-cell--desc">
+                    <span class="nc-cell__label">Descripción</span>
+                    <textarea
+                      cFormControl
+                      formControlName="description"
+                      placeholder="Describe el ítem…"
+                      maxlength="500"
+                      rows="1"
+                      class="nc-input nc-input--desc"
+                      [ngClass]="{
+                        'is-invalid':
+                          budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') &&
+                          (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched ||
+                            budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)
+                      }"
+                    ></textarea>
+                    <div
+                      class="nc-error nc-error--inline"
+                      *ngIf="
+                        budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.hasError('required') &&
+                        (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.touched ||
+                          budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('description')?.dirty)
+                      "
+                    >
+                      Descripción requerida
+                    </div>
                   </div>
-                </td>
-                <td class="td-actions">
-                  <div class="action-buttons">
+
+                  <div class="nc-cell nc-cell--unit">
+                    <span class="nc-cell__label">Unidad</span>
+                    <select
+                      class="nc-input nc-select nc-input--sm"
+                      aria-label="Unidad"
+                      cFormControl
+                      formControlName="unitMeasurement"
+                    >
+                      <option value="Und" selected>Und</option>
+                      <option value="M2">M2</option>
+                      <option value="M3">M3</option>
+                      <option value="ML">ML</option>
+                      <option value="kg">kg</option>
+                      <option value="hr">hr</option>
+                      <option value="mes">mes</option>
+                      <option value="km">km</option>
+                      <option value="Carga">Carga</option>
+                      <option value="M3-km">M3-km</option>
+                      <option value="jgo">jgo</option>
+                      <option value="lt">lt</option>
+                      <option value="ton-m">ton-m</option>
+                      <option value="HA">HA</option>
+                    </select>
+                  </div>
+
+                  <div class="nc-cell nc-cell--qty">
+                    <span class="nc-cell__label">Cant.</span>
+                    <input
+                      cFormControl
+                      formControlName="quantity"
+                      placeholder="0"
+                      type="text"
+                      (keypress)="onlyNumbers($event)"
+                      (change)="calculateSubtotalForDetails(i)"
+                      (blur)="calculateSubtotalForDetails(i)"
+                      (input)="calculateSubtotalForDetails(i)"
+                      class="nc-input nc-input--sm nc-input--num"
+                      [ngClass]="{
+                        'is-invalid':
+                          budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.hasError('required') &&
+                          (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.touched ||
+                            budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('quantity')?.dirty)
+                      }"
+                    />
+                  </div>
+
+                  <div class="nc-cell nc-cell--price">
+                    <span class="nc-cell__label">Vr. unitario</span>
+                    <input
+                      cFormControl
+                      formControlName="price"
+                      placeholder="$ 0"
+                      type="text"
+                      appThousandSeparator
+                      (change)="calculateSubtotalForDetails(i)"
+                      (blur)="calculateSubtotalForDetails(i)"
+                      (input)="calculateSubtotalForDetails(i)"
+                      class="nc-input nc-input--sm nc-input--num"
+                      [ngClass]="{
+                        'is-invalid':
+                          (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('required') ||
+                          budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.hasError('pattern')) &&
+                          (budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.touched ||
+                            budgetForm.get('budgetDetailsDto')?.get(i.toString())?.get('price')?.dirty)
+                      }"
+                    />
+                  </div>
+
+                  <div class="nc-cell nc-cell--sub">
+                    <span class="nc-cell__label">Subtotal</span>
+                    <span class="nc-subtotal">{{ detail.get('subtotal')?.value || '0' }}</span>
+                  </div>
+
+                  <div class="nc-cell nc-cell--act">
                     <button
                       type="button"
-                      class="btn-action btn-duplicate"
+                      class="nc-icon-btn nc-icon-btn--dup"
                       (click)="duplicateBudgetDetail(i)"
-                      title="Duplicar item"
+                      title="Duplicar ítem"
                     >
                       <i class="far fa-copy"></i>
                     </button>
                     <button
                       type="button"
-                      class="btn-action btn-delete"
+                      class="nc-icon-btn nc-icon-btn--del"
                       (click)="removeBudgetDetail(i)"
-                      title="Eliminar item"
+                      title="Eliminar ítem"
                     >
                       <i class="far fa-trash-alt"></i>
                     </button>
                   </div>
-                </td>
-              </tr>
-              
-              <!-- Section Subtotal Row - shown after the last item before a title or at the end -->
-              <tr *ngIf="isLastItemOfSection(i)" class="table-row-section-subtotal">
-                <td class="td-drag"></td>
-                <td colspan="4" class="td-section-subtotal-label">
-                  <span>Subtotal de sección</span>
-                </td>
-                <td class="td-section-subtotal-value">
-                  <span>$ {{ getSectionSubtotal(i).toLocaleString('es-CO') }}</span>
-                </td>
-                <td class="td-actions"></td>
-              </tr>
+                </div>
+
+                <!-- Subtotal de sección -->
+                <div *ngIf="isLastItemOfSection(i)" class="nc-items__row nc-section-subtotal">
+                  <div class="nc-cell nc-cell--handle"></div>
+                  <div class="nc-section-subtotal__label">Subtotal de sección</div>
+                  <div class="nc-section-subtotal__value">
+                    $ {{ getSectionSubtotal(i).toLocaleString('es-CO') }}
+                  </div>
+                </div>
               </ng-container>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-state" *ngIf="budgetDetails.length === 0">
-          <i class="fas fa-inbox"></i>
-          <p>No hay items agregados</p>
-          <span>Agrega items usando los botones de abajo</span>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="card-footer-custom">
-        <div class="action-buttons-container">
-          <button
-            cButton
-            type="button"
-            class="btn-modern btn-add-item"
-            (click)="addBudgetDetail()"
-          >
-            <i class="fas fa-plus"></i>
-            <span>Agregar Item</span>
-          </button>
-
-          <button
-            cButton
-            type="button"
-            class="btn-modern btn-add-title"
-            (click)="addTitleRow()"
-          >
-            <i class="fas fa-bookmark"></i>
-            <span>Agregar Título</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="btn-ai-recording"
-            [ngClass]="{'recording': isRecording, 'idle': !isRecording}"
-            (click)="toggleRecording()"
-            [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'">
-            <div class="btn-ai-content">
-              <div class="mic-container" [class.pulse-animation]="isRecording">
-                <i class="pi pi-microphone"></i>
-              </div>
-              <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : 'Agregar con IA' }}</span>
-            </div>
-            <div *ngIf="isRecording" class="recording-waves">
-              <span class="wave"></span>
-              <span class="wave"></span>
-              <span class="wave"></span>
-              <span class="wave"></span>
-            </div>
-          </button>
-
-          <button
-            cButton
-            type="button"
-            class="btn-modern btn-add-apu"
-            (click)="addBudgetDetailFromAPU()"
-          >
-            <i class="fas fa-database"></i>
-            <span>Desde APU</span>
-          </button>
-
-          <button
-            cButton
-            type="button"
-            class="btn-modern btn-add-product"
-            (click)="addBudgetDetailFromProduct()"
-          >
-            <i class="fas fa-box"></i>
-            <span>Desde Producto</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card de Configuración y Totales -->
-    <div class="budget-card config-totals-card">
-      <div class="row g-0">
-        <!-- Columna de Configuración -->
-        <div class="col-lg-8 config-section">
-          <div class="card-header-custom">
-            <i class="fas fa-sliders-h"></i>
-            <span>Configuración de Pago</span>
-          </div>
-          <div class="card-body-custom">
-            <div class="row g-3">
-              <c-col md="6" lg="5">
-                <div class="form-group-modern">
-                  <label cLabel for="wayToPay" class="label-modern-sm">
-                    <i class="fas fa-credit-card"></i>
-                    Forma de Pago
-                  </label>
-                  <input
-                    cFormControl
-                    formControlName="wayToPay"
-                    class="input-modern"
-                    maxlength="500"
-                  />
-                </div>
-              </c-col>
-              <c-col md="3" lg="3">
-                <div class="form-group-modern">
-                  <label cLabel for="deliveryTime" class="label-modern-sm">
-                    <i class="fas fa-clock"></i>
-                    Plazo de Entrega
-                  </label>
-                  <input
-                    cFormControl
-                    formControlName="deliveryTime"
-                    class="input-modern"
-                    maxlength="500"
-                  />
-                </div>
-              </c-col>
-              <c-col md="3" lg="4">
-                <div class="form-group-modern">
-                  <label cLabel for="validityOffer" class="label-modern-sm">
-                    <i class="fas fa-calendar-check"></i>
-                    Validez de Oferta
-                  </label>
-                  <input
-                    cFormControl
-                    formControlName="validityOffer"
-                    class="input-modern"
-                    maxlength="500"
-                  />
-                </div>
-              </c-col>
-              <c-col md="8">
-                <div class="form-group-modern">
-                  <label cLabel for="note" class="label-modern-sm">
-                    <i class="fas fa-sticky-note"></i>
-                    Nota para el Cliente
-                  </label>
-                  <textarea
-                    cFormControl
-                    formControlName="note"
-                    placeholder="Escribe una nota para el cliente o detalles importantes"
-                    rows="2"
-                    maxlength="500"
-                    class="textarea-modern"
-                  ></textarea>
-                </div>
-              </c-col>
-              <c-col md="4">
-                <div class="form-group-modern">
-                  <label cLabel for="externalInvoice" class="label-modern-sm">
-                    <i class="fas fa-file-invoice"></i>
-                    N° Factura
-                  </label>
-                  <input
-                    cFormControl
-                    formControlName="externalInvoice"
-                    class="input-modern"
-                    placeholder="Número de factura"
-                    maxlength="15"
-                  />
-                </div>
-              </c-col>
-              <c-col md="6">
-                <div class="form-group-modern">
-                  <label cLabel for="estado" class="label-modern-sm">
-                    <i class="fas fa-flag"></i>
-                    Estado
-                  </label>
-                  <select
-                    cFormControl
-                    cSelect
-                    formControlName="estado"
-                    class="input-modern select-modern"
-                  >
-                    <option value="">-- Seleccionar estado --</option>
-                    <option *ngFor="let estado of estadoOptions" [value]="estado">
-                      {{ estado }}
-                    </option>
-                  </select>
-                </div>
-              </c-col>
             </div>
           </div>
-        </div>
 
-        <!-- Columna de Totales -->
-        <div class="col-lg-4 totals-section">
-          <div class="totals-container">
-            <div class="totals-header">
-              <i class="fas fa-calculator"></i>
-              <span>Resumen</span>
+          <!-- Empty state -->
+          <div class="nc-empty" *ngIf="budgetDetails.length === 0">
+            <i class="fas fa-inbox"></i>
+            <p>No hay ítems agregados</p>
+            <span>Agrega ítems con los botones de abajo</span>
+          </div>
+
+          <!-- Items footer -->
+          <div class="nc-items__foot">
+            <button type="button" class="nc-add-btn nc-add-btn--primary" (click)="addBudgetDetail()">
+              <i class="fas fa-plus"></i>
+              <span>Agregar ítem</span>
+            </button>
+            <button type="button" class="nc-add-btn" (click)="addTitleRow()">
+              <i class="fas fa-plus"></i>
+              <span>Capítulo</span>
+            </button>
+            <button
+              type="button"
+              class="nc-add-btn nc-add-btn--ia nc-mic-btn"
+              [class.recording]="isRecording"
+              (click)="toggleRecording()"
+              [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'"
+            >
+              <i class="pi pi-microphone"></i>
+              <span>{{ isRecording ? 'Grabando…' : 'Agregar desde IA' }}</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- (4) CARD: Totales -->
+        <!-- ========================================================= -->
+        <section class="nc-card">
+          <div class="nc-card__head">
+            <h2 class="nc-card__title">Totales</h2>
+          </div>
+          <div class="nc-totals">
+            <!-- Left: toggles -->
+            <div class="nc-totals__left">
+              <div class="nc-toggle-row">
+                <div class="nc-toggle-row__text">
+                  <span class="nc-toggle-row__title">IVA 19%</span>
+                  <span class="nc-toggle-row__hint">Se calcula sobre el costo directo o la utilidad.</span>
+                </div>
+                <label class="nc-switch">
+                  <input type="checkbox" formControlName="hasIVA" (change)="updateCheckStatusIVA()" />
+                  <span class="nc-switch__track"><span class="nc-switch__knob"></span></span>
+                </label>
+              </div>
+
+              <div class="nc-toggle-divider"></div>
+
+              <div class="nc-toggle-row">
+                <div class="nc-toggle-row__text">
+                  <span class="nc-toggle-row__title">Aplicar AIU</span>
+                  <span class="nc-toggle-row__hint">Administración, imprevistos y utilidad (10%).</span>
+                </div>
+                <label class="nc-switch">
+                  <input type="checkbox" formControlName="hasAIU" (change)="updateCheckStatusAIU()" />
+                  <span class="nc-switch__track"><span class="nc-switch__knob"></span></span>
+                </label>
+              </div>
+
+              <div class="nc-aiu-sub" *ngIf="budgetForm.get('hasAIU')?.value">
+                <div class="nc-toggle-row">
+                  <div class="nc-toggle-row__text">
+                    <span class="nc-toggle-row__title">Sumar AIU</span>
+                    <span class="nc-toggle-row__hint">Incluir el AIU dentro del total.</span>
+                  </div>
+                  <label class="nc-switch">
+                    <input type="checkbox" formControlName="sumAIU" (change)="updateAmount()" />
+                    <span class="nc-switch__track"><span class="nc-switch__knob"></span></span>
+                  </label>
+                </div>
+              </div>
             </div>
-            <div class="totals-body">
-              <div class="total-row">
-                <span class="total-label">SubTotal</span>
-                <span class="total-value">$ {{ formatNumberParts(amount).integer }}<span class="decimals">{{ formatNumberParts(amount).decimal }}</span></span>
+
+            <!-- Right: breakdown -->
+            <div class="nc-totals__right">
+              <div class="nc-total-line">
+                <span class="nc-total-line__label">Costo directo</span>
+                <span class="nc-total-line__value">$ {{ formatNumberParts(amount).integer }}<span class="nc-dec">{{ formatNumberParts(amount).decimal }}</span></span>
               </div>
-              <div class="total-row" *ngIf="budgetForm.get('hasAIU')?.value">
-                <span class="total-label">AIU</span>
-                <span class="total-value">$ {{ formatNumberParts(aiu).integer }}<span class="decimals">{{ formatNumberParts(aiu).decimal }}</span></span>
+              <div class="nc-total-line" *ngIf="budgetForm.get('hasAIU')?.value">
+                <span class="nc-total-line__label">AIU 10%</span>
+                <span class="nc-total-line__value">$ {{ formatNumberParts(aiu).integer }}<span class="nc-dec">{{ formatNumberParts(aiu).decimal }}</span></span>
               </div>
-              <div class="total-row" *ngIf="budgetForm.get('hasIVA')?.value">
-                <span class="total-label">IVA</span>
-                <span class="total-value">$ {{ formatNumberParts(iva).integer }}<span class="decimals">{{ formatNumberParts(iva).decimal }}</span></span>
+              <div class="nc-total-line" *ngIf="budgetForm.get('hasIVA')?.value">
+                <span class="nc-total-line__label">IVA 19%</span>
+                <span class="nc-total-line__value">$ {{ formatNumberParts(iva).integer }}<span class="nc-dec">{{ formatNumberParts(iva).decimal }}</span></span>
               </div>
-              <div class="total-row total-final">
-                <span class="total-label">TOTAL</span>
-                <span class="total-value-big">$ {{ formatNumberParts(total).integer }}<span class="decimals">{{ formatNumberParts(total).decimal }}</span></span>
+              <div class="nc-total-divider"></div>
+              <div class="nc-total-line nc-total-line--grand">
+                <span class="nc-total-line__label">Total</span>
+                <span class="nc-total-grand">$ {{ formatNumberParts(total).integer }}<span class="nc-dec">{{ formatNumberParts(total).decimal }}</span></span>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- (5) CARD: Notas y condiciones -->
+        <!-- ========================================================= -->
+        <section class="nc-card">
+          <div class="nc-card__head">
+            <h2 class="nc-card__title">Notas y condiciones</h2>
+          </div>
+          <div class="nc-card__body">
+            <textarea
+              cFormControl
+              formControlName="note"
+              class="nc-input nc-textarea"
+              placeholder="Alcance, garantías, exclusiones…"
+              maxlength="500"
+            ></textarea>
+            <div class="nc-chips">
+              <button type="button" class="nc-chip" (click)="addSnippet('Anticipo del 50% para iniciar.')">
+                <i class="fas fa-plus"></i> Anticipo 50%
+              </button>
+              <button type="button" class="nc-chip" (click)="addSnippet('Vigencia de precios sujeta a la validez de la oferta.')">
+                <i class="fas fa-plus"></i> Vigencia de precios
+              </button>
+              <button type="button" class="nc-chip" (click)="addSnippet('Garantía de 12 meses sobre la obra ejecutada.')">
+                <i class="fas fa-plus"></i> Garantía 12 meses
+              </button>
+              <button type="button" class="nc-chip" (click)="addSnippet('No incluye obra civil.')">
+                <i class="fas fa-plus"></i> No incluye obra civil
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- error messages -->
+        <p
+          class="nc-error"
+          *ngIf="
+            budgetForm.get('email')?.invalid &&
+            (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)
+          "
+        >
+          <i class="fas fa-exclamation-circle"></i>
+          Email no es válido.
+        </p>
+        <p class="nc-error" *ngIf="showErrors">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ msjError }}
+        </p>
       </div>
-    </div>
 
-    <input
-      cFormControl
-      formControlName="amount"
-      sizing="sm"
-      readonly
-      style="display: none"
-    />
-
-    <p
-      class="error-message"
-      *ngIf="
-        budgetForm.get('email')?.invalid &&
-        (budgetForm.get('email')?.touched || budgetForm.get('email')?.dirty)
-      "
-    >
-      <i class="fas fa-exclamation-circle"></i>
-      Email no es válido.
-    </p>
-    <p
-      class="error-message"
-      *ngIf="showErrors"
-    >
-      <i class="fas fa-exclamation-circle"></i>
-      {{ msjError }}
-    </p>
-
-    <!-- Footer Actions -->
-    <div class="form-actions">
-      <a
-        cButton
-        type="button"
-        class="btn-modern btn-back"
-        [routerLink]="'/budgets/budgets'"
-      >
-        <i class="fas fa-arrow-left"></i>
-        <span>Regresar</span>
-      </a>
-
-      <button
-        cButton
-        type="submit"
-        class="btn-modern btn-save"
-      >
-        <i class="fas" [ngClass]="budgetForm.get('budgetId')?.value > 0 ? 'fa-sync-alt' : 'fa-save'"></i>
-        <span>{{ budgetForm.get("budgetId")?.value > 0 ? "Actualizar" : "Guardar" }}</span>
-      </button>
-    </div>
-  </form>
+      <!-- ============================================================= -->
+      <!-- (6) STICKY FOOTER -->
+      <!-- ============================================================= -->
+      <footer class="nc-footer">
+        <div class="nc-footer__total">
+          <span class="nc-footer__total-label">Total</span>
+          <span class="nc-footer__total-value">$ {{ formatNumberParts(total).integer }}<span class="nc-dec">{{ formatNumberParts(total).decimal }}</span></span>
+        </div>
+        <div class="nc-footer__actions">
+          <a
+            cButton
+            type="button"
+            class="nc-btn nc-btn--ghost nc-btn--cancel"
+            [routerLink]="'/budgets/budgets'"
+          >
+            Cancelar
+          </a>
+          <button cButton type="submit" class="nc-btn nc-btn--primary">
+            <i class="fas" [ngClass]="budgetForm.get('budgetId')?.value > 0 ? 'fa-sync-alt' : 'fa-save'"></i>
+            <span>{{ budgetForm.get("budgetId")?.value > 0 ? "Actualizar" : "Guardar cotización" }}</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+  </div>
 </div>
 
-<!-- Modal de selección APU -->
+<!-- ================= Modal APU ================= -->
 <c-modal
   id="liveDemoModal"
   [visible]="visible"
@@ -711,55 +711,48 @@
   size="xl"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modal-modern">
-      <div class="modal-header-modern">
-        <div class="modal-title-container">
-          <div class="modal-icon">
-            <i class="fas fa-database"></i>
-          </div>
+    <div class="modal-content nc-modal">
+      <div class="nc-modal__head">
+        <div class="nc-modal__title-wrap">
+          <div class="nc-modal__icon"><i class="fas fa-layer-group"></i></div>
           <div>
-            <h5 class="modal-title-modern">Agregar Item desde APU</h5>
-            <p class="modal-subtitle">Selecciona los items que deseas agregar</p>
+            <h5 class="nc-modal__title">Agregar ítem desde plantilla (APU)</h5>
+            <p class="nc-modal__subtitle">Selecciona los ítems que deseas agregar</p>
           </div>
         </div>
-        <button
-          (click)="closeModal()"
-          class="modal-close-btn"
-          type="button"
-        >
+        <button (click)="closeModal()" class="nc-modal__close" type="button">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <div class="modal-body-modern">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
+      <div class="nc-modal__body">
+        <div class="nc-search">
+          <i class="fas fa-search nc-search__icon"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            class="search-input-modern"
-            placeholder="Buscar por nombre de item..."
+            [ngModelOptions]="{ standalone: true }"
+            class="nc-search__input"
+            placeholder="Buscar por nombre de ítem…"
           />
         </div>
 
-        <div class="table-modal-container">
-          <table class="table-modal-modern">
+        <div class="nc-modal-table__wrap">
+          <table class="nc-modal-table">
             <thead>
               <tr>
-                <th class="th-select">
-                  <i class="fas fa-check-square"></i>
-                </th>
-                <th class="th-name">Nombre del Item</th>
+                <th class="th-select"><i class="fas fa-check-square"></i></th>
+                <th class="th-name">Nombre del ítem</th>
                 <th class="th-unit">Unidad</th>
-                <th class="th-price">Precio Total</th>
+                <th class="th-price">Precio total</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let apu of filteredApuModels" class="table-row-hover">
+              <tr *ngFor="let apu of filteredApuModels" class="nc-modal-table__row">
                 <td class="td-select">
-                  <label class="checkbox-modern">
-                    <input type="checkbox" [(ngModel)]="apu.selected" />
-                    <span class="checkmark"></span>
+                  <label class="nc-check">
+                    <input type="checkbox" [(ngModel)]="apu.selected" [ngModelOptions]="{ standalone: true }" />
+                    <span class="nc-check__mark"></span>
                   </label>
                 </td>
                 <td class="td-name">{{ apu.itemName | capitalize }}</td>
@@ -771,29 +764,17 @@
         </div>
       </div>
 
-      <div class="modal-footer-modern">
-        <button
-          (click)="closeModalAPU()"
-          class="btn-modern btn-cancel"
-          type="button"
-        >
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
-        <button
-          (click)="addToList()"
-          class="btn-modern btn-confirm"
-          type="button"
-        >
-          <i class="fas fa-plus"></i>
-          Agregar Seleccionados
+      <div class="nc-modal__foot">
+        <button (click)="closeModalAPU()" class="nc-btn nc-btn--ghost" type="button">Cancelar</button>
+        <button (click)="addToList()" class="nc-btn nc-btn--primary" type="button">
+          <i class="fas fa-plus"></i> Agregar seleccionados
         </button>
       </div>
     </div>
   </div>
 </c-modal>
 
-<!-- Modal de selección de Productos -->
+<!-- ================= Modal Producto ================= -->
 <c-modal
   id="productModal"
   [visible]="visibleProductModal"
@@ -801,56 +782,49 @@
   size="xl"
 >
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modal-modern">
-      <div class="modal-header-modern">
-        <div class="modal-title-container">
-          <div class="modal-icon">
-            <i class="fas fa-box"></i>
-          </div>
+    <div class="modal-content nc-modal">
+      <div class="nc-modal__head">
+        <div class="nc-modal__title-wrap">
+          <div class="nc-modal__icon"><i class="fas fa-box"></i></div>
           <div>
-            <h5 class="modal-title-modern">Agregar Item desde Producto</h5>
-            <p class="modal-subtitle">Selecciona los productos que deseas agregar</p>
+            <h5 class="nc-modal__title">Importar ítem desde producto</h5>
+            <p class="nc-modal__subtitle">Selecciona los productos que deseas agregar</p>
           </div>
         </div>
-        <button
-          (click)="closeProductModal()"
-          class="modal-close-btn"
-          type="button"
-        >
+        <button (click)="closeProductModal()" class="nc-modal__close" type="button">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <div class="modal-body-modern">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
+      <div class="nc-modal__body">
+        <div class="nc-search">
+          <i class="fas fa-search nc-search__icon"></i>
           <input
             type="text"
             [(ngModel)]="searchTermProduct"
-            class="search-input-modern"
-            placeholder="Buscar por nombre, código o descripción..."
+            [ngModelOptions]="{ standalone: true }"
+            class="nc-search__input"
+            placeholder="Buscar por nombre, código o descripción…"
           />
         </div>
 
-        <div class="table-modal-container">
-          <table class="table-modal-modern">
+        <div class="nc-modal-table__wrap">
+          <table class="nc-modal-table">
             <thead>
               <tr>
-                <th class="th-select">
-                  <i class="fas fa-check-square"></i>
-                </th>
+                <th class="th-select"><i class="fas fa-check-square"></i></th>
                 <th class="th-code">Código</th>
-                <th class="th-name">Nombre del Producto</th>
+                <th class="th-name">Nombre del producto</th>
                 <th class="th-unit">Unidad</th>
                 <th class="th-price">Precio</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of filteredProductModels" class="table-row-hover">
+              <tr *ngFor="let product of filteredProductModels" class="nc-modal-table__row">
                 <td class="td-select">
-                  <label class="checkbox-modern">
-                    <input type="checkbox" [(ngModel)]="product.selected" />
-                    <span class="checkmark"></span>
+                  <label class="nc-check">
+                    <input type="checkbox" [(ngModel)]="product.selected" [ngModelOptions]="{ standalone: true }" />
+                    <span class="nc-check__mark"></span>
                   </label>
                 </td>
                 <td class="td-code">{{ product.productInternalCode }}</td>
@@ -863,27 +837,42 @@
         </div>
       </div>
 
-      <div class="modal-footer-modern">
-        <button
-          (click)="closeModalProduct()"
-          class="btn-modern btn-cancel"
-          type="button"
-        >
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
-        <button
-          (click)="addProductsToList()"
-          class="btn-modern btn-confirm"
-          type="button"
-        >
-          <i class="fas fa-plus"></i>
-          Agregar Seleccionados
+      <div class="nc-modal__foot">
+        <button (click)="closeModalProduct()" class="nc-btn nc-btn--ghost" type="button">Cancelar</button>
+        <button (click)="addProductsToList()" class="nc-btn nc-btn--primary" type="button">
+          <i class="fas fa-plus"></i> Agregar seleccionados
         </button>
       </div>
     </div>
   </div>
 </c-modal>
+
+<!-- ================= Popup Forma de pago personalizada ================= -->
+<div class="nc-pago-popup" *ngIf="pagoPopupOpen" (click)="cancelPagoPopup()">
+  <div class="nc-pago-popup__card" (click)="$event.stopPropagation()">
+    <div class="nc-pago-popup__head">
+      <h5 class="nc-pago-popup__title">Forma de pago personalizada</h5>
+      <button type="button" class="nc-pago-popup__close" (click)="cancelPagoPopup()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="nc-pago-popup__body">
+      <label class="nc-label">Describe la forma de pago</label>
+      <textarea
+        class="nc-input nc-textarea"
+        [(ngModel)]="pagoDraft"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ej: 70% para iniciar, 20% durante la obra y 10% al finalizar"
+        maxlength="500"
+        rows="3"
+      ></textarea>
+    </div>
+    <div class="nc-pago-popup__foot">
+      <button type="button" class="nc-btn nc-btn--ghost" (click)="cancelPagoPopup()">Cancelar</button>
+      <button type="button" class="nc-btn nc-btn--primary" (click)="savePagoPopup()">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal
@@ -896,11 +885,11 @@
 </app-confirmation-modal>
 
 <ngx-spinner
-  bdColor="rgba(0, 0, 0, 0.8)"
+  bdColor="rgba(76, 29, 149, 0.55)"
   size="medium"
-  color="#fff"
+  color="#ffffff"
   type="square-jelly-box"
   [fullScreen]="true"
 >
-  <p style="color: white">Cargando...</p>
+  <p style="color: white">Cargando…</p>
 </ngx-spinner>

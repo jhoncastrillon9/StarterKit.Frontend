@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-interface PillColors { bg: string; fg: string; border: string; dot: string; }
+export interface PillColors { bg: string; fg: string; border: string; dot: string; }
 
-const STATUS_COLORS: Record<string, PillColors> = {
+export const STATUS_COLORS: Record<string, PillColors> = {
   'Cotizada':      { bg: '#fff8e6', fg: '#8a5a00', border: '#f6e2b0', dot: '#f0a500' },
   'Aprobada':      { bg: '#eafaf0', fg: '#15703f', border: '#c4ecd4', dot: '#1aa35c' },
   'Facturada':     { bg: '#e9f6fd', fg: '#0d5c80', border: '#c3e6f5', dot: '#12a0d8' },
