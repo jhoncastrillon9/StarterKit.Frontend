@@ -10,6 +10,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule as PrimeButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CustomSharedModule } from '../../shared/shared.module';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
+import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.component';
 
 import {
   AlertModule,
@@ -47,7 +50,10 @@ import {
     ModalModule,
     BadgeModule,
     AlertModule,
-    TooltipModule
+    TooltipModule,
+    DataTableComponent,
+    DataTableColumnDirective,
+    StatusPillComponent
   ]
 })
 export class BudgetHistoryModule { }
