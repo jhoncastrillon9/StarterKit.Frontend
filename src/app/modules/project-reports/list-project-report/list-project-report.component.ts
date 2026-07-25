@@ -28,13 +28,19 @@ import { CustomSharedModule} from '../../../shared/shared.module';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 import { EmailSelectorModalComponent } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
+import { TooltipModule } from 'primeng/tooltip';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
+import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-avatar.component';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-list-project-report',
   standalone: true,
   imports: [    SharedModule,     CommonModule,         RouterModule,     NgxSpinnerModule,         CardModule,     FormModule,     GridModule,     FormsModule,     ButtonModule,     ReactiveFormsModule,     FormModule,
        PrimeButtonModule,     DropdownModule,    SharedModule,    ListGroupModule,    IconModule,    ModalModule,    TableModule,    InputTextModule,    InputIconModule,    IconFieldModule,    StyleClassModule,    InputMaskModule,
-      InputSwitchModule,    InputNumberModule,    InputTextareaModule,    InputGroupAddonModule,    InputGroupModule,    InputOtpModule, CustomSharedModule
+      InputSwitchModule,    InputNumberModule,    InputTextareaModule,    InputGroupAddonModule,    InputGroupModule,    InputOtpModule, CustomSharedModule,
+      TooltipModule, DataTableComponent, DataTableColumnDirective, ClientAvatarComponent
       ],
   templateUrl: './list-project-report.component.html',
   styleUrl: './list-project-report.component.scss',
@@ -48,6 +54,21 @@ export class ListProjectReportComponent {
     searchValue: string | undefined;
     loading: boolean = true;
     projectReports: ProjectReportModel[] = [];
+
+    tableColumns: DataTableColumn[] = [
+      { field: 'projectReportId', header: 'Cod', sortable: true, width: '90px' },
+      { field: 'date', header: 'Fecha', sortable: true, width: '130px' },
+      { field: 'projectReportName', header: 'Nombre', sortable: true },
+      { field: 'budgetInternalCode', header: 'Cod Cotización', sortable: true, width: '150px' },
+      { field: 'budgetDTO.budgetName', header: 'Cotización', sortable: true },
+      { field: 'customerDto.customerName', header: 'Cliente', sortable: true },
+      { field: 'acciones', header: 'Acciones', align: 'right', width: '180px' },
+    ];
+
+    get kpis(): KpiDef[] {
+      return [{ key: 'total', label: 'Total informes', value: this.projectReports.length, dotColor: '#6d28d9' }];
+    }
+
       public projectReportToDelete: ProjectReportModel | null = null;
       public projectReportToSendEmail: ProjectReportModel = new ProjectReportModel;
       public availableEmails: string[] = [];
