@@ -588,6 +588,12 @@ $transition: all 0.3s ease;
     flex-wrap: nowrap;
     justify-content: flex-end;
   }
+
+  // Solo en movil: recortar Cliente y Obra a ~20 caracteres (PC queda igual)
+  .customer-cell .customer-name,
+  .name-wrapper .budget-name {
+    max-width: 20ch;
+  }
   
   .action-btn {
     min-width: 28px;
