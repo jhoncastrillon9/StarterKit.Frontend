@@ -1,161 +1,57 @@
-<!-- ========================================
-     MODERN APU LIST COMPONENT
-     ======================================== -->
+<!-- Listado de APUs rediseÃ±ado -->
 <div class="apu-list-container">
-  
-  <!-- Header Section -->
-  <div class="apu-list-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="header-icon">
-          <i class="fas fa-calculator"></i>
-        </div>
-        <div class="header-text">
-          <h1 class="page-title">Análisis de Precios Unitarios</h1>
-          <p class="page-subtitle">Gestión y consulta de APUs del sistema</p>
-        </div>
-      </div>
-      <div class="header-stats">
-        <div class="stat-badge">
-          <i class="fas fa-list-ol"></i>
-          <span>{{ apus.length }} APUs</span>
-        </div>
-      </div>
+  <app-data-table
+    [columns]="tableColumns"
+    [value]="apus"
+    [loading]="loading"
+    rowKey="unitPriceAnalysisId"
+    title="AnÃ¡lisis de Precios Unitarios"
+    headerIcon="fas fa-calculator"
+    [subtitle]="apus.length + ' APUs'"
+    [kpis]="kpis"
+    searchPlaceholder="Buscar APU..."
+    [globalFilterFields]="['itemName','subChapterName']"
+    [rows]="50"
+    [rowsPerPageOptions]="[25,50,100,500]"
+    sortField="itemName"
+    [sortOrder]="1"
+    currentPageReportTemplate="{first} al {last} de {totalRecords} APUs">
+
+    <ng-template dtColumn="unitPriceAnalysisId" let-apu>
+      <span class="code-value">{{ apu.unitPriceAnalysisId }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="subChapterName" let-apu>
+      <span class="chapter-text">{{ apu.subChapterName | capitalize | truncate:50 }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="itemName" let-apu>
+      <span class="item-name">{{ apu.itemName | capitalize }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="unitMeasurement" let-apu>
+      <span class="unit-badge">{{ apu.unitMeasurement }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="laborCost" let-apu>
+      <span class="price-text">$ {{ apu.laborCost.toLocaleString('es-ES') }}</span>
+    </ng-template>
+
+    <ng-template dtColumn="totalPrice" let-apu>
+      <span class="price-total">$ {{ apu.totalPrice.toLocaleString('es-ES') }}</span>
+    </ng-template>
+
+    <div dt-empty class="empty-content">
+      <i class="fas fa-calculator empty-icon"></i>
+      <h3>No hay APUs disponibles</h3>
+      <p>No se encontraron anÃ¡lisis de precios unitarios</p>
     </div>
-  </div>
-
-  <!-- Main Card -->
-  <div class="apu-list-card">
-    <p-table #dt 
-      class="p-datatable-modern" 
-      styleClass="p-datatable-gridlines"        
-      [value]="apus" 
-      [paginator]="true" 
-      [rows]="50"         
-      [filterDelay]="3" 
-      [loading]="loading"       
-      [rowHover]="true"
-      sortField="itemName" 
-      [sortOrder]="-1"
-      [rowsPerPageOptions]="[25, 50, 100, 500]"
-      currentPageReportTemplate="{first} al {last} de {totalRecords}"
-      [globalFilterFields]="['itemName','subChapterName']"
-      [tableStyle]="{ 'min-width': '50rem' }">
-
-      <!-- Table Caption / Search -->
-      <ng-template pTemplate="caption">
-        <div class="table-caption">
-          <div class="caption-left">
-            <button class="btn-clear" (click)="clear(dt)">
-              <i class="fas fa-filter-circle-xmark"></i>
-              Limpiar
-            </button>
-          </div>
-          <div class="caption-right">
-            <div class="search-wrapper">
-              <i class="fas fa-search search-icon"></i>
-              <input 
-                type="text" 
-                class="search-input"
-                [(ngModel)]="searchValue" 
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
-                placeholder="Buscar APU..." />
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-      <!-- Table Header -->
-      <ng-template pTemplate="header">
-        <tr class="table-header-row">
-          <th pSortableColumn="unitPriceAnalysisId" style="width: 80px;">
-            <div class="th-content">
-              <i class="fas fa-hashtag"></i>
-              Cod
-              <p-sortIcon field="unitPriceAnalysisId" />
-            </div>
-          </th>
-          <th pSortableColumn="subChapterName">
-            <div class="th-content">
-              <i class="fas fa-folder"></i>
-              Capítulo
-              <p-sortIcon field="subChapterName" />
-            </div>
-          </th>
-          <th pSortableColumn="itemName">
-            <div class="th-content">
-              <i class="fas fa-cube"></i>
-              Item
-              <p-sortIcon field="itemName" />
-            </div>
-          </th>
-          <th pSortableColumn="unitMeasurement" style="width: 100px;">
-            <div class="th-content">
-              <i class="fas fa-ruler"></i>
-              Und
-              <p-sortIcon field="unitMeasurement" />
-            </div>
-          </th>
-          <th pSortableColumn="laborCost" style="width: 140px;">
-            <div class="th-content">
-              <i class="fas fa-hard-hat"></i>
-              Mano de Obra
-              <p-sortIcon field="laborCost" />
-            </div>
-          </th>
-          <th pSortableColumn="totalPrice" style="width: 140px;">
-            <div class="th-content">
-              <i class="fas fa-coins"></i>
-              Valor Total
-              <p-sortIcon field="totalPrice" />
-            </div>
-          </th>
-        </tr>
-      </ng-template>
-
-      <!-- Table Body -->
-      <ng-template pTemplate="body" let-apu>
-        <tr class="table-body-row">
-          <td>
-            <span class="code-badge">{{ apu.unitPriceAnalysisId }}</span>
-          </td>
-          <td>
-            <span class="chapter-text">{{ apu.subChapterName | capitalize | truncate:50 }}</span>
-          </td>
-          <td>
-            <span class="item-name">{{ apu.itemName | capitalize }}</span>
-          </td>
-          <td>
-            <span class="unit-badge">{{ apu.unitMeasurement }}</span>
-          </td>
-          <td>
-            <span class="price-text">$ {{ apu.laborCost.toLocaleString() }}</span>
-          </td>
-          <td>
-            <span class="price-total">$ {{ apu.totalPrice.toLocaleString('es-ES') }}</span>
-          </td>
-        </tr>
-      </ng-template>
-
-      <!-- Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="empty-state">
-            <div class="empty-content">
-              <i class="fas fa-calculator empty-icon"></i>
-              <h3>No hay APUs disponibles</h3>
-              <p>No se encontraron análisis de precios unitarios</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  </app-data-table>
 </div>
 
-<!-- Modal de confirmación -->
-<app-confirmation-modal 
-  #confirmationModal  
+<!-- Modal de confirmaciÃ³n -->
+<app-confirmation-modal
+  #confirmationModal
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
