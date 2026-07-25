@@ -88,16 +88,14 @@
       <i *ngIf="savedInvoiceId === budget.budgetId" class="fas fa-check saved-check"></i>
     </ng-template>
 
-    <!-- Estado (dropdown + status pill — preserved) -->
+    <!-- Estado: pill de color como boton + caret sutil; opciones en p-menu popup -->
     <ng-template dtColumn="estado" let-budget>
       <div class="status-cell-wrapper">
-        <p-dropdown [options]="statusOptions" [(ngModel)]="budget.estado" (onChange)="onStatusChange(budget)"
-          appendTo="body" styleClass="status-dropdown" optionLabel="label" optionValue="value">
-          <ng-template pTemplate="selectedItem">
-            <app-status-pill *ngIf="budget.estado" [status]="budget.estado"></app-status-pill>
-          </ng-template>
-          <ng-template let-option pTemplate="item"><app-status-pill [status]="option.value"></app-status-pill></ng-template>
-        </p-dropdown>
+        <button type="button" class="status-trigger" (click)="openStatusMenu($event, budget)"
+          pTooltip="Cambiar estado" tooltipPosition="top">
+          <app-status-pill [status]="budget.estado"></app-status-pill>
+          <i class="fas fa-chevron-down status-caret"></i>
+        </button>
         <i *ngIf="savingStatusId === budget.budgetId" class="pi pi-spin pi-spinner inline-saving-spinner"></i>
         <i *ngIf="savedStatusId === budget.budgetId" class="fas fa-check saved-check"></i>
       </div>
@@ -129,6 +127,7 @@
 
   <!-- Context menu (preserved) -->
   <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+  <p-menu #statusMenu [model]="statusMenuItems" [popup]="true" appendTo="body" styleClass="status-menu"></p-menu>
 </div>
 
 <!-- Modal de confirmacion -->

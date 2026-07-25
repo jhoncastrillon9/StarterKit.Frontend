@@ -227,45 +227,24 @@ $transition: all 0.3s ease;
 }
 
 // Status Dropdown
-// Estado: solo el pill de color + un caret sutil. El control p-dropdown se
-// colapsa a la altura del pill para NO engordar la fila. Click => opciones.
-::ng-deep .status-dropdown.p-dropdown {
+// Estado: pill de color como boton + caret sutil. El listado se abre en un
+// p-menu popup, sin el chrome ni la altura del p-dropdown de PrimeNG.
+.status-trigger {
   display: inline-flex;
   align-items: center;
-  height: auto !important;
-  min-height: 0 !important;
-  min-width: 0 !important;
-  width: fit-content;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 
-  .p-dropdown-label {
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  // Caret sutil (icono de despliegue)
-  .p-dropdown-trigger {
-    width: auto !important;
-    padding: 0 2px 0 5px !important;
+  .status-caret {
+    font-size: 9px;
     color: #b7b2c6;
-  }
-  .p-dropdown-trigger .p-dropdown-trigger-icon,
-  .p-dropdown-trigger .p-icon,
-  .p-dropdown-trigger svg {
-    width: 9px !important;
-    height: 9px !important;
-    font-size: 9px !important;
+    transition: color .15s ease;
   }
 
-  &:hover .p-dropdown-trigger { color: #8b85a1; }
+  &:hover .status-caret { color: #8b85a1; }
 }
 
 // Report Badge

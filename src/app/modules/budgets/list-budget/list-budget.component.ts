@@ -30,6 +30,7 @@ export class ListBudgetComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
   @ViewChild('menu') menu!: Menu;
+  @ViewChild('statusMenu') statusMenu!: Menu;
   isModalError: boolean = false;
   private readonly successDeleteMessage: string = "¡La cotización ha sido eliminada correctamente!";
   private readonly successSendBusgetMessage: string = "¡Todo listo! Tu correo ha volado hacia sus destinatarios. Si no lo ves pronto, échale un ojo a la carpeta de spam... 😉";
@@ -102,6 +103,7 @@ export class ListBudgetComponent implements OnInit {
   loading: boolean = true;
   budgets: BudgetModel[] = [];
   menuItems: MenuItem[] = [];
+  statusMenuItems: MenuItem[] = [];
   currentBudget: BudgetModel | null = null;
 
   displayScheduleDialog: boolean = false;
@@ -562,6 +564,21 @@ export class ListBudgetComponent implements OnInit {
   
   showNotify() {
     console.log('show notify');
+  }
+
+  // Abre el listado de estados como menú popup anclado al pill (sin p-dropdown)
+  openStatusMenu(event: Event, budget: BudgetModel) {
+    this.statusMenuItems = this.statusOptions.map(option => ({
+      label: option.label,
+      icon: this.getStatusIcon(option.value),
+      command: () => {
+        if (budget.estado !== option.value) {
+          budget.estado = option.value;
+          this.onStatusChange(budget);
+        }
+      }
+    }));
+    this.statusMenu.toggle(event);
   }
 
   onMenuClick(event: Event, budget: BudgetModel) {
