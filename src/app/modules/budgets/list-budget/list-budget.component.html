@@ -244,9 +244,9 @@
               </span>
             </span>
             <div *ngIf="editingInvoiceBudgetId === budget.budgetId" class="invoice-edit-wrapper">
-              <input 
-                pInputText 
-                [(ngModel)]="editingInvoiceValue" 
+              <input
+                pInputText
+                [(ngModel)]="editingInvoiceValue"
                 (blur)="saveExternalInvoice(budget)"
                 (keyup.enter)="saveExternalInvoice(budget)"
                 (keyup.escape)="cancelEditingInvoice()"
@@ -254,11 +254,14 @@
                 placeholder="Factura"
                 #invoiceInput>
             </div>
+            <i *ngIf="savingInvoiceId === budget.budgetId" class="pi pi-spin pi-spinner inline-saving-spinner"></i>
+            <i *ngIf="savedInvoiceId === budget.budgetId" class="fas fa-check saved-check"></i>
           </td>
           
           <!-- Estado -->
           <td class="td-status">
-            <p-dropdown 
+            <div class="status-cell-wrapper">
+            <p-dropdown
               [options]="statusOptions" 
               [(ngModel)]="budget.estado" 
               (onChange)="onStatusChange(budget)" 
@@ -286,8 +289,11 @@
                 </span>
               </ng-template>
             </p-dropdown>
+            <i *ngIf="savingStatusId === budget.budgetId" class="pi pi-spin pi-spinner inline-saving-spinner"></i>
+            <i *ngIf="savedStatusId === budget.budgetId" class="fas fa-check saved-check"></i>
+            </div>
           </td>
-          
+
           <!-- Total -->
           <td class="td-total">
             <span class="total-value">
@@ -523,8 +529,11 @@
   (confirmAction)="onEmailsSelected($event)">
 </app-email-selector-modal>
 
-<ngx-spinner 
-  bdColor="rgba(0, 0, 0, 0.8)" 
+<!-- Notificaciones sutiles (arriba-derecha) para edición de Estado / Factura -->
+<p-toast position="top-right" key="budget-inline"></p-toast>
+
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
   size="medium" 
   color="#fff" 
   type="square-jelly-box" 

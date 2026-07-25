@@ -6,6 +6,7 @@ import { IconSetService } from '@coreui/icons-angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone } from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { MessageService } from 'primeng/api';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { Table, TableModule } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
@@ -96,6 +97,13 @@ export class ListBudgetComponent implements OnInit {
   editingInvoiceValue: string = '';
   private originalInvoiceValue: string = '';
 
+  // Feedback sutil al editar Estado / Factura (spinner inline + chulito / toast)
+  savingStatusId: number | null = null;
+  savedStatusId: number | null = null;
+  savingInvoiceId: number | null = null;
+  savedInvoiceId: number | null = null;
+  private readonly savedCheckDurationMs: number = 1200;
+
   statusOptions: any[] = [
     { label: 'Cotizada', value: 'Cotizada' },
     { label: 'Aprobada', value: 'Aprobada' },
@@ -118,7 +126,8 @@ export class ListBudgetComponent implements OnInit {
     public iconSet: IconSetService,
     private router: Router,
     private route: ActivatedRoute,
-    private spinner: NgxSpinnerService) {
+    private spinner: NgxSpinnerService,
+    private messageService: MessageService) {
     iconSet.icons = { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone };
   }
 
@@ -160,23 +169,26 @@ export class ListBudgetComponent implements OnInit {
 
   onStatusChange(budget: BudgetModel) {
     const oldStatus = this.originalStatuses.get(budget.budgetId);
-    this.loading = true;
-    this.spinner.show();
+    this.savingStatusId = budget.budgetId;
     const updatedBudget = { status: budget.estado, budgetId: budget.budgetId };
     this.budgetService.updateStatus(updatedBudget).subscribe(
       (response: any) => {
-        this.loading = false;
-        this.spinner.hide();
+        this.savingStatusId = null;
         this.originalStatuses.set(budget.budgetId, budget.estado);
-        this.showModal(false, `Se actualizó el estado de la cotización ${budget.internalCode} a ${budget.estado}`, '¡Estado Actualizado!');
+        this.notifySaveSuccess(
+          budget.budgetId,
+          '¡Estado actualizado!',
+          `Cotización ${budget.internalCode} → ${budget.estado}`,
+          () => { this.savedStatusId = budget.budgetId; },
+          () => { if (this.savedStatusId === budget.budgetId) { this.savedStatusId = null; } }
+        );
       },
       (error) => {
-        this.loading = false;
-        this.spinner.hide();
+        this.savingStatusId = null;
         if (oldStatus) {
           budget.estado = oldStatus;
         }
-        this.handleError('Error updating status', 'No se pudo actualizar el estado. Inténtalo de nuevo.');
+        this.notifySaveError('Error updating status', 'No se pudo actualizar el estado. Inténtalo de nuevo.');
       }
     );
   }
@@ -203,25 +215,55 @@ export class ListBudgetComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.spinner.show();
-    const updatedData = { budgetId: budget.budgetId, externalInvoice: this.editingInvoiceValue };
-    
+    const newInvoiceValue = this.editingInvoiceValue;
+    this.savingInvoiceId = budget.budgetId;
+    this.cancelEditingInvoice();
+    const updatedData = { budgetId: budget.budgetId, externalInvoice: newInvoiceValue };
+
     this.budgetService.updateExternalInvoice(updatedData).subscribe(
       (response: any) => {
-        this.loading = false;
-        this.spinner.hide();
-        budget.externalInvoice = this.editingInvoiceValue;
-        this.cancelEditingInvoice();
-        this.showModal(false, `Se actualizó la factura de la cotización ${budget.internalCode}`, '¡Factura Actualizada!');
+        this.savingInvoiceId = null;
+        budget.externalInvoice = newInvoiceValue;
+        this.notifySaveSuccess(
+          budget.budgetId,
+          '¡Factura actualizada!',
+          `Cotización ${budget.internalCode}`,
+          () => { this.savedInvoiceId = budget.budgetId; },
+          () => { if (this.savedInvoiceId === budget.budgetId) { this.savedInvoiceId = null; } }
+        );
       },
       (error) => {
-        this.loading = false;
-        this.spinner.hide();
-        this.cancelEditingInvoice();
-        this.handleError('Error updating external invoice', 'No se pudo actualizar la factura. Inténtalo de nuevo.');
+        this.savingInvoiceId = null;
+        this.notifySaveError('Error updating external invoice', 'No se pudo actualizar la factura. Inténtalo de nuevo.');
       }
     );
+  }
+
+  // Muestra feedback de éxito sutil: en PC un toast arriba-derecha; en móvil un chulito
+  // verde junto al campo por unos segundos. En desktop el chulito queda oculto por CSS.
+  private notifySaveSuccess(
+    budgetId: number,
+    title: string,
+    detail: string,
+    showCheck: () => void,
+    clearCheck: () => void
+  ) {
+    if (this.isDesktop()) {
+      this.messageService.add({ key: 'budget-inline', severity: 'success', summary: title, detail, life: 2500 });
+    } else {
+      showCheck();
+      setTimeout(() => clearCheck(), this.savedCheckDurationMs);
+    }
+  }
+
+  // Error sutil: toast rojo arriba-derecha (en PC y móvil). El valor ya fue revertido por el caller.
+  private notifySaveError(consoleMessage: string, message: string) {
+    console.error(consoleMessage);
+    this.messageService.add({ key: 'budget-inline', severity: 'error', summary: '¡Ups!', detail: message, life: 4000 });
+  }
+
+  private isDesktop(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth >= 768;
   }
 
   deleteBudgetWithComfirm(budgetModel: BudgetModel) {
