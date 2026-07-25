@@ -1,0 +1,20 @@
+@use '../_dc-tokens' as dc;
+
+.dc-kpi {
+  flex: 1 1 180px; display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  border-radius: 12px; background: #fff; border: 1.5px solid dc.$dc-border;
+  box-shadow: 0 1px 2px rgba(24, 20, 45, .05); font-family: dc.$dc-font-body;
+  text-align: left; cursor: pointer; transition: border-color .15s ease;
+  &:hover { border-color: #c4b5fd; }
+  &--active { border-color: #a78bfa; }
+}
+.dc-kpi__dot { width: 6px; height: 30px; border-radius: 3px; flex: none; }
+.dc-kpi__body { display: flex; flex-direction: column; gap: 1px; }
+.dc-kpi__value {
+  font-family: dc.$dc-font-head; font-weight: 800; font-size: 21px; line-height: 1.1;
+  letter-spacing: -.5px; font-variant-numeric: tabular-nums; color: dc.$dc-text;
+}
+.dc-kpi__label {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: dc.$dc-muted;
+}
+.dc-kpi__share { margin-left: auto; font-size: 11px; font-weight: 700; color: #a09ab5; }
