@@ -6,6 +6,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-list-product',
@@ -34,6 +35,23 @@ export class ListProductComponent implements OnInit {
   searchValue: string = '';
   loading: boolean = true;
   products: Product[] = [];
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'productInternalCode', header: 'Código', sortable: true, width: '140px' },
+    { field: 'name', header: 'Nombre', sortable: true },
+    { field: 'description', header: 'Descripción', sortable: true },
+    { field: 'price', header: 'Precio', sortable: true, align: 'right', width: '160px' },
+    { field: 'acciones', header: 'Acciones', align: 'right', width: '150px' },
+  ];
+
+  get kpis(): KpiDef[] {
+    return [{ key: 'total', label: 'Total productos', value: this.totalRecords, dotColor: '#6d28d9' }];
+  }
+
+  onSearchChange(value: string): void {
+    this.searchValue = value;
+    this.onSearch();
+  }
 
   isModalForDelete: boolean = false;
   public visible = false;

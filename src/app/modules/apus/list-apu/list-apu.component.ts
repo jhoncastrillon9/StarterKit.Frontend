@@ -26,6 +26,9 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { CustomSharedModule} from '../../../shared/shared.module';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
 
 @Component({
@@ -33,7 +36,8 @@ import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-m
   standalone: true,
   imports: [    SharedModule,     CommonModule,         RouterModule,     NgxSpinnerModule,         CardModule,     FormModule,     GridModule,     FormsModule,     ButtonModule,     ReactiveFormsModule,     FormModule,
      PrimeButtonModule,     DropdownModule,    SharedModule,    ListGroupModule,    IconModule,    ModalModule,    TableModule,    InputTextModule,    InputIconModule,    IconFieldModule,    StyleClassModule,    InputMaskModule,
-    InputSwitchModule,    InputNumberModule,    InputTextareaModule,    InputGroupAddonModule,    InputGroupModule,    InputOtpModule, CustomSharedModule
+    InputSwitchModule,    InputNumberModule,    InputTextareaModule,    InputGroupAddonModule,    InputGroupModule,    InputOtpModule, CustomSharedModule,
+    DataTableComponent, DataTableColumnDirective
     ],
   templateUrl: './list-apu.component.html',
   styleUrl: './list-apu.component.scss',
@@ -45,6 +49,26 @@ export class ListApuComponent {
   searchValue: string | undefined;
   loading: boolean = true;
   apus: ApuModel[] = [];
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'unitPriceAnalysisId', header: 'Cod', sortable: true, width: '80px' },
+    { field: 'subChapterName', header: 'Capítulo', sortable: true },
+    { field: 'itemName', header: 'Item', sortable: true },
+    { field: 'unitMeasurement', header: 'Und', sortable: true, width: '100px' },
+    { field: 'laborCost', header: 'Mano de Obra', sortable: true, align: 'right', width: '150px' },
+    { field: 'totalPrice', header: 'Valor Total', sortable: true, align: 'right', width: '150px' },
+  ];
+
+  get sumTotal(): number {
+    return this.apus.reduce((s, a) => s + (a.totalPrice ?? 0), 0);
+  }
+
+  get kpis(): KpiDef[] {
+    return [
+      { key: 'count', label: 'Total APUs', value: this.apus.length, dotColor: '#6d28d9' },
+      { key: 'sum', label: 'Suma valor total', value: '$ ' + this.sumTotal.toLocaleString('es-ES', { maximumFractionDigits: 0 }), dotColor: '#1aa35c' },
+    ];
+  }
 
   private readonly errorTitle: string = "Oops, ocurrió un error.";
   private readonly loadDataErrorMessage: string = "Algo falló al obtener los datos del APU. Refresca la página.";

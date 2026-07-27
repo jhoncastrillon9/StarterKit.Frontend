@@ -1,6 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // Routing
 import { ProductsRoutingModule } from './products-routing.module';
@@ -21,6 +22,8 @@ import { DialogModule } from 'primeng/dialog';
 // Other Modules
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { CustomSharedModule } from 'src/app/shared/shared.module';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,10 @@ import { CustomSharedModule } from 'src/app/shared/shared.module';
     InputTextareaModule,
     DialogModule,
     NgxSpinnerModule,
-    CustomSharedModule
+    CustomSharedModule,
+    RouterModule,
+    DataTableComponent,
+    DataTableColumnDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

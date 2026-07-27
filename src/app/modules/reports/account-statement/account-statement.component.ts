@@ -8,6 +8,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import { DataTableColumn, KpiDef } from '../../../shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-account-statement',
@@ -50,6 +51,41 @@ export class AccountStatementComponent implements OnInit {
   estadoOptions = BUDGET_ESTADOS;
 
   editedBudgets = new Map<number, { externalInvoice?: string, estado?: string }>();
+
+  currentStatementBudget: BudgetModel | null = null;
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'internalCode', header: 'Código', width: '110px' },
+    { field: 'date', header: 'Fecha', width: '130px' },
+    { field: 'budgetName', header: 'Obra' },
+    { field: 'externalInvoice', header: 'Factura', width: '150px' },
+    { field: 'estado', header: 'Estado', width: '170px' },
+    { field: 'total', header: 'Total', align: 'right', width: '150px' },
+    { field: 'acciones', header: 'Guardar', align: 'center', width: '90px' },
+  ];
+
+  get statementKpis(): KpiDef[] {
+    return [{
+      key: 'debt',
+      label: 'Total adeudado',
+      value: '$ ' + this.total().toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+      dotColor: '#e5484d',
+    }];
+  }
+
+  displayFacturaFor(b: BudgetModel): string {
+    return this.editedBudgets.get(b.budgetId)?.externalInvoice ?? b.externalInvoice ?? '';
+  }
+
+  displayEstadoFor(b: BudgetModel): string {
+    return this.editedBudgets.get(b.budgetId)?.estado ?? b.estado ?? '';
+  }
+
+  selectEstadoStatement(value: string): void {
+    if (this.currentStatementBudget) {
+      this.onEstadoChange(this.currentStatementBudget.budgetId, value);
+    }
+  }
 
   ngOnInit(): void {
     this.loadCustomers();

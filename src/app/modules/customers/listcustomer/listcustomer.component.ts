@@ -8,6 +8,7 @@ import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-listcustomer',
@@ -22,6 +23,18 @@ export class ListcustomerComponent implements OnInit {
   loading: boolean = true;
   customers: CustomerModel[] = [];
   isModalError: boolean = false;
+
+  tableColumns: DataTableColumn[] = [
+    { field: 'customId', header: 'NIT', sortable: true, width: '150px' },
+    { field: 'customerName', header: 'Nombre', sortable: true },
+    { field: 'email', header: 'Email', sortable: true },
+    { field: 'address', header: 'Dirección', sortable: true },
+    { field: 'acciones', header: 'Acciones', align: 'right', width: '120px' },
+  ];
+
+  get kpis(): KpiDef[] {
+    return [{ key: 'total', label: 'Total clientes', value: this.customers.length, dotColor: '#6d28d9' }];
+  }
 
   private readonly successDeleteMessage: string = "¡El cliente ha sido eliminado correctamente!";
   private readonly successDeleteTitle: string = "¡Eliminación Completada!";

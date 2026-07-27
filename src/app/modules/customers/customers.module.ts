@@ -117,7 +117,10 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { CustomSharedModule} from '../../shared/shared.module';
-import { SharedModule as CustomSharedModulePipes } from '../../shared.module'; 
+import { SharedModule as CustomSharedModulePipes } from '../../shared.module';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
+import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
+import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-avatar.component';
 
 
 
@@ -158,7 +161,10 @@ import { SharedModule as CustomSharedModulePipes } from '../../shared.module';
     InputOtpModule,
     PrimeButtonModule,
     CustomSharedModule,
-    ChipsModule
+    ChipsModule,
+    DataTableComponent,
+    DataTableColumnDirective,
+    ClientAvatarComponent,
   ],
   providers: [IconSetService]
 
