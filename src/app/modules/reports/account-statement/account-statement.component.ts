@@ -24,6 +24,7 @@ interface MovementDraft {
   kind: MovementKind;
   amount: number | null;
   note: string;
+  date: Date;
 }
 
 @Component({
@@ -86,7 +87,7 @@ export class AccountStatementComponent implements OnInit {
 
   // Formulario único de "registrar transferencia".
   transferDialogVisible = signal(false);
-  transferTotal: number | null = null;
+  transferTotal = signal<number | null>(null);
   transferDate: Date = new Date();
   transferNote = '';
   transferAllocations = signal<Map<number, number | null>>(new Map());
@@ -353,7 +354,7 @@ export class AccountStatementComponent implements OnInit {
   draftFor(budgetId: number): MovementDraft {
     let draft = this.drafts.get(budgetId);
     if (!draft) {
-      draft = { kind: 'Abono', amount: null, note: '' };
+      draft = { kind: 'Abono', amount: null, note: '', date: new Date() };
       this.drafts.set(budgetId, draft);
     }
     return draft;
@@ -399,7 +400,7 @@ export class AccountStatementComponent implements OnInit {
         this.savingMovementBudgetId = null;
         const movement: PaymentModel = { ...payload, ...(created ?? {}) } as PaymentModel;
         this.upsertMovement(budget.budgetId, movement);
-        this.drafts.set(budget.budgetId, { kind: draft.kind, amount: null, note: '' });
+        this.drafts.set(budget.budgetId, { kind: draft.kind, amount: null, note: '', date: new Date() });
         this.notifySuccess(
           draft.kind === 'Abono' ? 'Abono registrado' : 'Ajuste registrado',
           `$ ${this.money(payload.amountPaid)} en la cotización ${budget.internalCode}`
@@ -413,6 +414,16 @@ export class AccountStatementComponent implements OnInit {
   }
 
   deleteMovement(budget: BudgetModel, movement: PaymentModel): void {
+    if (movement.transferId) {
+      this.messageService.add({
+        key: 'ac-inline',
+        severity: 'warn',
+        summary: 'Movimiento de una transferencia',
+        detail: 'Eliminar este monto puede desbalancear el total de la transferencia #' + movement.transferId,
+        life: 4000,
+      });
+    }
+
     const snapshot = this.movementsFor(budget.budgetId);
     this.movementsByBudget.update(map => {
       const next = new Map(map);
@@ -439,6 +450,7 @@ export class AccountStatementComponent implements OnInit {
       kind: this.kindOf(movement),
       amount: movement.amountPaid,
       note: movement.note,
+      date: movement.paymentDate,
     };
   }
 
@@ -461,6 +473,12 @@ export class AccountStatementComponent implements OnInit {
     if (this.editingMovementDraft) this.editingMovementDraft.kind = kind;
   }
 
+  setEditingDate(value: string): void {
+    if (!value || !this.editingMovementDraft) return;
+    const [year, month, day] = value.split('-').map(Number);
+    this.editingMovementDraft.date = new Date(year, month - 1, day);
+  }
+
   canSaveEditingMovement(): boolean {
     return !!this.editingMovementDraft?.amount && this.editingMovementDraft.amount > 0;
   }
@@ -469,11 +487,22 @@ export class AccountStatementComponent implements OnInit {
     const draft = this.editingMovementDraft;
     if (!draft || !this.canSaveEditingMovement()) return;
 
+    if (movement.transferId) {
+      this.messageService.add({
+        key: 'ac-inline',
+        severity: 'warn',
+        summary: 'Movimiento de una transferencia',
+        detail: 'Editar este monto puede desbalancear el total de la transferencia #' + movement.transferId,
+        life: 4000,
+      });
+    }
+
     const payload = {
       ...movement,
       paymentType: draft.kind,
       amountPaid: draft.amount as number,
       note: draft.note ?? '',
+      paymentDate: draft.date,
     };
 
     this.savingMovementId = movement.paymentId;
@@ -508,7 +537,7 @@ export class AccountStatementComponent implements OnInit {
   // --------------------------------------------------- transferencia multi-factura
 
   openTransferDialog(): void {
-    this.transferTotal = null;
+    this.transferTotal.set(null);
     this.transferDate = new Date();
     this.transferNote = '';
     this.transferAllocations.set(new Map());
@@ -545,12 +574,12 @@ export class AccountStatementComponent implements OnInit {
     return total;
   });
 
-  transferRemaining = computed(() => (this.transferTotal ?? 0) - this.transferAllocatedTotal());
+  transferRemaining = computed(() => (this.transferTotal() ?? 0) - this.transferAllocatedTotal());
 
   canSubmitTransfer(): boolean {
-    return !!this.transferTotal && this.transferTotal > 0
+    return !!this.transferTotal() && this.transferTotal()! > 0
       && this.transferAllocatedTotal() > 0
-      && Math.abs(this.transferRemaining()) < 0.5
+      && this.transferRemaining() === 0
       && !this.savingTransfer();
   }
 
@@ -566,7 +595,7 @@ export class AccountStatementComponent implements OnInit {
 
     const payload: CreatePaymentTransferRequest = {
       customerId: customer.customerId,
-      totalAmount: this.transferTotal as number,
+      totalAmount: this.transferTotal() as number,
       transferDate: this.transferDate,
       note: this.transferNote,
       allocations,

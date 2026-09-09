@@ -198,6 +198,9 @@
                 <input type="text" class="ac-input-sm mov__edit-note"
                   [ngModel]="editingMovementDraft?.note" [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="setEditingNote($event)" aria-label="Nota" />
+                <input type="date" class="ac-input-sm"
+                  [ngModel]="editingMovementDraft?.date | date:'yyyy-MM-dd'" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingDate($event)" aria-label="Fecha" />
                 <div class="mov__actions">
                   <button type="button" class="mov__save" [disabled]="!canSaveEditingMovement()"
                     (click)="saveMovement(budget, mov)" aria-label="Guardar movimiento">
@@ -289,7 +292,7 @@
         <div class="ac-field">
           <label>Valor total de la transferencia</label>
           <input type="number" min="0" class="ac-input-sm transfer-form__total"
-            [ngModel]="transferTotal" (ngModelChange)="transferTotal = $event" placeholder="0" />
+            [ngModel]="transferTotal()" (ngModelChange)="transferTotal.set($event)" placeholder="0" />
         </div>
         <div class="ac-field">
           <label>Fecha</label>
@@ -303,7 +306,7 @@
         </div>
       </div>
 
-      <div class="transfer-form__counter" [class.is-balanced]="transferRemaining() === 0 && transferTotal">
+      <div class="transfer-form__counter" [class.is-balanced]="transferRemaining() === 0 && transferTotal()">
         Repartido: $ {{ money(transferAllocatedTotal()) }} · Restante: $ {{ money(transferRemaining()) }}
       </div>
 
