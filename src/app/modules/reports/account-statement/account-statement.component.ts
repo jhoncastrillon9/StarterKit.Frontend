@@ -66,6 +66,11 @@ export class AccountStatementComponent implements OnInit {
   editingInvoiceValue = '';
   private originalInvoiceValue = '';
 
+  // Edición inline de un movimiento (abono/ajuste) ya guardado.
+  editingMovementId: number | null = null;
+  editingMovementDraft: MovementDraft | null = null;
+  savingMovementId: number | null = null;
+
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
 
@@ -401,6 +406,64 @@ export class AccountStatementComponent implements OnInit {
           return next;
         });
         this.notifyError('No se pudo eliminar el movimiento.');
+      },
+    });
+  }
+
+  startEditingMovement(movement: PaymentModel): void {
+    this.editingMovementId = movement.paymentId;
+    this.editingMovementDraft = {
+      kind: this.kindOf(movement),
+      amount: movement.amountPaid,
+      note: movement.note,
+    };
+  }
+
+  cancelEditingMovement(): void {
+    this.editingMovementId = null;
+    this.editingMovementDraft = null;
+  }
+
+  setEditingAmount(value: string): void {
+    if (!this.editingMovementDraft) return;
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    this.editingMovementDraft.amount = Number.isFinite(parsed) ? parsed : null;
+  }
+
+  setEditingNote(value: string): void {
+    if (this.editingMovementDraft) this.editingMovementDraft.note = value;
+  }
+
+  setEditingKind(kind: MovementKind): void {
+    if (this.editingMovementDraft) this.editingMovementDraft.kind = kind;
+  }
+
+  canSaveEditingMovement(): boolean {
+    return !!this.editingMovementDraft?.amount && this.editingMovementDraft.amount > 0;
+  }
+
+  saveMovement(budget: BudgetModel, movement: PaymentModel): void {
+    const draft = this.editingMovementDraft;
+    if (!draft || !this.canSaveEditingMovement()) return;
+
+    const payload = {
+      ...movement,
+      paymentType: draft.kind,
+      amountPaid: draft.amount as number,
+      note: draft.note ?? '',
+    };
+
+    this.savingMovementId = movement.paymentId;
+    this.paymentService.update(payload).subscribe({
+      next: (updated: any) => {
+        this.savingMovementId = null;
+        this.upsertMovement(budget.budgetId, { ...payload, ...(updated ?? {}) } as PaymentModel);
+        this.cancelEditingMovement();
+        this.notifySuccess('Movimiento actualizado', `Cotización ${budget.internalCode}`);
+      },
+      error: () => {
+        this.savingMovementId = null;
+        this.notifyError('No se pudo actualizar el movimiento. Inténtalo de nuevo.');
       },
     });
   }

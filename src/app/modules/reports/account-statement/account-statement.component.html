@@ -150,20 +150,56 @@
         <div class="movs">
           <div class="movs__list" *ngIf="movementsFor(budget.budgetId).length; else sinMovimientos">
             <div class="mov" *ngFor="let mov of movementsFor(budget.budgetId)">
-              <span class="mov__kind" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
-                <i class="fas" [class.fa-arrow-down]="kindOf(mov) === 'Abono'"
-                   [class.fa-percent]="kindOf(mov) === 'Ajuste'"></i>
-                {{ kindOf(mov) }}
-              </span>
-              <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
-              <span class="mov__note">{{ mov.note || '—' }}</span>
-              <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
-                $ {{ money(mov.amountPaid) }}
-              </span>
-              <button type="button" class="mov__del" (click)="deleteMovement(budget, mov)"
-                pTooltip="Eliminar movimiento" tooltipPosition="left" aria-label="Eliminar movimiento">
-                <i class="fas fa-times"></i>
-              </button>
+              <ng-container *ngIf="editingMovementId !== mov.paymentId; else editMov">
+                <span class="mov__kind" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                  <i class="fas" [class.fa-arrow-down]="kindOf(mov) === 'Abono'"
+                     [class.fa-percent]="kindOf(mov) === 'Ajuste'"></i>
+                  {{ kindOf(mov) }}
+                </span>
+                <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
+                <span class="mov__note">{{ mov.note || '—' }}</span>
+                <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                  $ {{ money(mov.amountPaid) }}
+                </span>
+                <div class="mov__actions">
+                  <button type="button" class="mov__edit" (click)="startEditingMovement(mov)"
+                    pTooltip="Editar movimiento" tooltipPosition="left" aria-label="Editar movimiento">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button type="button" class="mov__del" (click)="deleteMovement(budget, mov)"
+                    pTooltip="Eliminar movimiento" tooltipPosition="left" aria-label="Eliminar movimiento">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </ng-container>
+
+              <ng-template #editMov>
+                <div class="seg seg--sm" role="group" aria-label="Tipo de movimiento">
+                  <button type="button" class="seg__btn"
+                    [class.seg__btn--on]="editingMovementDraft?.kind === 'Abono'"
+                    (click)="setEditingKind('Abono')">Abono</button>
+                  <button type="button" class="seg__btn"
+                    [class.seg__btn--on]="editingMovementDraft?.kind === 'Ajuste'"
+                    (click)="setEditingKind('Ajuste')">Ajuste</button>
+                </div>
+                <input type="number" min="0" step="1" class="ac-input-sm mov__edit-amount"
+                  [ngModel]="editingMovementDraft?.amount" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingAmount($event)" aria-label="Monto" />
+                <input type="text" class="ac-input-sm mov__edit-note"
+                  [ngModel]="editingMovementDraft?.note" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingNote($event)" aria-label="Nota" />
+                <div class="mov__actions">
+                  <button type="button" class="mov__save" [disabled]="!canSaveEditingMovement()"
+                    (click)="saveMovement(budget, mov)" aria-label="Guardar movimiento">
+                    <i class="fas fa-spinner fa-spin" *ngIf="savingMovementId === mov.paymentId"></i>
+                    <i class="fas fa-check" *ngIf="savingMovementId !== mov.paymentId"></i>
+                  </button>
+                  <button type="button" class="mov__del" (click)="cancelEditingMovement()"
+                    aria-label="Cancelar edición">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </ng-template>
             </div>
           </div>
 
