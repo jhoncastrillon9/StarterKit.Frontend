@@ -55,6 +55,7 @@
 
       <ng-template pTemplate="header">
         <tr>
+          @if (expandable()) { <th class="dc-th dc-th--toggle"></th> }
           @for (col of columns(); track col.field) {
             @if (col.sortable) {
               <th [pSortableColumn]="col.sortField || col.field" [class]="'dc-th align-' + (col.align || 'left')">
@@ -68,8 +69,16 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-row>
-        <tr>
+      <ng-template pTemplate="body" let-row let-expanded="expanded">
+        <tr [class.dc-tr--expanded]="expanded">
+          @if (expandable()) {
+            <td class="dc-td dc-td--toggle">
+              <button type="button" class="dc-toggle" [pRowToggler]="row"
+                [attr.aria-expanded]="expanded" [attr.aria-label]="expanded ? 'Ocultar detalle' : 'Ver detalle'">
+                <i class="fas" [class.fa-chevron-right]="!expanded" [class.fa-chevron-down]="expanded"></i>
+              </button>
+            </td>
+          }
           @for (col of columns(); track col.field) {
             <td [class]="'dc-td align-' + (col.align || 'left')">
               @if (templateFor(col.field); as tpl) {
@@ -82,8 +91,19 @@
         </tr>
       </ng-template>
 
+      @if (expandable() && rowExpansionTemplate) {
+        <ng-template pTemplate="rowexpansion" let-row>
+          <tr class="dc-tr--panel">
+            <td [attr.colspan]="totalColumnCount()" class="dc-td--panel">
+              <ng-container [ngTemplateOutlet]="rowExpansionTemplate"
+                [ngTemplateOutletContext]="{ $implicit: row }"></ng-container>
+            </td>
+          </tr>
+        </ng-template>
+      }
+
       <ng-template pTemplate="emptymessage">
-        <tr><td [attr.colspan]="columns().length" class="dc-empty">
+        <tr><td [attr.colspan]="totalColumnCount()" class="dc-empty">
           <ng-content select="[dt-empty]"></ng-content>
         </td></tr>
       </ng-template>

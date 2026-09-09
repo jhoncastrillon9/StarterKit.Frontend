@@ -1,5 +1,5 @@
 import {
-  AfterContentInit, Component, ContentChildren, DestroyRef, OnInit, QueryList,
+  AfterContentInit, Component, ContentChild, ContentChildren, DestroyRef, OnInit, QueryList,
   TemplateRef, inject, input, output, signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -39,6 +39,9 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   currentPageReportTemplate = input<string>('{first} - {last} de {totalRecords}');
   lazy = input<boolean>(false);
   totalRecords = input<number>(0);
+  /** Habilita una columna de despliegue por fila. Requiere rowKey y un
+   *  <ng-template #dtRowExpansion let-row> con el contenido del panel. */
+  expandable = input<boolean>(false);
 
   kpiClick = output<string>();
   chipChange = output<string>();
@@ -46,8 +49,14 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   lazyLoad = output<DataTableLazyEvent>();
 
   @ContentChildren(DataTableColumnDirective) private columnDirectives!: QueryList<DataTableColumnDirective>;
+  @ContentChild('dtRowExpansion') rowExpansionTemplate: TemplateRef<{ $implicit: unknown }> | null = null;
   private templates = new Map<string, TemplateRef<{ $implicit: unknown }>>();
   private destroyRef = inject(DestroyRef);
+
+  /** Columnas + la de despliegue, para el colspan de filas especiales. */
+  totalColumnCount(): number {
+    return this.columns().length + (this.expandable() ? 1 : 0);
+  }
 
   // Paginación controlada por el footer custom (estilo diseño). p-table sigue
   // paginando internamente; su paginador nativo se oculta por CSS.
