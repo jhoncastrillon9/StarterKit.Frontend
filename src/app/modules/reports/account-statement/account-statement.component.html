@@ -194,8 +194,8 @@
                     <i class="fas fa-spinner fa-spin" *ngIf="savingMovementId === mov.paymentId"></i>
                     <i class="fas fa-check" *ngIf="savingMovementId !== mov.paymentId"></i>
                   </button>
-                  <button type="button" class="mov__del" (click)="cancelEditingMovement()"
-                    aria-label="Cancelar edición">
+                  <button type="button" class="mov__del" [disabled]="savingMovementId === mov.paymentId"
+                    (click)="cancelEditingMovement()" aria-label="Cancelar edición">
                     <i class="fas fa-times"></i>
                   </button>
                 </div>

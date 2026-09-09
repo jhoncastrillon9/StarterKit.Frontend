@@ -456,13 +456,16 @@ export class AccountStatementComponent implements OnInit {
     this.savingMovementId = movement.paymentId;
     this.paymentService.update(payload).subscribe({
       next: (updated: any) => {
-        this.savingMovementId = null;
+        // El usuario pudo haber pasado a editar otro movimiento mientras este
+        // PUT estaba en vuelo: solo tocamos el estado de edición/guardado si
+        // sigue apuntando a este movimiento; el otro flujo se resuelve solo.
+        if (this.savingMovementId === movement.paymentId) this.savingMovementId = null;
         this.upsertMovement(budget.budgetId, { ...payload, ...(updated ?? {}) } as PaymentModel);
-        this.cancelEditingMovement();
+        if (this.editingMovementId === movement.paymentId) this.cancelEditingMovement();
         this.notifySuccess('Movimiento actualizado', `Cotización ${budget.internalCode}`);
       },
       error: () => {
-        this.savingMovementId = null;
+        if (this.savingMovementId === movement.paymentId) this.savingMovementId = null;
         this.notifyError('No se pudo actualizar el movimiento. Inténtalo de nuevo.');
       },
     });
