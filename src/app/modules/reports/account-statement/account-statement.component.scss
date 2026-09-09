@@ -264,6 +264,7 @@ $debt: #c0392b;
   &__note {
     font-size: 12.5px; color: #55506d; min-width: 0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: flex; flex-direction: column; gap: 2px;
   }
 
   &__amount {
@@ -353,4 +354,19 @@ $debt: #c0392b;
   &__row-input { max-width: 110px; }
 
   &__actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 6px; }
+}
+
+.mov__transfer-badge {
+  display: inline-flex; align-items: center; gap: 4px; border: none; background: #f1eefb;
+  color: $primary-dark; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px;
+  cursor: pointer; width: fit-content;
+  i { font-size: 9px; }
+  &:hover { background: #e5ddfb; }
+}
+
+.transfer-detail {
+  display: flex; flex-direction: column; gap: 10px;
+  &__summary { margin: 0; font-weight: 700; color: $ink; font-size: 13px; }
+  &__row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #efecf7; }
+  &__amount { font-weight: 800; color: $credit; }
 }

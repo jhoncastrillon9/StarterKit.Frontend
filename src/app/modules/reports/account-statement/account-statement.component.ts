@@ -7,7 +7,7 @@ import { CustomerService } from '../../customers/services/customer.service';
 import { CompanyService } from '../../configurations/services/company.service';
 import { PaymentService } from '../../payments/services/payment.service';
 import { PaymentTransferService } from '../../payments/services/payment-transfer.service';
-import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation } from '../../payments/models/payment.Model';
+import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation, PaymentTransferModel } from '../../payments/models/payment.Model';
 import { BudgetModel } from '../../budgets/models/budget.Model';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -80,6 +80,8 @@ export class AccountStatementComponent implements OnInit {
   transferNote = '';
   transferAllocations = signal<Map<number, number | null>>(new Map());
   savingTransfer = signal(false);
+  transferDetailVisible = signal(false);
+  transferDetail = signal<PaymentTransferModel | null>(null);
 
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
@@ -571,6 +573,16 @@ export class AccountStatementComponent implements OnInit {
         this.savingTransfer.set(false);
         this.notifyError('No se pudo registrar la transferencia. Verifica que el reparto cuadre con el total.');
       },
+    });
+  }
+
+  showTransferDetail(transferId: number): void {
+    this.paymentTransferService.getById(transferId).subscribe({
+      next: (detail: any) => {
+        this.transferDetail.set(detail ?? null);
+        this.transferDetailVisible.set(true);
+      },
+      error: () => this.notifyError('No se pudo cargar el detalle de la transferencia.'),
     });
   }
 

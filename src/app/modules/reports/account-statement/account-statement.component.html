@@ -161,6 +161,11 @@
                 </span>
                 <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
                 <span class="mov__note">{{ mov.note || '—' }}</span>
+                <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId"
+                  (click)="showTransferDetail(mov.transferId!)"
+                  pTooltip="Ver otras facturas de esta transferencia" tooltipPosition="top">
+                  <i class="fas fa-right-left"></i> #{{ mov.transferId }}
+                </button>
                 <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
                   $ {{ money(mov.amountPaid) }}
                 </span>
@@ -319,6 +324,21 @@
       </div>
     </div>
   </ng-container>
+</p-dialog>
+
+<!-- Detalle de una transferencia: qué otras facturas cubrió -->
+<p-dialog [(visible)]="transferDetailVisible" [modal]="true" header="Detalle de la transferencia"
+  [style]="{ width: '520px', maxWidth: '95vw' }" [draggable]="false">
+  <div class="transfer-detail" *ngIf="transferDetail() as detail">
+    <p class="transfer-detail__summary">
+      $ {{ money(detail.totalAmount) }} el {{ detail.transferDate | date:'dd MMM yyyy' }}
+      <span *ngIf="detail.note"> · {{ detail.note }}</span>
+    </p>
+    <div class="transfer-detail__row" *ngFor="let p of detail.payments">
+      <span>{{ p.budget?.internalCode ?? p.budgetId }} — {{ p.budget?.budgetName }}</span>
+      <span class="transfer-detail__amount">$ {{ money(p.amountPaid) }}</span>
+    </div>
+  </div>
 </p-dialog>
 
 <p-toast position="top-right" key="ac-inline"></p-toast>
