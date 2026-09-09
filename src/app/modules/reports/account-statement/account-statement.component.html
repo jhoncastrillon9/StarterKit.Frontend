@@ -160,12 +160,14 @@
                   {{ kindOf(mov) }}
                 </span>
                 <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
-                <span class="mov__note">{{ mov.note || '—' }}</span>
-                <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId"
-                  (click)="showTransferDetail(mov.transferId!)"
-                  pTooltip="Ver otras facturas de esta transferencia" tooltipPosition="top">
-                  <i class="fas fa-right-left"></i> #{{ mov.transferId }}
-                </button>
+                <span class="mov__note">
+                  {{ mov.note || '—' }}
+                  <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId"
+                    (click)="showTransferDetail(mov.transferId!)"
+                    pTooltip="Ver otras facturas de esta transferencia" tooltipPosition="top">
+                    <i class="fas fa-right-left"></i> #{{ mov.transferId }}
+                  </button>
+                </span>
                 <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
                   $ {{ money(mov.amountPaid) }}
                 </span>
