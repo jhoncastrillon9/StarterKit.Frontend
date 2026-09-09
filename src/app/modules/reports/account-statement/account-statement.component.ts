@@ -6,7 +6,8 @@ import { BudgetService } from '../../budgets/services/budget.service';
 import { CustomerService } from '../../customers/services/customer.service';
 import { CompanyService } from '../../configurations/services/company.service';
 import { PaymentService } from '../../payments/services/payment.service';
-import { PaymentModel } from '../../payments/models/payment.Model';
+import { PaymentTransferService } from '../../payments/services/payment-transfer.service';
+import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation } from '../../payments/models/payment.Model';
 import { BudgetModel } from '../../budgets/models/budget.Model';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -35,6 +36,7 @@ export class AccountStatementComponent implements OnInit {
   private customerService = inject(CustomerService);
   private companyService = inject(CompanyService);
   private paymentService = inject(PaymentService);
+  private paymentTransferService = inject(PaymentTransferService);
   private messageService = inject(MessageService);
   private spinner = inject(NgxSpinnerService);
 
@@ -70,6 +72,14 @@ export class AccountStatementComponent implements OnInit {
   editingMovementId: number | null = null;
   editingMovementDraft: MovementDraft | null = null;
   savingMovementId: number | null = null;
+
+  // Formulario único de "registrar transferencia".
+  transferDialogVisible = signal(false);
+  transferTotal: number | null = null;
+  transferDate: Date = new Date();
+  transferNote = '';
+  transferAllocations = signal<Map<number, number | null>>(new Map());
+  savingTransfer = signal(false);
 
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
@@ -479,6 +489,82 @@ export class AccountStatementComponent implements OnInit {
       if (index >= 0) list[index] = movement; else list.push(movement);
       next.set(budgetId, list);
       return next;
+    });
+  }
+
+  // --------------------------------------------------- transferencia multi-factura
+
+  openTransferDialog(): void {
+    this.transferTotal = null;
+    this.transferDate = new Date();
+    this.transferNote = '';
+    this.transferAllocations.set(new Map());
+    this.transferDialogVisible.set(true);
+  }
+
+  closeTransferDialog(): void {
+    this.transferDialogVisible.set(false);
+  }
+
+  allocationFor(budgetId: number): number | null {
+    return this.transferAllocations().get(budgetId) ?? null;
+  }
+
+  setAllocation(budgetId: number, value: string): void {
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    this.transferAllocations.update(map => {
+      const next = new Map(map);
+      if (Number.isFinite(parsed) && parsed > 0) next.set(budgetId, parsed);
+      else next.delete(budgetId);
+      return next;
+    });
+  }
+
+  transferAllocatedTotal = computed(() => {
+    let total = 0;
+    for (const amount of this.transferAllocations().values()) total += amount ?? 0;
+    return total;
+  });
+
+  transferRemaining = computed(() => (this.transferTotal ?? 0) - this.transferAllocatedTotal());
+
+  canSubmitTransfer(): boolean {
+    return !!this.transferTotal && this.transferTotal > 0
+      && this.transferAllocatedTotal() > 0
+      && Math.abs(this.transferRemaining()) < 0.5
+      && !this.savingTransfer();
+  }
+
+  submitTransfer(): void {
+    const customer = this.selectedCustomer();
+    if (!customer || !this.canSubmitTransfer()) return;
+
+    const allocations: PaymentTransferAllocation[] = [];
+    for (const [budgetId, amount] of this.transferAllocations().entries()) {
+      if (!amount) continue;
+      allocations.push({ budgetId, amount, paymentType: 'Abono', note: this.transferNote });
+    }
+
+    const payload: CreatePaymentTransferRequest = {
+      customerId: customer.customerId,
+      totalAmount: this.transferTotal as number,
+      transferDate: this.transferDate,
+      note: this.transferNote,
+      allocations,
+    };
+
+    this.savingTransfer.set(true);
+    this.paymentTransferService.create(payload).subscribe({
+      next: () => {
+        this.savingTransfer.set(false);
+        this.closeTransferDialog();
+        this.loadMovementsFor(customer.customerId);
+        this.notifySuccess('Transferencia registrada', `$ ${this.money(payload.totalAmount)} repartidos en ${allocations.length} factura(s)`);
+      },
+      error: () => {
+        this.savingTransfer.set(false);
+        this.notifyError('No se pudo registrar la transferencia. Verifica que el reparto cuadre con el total.');
+      },
     });
   }
 

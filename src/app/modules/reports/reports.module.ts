@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { GridModule, BadgeModule } from '@coreui/angular';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -24,6 +25,7 @@ import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.c
     BadgeModule,
     NgxSpinnerModule,
     OverlayPanelModule,
+    DialogModule,
     TooltipModule,
     ToastModule,
     CustomSharedModule,

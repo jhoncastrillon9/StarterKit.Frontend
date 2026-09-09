@@ -69,6 +69,9 @@
       [rows]="50"
       [rowsPerPageOptions]="[25,50,100]">
 
+      <button dt-actions class="btn-pdf btn-pdf--ghost" (click)="openTransferDialog()">
+        <i class="fas fa-right-left"></i><span>Registrar transferencia</span>
+      </button>
       <button dt-actions class="btn-pdf" (click)="generarPDF()">
         <i class="fas fa-file-pdf"></i><span>Descargar estado de cuenta</span>
       </button>
@@ -269,6 +272,54 @@
     </button>
   </div>
 </p-overlayPanel>
+
+<!-- Registrar transferencia: formulario único (total + reparto) -->
+<p-dialog [(visible)]="transferDialogVisible" [modal]="true" header="Registrar transferencia"
+  [style]="{ width: '640px', maxWidth: '95vw' }" [draggable]="false">
+  <ng-container *ngIf="selectedCustomer() as cliente">
+    <div class="transfer-form">
+      <div class="transfer-form__header">
+        <div class="ac-field">
+          <label>Valor total de la transferencia</label>
+          <input type="number" min="0" class="ac-input-sm transfer-form__total"
+            [ngModel]="transferTotal" (ngModelChange)="transferTotal = $event" placeholder="0" />
+        </div>
+        <div class="ac-field">
+          <label>Fecha</label>
+          <input type="date" class="ac-input-sm"
+            [ngModel]="transferDate | date:'yyyy-MM-dd'"
+            (ngModelChange)="transferDate = $event ? $any($event) : transferDate" />
+        </div>
+        <div class="ac-field transfer-form__note">
+          <label>Nota</label>
+          <input type="text" class="ac-input-sm" [(ngModel)]="transferNote" placeholder="Ej. Transferencia Bancolombia" />
+        </div>
+      </div>
+
+      <div class="transfer-form__counter" [class.is-balanced]="transferRemaining() === 0 && transferTotal">
+        Repartido: $ {{ money(transferAllocatedTotal()) }} · Restante: $ {{ money(transferRemaining()) }}
+      </div>
+
+      <div class="transfer-form__list">
+        <div class="transfer-form__row" *ngFor="let budget of filteredBudgets()">
+          <span class="transfer-form__row-name">{{ budget.internalCode }} — {{ budget.budgetName }}</span>
+          <span class="transfer-form__row-saldo">Saldo: $ {{ money(saldoFor(budget)) }}</span>
+          <input type="number" min="0" class="ac-input-sm transfer-form__row-input"
+            [ngModel]="allocationFor(budget.budgetId)"
+            (ngModelChange)="setAllocation(budget.budgetId, $event)" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="transfer-form__actions">
+        <button type="button" class="btn-pdf btn-pdf--ghost" (click)="closeTransferDialog()">Cancelar</button>
+        <button type="button" class="btn-pdf" [disabled]="!canSubmitTransfer()" (click)="submitTransfer()">
+          <i class="fas fa-spinner fa-spin" *ngIf="savingTransfer()"></i>
+          Guardar transferencia
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</p-dialog>
 
 <p-toast position="top-right" key="ac-inline"></p-toast>
 
