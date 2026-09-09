@@ -47,6 +47,12 @@ export class AccountStatementComponent implements OnInit {
   private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
   private static readonly PDF_PRIMARY_LIGHT: [number, number, number] = [243, 240, 252];
   private static readonly PDF_CREDIT: [number, number, number] = [21, 112, 63];
+  /** Mismo valor que $ink en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_INK: [number, number, number] = [31, 27, 46];
+  /** Mismo valor que $debt en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_DEBT: [number, number, number] = [192, 57, 43];
+  /** Mismo valor que $muted en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_MUTED: [number, number, number] = [124, 118, 145];
 
   customers = signal<CustomerModel[]>([]);
   budgets = signal<BudgetModel[]>([]);
@@ -647,18 +653,18 @@ export class AccountStatementComponent implements OnInit {
 
       // Bloque de resumen: facturado / abonado / saldo, antes de la tabla de detalle.
       const summaryY = 76;
-      const summaryBoxWidth = 58;
+      const summaryBoxWidth = 56;
       const summaryLabels: [string, string, [number, number, number]][] = [
-        ['Facturado', `$ ${this.money(this.totalFacturado())}`, [90, 84, 110]],
+        ['Facturado', `$ ${this.money(this.totalFacturado())}`, AccountStatementComponent.PDF_INK],
         ['Abonado', `$ ${this.money(this.totalAbonos() + this.totalAjustes())}`, AccountStatementComponent.PDF_CREDIT],
-        ['Saldo', `$ ${this.money(this.totalSaldo())}`, [192, 57, 43]],
+        ['Saldo', `$ ${this.money(this.totalSaldo())}`, AccountStatementComponent.PDF_DEBT],
       ];
       summaryLabels.forEach(([label, value, color], i) => {
         const x = marginX + i * (summaryBoxWidth + 6);
         doc.setFillColor(...AccountStatementComponent.PDF_PRIMARY_LIGHT);
         doc.roundedRect(x, summaryY, summaryBoxWidth, 22, 2, 2, 'F');
         doc.setFontSize(8);
-        doc.setTextColor(120, 113, 145);
+        doc.setTextColor(...AccountStatementComponent.PDF_MUTED);
         doc.text(label.toUpperCase(), x + 5, summaryY + 8);
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
