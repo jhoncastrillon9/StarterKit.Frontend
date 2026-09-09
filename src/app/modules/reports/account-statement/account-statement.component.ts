@@ -43,6 +43,11 @@ export class AccountStatementComponent implements OnInit {
   /** Solo las cotizaciones en este estado se cobran en el estado de cuenta. */
   private static readonly BILLED_STATUS = 'facturada';
 
+  /** Mismos valores que $primary/$primary-dark/$credit en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
+  private static readonly PDF_PRIMARY_LIGHT: [number, number, number] = [243, 240, 252];
+  private static readonly PDF_CREDIT: [number, number, number] = [21, 112, 63];
+
   customers = signal<CustomerModel[]>([]);
   budgets = signal<BudgetModel[]>([]);
   selectedCustomer = signal<CustomerModel | null>(null);
@@ -639,8 +644,29 @@ export class AccountStatementComponent implements OnInit {
       if (cliente?.email) doc.text(`Email: ${cliente.email}`, marginX, 57);
       if (cliente?.address) doc.text(`Dirección: ${cliente.address}`, marginX, 62);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-CO')}`, marginX, 67);
-      doc.setFontSize(9);
-      doc.text('Incluye únicamente cotizaciones facturadas.', marginX, 72);
+
+      // Bloque de resumen: facturado / abonado / saldo, antes de la tabla de detalle.
+      const summaryY = 76;
+      const summaryBoxWidth = 58;
+      const summaryLabels: [string, string, [number, number, number]][] = [
+        ['Facturado', `$ ${this.money(this.totalFacturado())}`, [90, 84, 110]],
+        ['Abonado', `$ ${this.money(this.totalAbonos() + this.totalAjustes())}`, AccountStatementComponent.PDF_CREDIT],
+        ['Saldo', `$ ${this.money(this.totalSaldo())}`, [192, 57, 43]],
+      ];
+      summaryLabels.forEach(([label, value, color], i) => {
+        const x = marginX + i * (summaryBoxWidth + 6);
+        doc.setFillColor(...AccountStatementComponent.PDF_PRIMARY_LIGHT);
+        doc.roundedRect(x, summaryY, summaryBoxWidth, 22, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(120, 113, 145);
+        doc.text(label.toUpperCase(), x + 5, summaryY + 8);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...color);
+        doc.text(value, x + 5, summaryY + 17);
+        doc.setFont('helvetica', 'normal');
+      });
+      doc.setTextColor(0, 0, 0);
 
       const body = rows.map(b => [
         String(b.internalCode),
@@ -663,21 +689,17 @@ export class AccountStatementComponent implements OnInit {
           `$ ${this.money(this.totalAjustes())}`,
           `$ ${this.money(this.totalSaldo())}`,
         ]],
-        startY: 78,
+        startY: summaryY + 30,
         theme: 'grid',
-        headStyles: { fillColor: [109, 40, 217], textColor: 255, fontStyle: 'bold' },
-        footStyles: { fillColor: [243, 240, 252], textColor: 20, fontStyle: 'bold' },
+        headStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY, textColor: 255, fontStyle: 'bold' },
+        footStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY_LIGHT, textColor: 20, fontStyle: 'bold' },
         styles: { fontSize: 8.5, cellPadding: 2.4 },
+        alternateRowStyles: { fillColor: [250, 249, 253] },
         columnStyles: {
           4: { halign: 'right' }, 5: { halign: 'right' },
           6: { halign: 'right' }, 7: { halign: 'right' },
         },
       });
-
-      const endY = (doc as any).lastAutoTable?.finalY ?? 78;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Saldo pendiente: $ ${this.money(this.totalSaldo())}`, marginX, endY + 12);
 
       const nombre = (cliente?.customerName ?? 'cliente').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
       doc.save(`estado-cuenta-${nombre}.pdf`);
