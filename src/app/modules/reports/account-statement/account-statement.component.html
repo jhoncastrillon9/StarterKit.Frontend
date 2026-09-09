@@ -1,8 +1,7 @@
-<!-- Estado de Cuenta rediseñado -->
 <div class="account-statement-container">
-  <!-- Card selector de cliente -->
+  <!-- Selector de cliente -->
   <div class="ac-card">
-    <div class="ac-card__head"><i class="fas fa-user-tie"></i><span>Seleccionar Cliente</span></div>
+    <div class="ac-card__head"><i class="fas fa-user-tie"></i><span>Estado de cuenta</span></div>
     <div class="ac-card__body">
       <div class="ac-field">
         <label for="customerSelect"><i class="fas fa-users"></i> Cliente</label>
@@ -16,87 +15,226 @@
     </div>
   </div>
 
-  <!-- Tabla del estado de cuenta -->
-  <app-data-table *ngIf="selectedCustomer()"
-    [columns]="tableColumns"
-    [value]="filteredBudgets()"
-    [loading]="false"
-    rowKey="budgetId"
-    [title]="'Estado de Cuenta: ' + (selectedCustomer()?.customerName || '')"
-    headerIcon="fas fa-file-invoice-dollar"
-    [subtitle]="filteredBudgets().length + ' cotizaciones'"
-    [kpis]="statementKpis"
-    [showSearch]="false"
-    [rows]="100"
-    [rowsPerPageOptions]="[50,100,200]"
-    currentPageReportTemplate="{first} al {last} de {totalRecords}">
+  <ng-container *ngIf="selectedCustomer() as cliente">
+    <!-- Cuenta del cliente: el saldo es la cifra protagonista -->
+    <section class="ledger" *ngIf="filteredBudgets().length; else sinFacturas">
+      <div class="ledger__balance">
+        <span class="ledger__balance-label">Saldo pendiente</span>
+        <strong class="ledger__balance-value" [class.is-settled]="totalSaldo() <= 0.5">
+          $ {{ money(totalSaldo()) }}
+        </strong>
+        <span class="ledger__balance-meta">
+          {{ filteredBudgets().length }} factura{{ filteredBudgets().length === 1 ? '' : 's' }}
+          <ng-container *ngIf="settledCount()">· {{ settledCount() }} al día</ng-container>
+        </span>
+      </div>
 
-    <button dt-actions class="btn-pdf" (click)="generarPDF()">
-      <i class="fas fa-file-pdf"></i><span>Generar PDF</span>
-    </button>
+      <div class="ledger__equation" aria-hidden="true">
+        <div class="ledger__term">
+          <span class="ledger__term-label">Facturado</span>
+          <span class="ledger__term-value">$ {{ money(totalFacturado()) }}</span>
+        </div>
+        <span class="ledger__op">−</span>
+        <div class="ledger__term">
+          <span class="ledger__term-label">Abonos</span>
+          <span class="ledger__term-value is-credit">$ {{ money(totalAbonos()) }}</span>
+        </div>
+        <span class="ledger__op">−</span>
+        <div class="ledger__term">
+          <span class="ledger__term-label">Ajustes</span>
+          <span class="ledger__term-value is-adjust">$ {{ money(totalAjustes()) }}</span>
+        </div>
+      </div>
+    </section>
 
-    <ng-template dtColumn="internalCode" let-budget>
-      <span class="code-value">{{ budget.internalCode }}</span>
+    <ng-template #sinFacturas>
+      <div class="ac-card ac-empty">
+        <i class="fas fa-file-invoice"></i>
+        <h3>Sin facturas por cobrar</h3>
+        <p>{{ cliente.customerName }} no tiene cotizaciones en estado Facturada</p>
+      </div>
     </ng-template>
 
-    <ng-template dtColumn="date" let-budget>
-      <span class="date-value">{{ budget.date | date:'dd MMM yyyy' }}</span>
-    </ng-template>
+    <!-- Detalle por factura -->
+    <app-data-table *ngIf="filteredBudgets().length"
+      [columns]="tableColumns"
+      [value]="filteredBudgets()"
+      [loading]="loadingBudgets()"
+      rowKey="budgetId"
+      [expandable]="true"
+      [title]="cliente.customerName"
+      headerIcon="fas fa-file-invoice-dollar"
+      subtitle="Cotizaciones facturadas"
+      [showSearch]="false"
+      [rows]="50"
+      [rowsPerPageOptions]="[25,50,100]">
 
-    <ng-template dtColumn="budgetName" let-budget>
-      <span class="obra-name">{{ budget.budgetName }}</span>
-    </ng-template>
-
-    <ng-template dtColumn="externalInvoice" let-budget>
-      <input type="text" class="ac-input-sm" [value]="displayFacturaFor(budget)"
-        (input)="onFacturaChange(budget.budgetId, $any($event.target).value)" placeholder="Nº Factura" />
-    </ng-template>
-
-    <ng-template dtColumn="estado" let-budget>
-      <button type="button" class="status-trigger"
-        (click)="currentStatementBudget = budget; estadoPanel.toggle($event)">
-        <app-status-pill [status]="displayEstadoFor(budget)" [caret]="true"></app-status-pill>
+      <button dt-actions class="btn-pdf" (click)="generarPDF()">
+        <i class="fas fa-file-pdf"></i><span>Descargar estado de cuenta</span>
       </button>
-    </ng-template>
 
-    <ng-template dtColumn="total" let-budget>
-      <span class="total-value">$ {{ budget.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
-    </ng-template>
+      <ng-template dtColumn="internalCode" let-budget>
+        <span class="code-value">{{ budget.internalCode }}</span>
+      </ng-template>
 
-    <ng-template dtColumn="acciones" let-budget>
-      <button class="action-btn action-save" (click)="saveBudget(budget)"
-        [disabled]="!hasChanges(budget.budgetId)" pTooltip="Guardar cambios" tooltipPosition="top">
-        <i class="fas fa-save"></i>
-      </button>
-    </ng-template>
+      <ng-template dtColumn="date" let-budget>
+        <span class="date-value">{{ budget.date | date:'dd MMM yyyy' }}</span>
+      </ng-template>
 
-    <div dt-empty class="empty-content">
-      <i class="fas fa-inbox empty-icon"></i>
-      <h3>Sin cotizaciones pendientes</h3>
-      <p>Este cliente no tiene cotizaciones con factura registrada</p>
-    </div>
-  </app-data-table>
+      <ng-template dtColumn="budgetName" let-budget>
+        <div class="obra">
+          <span class="obra__name">{{ budget.budgetName }}</span>
+          <div class="obra__progress" [attr.title]="progressFor(budget) | number:'1.0-0'">
+            <span class="obra__bar" [style.width.%]="progressFor(budget)"
+                  [class.is-settled]="isSettled(budget)"></span>
+          </div>
+        </div>
+      </ng-template>
 
-  <!-- Estado vacío sin cliente seleccionado -->
+      <!-- Factura: se guarda al salir del campo o con Enter -->
+      <ng-template dtColumn="externalInvoice" let-budget>
+        <div class="cell-edit">
+          <input *ngIf="editingInvoiceBudgetId === budget.budgetId; else invoiceRead"
+            type="text" class="ac-input-sm" [(ngModel)]="editingInvoiceValue"
+            (blur)="saveExternalInvoice(budget)" (keyup.enter)="saveExternalInvoice(budget)"
+            (keyup.escape)="cancelEditingInvoice()" placeholder="Nº factura" data-invoice-input />
+          <ng-template #invoiceRead>
+            <button type="button" class="cell-edit__trigger" (click)="startEditingInvoice(budget)">
+              <span *ngIf="budget.externalInvoice && budget.externalInvoice !== '0'; else sinFactura">
+                {{ budget.externalInvoice }}
+              </span>
+              <ng-template #sinFactura><span class="cell-edit__empty">Agregar</span></ng-template>
+            </button>
+          </ng-template>
+          <i class="fas fa-spinner fa-spin cell-edit__state" *ngIf="savingInvoiceId === budget.budgetId"></i>
+          <i class="fas fa-check cell-edit__state is-ok" *ngIf="savedInvoiceId === budget.budgetId"></i>
+        </div>
+      </ng-template>
+
+      <ng-template dtColumn="estado" let-budget>
+        <div class="cell-edit">
+          <button type="button" class="status-trigger"
+            (click)="currentStatementBudget = budget; estadoPanel.toggle($event)">
+            <app-status-pill [status]="budget.estado" [caret]="true"></app-status-pill>
+          </button>
+          <i class="fas fa-spinner fa-spin cell-edit__state" *ngIf="savingStatusId === budget.budgetId"></i>
+          <i class="fas fa-check cell-edit__state is-ok" *ngIf="savedStatusId === budget.budgetId"></i>
+        </div>
+      </ng-template>
+
+      <ng-template dtColumn="total" let-budget>
+        <span class="amount">$ {{ money(budget.total) }}</span>
+      </ng-template>
+
+      <ng-template dtColumn="movimientos" let-budget>
+        <div class="applied">
+          <span class="applied__value" *ngIf="appliedFor(budget.budgetId); else sinMovs">
+            − $ {{ money(appliedFor(budget.budgetId)) }}
+          </span>
+          <ng-template #sinMovs><span class="applied__none">Sin movimientos</span></ng-template>
+          <span class="applied__split" *ngIf="ajustesFor(budget.budgetId)">
+            {{ money(abonosFor(budget.budgetId)) }} en abonos ·
+            {{ money(ajustesFor(budget.budgetId)) }} en ajustes
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template dtColumn="saldo" let-budget>
+        <span class="amount amount--balance" [class.is-settled]="isSettled(budget)">
+          $ {{ money(saldoFor(budget)) }}
+        </span>
+      </ng-template>
+
+      <!-- Panel desplegable: movimientos de esa factura -->
+      <ng-template #dtRowExpansion let-budget>
+        <div class="movs">
+          <div class="movs__list" *ngIf="movementsFor(budget.budgetId).length; else sinMovimientos">
+            <div class="mov" *ngFor="let mov of movementsFor(budget.budgetId)">
+              <span class="mov__kind" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                <i class="fas" [class.fa-arrow-down]="kindOf(mov) === 'Abono'"
+                   [class.fa-percent]="kindOf(mov) === 'Ajuste'"></i>
+                {{ kindOf(mov) }}
+              </span>
+              <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
+              <span class="mov__note">{{ mov.note || '—' }}</span>
+              <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                $ {{ money(mov.amountPaid) }}
+              </span>
+              <button type="button" class="mov__del" (click)="deleteMovement(budget, mov)"
+                pTooltip="Eliminar movimiento" tooltipPosition="left" aria-label="Eliminar movimiento">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <ng-template #sinMovimientos>
+            <p class="movs__empty">Aún no hay abonos ni ajustes en esta factura. Registra el primero abajo.</p>
+          </ng-template>
+
+          <!-- Alta inline: se guarda al confirmar, sin botón Guardar global -->
+          <form class="movs__form" (ngSubmit)="addMovement(budget)">
+            <div class="seg" role="group" aria-label="Tipo de movimiento">
+              <button type="button" class="seg__btn"
+                [class.seg__btn--on]="draftFor(budget.budgetId).kind === 'Abono'"
+                (click)="setDraftKind(budget.budgetId, 'Abono')">Abono</button>
+              <button type="button" class="seg__btn"
+                [class.seg__btn--on]="draftFor(budget.budgetId).kind === 'Ajuste'"
+                (click)="setDraftKind(budget.budgetId, 'Ajuste')">Ajuste</button>
+            </div>
+
+            <div class="movs__amount-field">
+              <span class="movs__currency">$</span>
+              <input type="number" min="0" step="1" class="movs__input movs__input--amount"
+                [ngModel]="draftFor(budget.budgetId).amount" [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="setDraftAmount(budget.budgetId, $event)"
+                placeholder="0" aria-label="Monto" />
+            </div>
+
+            <input type="text" class="movs__input" [ngModel]="draftFor(budget.budgetId).note"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="setDraftNote(budget.budgetId, $event)"
+              [placeholder]="draftFor(budget.budgetId).kind === 'Ajuste' ? 'Concepto del ajuste (ej. retención en la fuente)' : 'Nota del abono (opcional)'"
+              aria-label="Nota" />
+
+            <button type="submit" class="movs__add" [disabled]="!canSubmitDraft(budget.budgetId)">
+              <i class="fas fa-spinner fa-spin" *ngIf="savingMovementBudgetId === budget.budgetId"></i>
+              <i class="fas fa-plus" *ngIf="savingMovementBudgetId !== budget.budgetId"></i>
+              Registrar
+            </button>
+          </form>
+        </div>
+      </ng-template>
+
+      <div dt-empty class="empty-content">
+        <i class="fas fa-inbox empty-icon"></i>
+        <h3>Sin facturas por cobrar</h3>
+        <p>Solo se muestran cotizaciones en estado Facturada</p>
+      </div>
+    </app-data-table>
+  </ng-container>
+
+  <!-- Sin cliente seleccionado -->
   <div class="ac-card ac-empty" *ngIf="!selectedCustomer()">
     <i class="fas fa-users"></i>
-    <h3>Selecciona un cliente</h3>
-    <p>Elige un cliente del listado para ver su estado de cuenta</p>
+    <h3>Elige un cliente</h3>
+    <p>Selecciona un cliente para ver qué facturas tiene pendientes y registrar sus abonos</p>
   </div>
 </div>
 
-<!-- Panel de estado -->
+<!-- Cambio de estado -->
 <p-overlayPanel #estadoPanel appendTo="body" styleClass="dc-menu-panel">
   <div class="dc-menu dc-menu--status" *ngIf="currentStatementBudget as b">
     <div class="dc-menu__title">Cambiar estado</div>
     <button *ngFor="let opt of estadoOptions" type="button" class="dc-status-opt"
-      [class.dc-status-opt--active]="displayEstadoFor(b) === opt"
+      [class.dc-status-opt--active]="b.estado === opt"
       (click)="selectEstadoStatement(opt); estadoPanel.hide()">
       <span class="dc-status-opt__label">{{ opt }}</span>
-      <span class="dc-status-opt__check" *ngIf="displayEstadoFor(b) === opt">✓</span>
+      <span class="dc-status-opt__check" *ngIf="b.estado === opt">✓</span>
     </button>
   </div>
 </p-overlayPanel>
+
+<p-toast position="top-right" key="ac-inline"></p-toast>
 
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
   <p style="color: white">Generando PDF...</p>

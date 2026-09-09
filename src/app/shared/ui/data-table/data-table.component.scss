@@ -104,3 +104,27 @@
   }
   .dc-footer__group { justify-content: center; flex-wrap: wrap; }
 }
+
+// ---- Filas desplegables (opt-in vía [expandable]) ----
+.dc-th--toggle { width: 40px; padding-left: 14px !important; padding-right: 0 !important; }
+.dc-td--toggle { width: 40px; padding-left: 14px !important; padding-right: 0 !important; }
+
+.dc-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 7px;
+  border: 1px solid #e6e3f0; background: #fff; color: #7c7691;
+  cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease;
+
+  i { font-size: 10px; transition: transform .18s ease; }
+  &:hover { background: #f5f2ff; border-color: #d6ccf5; color: #6d28d9; }
+  &:focus-visible { outline: 2px solid #a78bfa; outline-offset: 1px; }
+}
+
+:host ::ng-deep tr.dc-tr--expanded > .dc-td { background: #faf8ff; }
+:host ::ng-deep tr.dc-tr--panel > .dc-td--panel {
+  padding: 0; background: #faf8ff; border-bottom: 1px solid #efedf5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-toggle, .dc-toggle i { transition: none; }
+}
