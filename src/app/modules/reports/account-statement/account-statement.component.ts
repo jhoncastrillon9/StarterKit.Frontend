@@ -506,6 +506,12 @@ export class AccountStatementComponent implements OnInit {
     this.transferDialogVisible.set(false);
   }
 
+  setTransferDate(value: string): void {
+    if (!value) return;
+    const [year, month, day] = value.split('-').map(Number);
+    this.transferDate = new Date(year, month - 1, day);
+  }
+
   allocationFor(budgetId: number): number | null {
     return this.transferAllocations().get(budgetId) ?? null;
   }

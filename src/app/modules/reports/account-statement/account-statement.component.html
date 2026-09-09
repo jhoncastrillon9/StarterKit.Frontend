@@ -288,7 +288,7 @@
           <label>Fecha</label>
           <input type="date" class="ac-input-sm"
             [ngModel]="transferDate | date:'yyyy-MM-dd'"
-            (ngModelChange)="transferDate = $event ? $any($event) : transferDate" />
+            (ngModelChange)="setTransferDate($event)" />
         </div>
         <div class="ac-field transfer-form__note">
           <label>Nota</label>
