@@ -6,7 +6,8 @@ import { BudgetService } from '../../budgets/services/budget.service';
 import { CustomerService } from '../../customers/services/customer.service';
 import { CompanyService } from '../../configurations/services/company.service';
 import { PaymentService } from '../../payments/services/payment.service';
-import { PaymentModel } from '../../payments/models/payment.Model';
+import { PaymentTransferService } from '../../payments/services/payment-transfer.service';
+import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation, PaymentTransferModel } from '../../payments/models/payment.Model';
 import { BudgetModel } from '../../budgets/models/budget.Model';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -23,6 +24,7 @@ interface MovementDraft {
   kind: MovementKind;
   amount: number | null;
   note: string;
+  date: Date;
 }
 
 @Component({
@@ -35,11 +37,23 @@ export class AccountStatementComponent implements OnInit {
   private customerService = inject(CustomerService);
   private companyService = inject(CompanyService);
   private paymentService = inject(PaymentService);
+  private paymentTransferService = inject(PaymentTransferService);
   private messageService = inject(MessageService);
   private spinner = inject(NgxSpinnerService);
 
   /** Solo las cotizaciones en este estado se cobran en el estado de cuenta. */
   private static readonly BILLED_STATUS = 'facturada';
+
+  /** Mismos valores que $primary/$primary-dark/$credit en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
+  private static readonly PDF_PRIMARY_LIGHT: [number, number, number] = [243, 240, 252];
+  private static readonly PDF_CREDIT: [number, number, number] = [21, 112, 63];
+  /** Mismo valor que $ink en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_INK: [number, number, number] = [31, 27, 46];
+  /** Mismo valor que $debt en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_DEBT: [number, number, number] = [192, 57, 43];
+  /** Mismo valor que $muted en el .scss, en RGB para jsPDF. */
+  private static readonly PDF_MUTED: [number, number, number] = [124, 118, 145];
 
   customers = signal<CustomerModel[]>([]);
   budgets = signal<BudgetModel[]>([]);
@@ -65,6 +79,21 @@ export class AccountStatementComponent implements OnInit {
   editingInvoiceBudgetId: number | null = null;
   editingInvoiceValue = '';
   private originalInvoiceValue = '';
+
+  // Edición inline de un movimiento (abono/ajuste) ya guardado.
+  editingMovementId: number | null = null;
+  editingMovementDraft: MovementDraft | null = null;
+  savingMovementId: number | null = null;
+
+  // Formulario único de "registrar transferencia".
+  transferDialogVisible = signal(false);
+  transferTotal = signal<number | null>(null);
+  transferDate: Date = new Date();
+  transferNote = '';
+  transferAllocations = signal<Map<number, number | null>>(new Map());
+  savingTransfer = signal(false);
+  transferDetailVisible = signal(false);
+  transferDetail = signal<PaymentTransferModel | null>(null);
 
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
@@ -325,7 +354,7 @@ export class AccountStatementComponent implements OnInit {
   draftFor(budgetId: number): MovementDraft {
     let draft = this.drafts.get(budgetId);
     if (!draft) {
-      draft = { kind: 'Abono', amount: null, note: '' };
+      draft = { kind: 'Abono', amount: null, note: '', date: new Date() };
       this.drafts.set(budgetId, draft);
     }
     return draft;
@@ -371,7 +400,7 @@ export class AccountStatementComponent implements OnInit {
         this.savingMovementBudgetId = null;
         const movement: PaymentModel = { ...payload, ...(created ?? {}) } as PaymentModel;
         this.upsertMovement(budget.budgetId, movement);
-        this.drafts.set(budget.budgetId, { kind: draft.kind, amount: null, note: '' });
+        this.drafts.set(budget.budgetId, { kind: draft.kind, amount: null, note: '', date: new Date() });
         this.notifySuccess(
           draft.kind === 'Abono' ? 'Abono registrado' : 'Ajuste registrado',
           `$ ${this.money(payload.amountPaid)} en la cotización ${budget.internalCode}`
@@ -385,6 +414,16 @@ export class AccountStatementComponent implements OnInit {
   }
 
   deleteMovement(budget: BudgetModel, movement: PaymentModel): void {
+    if (movement.transferId) {
+      this.messageService.add({
+        key: 'ac-inline',
+        severity: 'warn',
+        summary: 'Movimiento de una transferencia',
+        detail: 'Eliminar este monto puede desbalancear el total de la transferencia #' + movement.transferId,
+        life: 4000,
+      });
+    }
+
     const snapshot = this.movementsFor(budget.budgetId);
     this.movementsByBudget.update(map => {
       const next = new Map(map);
@@ -405,6 +444,85 @@ export class AccountStatementComponent implements OnInit {
     });
   }
 
+  startEditingMovement(movement: PaymentModel): void {
+    this.editingMovementId = movement.paymentId;
+    this.editingMovementDraft = {
+      kind: this.kindOf(movement),
+      amount: movement.amountPaid,
+      note: movement.note,
+      date: movement.paymentDate,
+    };
+  }
+
+  cancelEditingMovement(): void {
+    this.editingMovementId = null;
+    this.editingMovementDraft = null;
+  }
+
+  setEditingAmount(value: string): void {
+    if (!this.editingMovementDraft) return;
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    this.editingMovementDraft.amount = Number.isFinite(parsed) ? parsed : null;
+  }
+
+  setEditingNote(value: string): void {
+    if (this.editingMovementDraft) this.editingMovementDraft.note = value;
+  }
+
+  setEditingKind(kind: MovementKind): void {
+    if (this.editingMovementDraft) this.editingMovementDraft.kind = kind;
+  }
+
+  setEditingDate(value: string): void {
+    if (!value || !this.editingMovementDraft) return;
+    const [year, month, day] = value.split('-').map(Number);
+    this.editingMovementDraft.date = new Date(year, month - 1, day);
+  }
+
+  canSaveEditingMovement(): boolean {
+    return !!this.editingMovementDraft?.amount && this.editingMovementDraft.amount > 0;
+  }
+
+  saveMovement(budget: BudgetModel, movement: PaymentModel): void {
+    const draft = this.editingMovementDraft;
+    if (!draft || !this.canSaveEditingMovement()) return;
+
+    if (movement.transferId) {
+      this.messageService.add({
+        key: 'ac-inline',
+        severity: 'warn',
+        summary: 'Movimiento de una transferencia',
+        detail: 'Editar este monto puede desbalancear el total de la transferencia #' + movement.transferId,
+        life: 4000,
+      });
+    }
+
+    const payload = {
+      ...movement,
+      paymentType: draft.kind,
+      amountPaid: draft.amount as number,
+      note: draft.note ?? '',
+      paymentDate: draft.date,
+    };
+
+    this.savingMovementId = movement.paymentId;
+    this.paymentService.update(payload).subscribe({
+      next: (updated: any) => {
+        // El usuario pudo haber pasado a editar otro movimiento mientras este
+        // PUT estaba en vuelo: solo tocamos el estado de edición/guardado si
+        // sigue apuntando a este movimiento; el otro flujo se resuelve solo.
+        if (this.savingMovementId === movement.paymentId) this.savingMovementId = null;
+        this.upsertMovement(budget.budgetId, { ...payload, ...(updated ?? {}) } as PaymentModel);
+        if (this.editingMovementId === movement.paymentId) this.cancelEditingMovement();
+        this.notifySuccess('Movimiento actualizado', `Cotización ${budget.internalCode}`);
+      },
+      error: () => {
+        if (this.savingMovementId === movement.paymentId) this.savingMovementId = null;
+        this.notifyError('No se pudo actualizar el movimiento. Inténtalo de nuevo.');
+      },
+    });
+  }
+
   private upsertMovement(budgetId: number, movement: PaymentModel): void {
     this.movementsByBudget.update(map => {
       const next = new Map(map);
@@ -413,6 +531,98 @@ export class AccountStatementComponent implements OnInit {
       if (index >= 0) list[index] = movement; else list.push(movement);
       next.set(budgetId, list);
       return next;
+    });
+  }
+
+  // --------------------------------------------------- transferencia multi-factura
+
+  openTransferDialog(): void {
+    this.transferTotal.set(null);
+    this.transferDate = new Date();
+    this.transferNote = '';
+    this.transferAllocations.set(new Map());
+    this.transferDialogVisible.set(true);
+  }
+
+  closeTransferDialog(): void {
+    this.transferDialogVisible.set(false);
+  }
+
+  setTransferDate(value: string): void {
+    if (!value) return;
+    const [year, month, day] = value.split('-').map(Number);
+    this.transferDate = new Date(year, month - 1, day);
+  }
+
+  allocationFor(budgetId: number): number | null {
+    return this.transferAllocations().get(budgetId) ?? null;
+  }
+
+  setAllocation(budgetId: number, value: string): void {
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    this.transferAllocations.update(map => {
+      const next = new Map(map);
+      if (Number.isFinite(parsed) && parsed > 0) next.set(budgetId, parsed);
+      else next.delete(budgetId);
+      return next;
+    });
+  }
+
+  transferAllocatedTotal = computed(() => {
+    let total = 0;
+    for (const amount of this.transferAllocations().values()) total += amount ?? 0;
+    return total;
+  });
+
+  transferRemaining = computed(() => (this.transferTotal() ?? 0) - this.transferAllocatedTotal());
+
+  canSubmitTransfer(): boolean {
+    return !!this.transferTotal() && this.transferTotal()! > 0
+      && this.transferAllocatedTotal() > 0
+      && this.transferRemaining() === 0
+      && !this.savingTransfer();
+  }
+
+  submitTransfer(): void {
+    const customer = this.selectedCustomer();
+    if (!customer || !this.canSubmitTransfer()) return;
+
+    const allocations: PaymentTransferAllocation[] = [];
+    for (const [budgetId, amount] of this.transferAllocations().entries()) {
+      if (!amount) continue;
+      allocations.push({ budgetId, amount, paymentType: 'Abono', note: this.transferNote });
+    }
+
+    const payload: CreatePaymentTransferRequest = {
+      customerId: customer.customerId,
+      totalAmount: this.transferTotal() as number,
+      transferDate: this.transferDate,
+      note: this.transferNote,
+      allocations,
+    };
+
+    this.savingTransfer.set(true);
+    this.paymentTransferService.create(payload).subscribe({
+      next: () => {
+        this.savingTransfer.set(false);
+        this.closeTransferDialog();
+        this.loadMovementsFor(customer.customerId);
+        this.notifySuccess('Transferencia registrada', `$ ${this.money(payload.totalAmount)} repartidos en ${allocations.length} factura(s)`);
+      },
+      error: () => {
+        this.savingTransfer.set(false);
+        this.notifyError('No se pudo registrar la transferencia. Verifica que el reparto cuadre con el total.');
+      },
+    });
+  }
+
+  showTransferDetail(transferId: number): void {
+    this.paymentTransferService.getById(transferId).subscribe({
+      next: (detail: any) => {
+        this.transferDetail.set(detail ?? null);
+        this.transferDetailVisible.set(true);
+      },
+      error: () => this.notifyError('No se pudo cargar el detalle de la transferencia.'),
     });
   }
 
@@ -469,8 +679,29 @@ export class AccountStatementComponent implements OnInit {
       if (cliente?.email) doc.text(`Email: ${cliente.email}`, marginX, 57);
       if (cliente?.address) doc.text(`Dirección: ${cliente.address}`, marginX, 62);
       doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-CO')}`, marginX, 67);
-      doc.setFontSize(9);
-      doc.text('Incluye únicamente cotizaciones facturadas.', marginX, 72);
+
+      // Bloque de resumen: facturado / abonado / saldo, antes de la tabla de detalle.
+      const summaryY = 76;
+      const summaryBoxWidth = 56;
+      const summaryLabels: [string, string, [number, number, number]][] = [
+        ['Facturado', `$ ${this.money(this.totalFacturado())}`, AccountStatementComponent.PDF_INK],
+        ['Abonado', `$ ${this.money(this.totalAbonos() + this.totalAjustes())}`, AccountStatementComponent.PDF_CREDIT],
+        ['Saldo', `$ ${this.money(this.totalSaldo())}`, AccountStatementComponent.PDF_DEBT],
+      ];
+      summaryLabels.forEach(([label, value, color], i) => {
+        const x = marginX + i * (summaryBoxWidth + 6);
+        doc.setFillColor(...AccountStatementComponent.PDF_PRIMARY_LIGHT);
+        doc.roundedRect(x, summaryY, summaryBoxWidth, 22, 2, 2, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(...AccountStatementComponent.PDF_MUTED);
+        doc.text(label.toUpperCase(), x + 5, summaryY + 8);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...color);
+        doc.text(value, x + 5, summaryY + 17);
+        doc.setFont('helvetica', 'normal');
+      });
+      doc.setTextColor(0, 0, 0);
 
       const body = rows.map(b => [
         String(b.internalCode),
@@ -493,21 +724,17 @@ export class AccountStatementComponent implements OnInit {
           `$ ${this.money(this.totalAjustes())}`,
           `$ ${this.money(this.totalSaldo())}`,
         ]],
-        startY: 78,
+        startY: summaryY + 30,
         theme: 'grid',
-        headStyles: { fillColor: [109, 40, 217], textColor: 255, fontStyle: 'bold' },
-        footStyles: { fillColor: [243, 240, 252], textColor: 20, fontStyle: 'bold' },
+        headStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY, textColor: 255, fontStyle: 'bold' },
+        footStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY_LIGHT, textColor: 20, fontStyle: 'bold' },
         styles: { fontSize: 8.5, cellPadding: 2.4 },
+        alternateRowStyles: { fillColor: [250, 249, 253] },
         columnStyles: {
           4: { halign: 'right' }, 5: { halign: 'right' },
           6: { halign: 'right' }, 7: { halign: 'right' },
         },
       });
-
-      const endY = (doc as any).lastAutoTable?.finalY ?? 78;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Saldo pendiente: $ ${this.money(this.totalSaldo())}`, marginX, endY + 12);
 
       const nombre = (cliente?.customerName ?? 'cliente').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
       doc.save(`estado-cuenta-${nombre}.pdf`);

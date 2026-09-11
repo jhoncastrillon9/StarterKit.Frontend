@@ -69,6 +69,9 @@
       [rows]="50"
       [rowsPerPageOptions]="[25,50,100]">
 
+      <button dt-actions class="btn-pdf btn-pdf--ghost" (click)="openTransferDialog()">
+        <i class="fas fa-right-left"></i><span>Registrar transferencia</span>
+      </button>
       <button dt-actions class="btn-pdf" (click)="generarPDF()">
         <i class="fas fa-file-pdf"></i><span>Descargar estado de cuenta</span>
       </button>
@@ -150,20 +153,66 @@
         <div class="movs">
           <div class="movs__list" *ngIf="movementsFor(budget.budgetId).length; else sinMovimientos">
             <div class="mov" *ngFor="let mov of movementsFor(budget.budgetId)">
-              <span class="mov__kind" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
-                <i class="fas" [class.fa-arrow-down]="kindOf(mov) === 'Abono'"
-                   [class.fa-percent]="kindOf(mov) === 'Ajuste'"></i>
-                {{ kindOf(mov) }}
-              </span>
-              <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
-              <span class="mov__note">{{ mov.note || '—' }}</span>
-              <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
-                $ {{ money(mov.amountPaid) }}
-              </span>
-              <button type="button" class="mov__del" (click)="deleteMovement(budget, mov)"
-                pTooltip="Eliminar movimiento" tooltipPosition="left" aria-label="Eliminar movimiento">
-                <i class="fas fa-times"></i>
-              </button>
+              <ng-container *ngIf="editingMovementId !== mov.paymentId; else editMov">
+                <span class="mov__kind" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                  <i class="fas" [class.fa-arrow-down]="kindOf(mov) === 'Abono'"
+                     [class.fa-percent]="kindOf(mov) === 'Ajuste'"></i>
+                  {{ kindOf(mov) }}
+                </span>
+                <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
+                <span class="mov__note">
+                  {{ mov.note || '—' }}
+                  <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId"
+                    (click)="showTransferDetail(mov.transferId!)"
+                    pTooltip="Ver otras facturas de esta transferencia" tooltipPosition="top">
+                    <i class="fas fa-right-left"></i> #{{ mov.transferId }}
+                  </button>
+                </span>
+                <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
+                  $ {{ money(mov.amountPaid) }}
+                </span>
+                <div class="mov__actions">
+                  <button type="button" class="mov__edit" (click)="startEditingMovement(mov)"
+                    pTooltip="Editar movimiento" tooltipPosition="left" aria-label="Editar movimiento">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button type="button" class="mov__del" (click)="deleteMovement(budget, mov)"
+                    pTooltip="Eliminar movimiento" tooltipPosition="left" aria-label="Eliminar movimiento">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </ng-container>
+
+              <ng-template #editMov>
+                <div class="seg seg--sm" role="group" aria-label="Tipo de movimiento">
+                  <button type="button" class="seg__btn"
+                    [class.seg__btn--on]="editingMovementDraft?.kind === 'Abono'"
+                    (click)="setEditingKind('Abono')">Abono</button>
+                  <button type="button" class="seg__btn"
+                    [class.seg__btn--on]="editingMovementDraft?.kind === 'Ajuste'"
+                    (click)="setEditingKind('Ajuste')">Ajuste</button>
+                </div>
+                <input type="number" min="0" step="1" class="ac-input-sm mov__edit-amount"
+                  [ngModel]="editingMovementDraft?.amount" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingAmount($event)" aria-label="Monto" />
+                <input type="text" class="ac-input-sm mov__edit-note"
+                  [ngModel]="editingMovementDraft?.note" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingNote($event)" aria-label="Nota" />
+                <input type="date" class="ac-input-sm"
+                  [ngModel]="editingMovementDraft?.date | date:'yyyy-MM-dd'" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="setEditingDate($event)" aria-label="Fecha" />
+                <div class="mov__actions">
+                  <button type="button" class="mov__save" [disabled]="!canSaveEditingMovement()"
+                    (click)="saveMovement(budget, mov)" aria-label="Guardar movimiento">
+                    <i class="fas fa-spinner fa-spin" *ngIf="savingMovementId === mov.paymentId"></i>
+                    <i class="fas fa-check" *ngIf="savingMovementId !== mov.paymentId"></i>
+                  </button>
+                  <button type="button" class="mov__del" [disabled]="savingMovementId === mov.paymentId"
+                    (click)="cancelEditingMovement()" aria-label="Cancelar edición">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </ng-template>
             </div>
           </div>
 
@@ -233,6 +282,69 @@
     </button>
   </div>
 </p-overlayPanel>
+
+<!-- Registrar transferencia: formulario único (total + reparto) -->
+<p-dialog [(visible)]="transferDialogVisible" [modal]="true" header="Registrar transferencia"
+  [style]="{ width: '640px', maxWidth: '95vw' }" [draggable]="false">
+  <ng-container *ngIf="selectedCustomer() as cliente">
+    <div class="transfer-form">
+      <div class="transfer-form__header">
+        <div class="ac-field">
+          <label>Valor total de la transferencia</label>
+          <input type="number" min="0" class="ac-input-sm transfer-form__total"
+            [ngModel]="transferTotal()" (ngModelChange)="transferTotal.set($event)" placeholder="0" />
+        </div>
+        <div class="ac-field">
+          <label>Fecha</label>
+          <input type="date" class="ac-input-sm"
+            [ngModel]="transferDate | date:'yyyy-MM-dd'"
+            (ngModelChange)="setTransferDate($event)" />
+        </div>
+        <div class="ac-field transfer-form__note">
+          <label>Nota</label>
+          <input type="text" class="ac-input-sm" [(ngModel)]="transferNote" placeholder="Ej. Transferencia Bancolombia" />
+        </div>
+      </div>
+
+      <div class="transfer-form__counter" [class.is-balanced]="transferRemaining() === 0 && transferTotal()">
+        Repartido: $ {{ money(transferAllocatedTotal()) }} · Restante: $ {{ money(transferRemaining()) }}
+      </div>
+
+      <div class="transfer-form__list">
+        <div class="transfer-form__row" *ngFor="let budget of filteredBudgets()">
+          <span class="transfer-form__row-name">{{ budget.internalCode }} — {{ budget.budgetName }}</span>
+          <span class="transfer-form__row-saldo">Saldo: $ {{ money(saldoFor(budget)) }}</span>
+          <input type="number" min="0" class="ac-input-sm transfer-form__row-input"
+            [ngModel]="allocationFor(budget.budgetId)"
+            (ngModelChange)="setAllocation(budget.budgetId, $event)" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="transfer-form__actions">
+        <button type="button" class="btn-pdf btn-pdf--ghost" (click)="closeTransferDialog()">Cancelar</button>
+        <button type="button" class="btn-pdf" [disabled]="!canSubmitTransfer()" (click)="submitTransfer()">
+          <i class="fas fa-spinner fa-spin" *ngIf="savingTransfer()"></i>
+          Guardar transferencia
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</p-dialog>
+
+<!-- Detalle de una transferencia: qué otras facturas cubrió -->
+<p-dialog [(visible)]="transferDetailVisible" [modal]="true" header="Detalle de la transferencia"
+  [style]="{ width: '520px', maxWidth: '95vw' }" [draggable]="false">
+  <div class="transfer-detail" *ngIf="transferDetail() as detail">
+    <p class="transfer-detail__summary">
+      $ {{ money(detail.totalAmount) }} el {{ detail.transferDate | date:'dd MMM yyyy' }}
+      <span *ngIf="detail.note"> · {{ detail.note }}</span>
+    </p>
+    <div class="transfer-detail__row" *ngFor="let p of detail.payments">
+      <span>{{ p.budget?.internalCode ?? p.budgetId }} — {{ p.budget?.budgetName }}</span>
+      <span class="transfer-detail__amount">$ {{ money(p.amountPaid) }}</span>
+    </div>
+  </div>
+</p-dialog>
 
 <p-toast position="top-right" key="ac-inline"></p-toast>
 

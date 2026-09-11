@@ -4,6 +4,9 @@ $border: #e2e0ec;
 $muted: #7c7691;
 $ink: #1f1b2e;
 
+$btn-height: 34px;
+$btn-radius: 8px;
+
 // Semántica de dinero: el color dice la dirección del movimiento,
 // no decora. Verde entra, ámbar se retiene, rojo queda debiendo.
 $credit: #15703f;
@@ -91,8 +94,8 @@ $debt: #c0392b;
 }
 
 .btn-pdf {
-  display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px;
-  border-radius: 10px; background: $primary; color: #fff; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; height: $btn-height; padding: 0 16px;
+  border-radius: $btn-radius; background: $primary; color: #fff; border: none; cursor: pointer;
   font-weight: 800; font-size: 13px; transition: background .15s ease;
   &:hover { background: $primary-dark; }
   &:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
@@ -161,6 +164,21 @@ $debt: #c0392b;
 .status-trigger { background: none; border: none; padding: 0; cursor: pointer; }
 
 // ------------------------------------------------- panel de movimientos
+.seg {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px; border-radius: $btn-radius + 2px; background: #f1eefb; border: 1px solid $border;
+
+  &__btn {
+    height: $btn-height - 6px; padding: 0 12px; border: none; border-radius: $btn-radius - 1px;
+    background: transparent; color: $muted; font-weight: 800; font-size: 12px; cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+
+    &--on { background: #fff; color: $primary-dark; box-shadow: 0 1px 2px rgba(24, 20, 45, .08); }
+    &:not(&--on):hover { color: $ink; }
+    &:focus-visible { outline: 2px solid #a78bfa; outline-offset: 1px; }
+  }
+}
+
 .movs {
   padding: 14px 18px 16px 54px;
   display: flex; flex-direction: column; gap: 10px;
@@ -196,8 +214,8 @@ $debt: #c0392b;
   .movs__input:not(.movs__input--amount) { flex: 1 1 220px; min-width: 180px; }
 
   &__add {
-    display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 15px;
-    border: none; border-radius: 8px; background: $primary; color: #fff;
+    display: inline-flex; align-items: center; gap: 7px; height: $btn-height; padding: 0 15px;
+    border: none; border-radius: $btn-radius; background: $primary; color: #fff;
     font-weight: 800; font-size: 12.5px; cursor: pointer; transition: background .15s ease;
     i { font-size: 11px; }
     &:hover:not(:disabled) { background: $primary-dark; }
@@ -208,10 +226,31 @@ $debt: #c0392b;
 
 .mov {
   display: grid;
-  grid-template-columns: 104px 104px 1fr auto 28px;
+  grid-template-columns: 104px 104px 1fr auto 56px;
   align-items: center; gap: 12px;
   padding: 7px 0; border-bottom: 1px solid #efecf7;
   &:last-child { border-bottom: none; }
+
+  &__actions { display: flex; gap: 4px; }
+
+  &__edit, &__save {
+    width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid transparent; border-radius: $btn-radius - 1px; background: none;
+    color: #b6b0c6; cursor: pointer; transition: all .15s ease;
+    i { font-size: 11px; }
+    &:hover:not(:disabled) { background: #f1eefb; border-color: #d6ccf5; color: $primary; }
+    &:focus-visible { outline: 2px solid #a78bfa; outline-offset: 1px; }
+  }
+
+  &__save {
+    &:hover:not(:disabled) { background: #e7f5ec; border-color: #bfe3cc; color: $credit; }
+    &:disabled { color: #d5d2e0; cursor: default; }
+  }
+
+  &__edit-amount { max-width: 100px; font-weight: 800; }
+  &__edit-note { flex: 1 1 auto; }
+
+  .seg--sm .seg__btn { height: 24px; padding: 0 9px; font-size: 11px; }
 
   &__kind {
     display: inline-flex; align-items: center; gap: 5px;
@@ -225,6 +264,7 @@ $debt: #c0392b;
   &__note {
     font-size: 12.5px; color: #55506d; min-width: 0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: flex; flex-direction: column; gap: 2px;
   }
 
   &__amount {
@@ -235,7 +275,7 @@ $debt: #c0392b;
 
   &__del {
     width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
-    border: 1px solid transparent; border-radius: 7px; background: none;
+    border: 1px solid transparent; border-radius: $btn-radius - 1px; background: none;
     color: #b6b0c6; cursor: pointer; transition: all .15s ease;
     i { font-size: 11px; }
     &:hover { background: #fdeceb; border-color: #f6d3d1; color: $debt; }
@@ -282,4 +322,51 @@ $debt: #c0392b;
 
 @media (prefers-reduced-motion: reduce) {
   .obra__bar, .btn-pdf, .movs__add, .cell-edit__trigger, .mov__del { transition: none; }
+}
+
+.btn-pdf--ghost {
+  background: #fff; color: $primary; border: 1px solid #d6ccf5;
+  &:hover { background: #f5f2ff; color: $primary-dark; }
+}
+
+.transfer-form {
+  display: flex; flex-direction: column; gap: 14px;
+
+  &__header { display: flex; gap: 12px; flex-wrap: wrap; }
+  &__total { max-width: 160px; font-weight: 800; }
+  &__note { flex: 1 1 200px; }
+  &__note input { max-width: none; }
+
+  &__counter {
+    padding: 8px 12px; border-radius: 8px; background: #fdeceb; color: $debt;
+    font-weight: 800; font-size: 13px;
+    &.is-balanced { background: #e7f5ec; color: $credit; }
+  }
+
+  &__list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
+
+  &__row {
+    display: grid; grid-template-columns: 1fr auto 110px; align-items: center; gap: 10px;
+    padding: 6px 0; border-bottom: 1px solid #efecf7;
+  }
+  &__row-name { font-weight: 700; font-size: 13px; color: $ink; }
+  &__row-saldo { font-size: 12px; color: $muted; white-space: nowrap; }
+  &__row-input { max-width: 110px; }
+
+  &__actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 6px; }
+}
+
+.mov__transfer-badge {
+  display: inline-flex; align-items: center; gap: 4px; border: none; background: #f1eefb;
+  color: $primary-dark; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px;
+  cursor: pointer; width: fit-content;
+  i { font-size: 9px; }
+  &:hover { background: #e5ddfb; }
+}
+
+.transfer-detail {
+  display: flex; flex-direction: column; gap: 10px;
+  &__summary { margin: 0; font-weight: 700; color: $ink; font-size: 13px; }
+  &__row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #efecf7; }
+  &__amount { font-weight: 800; color: $credit; }
 }
