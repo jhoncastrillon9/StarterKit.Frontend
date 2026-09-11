@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../../environment';
+import { ChatAttachment } from './chat-attachment.service';
 
 export interface ChatMessage {
   id?: string;
@@ -10,6 +11,7 @@ export interface ChatMessage {
   timestamp?: string;
   isStreaming?: boolean;
   fileResponse?: ChatFileResponse;
+  attachments?: ChatAttachment[];
 }
 
 export interface ChatMessageDTO {
@@ -502,7 +504,7 @@ export class ChatbotSignalRService {
   /**
    * Send message with automatic reconnection
    */
-  public async sendMessage(message: string): Promise<void> {
+  public async sendMessage(message: string, attachments: ChatAttachment[] = []): Promise<void> {
     // Try to reconnect if disconnected
     if (!this.isConnected()) {
       console.warn('Not connected, attempting to reconnect...');
@@ -517,7 +519,8 @@ export class ChatbotSignalRService {
 
     if (this.hubConnection && this.isConnected()) {
       const chatRequest = {
-        Message: message
+        Message: message,
+        AttachmentIds: attachments.map(a => a.attachmentId)
       };
 
       const userMessage: ChatMessage = {
@@ -525,7 +528,8 @@ export class ChatbotSignalRService {
         sender: 'user',
         content: message,
         timestamp: new Date().toISOString(),
-        isStreaming: false
+        isStreaming: false,
+        attachments: attachments.length ? attachments : undefined
       };
       const current = this.messagesSubject.value;
       this.messagesSubject.next([...current, userMessage]);
