@@ -9,6 +9,9 @@ interface PendingAttachment {
   localId: string;
   file: File;
   status: 'uploading' | 'ready' | 'error';
+  /** Distingue un rechazo de validación local (no reintentable: el archivo
+   *  sigue siendo inválido) de un fallo al subir al backend (sí reintentable). */
+  kind?: 'validation' | 'upload';
   error?: string;
   uploaded?: ChatAttachment;
 }
@@ -276,6 +279,9 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   retryAttachment(pending: PendingAttachment): void {
+    // Un error de validación local (extensión no permitida o >10MB) no se
+    // arregla reintentando: el archivo sigue siendo inválido para el backend.
+    if (pending.kind === 'validation') return;
     pending.status = 'uploading';
     pending.error = undefined;
     this.uploadAttachment(pending);
@@ -303,7 +309,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       const validationError = this.attachmentService.validate(file);
 
       const pending: PendingAttachment = validationError
-        ? { localId, file, status: 'error', error: validationError }
+        ? { localId, file, status: 'error', kind: 'validation', error: validationError }
         : { localId, file, status: 'uploading' };
 
       this.pendingAttachments = [...this.pendingAttachments, pending];
@@ -318,10 +324,26 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         pending.uploaded = uploaded;
         pending.status = 'ready';
       },
-      error: () => {
+      error: (err: unknown) => {
         pending.status = 'error';
-        pending.error = 'No se pudo subir. Reintenta.';
+        pending.kind = 'upload';
+        pending.error = this.extractUploadErrorMessage(err);
       }
     });
+  }
+
+  /** Extrae el mensaje de error que manda el backend; si no viene ninguno usable,
+   *  cae al genérico. Antes se pisaba siempre con el genérico, incluso cuando el
+   *  servidor mandaba un diagnóstico útil (p. ej. "tipo de archivo no soportado"). */
+  private extractUploadErrorMessage(error: any): string {
+    if (error?.error) {
+      if (typeof error.error === 'string' && error.error.trim()) return error.error;
+      if (typeof error.error === 'object') {
+        const msg = error.error.message || error.error.title || error.error.Message;
+        if (typeof msg === 'string' && msg.trim()) return msg;
+      }
+    }
+    if (typeof error?.message === 'string' && error.message.trim()) return error.message;
+    return 'No se pudo subir. Reintenta.';
   }
 }

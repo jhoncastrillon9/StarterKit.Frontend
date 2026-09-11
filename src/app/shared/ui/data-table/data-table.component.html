@@ -28,7 +28,7 @@
       [rowsPerPageOptions]="rowsPerPageOptions()" [globalFilterFields]="globalFilterFields()"
       [sortField]="sortField()" [sortOrder]="sortOrder()" [rowHover]="true"
       [dataKey]="rowKey()" [lazy]="lazy()" [totalRecords]="totalRecords()"
-      (onPage)="onPage($event)"
+      (onPage)="onPage($event)" (firstChange)="first.set($event)"
       [currentPageReportTemplate]="currentPageReportTemplate()"
       styleClass="dc-datatable" [tableStyle]="{ 'min-width': '60rem' }">
 
@@ -39,6 +39,7 @@
               <div class="dc-search">
                 <span class="dc-search__icon">⌕</span>
                 <input pInputText type="text" [placeholder]="searchPlaceholder()"
+                  [value]="searchValue()"
                   (input)="onSearch(dt, $any($event.target).value)" />
               </div>
             }
@@ -107,7 +108,7 @@
                         <p-calendar styleClass="dc-filter-calendar" appendTo="body"
                           selectionMode="range" dateFormat="dd/mm/yy" [readonlyInput]="true"
                           [showButtonBar]="true" placeholder="Rango"
-                          [ngModel]="value" (ngModelChange)="filter($event?.[0] ? $event : null)"></p-calendar>
+                          [ngModel]="value" (ngModelChange)="filter($event?.[0] && $event?.[1] ? $event : null)"></p-calendar>
                       </ng-template>
                     </p-columnFilter>
                   }

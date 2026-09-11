@@ -15,6 +15,25 @@ import { DataTableColumn, KpiDef, DataTableLazyEvent } from './data-table.types'
 import { KpiCardComponent } from '../kpi-card/kpi-card.component';
 import { FilterChipsComponent, ChipOption } from '../filter-chips/filter-chips.component';
 
+/** El backend entrega fechas como string ISO; p-calendar entrega Date. Funciones puras
+ *  a nivel de módulo para que el registro del match mode no capture ninguna instancia. */
+function toDate(value: unknown): Date | null {
+  if (value instanceof Date) return value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+}
+
+function endOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
 @Component({
   selector: 'app-data-table',
   standalone: true,
@@ -71,6 +90,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   // paginando internamente; su paginador nativo se oculta por CSS.
   readonly first = signal(0);
   readonly pageSize = signal(20);
+  readonly searchValue = signal('');
 
   ngOnInit(): void {
     this.pageSize.set(this.rows());
@@ -111,9 +131,18 @@ export class DataTableComponent implements AfterContentInit, OnInit {
 
   clearColumnFilters(dt: Table): void {
     for (const col of this.columns()) {
-      if (col.filter) dt.filter(null, col.field, this.matchModeFor(col));
+      const c = dt.filters[col.field] as any;
+      if (col.filter && c && !Array.isArray(c)) c.value = null;
     }
-    this.first.set(0);
+    if (dt.filters['global']) (dt.filters['global'] as any).value = null;
+    this.searchValue.set('');
+    this.searchChange.emit('');
+    if (this.lazy()) {
+      this.resetToFirstPage();
+    } else {
+      dt._filter();
+      this.first.set(0);
+    }
   }
 
   matchModeFor(col: DataTableColumn): string {
@@ -125,15 +154,23 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     }
   }
 
+  /** FilterService es providedIn: 'root', así que el registro es global y permanente
+   *  para toda la app. Se registra una única vez (flag estático) y con funciones puras
+   *  a nivel de módulo, para que ninguna instancia del componente quede retenida. */
+  private static rangeFiltersRegistered = false;
+
   private registerRangeFilters(): void {
+    if (DataTableComponent.rangeFiltersRegistered) return;
+    DataTableComponent.rangeFiltersRegistered = true;
+
     this.filterService.register('dcDateRange', (value: unknown, range: unknown[] | null) => {
       if (!range || (range[0] == null && range[1] == null)) return true;
-      const date = this.toDate(value);
+      const date = toDate(value);
       if (!date) return false;
-      const from = this.toDate(range[0]);
-      const to = this.toDate(range[1]);
-      if (from && date < this.startOfDay(from)) return false;
-      if (to && date > this.endOfDay(to)) return false;
+      const from = toDate(range[0]);
+      const to = toDate(range[1]);
+      if (from && date < startOfDay(from)) return false;
+      if (to && date > endOfDay(to)) return false;
       return true;
     });
 
@@ -147,25 +184,8 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     });
   }
 
-  /** El backend entrega fechas como string ISO; p-calendar entrega Date. */
-  private toDate(value: unknown): Date | null {
-    if (value instanceof Date) return value;
-    if (typeof value === 'string' || typeof value === 'number') {
-      const d = new Date(value);
-      return Number.isNaN(d.getTime()) ? null : d;
-    }
-    return null;
-  }
-
-  private startOfDay(d: Date): Date {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-  }
-
-  private endOfDay(d: Date): Date {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
-  }
-
   onSearch(dt: Table, value: string): void {
+    this.searchValue.set(value);
     dt.filterGlobal(value, 'contains');
     this.first.set(0);
     this.searchChange.emit(value);

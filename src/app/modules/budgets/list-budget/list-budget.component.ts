@@ -87,8 +87,17 @@ export class ListBudgetComponent implements OnInit {
     return b.estado === status;
   }
 
-  get filteredBudgets(): BudgetModel[] {
-    return this.budgets.filter(b => this.matchesStatus(b, this.activeStatusFilter));
+  /**
+   * Array estable para [value] de app-data-table. Antes era un getter que devolvía
+   * un array nuevo en cada ciclo de detección de cambios: Table.ngOnChanges({value})
+   * se disparaba sin parar y, con columnas con filtro declaradas, terminaba en
+   * hasFilter() -> _filter() en cada tick, reseteando first a 0 y matando la
+   * paginación. Se recalcula sólo cuando cambian budgets o activeStatusFilter.
+   */
+  filteredBudgets: BudgetModel[] = [];
+
+  private recalcFilteredBudgets(): void {
+    this.filteredBudgets = this.budgets.filter(b => this.matchesStatus(b, this.activeStatusFilter));
   }
 
   get chipOptions(): ChipOption[] {
@@ -100,7 +109,10 @@ export class ListBudgetComponent implements OnInit {
     ];
   }
 
-  onChipChange(value: string): void { this.activeStatusFilter = value; }
+  onChipChange(value: string): void {
+    this.activeStatusFilter = value;
+    this.recalcFilteredBudgets();
+  }
 
   loading: boolean = true;
   budgets: BudgetModel[] = [];
@@ -216,6 +228,7 @@ export class ListBudgetComponent implements OnInit {
       this.budgets = customers;
       this.budgets.forEach(b => this.originalStatuses.set(b.budgetId, b.estado));
       this.refreshEstadoFilterOptions();
+      this.recalcFilteredBudgets();
       this.spinner.hide();
       this.loading = false;
     }, (error) => {
