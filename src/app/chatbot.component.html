@@ -185,7 +185,7 @@
              (change)="onFilesSelected($event)" />
       <button class="attach-btn"
               (click)="fileInput.click()"
-              [disabled]="pendingAttachments.length >= 3"
+              [disabled]="pendingAttachments.length >= maxAttachments"
               title="Adjuntar archivo">
         <i class="pi pi-paperclip"></i>
       </button>

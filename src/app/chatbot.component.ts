@@ -236,6 +236,10 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.attachmentService.acceptAttribute;
   }
 
+  get maxAttachments(): number {
+    return this.attachmentService.maxAttachments;
+  }
+
   get isUploadingAttachments(): boolean {
     return this.pendingAttachments.some(a => a.status === 'uploading');
   }
