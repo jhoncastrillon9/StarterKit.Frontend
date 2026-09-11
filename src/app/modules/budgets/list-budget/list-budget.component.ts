@@ -258,6 +258,8 @@ export class ListBudgetComponent implements OnInit {
         this.savingStatusId = null;
         if (oldStatus) {
           budget.estado = oldStatus;
+          // Revertir también puede sacar/meter la fila del array cacheado.
+          this.recalcFilteredBudgets();
         }
         this.notifySaveError('Error updating status', 'No se pudo actualizar el estado. Inténtalo de nuevo.');
       }
@@ -295,6 +297,9 @@ export class ListBudgetComponent implements OnInit {
       (response: any) => {
         this.savingInvoiceId = null;
         budget.externalInvoice = newInvoiceValue;
+        // externalInvoice es el criterio del chip "Facturadas": recalcular el
+        // array cacheado para que la fila aparezca/desaparezca sin recargar.
+        this.recalcFilteredBudgets();
         this.notifySaveSuccess(
           budget.budgetId,
           '¡Factura actualizada!',
@@ -602,6 +607,9 @@ export class ListBudgetComponent implements OnInit {
     const budget = this.currentBudget;
     if (budget && budget.estado !== value) {
       budget.estado = value;
+      // Muta un elemento ya presente en el array cacheado filteredBudgets: si hay un
+      // chip de estado activo, esta fila puede tener que aparecer/desaparecer ya.
+      this.recalcFilteredBudgets();
       this.onStatusChange(budget);
     }
   }
