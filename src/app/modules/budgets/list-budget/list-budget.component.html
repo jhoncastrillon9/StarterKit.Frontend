@@ -107,7 +107,7 @@
       <div class="action-buttons">
         <button class="action-btn action-edit" [routerLink]="['/budgets/update', budget.budgetId]" pTooltip="Editar" tooltipPosition="top"><i class="fas fa-pen"></i></button>
         <button class="action-btn action-pdf" (click)="downloadBudget(budget)" pTooltip="Descargar PDF" tooltipPosition="top">PDF</button>
-        <button class="action-btn action-excel" (click)="downloadExcel(budget)" pTooltip="Descargar Excel" tooltipPosition="top">XLS</button>
+        <button class="action-btn action-excel" (click)="downloadExcel(budget)" pTooltip="Descargar Excel" tooltipPosition="top">Excel</button>
         <button class="action-btn action-more" (click)="onMenuClick($event, budget)" pTooltip="Mas opciones" tooltipPosition="top"><i class="fas fa-ellipsis-v"></i></button>
       </div>
     </ng-template>

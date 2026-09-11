@@ -38,6 +38,40 @@
 }
 .dc-toolbar__count { margin-left: auto; font-size: 12px; font-weight: 600; color: #8b85a1; }
 
+// ---- Filtros por columna (opt-in vía DataTableColumn.filter) ----
+.dc-clear-filters {
+  height: 34px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid #e2e0ec; background: #fff; color: #6f6987;
+  font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; transition: all .15s ease;
+  &:hover { background: #f5f2ff; border-color: #d6ccf5; color: #6d28d9; }
+}
+
+.dc-filter-range { display: flex; gap: 6px; }
+
+:host ::ng-deep .dc-datatable .dc-filter-row > th {
+  padding: 6px 10px 8px; background: #fafafc;
+  border-bottom: 1px solid #ebe9f3; text-transform: none; letter-spacing: 0;
+
+  .p-column-filter { width: 100%; }
+
+  .dc-filter-input,
+  .p-multiselect,
+  .p-calendar .p-inputtext,
+  .p-inputnumber .p-inputtext {
+    width: 100%; min-width: 0; height: 30px; border-radius: 7px;
+    border: 1px solid #e2e0ec; background: #fff;
+    font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 500;
+    color: dc.$dc-text; padding: 0 9px; text-transform: none; letter-spacing: 0;
+  }
+  .p-multiselect { display: flex; align-items: center; }
+  .p-multiselect-label { padding: 0; font-size: 12.5px; line-height: 28px; }
+  .p-calendar { width: 100%; }
+  .p-inputnumber { width: 100%; }
+  .dc-filter-input:focus,
+  .p-inputtext:focus { border-color: #a78bfa; outline: none; box-shadow: none; }
+}
+
 // ---- p-table theming, scoped under :host so it never leaks to the Lara-blue app ----
 :host ::ng-deep .dc-datatable {
   .p-datatable-thead > tr > th {

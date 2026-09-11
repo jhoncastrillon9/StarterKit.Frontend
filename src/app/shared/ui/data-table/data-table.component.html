@@ -32,7 +32,7 @@
       [currentPageReportTemplate]="currentPageReportTemplate()"
       styleClass="dc-datatable" [tableStyle]="{ 'min-width': '60rem' }">
 
-      @if (showSearch() || chips().length) {
+      @if (showSearch() || chips().length || hasColumnFilters()) {
         <ng-template pTemplate="caption">
           <div class="dc-toolbar">
             @if (showSearch()) {
@@ -45,6 +45,11 @@
             @if (chips().length) {
               <app-filter-chips [options]="chips()" [value]="activeChip()"
                 (valueChange)="chipChange.emit($event)"></app-filter-chips>
+            }
+            @if (hasColumnFilters()) {
+              <button type="button" class="dc-clear-filters" (click)="clearColumnFilters(dt)">
+                Limpiar filtros
+              </button>
             }
             @if (!lazy()) {
               <span class="dc-toolbar__count">{{ value().length }} visibles</span>
@@ -67,6 +72,65 @@
             }
           }
         </tr>
+        @if (hasColumnFilters()) {
+          <tr class="dc-filter-row">
+            @if (expandable()) { <th class="dc-th dc-th--filter"></th> }
+            @for (col of columns(); track col.field) {
+              <th class="dc-th dc-th--filter">
+                @switch (col.filter?.type) {
+                  @case ('text') {
+                    <p-columnFilter [field]="col.field" matchMode="contains" display="row"
+                      [showMenu]="false" [showClearButton]="false">
+                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <input pInputText type="text" class="dc-filter-input"
+                          [ngModel]="value" (ngModelChange)="filter($event)"
+                          [placeholder]="col.filter?.placeholder || 'Filtrar'" />
+                      </ng-template>
+                    </p-columnFilter>
+                  }
+                  @case ('select') {
+                    <p-columnFilter [field]="col.field" matchMode="in" display="row"
+                      [showMenu]="false" [showClearButton]="false">
+                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <p-multiSelect styleClass="dc-filter-multiselect" appendTo="body"
+                          [options]="col.filter?.options || []" optionLabel="label" optionValue="value"
+                          [ngModel]="value" (ngModelChange)="filter($event?.length ? $event : null)"
+                          [placeholder]="col.filter?.placeholder || 'Todos'"
+                          selectedItemsLabel="{0} seleccionados" [maxSelectedLabels]="1"></p-multiSelect>
+                      </ng-template>
+                    </p-columnFilter>
+                  }
+                  @case ('dateRange') {
+                    <p-columnFilter [field]="col.field" matchMode="dcDateRange" display="row"
+                      [showMenu]="false" [showClearButton]="false">
+                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <p-calendar styleClass="dc-filter-calendar" appendTo="body"
+                          selectionMode="range" dateFormat="dd/mm/yy" [readonlyInput]="true"
+                          [showButtonBar]="true" placeholder="Rango"
+                          [ngModel]="value" (ngModelChange)="filter($event?.[0] ? $event : null)"></p-calendar>
+                      </ng-template>
+                    </p-columnFilter>
+                  }
+                  @case ('numericRange') {
+                    <p-columnFilter [field]="col.field" matchMode="dcNumericRange" display="row"
+                      [showMenu]="false" [showClearButton]="false">
+                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                        <div class="dc-filter-range">
+                          <p-inputNumber styleClass="dc-filter-number" placeholder="Min" [min]="0"
+                            [ngModel]="value?.[0]"
+                            (ngModelChange)="filter(updateRange(value, 0, $event))"></p-inputNumber>
+                          <p-inputNumber styleClass="dc-filter-number" placeholder="Max" [min]="0"
+                            [ngModel]="value?.[1]"
+                            (ngModelChange)="filter(updateRange(value, 1, $event))"></p-inputNumber>
+                        </div>
+                      </ng-template>
+                    </p-columnFilter>
+                  }
+                }
+              </th>
+            }
+          </tr>
+        }
       </ng-template>
 
       <ng-template pTemplate="body" let-row let-expanded="expanded">

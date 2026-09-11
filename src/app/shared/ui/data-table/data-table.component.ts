@@ -3,8 +3,13 @@ import {
   TemplateRef, inject, input, output, signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TableModule, Table, TableLazyLoadEvent } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CalendarModule } from 'primeng/calendar';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { FilterService } from 'primeng/api';
 import { DataTableColumnDirective } from './data-table-column.directive';
 import { DataTableColumn, KpiDef, DataTableLazyEvent } from './data-table.types';
 import { KpiCardComponent } from '../kpi-card/kpi-card.component';
@@ -13,7 +18,10 @@ import { FilterChipsComponent, ChipOption } from '../filter-chips/filter-chips.c
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [NgTemplateOutlet, TableModule, InputTextModule, KpiCardComponent, FilterChipsComponent],
+  imports: [
+    NgTemplateOutlet, FormsModule, TableModule, InputTextModule, InputNumberModule,
+    CalendarModule, MultiSelectModule, KpiCardComponent, FilterChipsComponent,
+  ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
 })
@@ -52,6 +60,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   @ContentChild('dtRowExpansion') rowExpansionTemplate: TemplateRef<{ $implicit: unknown }> | null = null;
   private templates = new Map<string, TemplateRef<{ $implicit: unknown }>>();
   private destroyRef = inject(DestroyRef);
+  private filterService = inject(FilterService);
 
   /** Columnas + la de despliegue, para el colspan de filas especiales. */
   totalColumnCount(): number {
@@ -65,6 +74,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
 
   ngOnInit(): void {
     this.pageSize.set(this.rows());
+    this.registerRangeFilters();
   }
 
   ngAfterContentInit(): void {
@@ -85,6 +95,74 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   /** Resolve a possibly-nested field path like 'customerDto.customerName'. */
   resolve(row: any, field: string): unknown {
     return field.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), row);
+  }
+
+  /** true si alguna columna declaró filtro: sin esto no se pinta la fila de filtros. */
+  hasColumnFilters(): boolean {
+    return this.columns().some(c => !!c.filter);
+  }
+
+  /** Devuelve un rango nuevo con un extremo cambiado, o null si el rango quedó vacío. */
+  updateRange(current: unknown, index: 0 | 1, value: unknown): unknown[] | null {
+    const range = Array.isArray(current) ? [...current] : [null, null];
+    range[index] = value ?? null;
+    return range[0] == null && range[1] == null ? null : range;
+  }
+
+  clearColumnFilters(dt: Table): void {
+    for (const col of this.columns()) {
+      if (col.filter) dt.filter(null, col.field, this.matchModeFor(col));
+    }
+    this.first.set(0);
+  }
+
+  matchModeFor(col: DataTableColumn): string {
+    switch (col.filter?.type) {
+      case 'select': return 'in';
+      case 'dateRange': return 'dcDateRange';
+      case 'numericRange': return 'dcNumericRange';
+      default: return 'contains';
+    }
+  }
+
+  private registerRangeFilters(): void {
+    this.filterService.register('dcDateRange', (value: unknown, range: unknown[] | null) => {
+      if (!range || (range[0] == null && range[1] == null)) return true;
+      const date = this.toDate(value);
+      if (!date) return false;
+      const from = this.toDate(range[0]);
+      const to = this.toDate(range[1]);
+      if (from && date < this.startOfDay(from)) return false;
+      if (to && date > this.endOfDay(to)) return false;
+      return true;
+    });
+
+    this.filterService.register('dcNumericRange', (value: unknown, range: unknown[] | null) => {
+      if (!range || (range[0] == null && range[1] == null)) return true;
+      const n = Number(value);
+      if (Number.isNaN(n)) return false;
+      if (range[0] != null && n < Number(range[0])) return false;
+      if (range[1] != null && n > Number(range[1])) return false;
+      return true;
+    });
+  }
+
+  /** El backend entrega fechas como string ISO; p-calendar entrega Date. */
+  private toDate(value: unknown): Date | null {
+    if (value instanceof Date) return value;
+    if (typeof value === 'string' || typeof value === 'number') {
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+  }
+
+  private startOfDay(d: Date): Date {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+  }
+
+  private endOfDay(d: Date): Date {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
   }
 
   onSearch(dt: Table, value: string): void {

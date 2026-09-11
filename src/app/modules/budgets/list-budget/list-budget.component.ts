@@ -61,15 +61,24 @@ export class ListBudgetComponent implements OnInit {
   activeStatusFilter: string = 'Todas';
 
   tableColumns: DataTableColumn[] = [
-    { field: 'internalCode', header: 'Codigo', sortable: true, sortField: 'budgetId', align: 'center' },
-    { field: 'date', header: 'Fecha', sortable: true },
-    { field: 'budgetName', header: 'Obra', sortable: true },
-    { field: 'customerDto.customerName', header: 'Cliente', sortable: true },
-    { field: 'externalInvoice', header: 'Factura', sortable: true },
-    { field: 'estado', header: 'Estado', sortable: true },
-    { field: 'total', header: 'Total', sortable: true, align: 'right' },
+    { field: 'internalCode', header: 'Codigo', sortable: true, sortField: 'budgetId', align: 'center', filter: { type: 'text', placeholder: 'Codigo' } },
+    { field: 'date', header: 'Fecha', sortable: true, filter: { type: 'dateRange' } },
+    { field: 'budgetName', header: 'Obra', sortable: true, filter: { type: 'text', placeholder: 'Obra' } },
+    { field: 'customerDto.customerName', header: 'Cliente', sortable: true, filter: { type: 'text', placeholder: 'Cliente' } },
+    { field: 'externalInvoice', header: 'Factura', sortable: true, filter: { type: 'text', placeholder: 'Factura' } },
+    { field: 'estado', header: 'Estado', sortable: true, filter: { type: 'select', options: [] } },
+    { field: 'total', header: 'Total', sortable: true, align: 'right', filter: { type: 'numericRange' } },
     { field: 'acciones', header: 'Acciones', align: 'right' },
   ];
+
+  /** Las opciones del filtro de Estado salen de los datos, no de una lista fija. */
+  private refreshEstadoFilterOptions(): void {
+    const estados = [...new Set(this.budgets.map(b => b.estado).filter(Boolean))].sort();
+    this.tableColumns = this.tableColumns.map(col =>
+      col.field === 'estado'
+        ? { ...col, filter: { ...col.filter!, options: estados.map(e => ({ label: e, value: e })) } }
+        : col);
+  }
 
   /** 'Todas' = all; 'Facturadas' = has external invoice; else exact estado. */
   private matchesStatus(b: BudgetModel, status: string): boolean {
@@ -206,6 +215,7 @@ export class ListBudgetComponent implements OnInit {
     this.budgetService.get().subscribe(customers => {
       this.budgets = customers;
       this.budgets.forEach(b => this.originalStatuses.set(b.budgetId, b.estado));
+      this.refreshEstadoFilterOptions();
       this.spinner.hide();
       this.loading = false;
     }, (error) => {
