@@ -2,7 +2,16 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, 
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
 import { ChatbotSignalRService, ChatMessage, ChatFileResponse, ConnectionStatus } from './shared/services/chatbot-signalr.service';
+import { ChatAttachment, ChatAttachmentService } from './shared/services/chat-attachment.service';
 import { Subscription } from 'rxjs';
+
+interface PendingAttachment {
+  localId: string;
+  file: File;
+  status: 'uploading' | 'ready' | 'error';
+  error?: string;
+  uploaded?: ChatAttachment;
+}
 
 @Component({
   selector: 'app-chatbot',
@@ -40,6 +49,9 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   private subs: Subscription[] = [];
   private shouldScrollToBottom = false;
 
+  pendingAttachments: PendingAttachment[] = [];
+  isDraggingOver = false;
+
   // Chat state
   isOpen = false;
   isMobile = false;
@@ -49,7 +61,10 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   showConfirmationModal = false;
   confirmationMessage = '¿Estas seguro de que quieres borrar toda la conversacion?';
 
-  constructor(private chatService: ChatbotSignalRService) {}
+  constructor(
+    private chatService: ChatbotSignalRService,
+    private attachmentService: ChatAttachmentService
+  ) {}
 
   async ngOnInit() {
     // Detect mobile
@@ -136,11 +151,16 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   sendMessage(): void {
-    if (this.message.trim()) {
-      this.chatService.sendMessage(this.message);
-      this.message = '';
-      this.shouldScrollToBottom = true;
-    }
+    if (!this.canSend) return;
+
+    const attachments = this.pendingAttachments
+      .filter(a => a.status === 'ready' && a.uploaded)
+      .map(a => a.uploaded as ChatAttachment);
+
+    this.chatService.sendMessage(this.message, attachments);
+    this.message = '';
+    this.pendingAttachments = [];
+    this.shouldScrollToBottom = true;
   }
 
   formatTime(timestamp: string): string {
@@ -210,5 +230,94 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       // Fallback: abrir en nueva pestaña si falla la descarga directa
       window.open(fileResponse.url, '_blank');
     }
+  }
+
+  get acceptAttribute(): string {
+    return this.attachmentService.acceptAttribute;
+  }
+
+  get isUploadingAttachments(): boolean {
+    return this.pendingAttachments.some(a => a.status === 'uploading');
+  }
+
+  get canSend(): boolean {
+    if (this.isBotTyping || this.isUploadingAttachments) return false;
+    return !!this.message.trim() || this.pendingAttachments.some(a => a.status === 'ready');
+  }
+
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) this.addFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDraggingOver = false;
+    if (event.dataTransfer?.files) this.addFiles(Array.from(event.dataTransfer.files));
+  }
+
+  removeAttachment(localId: string): void {
+    this.pendingAttachments = this.pendingAttachments.filter(a => a.localId !== localId);
+  }
+
+  retryAttachment(pending: PendingAttachment): void {
+    pending.status = 'uploading';
+    pending.error = undefined;
+    this.uploadAttachment(pending);
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  attachmentIcon(fileName: string): string {
+    const name = fileName.toLowerCase();
+    if (name.endsWith('.pdf')) return 'pi pi-file-pdf';
+    if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv')) return 'pi pi-file-excel';
+    return 'pi pi-image';
+  }
+
+  private addFiles(files: File[]): void {
+    for (const file of files) {
+      const free = this.attachmentService.maxAttachments - this.pendingAttachments.length;
+      if (free <= 0) break;
+
+      const localId = `${Date.now()}-${file.name}`;
+      const validationError = this.attachmentService.validate(file);
+
+      const pending: PendingAttachment = validationError
+        ? { localId, file, status: 'error', error: validationError }
+        : { localId, file, status: 'uploading' };
+
+      this.pendingAttachments = [...this.pendingAttachments, pending];
+
+      if (!validationError) this.uploadAttachment(pending);
+    }
+  }
+
+  private uploadAttachment(pending: PendingAttachment): void {
+    this.attachmentService.upload(pending.file).subscribe({
+      next: uploaded => {
+        pending.uploaded = uploaded;
+        pending.status = 'ready';
+      },
+      error: () => {
+        pending.status = 'error';
+        pending.error = 'No se pudo subir. Reintenta.';
+      }
+    });
   }
 }

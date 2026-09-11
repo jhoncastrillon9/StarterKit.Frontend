@@ -112,6 +112,13 @@
           </div>
         </ng-container>
 
+        <!-- Archivos que acompañaron al mensaje del usuario -->
+        <div class="message-attachments" *ngIf="msg.attachments?.length">
+          <span class="message-attachment" *ngFor="let att of msg.attachments">
+            <i [class]="attachmentIcon(att.fileName)"></i> {{ att.fileName }}
+          </span>
+        </div>
+
         <!-- Regular message bubble (no file) -->
         <div class="message-bubble"
              *ngIf="!msg.fileResponse"
@@ -141,8 +148,47 @@
   </div>
 
   <!-- Input area -->
-  <div class="chat-input-area">
+  <div class="chat-input-area"
+       [class.dragging]="isDraggingOver"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
+
+    <div class="drop-hint" *ngIf="isDraggingOver">
+      <i class="pi pi-cloud-upload"></i> Suelta el archivo aqui
+    </div>
+
+    <div class="attachment-chips" *ngIf="pendingAttachments.length">
+      <div class="attachment-chip"
+           *ngFor="let item of pendingAttachments"
+           [class.error]="item.status === 'error'">
+        <i [class]="attachmentIcon(item.file.name)" *ngIf="item.status !== 'uploading'"></i>
+        <i class="pi pi-spin pi-spinner" *ngIf="item.status === 'uploading'"></i>
+        <span class="chip-name" [title]="item.file.name">{{ item.file.name }}</span>
+        <span class="chip-size" *ngIf="item.status !== 'error'">{{ formatSize(item.file.size) }}</span>
+        <span class="chip-error" *ngIf="item.status === 'error'">{{ item.error }}</span>
+        <button class="chip-retry" *ngIf="item.status === 'error' && !item.uploaded" (click)="retryAttachment(item)" title="Reintentar">
+          <i class="pi pi-refresh"></i>
+        </button>
+        <button class="chip-remove" (click)="removeAttachment(item.localId)" title="Quitar">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </div>
+
     <div class="input-wrapper">
+      <input type="file"
+             class="file-input"
+             #fileInput
+             [accept]="acceptAttribute"
+             multiple
+             (change)="onFilesSelected($event)" />
+      <button class="attach-btn"
+              (click)="fileInput.click()"
+              [disabled]="pendingAttachments.length >= 3"
+              title="Adjuntar archivo">
+        <i class="pi pi-paperclip"></i>
+      </button>
       <input
         type="text"
         [(ngModel)]="message"
@@ -153,8 +199,8 @@
       <button
         class="send-btn"
         (click)="sendMessage()"
-        [disabled]="!message.trim() || isBotTyping"
-        [class.active]="message.trim()">
+        [disabled]="!canSend"
+        [class.active]="canSend">
         <i class="pi pi-send"></i>
       </button>
     </div>

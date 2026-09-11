@@ -748,3 +748,112 @@ $shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 @media (prefers-color-scheme: dark) {
   // Add dark mode styles here if needed
 }
+
+// ---- Adjuntos del chat ----
+.chat-input-area {
+  position: relative;
+
+  &.dragging {
+    outline: 2px dashed #a78bfa;
+    outline-offset: -6px;
+  }
+}
+
+.drop-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(167, 139, 250, 0.12);
+  color: #5b21b6;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.attachment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px 8px;
+}
+
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e0ec;
+  background: #faf9ff;
+  font-size: 12px;
+  color: #4c4763;
+
+  &.error {
+    border-color: #f3c9c4;
+    background: #fdeeee;
+    color: #c0392b;
+  }
+
+  i { font-size: 12px; }
+
+  .chip-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chip-size { color: #8b85a1; }
+
+  .chip-remove,
+  .chip-retry {
+    display: flex;
+    align-items: center;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
+.file-input { display: none; }
+
+.attach-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: #6f6987;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: #f1eefe; color: #5b21b6; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+.message-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.message-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+}
