@@ -754,30 +754,48 @@ export class ListBudgetComponent implements OnInit {
   }
 
   /**
-   * Los errores de negocio llegan como 400 con { error: 'mensaje en español' }: se
-   * muestra tal cual (mismo patrón que edit-invoice.component.ts). Caso delicado:
-   * issueAndSend es una única llamada al backend, así que si falla el envío del
-   * correo después de emitir, la factura YA quedó emitida — el mensaje del backend
-   * lo indica y aquí solo se detecta para no mostrarlo con tono de "todo falló" ni
-   * ocultar que ya puede reenviarse desde el listado de facturas.
+   * Regla estructural (no de texto) según cómo responde el backend
+   * (InvoiceController.IssueAndSend + StarterKitMiddleware):
+   *
+   * - 400: el middleware traduce una BadHttpRequestException de negocio a
+   *   { error: 'mensaje en español' } y ocurre SIEMPRE antes de crear/emitir nada
+   *   (validación de correos, o los BadHttpRequestException de IssueAsync: sin
+   *   resolución, resolución no vigente, rango agotado). Se muestra tal cual.
+   * - Cualquier otra cosa (500 u otro fallo): el middleware devuelve un mensaje
+   *   técnico crudo de .NET en { error: '...' } — no apto para el usuario — y en
+   *   este endpoint solo puede llegar desde SendInvoiceEmailAsync, es decir, DESPUÉS
+   *   de crear y emitir la factura. Nunca se muestra ese texto crudo; se le dice al
+   *   usuario que la factura pudo quedar creada y que lo confirme en el listado.
    */
   private handleFacturarError(error: any, fallbackMessage: string = this.errorFacturarMessage): void {
     console.error('Error al facturar la cotización', error);
+    const isBusinessValidationError = error?.status === 400;
     const backendMessage: string | undefined = error?.error?.error;
-    const message = backendMessage || fallbackMessage;
-    const isEmailFailureAfterIssue = !!backendMessage && this.isEmailSendFailedAfterIssueError(backendMessage);
 
-    this.invoiceFeedbackSeverity = isEmailFailureAfterIssue ? 'warning' : 'error';
-    this.invoiceFeedbackTitle = isEmailFailureAfterIssue ? 'Factura emitida, envío pendiente' : 'No se pudo facturar';
-    this.invoiceFeedbackMessage = message;
-    this.invoiceFeedbackShowResolutionLink = !isEmailFailureAfterIssue && this.isResolutionNotConfiguredError(message);
-    this.invoiceFeedbackShowGoToInvoices = isEmailFailureAfterIssue;
+    if (isBusinessValidationError) {
+      const message = backendMessage || fallbackMessage;
+      this.invoiceFeedbackSeverity = 'error';
+      this.invoiceFeedbackTitle = 'No se pudo facturar';
+      this.invoiceFeedbackMessage = message;
+      this.invoiceFeedbackShowResolutionLink = this.isResolutionNotConfiguredError(message);
+      this.invoiceFeedbackShowGoToInvoices = false;
+      this.invoiceFeedbackVisible = true;
+      return;
+    }
+
+    // No es un 400 de negocio: la factura pudo haber quedado creada/emitida antes
+    // de que fallara el envío del correo. No se muestra backendMessage (es texto
+    // técnico de .NET en inglés cuando viene de un 500); se deja solo en consola.
+    this.invoiceFeedbackSeverity = 'warning';
+    this.invoiceFeedbackTitle = 'Verifica el estado de la factura';
+    this.invoiceFeedbackMessage = 'No se pudo confirmar el envío, pero la factura pudo haber quedado creada. '
+      + 'Revisa el listado de facturas: si ya existe, puedes reenviarla desde ahí.';
+    this.invoiceFeedbackShowResolutionLink = false;
+    this.invoiceFeedbackShowGoToInvoices = true;
     this.invoiceFeedbackVisible = true;
 
-    if (isEmailFailureAfterIssue) {
-      // La factura ya existe en el backend: refrescamos por si cambió el estado de la cotización.
-      this.loadBudgets();
-    }
+    // Puede que la factura ya exista en el backend: refrescamos por si acaso.
+    this.loadBudgets();
   }
 
   private isResolutionNotConfiguredError(message: string): boolean {
@@ -786,14 +804,6 @@ export class ListBudgetComponent implements OnInit {
     return normalized.includes('no hay') || normalized.includes('no existe') || normalized.includes('no esta configurada')
       || normalized.includes('no está configurada') || normalized.includes('no esta configurado') || normalized.includes('no está configurado')
       || normalized.includes('sin configurar') || normalized.includes('configura');
-  }
-
-  /** El backend, cuando la factura ya se emitió y solo falló el envío del correo, lo indica en el mensaje. */
-  private isEmailSendFailedAfterIssueError(message: string): boolean {
-    const normalized = message.toLowerCase();
-    const mencionaCorreo = normalized.includes('correo') || normalized.includes('email') || normalized.includes('envi');
-    const mencionaYaEmitida = normalized.includes('emiti') || normalized.includes('ya se cre') || normalized.includes('ya se gener');
-    return mencionaCorreo && mencionaYaEmitida;
   }
 
   goToInvoicesModule(): void {
