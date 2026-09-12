@@ -321,7 +321,8 @@
 <app-email-selector-modal
   #emailSelectorModal
   [emails]="availableEmails"
-  (confirmAction)="onEmailsSelected($event)">
+  (confirmAction)="onEmailsSelected($event)"
+  (cancelAction)="onEmailSelectorCancelled()">
 </app-email-selector-modal>
 
 <!-- Resultado de "Facturar": exito, factura emitida con envio pendiente, o error -->

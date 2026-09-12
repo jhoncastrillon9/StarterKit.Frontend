@@ -449,6 +449,17 @@ export class ListBudgetComponent implements OnInit {
     this.emailSelectorModal.openModal();
   }
 
+  /**
+   * Cancelar el modal de correos tiene que dejar el estado limpio: budgetToInvoice solo
+   * se limpiaba en confirmFacturar(), y quedarse colgado hacia que un aviso asincrono de
+   * "esta cotizacion ya tiene facturas" pudiera escribirse sobre el modal de otro flujo.
+   */
+  onEmailSelectorCancelled() {
+    this.budgetToInvoice = null;
+    this.budgetToSendEmail = new BudgetModel;
+    this.selectedEmailsToSend = [];
+  }
+
   onEmailsSelected(selectedEmails: string[]) {
     this.selectedEmailsToSend = selectedEmails;
     if (this.emailSendType === 'pdf') {
@@ -724,7 +735,14 @@ export class ListBudgetComponent implements OnInit {
   private warnIfBudgetAlreadyInvoiced(budget: BudgetModel, baseMessage: string): void {
     this.invoiceService.getByBudget(budget.budgetId).subscribe({
       next: (existing: InvoiceModel[]) => {
-        // El usuario pudo cerrar el modal o abrir otro flujo mientras llegaba la respuesta.
+        // El usuario pudo cancelar el modal o abrir otro flujo mientras llegaba la
+        // respuesta. Mirar solo budgetToInvoice no basta: cancelar no lo limpiaba, asi
+        // que "Facturar" en A -> cancelar -> "Enviar PDF" en B terminaba pintando el
+        // aviso con los datos de A sobre el modal de B (el mismo sintoma que arreglo A1,
+        // por la via asincrona). Se exige ademas que el flujo activo siga siendo el de
+        // facturacion y que el modal siga abierto.
+        if (this.emailSendType !== 'invoice') { return; }
+        if (!this.emailSelectorModal?.visible) { return; }
         if (this.budgetToInvoice?.budgetId !== budget.budgetId) { return; }
 
         if (!existing || existing.length === 0) { return; }
