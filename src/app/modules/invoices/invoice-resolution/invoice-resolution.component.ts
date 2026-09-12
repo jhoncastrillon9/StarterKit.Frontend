@@ -108,11 +108,16 @@ export class InvoiceResolutionComponent implements OnInit {
   /**
    * true cuando cambiar el prefijo o el inicio del rango en el formulario va a hacer que
    * el backend desactive la resolucion actual y cree una nueva (solo aplica si ya existe
-   * una resolucion guardada y ya emitio facturas, currentNumber > rangeFrom original).
+   * una resolucion guardada y ya emitio facturas).
+   *
+   * La condicion es currentNumber >= rangeFrom, la misma que usa el backend en
+   * InvoiceResolutionApplicationService: currentNumber arranca en rangeFrom - 1 y sube
+   * uno por cada factura emitida, asi que tras la PRIMERA factura ya vale rangeFrom.
+   * Con una comparacion estricta el aviso no aparecia justo en ese caso.
    */
   get willReplaceResolution(): boolean {
     if (!this.resolution) { return false; }
-    const hasIssuedInvoices = this.resolution.currentNumber > this.resolution.rangeFrom;
+    const hasIssuedInvoices = this.resolution.currentNumber >= this.resolution.rangeFrom;
     if (!hasIssuedInvoices) { return false; }
     const prefixChanged = this.form.get('prefix')?.value !== this.resolution.prefix;
     const rangeFromChanged = Number(this.form.get('rangeFrom')?.value) !== this.resolution.rangeFrom;
