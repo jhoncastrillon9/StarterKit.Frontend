@@ -275,8 +275,9 @@ export class EditInvoiceComponent implements OnInit {
     }
 
     this.clearBusinessError();
-    this.saving = true;
     const payload = this.buildPayload();
+    this.saving = true;
+    this.setFormLocked(true);
     this.invoiceService.update(payload).subscribe({
       next: (updated) => {
         this.saving = false;
@@ -285,9 +286,28 @@ export class EditInvoiceComponent implements OnInit {
       },
       error: (error) => {
         this.saving = false;
+        this.setFormLocked(false);
         this.handleBusinessError(error, this.errorSaveMessage);
       }
     });
+  }
+
+  /**
+   * Bloquea o desbloquea la edicion mientras hay una peticion en vuelo.
+   *
+   * Los botones ya estaban [disabled] con saving || issuing, pero los inputs no: lo que
+   * se escribiera durante el guardado previo a emitir lo descartaba applyInvoice justo
+   * antes de emitir, sin que el usuario lo notara. Al desbloquear se respeta isReadOnly
+   * (una factura ya emitida no vuelve a ser editable).
+   */
+  private setFormLocked(locked: boolean): void {
+    if (locked) {
+      this.form.disable({ emitEvent: false });
+      return;
+    }
+    if (!this.isReadOnly) {
+      this.form.enable({ emitEvent: false });
+    }
   }
 
   openIssueConfirm(): void {
@@ -310,6 +330,7 @@ export class EditInvoiceComponent implements OnInit {
     if (!this.invoice || this.isReadOnly) { return; }
     this.clearBusinessError();
     this.issuing = true;
+    this.setFormLocked(true);
     this.invoiceService.issue(this.invoice.invoiceId).subscribe({
       next: (updated) => {
         this.issuing = false;
@@ -318,6 +339,7 @@ export class EditInvoiceComponent implements OnInit {
       },
       error: (error) => {
         this.issuing = false;
+        this.setFormLocked(false);
         this.handleBusinessError(error, this.errorIssueMessage);
       }
     });
@@ -355,6 +377,7 @@ export class EditInvoiceComponent implements OnInit {
 
     this.clearBusinessError();
     this.issuing = true;
+    this.setFormLocked(true);
     const invoiceId = this.invoice.invoiceId;
 
     this.invoiceService.issue(invoiceId).subscribe({
@@ -387,6 +410,7 @@ export class EditInvoiceComponent implements OnInit {
       },
       error: (error) => {
         this.issuing = false;
+        this.setFormLocked(false);
         this.handleBusinessError(error, this.errorIssueMessage);
       }
     });
@@ -419,8 +443,12 @@ export class EditInvoiceComponent implements OnInit {
     }
 
     this.clearBusinessError();
+    const payload = this.buildPayload();
     this.saving = true;
-    this.invoiceService.update(this.buildPayload()).subscribe({
+    // Los inputs quedan bloqueados durante el guardado: lo que se escribiera en esa
+    // ventana lo descartaba applyInvoice justo antes de emitir, sin aviso.
+    this.setFormLocked(true);
+    this.invoiceService.update(payload).subscribe({
       next: (updated) => {
         this.saving = false;
         this.applyInvoice(updated);
@@ -429,6 +457,7 @@ export class EditInvoiceComponent implements OnInit {
       },
       error: (error) => {
         this.saving = false;
+        this.setFormLocked(false);
         this.handleBusinessError(error, this.errorSaveMessage);
       }
     });
