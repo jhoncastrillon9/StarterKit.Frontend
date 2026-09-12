@@ -195,6 +195,17 @@ export class InvoiceResolutionComponent implements OnInit {
   }
 
   private persist(isReplacement: boolean): void {
+    // Guard imprescindible: dos guardados concurrentes pueden dejar DOS resoluciones
+    // activas. InvoiceResolutionApplicationService.SaveAsync lee GetActiveAsync() FUERA
+    // de la transaccion y solo despues abre ExecuteInTransactionAsync, asi que si la
+    // segunda peticion lee la resolucion vieja antes de que la primera confirme,
+    // desactiva otra vez la misma vigente y crea una segunda activa con el mismo prefijo
+    // y el mismo RangeFrom. La primera factura emitida bajo la perdedora chocaria contra
+    // el indice unico (CompanyId, Prefix, Number).
+    // El boton "Guardar resolucion" ya esta [disabled] mientras saving, pero el de
+    // confirmar del modal no lo esta y sigue clicable durante el fade-out del c-modal.
+    if (this.saving) { return; }
+
     this.clearBusinessError();
     this.saving = true;
     const payload = this.buildPayload();
