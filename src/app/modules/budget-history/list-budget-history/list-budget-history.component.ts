@@ -142,21 +142,26 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   }
 
   restoreBudget() {
-    if (!this.historyToRestore) return;
+    // Se captura y se anula el objetivo de forma SINCRONA, antes del setTimeout y de la
+    // llamada HTTP (mismo patron que list-budget, listcustomer y list-project-report).
+    // Antes solo se anulaba en el callback HTTP, y como el boton de confirmar del modal
+    // sigue clicable durante el fade-out del c-modal, dos clics lanzaban dos
+    // restauraciones del mismo snapshot: entradas de historial duplicadas y dos modales.
+    const history = this.historyToRestore;
+    this.historyToRestore = null;
+    if (!history) return;
 
     // Pequeño delay para asegurar que el modal de confirmación se cierre completamente
     setTimeout(() => {
       this.spinner.show();
-      this.budgetHistoryService.restoreFromHistory(this.historyToRestore!.budgetHistoryId).subscribe(
+      this.budgetHistoryService.restoreFromHistory(history.budgetHistoryId).subscribe(
         (response) => {
           this.spinner.hide();
-          this.historyToRestore = null;
           this.showModal(false, this.successRestoreMessage, this.successRestoreTitle);
           this.loadHistory();
         },
         (error) => {
           this.spinner.hide();
-          this.historyToRestore = null;
           this.handleError('Error to Restore Budget', 'No se pudo restaurar el presupuesto. Inténtalo de nuevo.');
         }
       );

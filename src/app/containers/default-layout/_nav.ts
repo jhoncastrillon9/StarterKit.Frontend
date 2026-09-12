@@ -101,6 +101,24 @@ export const navItems: INavData[] = [
   },
 
   {
+    name: 'Facturacion',
+    url: '/invoices',
+    iconComponent: { name: 'cil-description' },
+    children: [
+      {
+        name: 'Listado de facturas',
+        url: '/invoices/invoices',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Resolucion de facturacion',
+        url: '/invoices/resolution',
+        icon: 'nav-icon-bullet'
+      },
+    ]
+  },
+
+  {
     name: 'Reportes',
     url: '/reports',
     iconComponent: { name: 'cil-description' },

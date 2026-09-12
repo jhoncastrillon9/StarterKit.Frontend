@@ -35,8 +35,11 @@ export class ConfirmationModalComponent {
     this.alignment= '';
     this.isModalError = false;
     this.isConfirmation = false; 
-    this.titleButtonComfimationYes = ''; 
-    this.confirmAction =  new EventEmitter<void>(); 
+    this.titleButtonComfimationYes = '';
+    // OJO: aqui NO se debe reasignar this.confirmAction. Un @Output() se enlaza una
+    // sola vez (al inicializar la vista del padre): si se reemplaza la instancia, el
+    // binding de plantilla del padre queda suscrito a un emisor descartado y la accion
+    // deja de dispararse a partir del primer cierre del modal.
   }
 
   // Método para abrir el modal
@@ -46,6 +49,13 @@ export class ConfirmationModalComponent {
 
   // Método que se llama cuando el usuario confirma (clic en "SI")
   confirm() {
+    // closeModal() solo pone visible=false: el c-modal de CoreUI hace un fade-out
+    // animado de ~150ms y hasta que termina el boton "SI" sigue en el DOM y se puede
+    // volver a pulsar. Antes ese segundo clic emitia sobre el EventEmitter recien
+    // creado en closeModal() y no llegaba a nadie; al dejar de recrearlo, si llega.
+    // Este guard corta el doble disparo en la raiz, para todos los consumidores.
+    if (!this.visible) { return; }
+
     this.confirmAction.emit(); // Emitimos el evento para que el componente padre lo maneje
     this.closeModal(); // Cerramos el modal después de confirmar
   }
