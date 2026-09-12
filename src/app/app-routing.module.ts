@@ -137,6 +137,12 @@ const routes: Routes = [
         canActivate: [AuthGuard]
       },
       {
+        path: 'invoices',
+        loadChildren: () =>
+          import('./modules/invoices/invoices.module').then((m) => m.InvoicesModule),
+          canActivate: [AuthGuard]
+      },
+      {
         path: 'profile',
         loadChildren: () => import('./modules/profile/profile.module').then(m => m.ProfileModule),
         canActivate: [AuthGuard]

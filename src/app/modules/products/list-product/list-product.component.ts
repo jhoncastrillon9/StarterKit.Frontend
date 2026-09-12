@@ -146,13 +146,19 @@ export class ListProductComponent implements OnInit {
   }
 
   deleteProduct(): void {
-    if (!this.productToDelete) return;
+    // Se captura y se anula el objetivo de forma SINCRONA, antes de la llamada HTTP
+    // (mismo patron que list-budget, listcustomer y list-project-report). Antes solo se
+    // anulaba en el callback de exito, y como el boton de confirmar del modal sigue
+    // clicable durante el fade-out del c-modal, dos clics mandaban dos DELETE y el
+    // segundo pintaba un modal de error justo detras del de exito.
+    const product = this.productToDelete;
+    this.productToDelete = null;
+    if (!product) return;
 
     this.spinner.show();
-    this.productService.delete(this.productToDelete.productId).subscribe({
+    this.productService.delete(product.productId).subscribe({
       next: () => {
         this.spinner.hide();
-        this.productToDelete = null;
         this.isModalForDelete = false;
         this.clearProductCache();
         this.showSuccessModal(this.successDeleteTitle, this.successDeleteMessage);

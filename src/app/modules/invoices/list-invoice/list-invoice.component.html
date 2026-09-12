@@ -1,0 +1,80 @@
+<!-- Listado de facturas -->
+<div class="invoice-list-container">
+  <app-data-table
+    class="dc-table-root"
+    [columns]="tableColumns"
+    [value]="filteredInvoices"
+    [loading]="loading"
+    rowKey="invoiceId"
+    title="Facturas"
+    [subtitle]="invoices.length + ' registros'"
+    searchPlaceholder="Buscar por numero, cliente..."
+    [globalFilterFields]="['fullNumber','customerDto.customerName','budgetInternalCode','status']"
+    [rows]="20"
+    [rowsPerPageOptions]="[20,40,60,100]"
+    sortField="issueDate"
+    [sortOrder]="-1"
+    currentPageReportTemplate="{first} al {last} de {totalRecords} facturas">
+
+    <!-- Numero -->
+    <ng-template dtColumn="fullNumber" let-invoice>
+      <span class="invoice-number">{{ displayNumber(invoice) }}</span>
+    </ng-template>
+
+    <!-- Fecha de emision -->
+    <ng-template dtColumn="issueDate" let-invoice>
+      <span class="invoice-date">{{ invoice.issueDate ? (invoice.issueDate | date:'dd MMM yyyy') : '—' }}</span>
+    </ng-template>
+
+    <!-- Cliente -->
+    <ng-template dtColumn="customerDto.customerName" let-invoice>
+      <span class="invoice-customer">{{ invoice.customerDto?.customerName }}</span>
+    </ng-template>
+
+    <!-- Cotizacion de origen -->
+    <ng-template dtColumn="budgetInternalCode" let-invoice>
+      <span class="invoice-budget-code">{{ invoice.budgetInternalCode }}</span>
+    </ng-template>
+
+    <!-- Total -->
+    <ng-template dtColumn="total" let-invoice>
+      <span class="invoice-total">$ {{ invoice.total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+    </ng-template>
+
+    <!-- Estado -->
+    <ng-template dtColumn="status" let-invoice>
+      <app-status-pill [status]="invoice.status"></app-status-pill>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template dtColumn="acciones" let-invoice>
+      <div class="action-buttons">
+        <button class="action-btn action-pdf" (click)="downloadPdf(invoice)" pTooltip="Ver PDF" tooltipPosition="top">
+          <i class="fas fa-file-pdf"></i>
+        </button>
+        <button *ngIf="canEdit(invoice)" class="action-btn action-edit" (click)="editInvoice(invoice)" pTooltip="Editar" tooltipPosition="top">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button *ngIf="canSend(invoice)" class="action-btn action-send" (click)="openSendModal(invoice)" [pTooltip]="sendActionLabel(invoice)" tooltipPosition="top">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Empty state -->
+    <div dt-empty class="empty-content">
+      <i class="fas fa-folder-open empty-icon"></i>
+      <h3>No hay facturas</h3>
+      <p>No se encontraron facturas que coincidan con tu busqueda</p>
+    </div>
+  </app-data-table>
+</div>
+
+<!-- Modal de seleccion de emails para enviar/reenviar la factura -->
+<app-email-selector-modal
+  #emailSelectorModal
+  [emails]="availableEmails"
+  (confirmAction)="onEmailsSelected($event)">
+</app-email-selector-modal>
+
+<p-toast position="top-right"></p-toast>

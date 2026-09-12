@@ -1,0 +1,144 @@
+<div class="ir-page" *ngIf="!loading; else loadingState">
+  <form class="ir-form" [formGroup]="form" (ngSubmit)="save()">
+
+    <header class="ir-header">
+      <div class="ir-header__left">
+        <a class="ir-back" (click)="goToInvoiceList()" title="Volver al listado de facturas">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="ir-header__titles">
+          <span class="ir-breadcrumb">Facturas / Resolucion de facturacion</span>
+          <h1 class="ir-title">Resolucion de facturacion</h1>
+        </div>
+      </div>
+    </header>
+
+    <div class="ir-content">
+
+      <!-- Sin resolucion configurada todavia -->
+      <div class="ir-banner ir-banner--info" *ngIf="!resolution">
+        <i class="fas fa-info-circle"></i>
+        <p>Todavia no hay una resolucion de facturacion configurada. Sin una resolucion vigente no se pueden emitir facturas: completa el formulario para habilitar la emision.</p>
+      </div>
+
+      <!-- Mensaje de error de negocio -->
+      <div class="ir-banner ir-banner--error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <!-- Avisos de rango por agotarse / vigencia por vencer o vencida -->
+      <ng-container *ngIf="resolution">
+        <div class="ir-banner ir-banner--warn" *ngIf="hasLowRemaining">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Quedan pocos numeros disponibles ({{ resolution.remaining }}). Conviene tramitar una nueva resolucion ante la DIAN antes de agotar el rango actual.</p>
+        </div>
+
+        <div class="ir-banner ir-banner--error" *ngIf="resolution.isExpired">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>La vigencia de esta resolucion ya vencio. No se podran emitir facturas con este numero hasta configurar una resolucion vigente.</p>
+        </div>
+
+        <div class="ir-banner ir-banner--warn" *ngIf="isExpiringSoon">
+          <i class="fas fa-clock"></i>
+          <p>La vigencia de esta resolucion vence pronto{{ daysUntilExpiration !== null ? ' (en ' + daysUntilExpiration + ' dia(s))' : '' }}. Conviene tramitar la renovacion con anticipacion.</p>
+        </div>
+      </ng-container>
+
+      <!-- Estado actual -->
+      <section class="ir-card" *ngIf="resolution">
+        <div class="ir-card__head">
+          <h2 class="ir-card__title">Estado actual</h2>
+        </div>
+        <div class="ir-card__body ir-status">
+          <div class="ir-status__item">
+            <span class="ir-status__label">Numeros restantes</span>
+            <span class="ir-status__value" [class.ir-status__value--warn]="hasLowRemaining">{{ resolution.remaining }}</span>
+          </div>
+          <div class="ir-status__item">
+            <span class="ir-status__label">Numero actual consumido</span>
+            <span class="ir-status__value">{{ resolution.currentNumber }}</span>
+          </div>
+          <div class="ir-status__item">
+            <span class="ir-status__label">Vigencia</span>
+            <span class="ir-status__value" [class.ir-status__value--warn]="resolution.isExpired">
+              {{ resolution.isExpired ? 'Vencida' : 'Vigente' }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Datos de la resolucion -->
+      <section class="ir-card">
+        <div class="ir-card__head">
+          <h2 class="ir-card__title">Datos de la resolucion</h2>
+        </div>
+
+        <div class="ir-card__body ir-note" *ngIf="resolution">
+          <i class="fas fa-info-circle"></i>
+          <p>
+            Una vez la resolucion ha emitido facturas, no se puede cambiar el prefijo ni el inicio del rango:
+            si los cambias, el sistema desactivara esta resolucion y creara una nueva en su lugar. Ampliar el
+            final del rango hacia arriba, en cambio, se considera una edicion normal sobre la misma resolucion
+            y no la reemplaza.
+          </p>
+        </div>
+
+        <div class="ir-card__body ir-banner ir-banner--warn" *ngIf="willReplaceResolution">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Con los cambios actuales (prefijo o inicio del rango), al guardar se desactivara la resolucion vigente y se creara una nueva.</p>
+        </div>
+
+        <div class="ir-card__body ir-grid">
+          <div class="ir-field">
+            <label class="ir-label" for="resolutionNumber">Numero de la resolucion</label>
+            <input id="resolutionNumber" type="text" class="ir-input" formControlName="resolutionNumber" placeholder="Ej: 18760000001" maxlength="50" />
+          </div>
+          <div class="ir-field">
+            <label class="ir-label" for="prefix">Prefijo</label>
+            <input id="prefix" type="text" class="ir-input" formControlName="prefix" placeholder="Ej: FE" maxlength="10" />
+          </div>
+          <div class="ir-field">
+            <label class="ir-label" for="rangeFrom">Rango desde</label>
+            <input id="rangeFrom" type="number" class="ir-input" formControlName="rangeFrom" min="1" step="1" />
+          </div>
+          <div class="ir-field">
+            <label class="ir-label" for="rangeTo">Rango hasta</label>
+            <input id="rangeTo" type="number" class="ir-input" formControlName="rangeTo" min="1" step="1" />
+          </div>
+          <div class="ir-field">
+            <label class="ir-label" for="validFrom">Vigencia desde</label>
+            <input id="validFrom" type="date" class="ir-input" formControlName="validFrom" />
+          </div>
+          <div class="ir-field">
+            <label class="ir-label" for="validTo">Vigencia hasta</label>
+            <input id="validTo" type="date" class="ir-input" formControlName="validTo" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="ir-footer">
+      <a class="ir-btn ir-btn--ghost" (click)="goToInvoiceList()">Volver al listado</a>
+      <button type="submit" class="ir-btn ir-btn--primary" [disabled]="saving">
+        <i class="fas fa-save"></i>
+        <span>{{ saving ? 'Guardando…' : 'Guardar resolucion' }}</span>
+      </button>
+    </footer>
+  </form>
+</div>
+
+<ng-template #loadingState>
+  <div class="ir-loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span>Cargando resolucion de facturacion…</span>
+  </div>
+</ng-template>
+
+<!-- Confirmacion explicita antes de reemplazar la resolucion vigente -->
+<app-confirmation-modal
+  #replaceConfirmModal
+  (confirmAction)="onReplaceConfirmed()">
+</app-confirmation-modal>
+
+<p-toast position="top-right"></p-toast>

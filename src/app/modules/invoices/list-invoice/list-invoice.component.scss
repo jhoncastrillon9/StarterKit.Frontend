@@ -1,0 +1,69 @@
+.invoice-list-container {
+  padding: 0 0.5rem 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.invoice-number,
+.invoice-budget-code {
+  font-weight: 700;
+  color: #3a3550;
+}
+
+.invoice-customer {
+  color: #4b4763;
+}
+
+.invoice-total {
+  font-weight: 700;
+  color: #211d33;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 7px;
+  border-radius: 8px;
+  border: 1px solid #e6e3f0;
+  background: #fff;
+  color: #6f6987;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.action-pdf:hover  { background: #fdeeee; border-color: #f3c9c4; color: #c0392b; }
+  &.action-edit:hover { background: #f1eefe; border-color: #cbbcf9; color: #5b21b6; }
+  &.action-send:hover { background: #eafaf0; border-color: #bfe8d1; color: #15703f; }
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+
+  .empty-icon {
+    font-size: 4rem;
+    color: #e5e7eb;
+  }
+
+  h3 {
+    margin: 0;
+    color: #3a3550;
+  }
+
+  p {
+    margin: 0;
+    color: #6f6987;
+  }
+}
