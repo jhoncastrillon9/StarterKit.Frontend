@@ -83,6 +83,10 @@ export class EditInvoiceComponent implements OnInit {
   loadInvoice(id: number): void {
     this.loading = true;
     this.loadError = false;
+    // Sin esto, tras un fallo de carga seguido de un "Reintentar" con exito, el
+    // formulario se pintaba con el banner "Algo fallo al obtener la factura..." encima
+    // de una factura cargada correctamente.
+    this.clearBusinessError();
     this.invoiceService.getById(id).subscribe({
       next: (invoice) => {
         this.applyInvoice(invoice);
