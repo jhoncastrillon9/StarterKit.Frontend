@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -17,6 +18,14 @@ const EXPIRING_SOON_DAYS = 30;
   styleUrls: ['./invoice-resolution.component.scss']
 })
 export class InvoiceResolutionComponent implements OnInit {
+  /**
+   * La accion de confirmar se enlaza por plantilla ((confirmAction)="onReplaceConfirmed()").
+   * Nunca suscribirse aqui de forma imperativa: ConfirmationModalComponent ya no recrea su
+   * EventEmitter al cerrarse, asi que una suscripcion por apertura se acumularia y el
+   * segundo intento reemplazaria la resolucion dos veces.
+   */
+  @ViewChild('replaceConfirmModal') replaceConfirmModal!: ConfirmationModalComponent;
+
 
   private readonly errorLoadMessage = 'Algo fallo al obtener la resolucion de facturacion. Refresca la pagina.';
   private readonly errorSaveMessage = 'No se pudo guardar la resolucion. Intenta de nuevo.';
@@ -142,6 +151,13 @@ export class InvoiceResolutionComponent implements OnInit {
     };
   }
 
+  /**
+   * Reemplazar la resolucion (cambiar el prefijo o el inicio del rango cuando ya emitio
+   * facturas) hace que el backend desactive la vigente y cree una nueva. La unica
+   * proteccion era un banner en linea, y como el formulario usa (ngSubmit)="save()" un
+   * simple Enter dentro de cualquier input lo disparaba. Emitir una factura, que es
+   * menos grave, si pide confirmacion: aqui tambien.
+   */
   save(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
@@ -149,6 +165,36 @@ export class InvoiceResolutionComponent implements OnInit {
       return;
     }
 
+    if (this.willReplaceResolution) {
+      this.openReplaceConfirm();
+      return;
+    }
+
+    this.persist(false);
+  }
+
+  private openReplaceConfirm(): void {
+    const nuevoPrefijo = this.form.get('prefix')?.value;
+    const nuevoDesde = this.form.get('rangeFrom')?.value;
+
+    this.replaceConfirmModal.title = 'Reemplazar la resolucion vigente';
+    this.replaceConfirmModal.messageModal =
+      `Vas a cambiar el prefijo o el inicio del rango de una resolucion que ya emitio facturas. `
+      + `Al guardar, la resolucion vigente (${this.resolution?.prefix} desde ${this.resolution?.rangeFrom}) se desactivara `
+      + `y se creara una nueva (${nuevoPrefijo} desde ${nuevoDesde}), que sera la que numere las proximas facturas. `
+      + `Las facturas ya emitidas conservan su numero. ¿Deseas continuar?`;
+    this.replaceConfirmModal.isModalError = false;
+    this.replaceConfirmModal.isConfirmation = true;
+    this.replaceConfirmModal.titleButtonComfimationYes = 'Si, reemplazar';
+    this.replaceConfirmModal.openModal();
+  }
+
+  /** Punto de entrada del binding de plantilla al confirmar el reemplazo. */
+  onReplaceConfirmed(): void {
+    this.persist(true);
+  }
+
+  private persist(isReplacement: boolean): void {
     this.clearBusinessError();
     this.saving = true;
     const payload = this.buildPayload();
@@ -156,7 +202,14 @@ export class InvoiceResolutionComponent implements OnInit {
       next: (updated) => {
         this.saving = false;
         this.applyResolution(updated);
-        this.messageService.add({ severity: 'success', summary: 'Resolucion guardada', detail: 'La resolucion de facturacion se guardo correctamente.', life: 3500 });
+        this.messageService.add({
+          severity: 'success',
+          summary: isReplacement ? 'Resolucion reemplazada' : 'Resolucion guardada',
+          detail: isReplacement
+            ? 'Se desactivo la resolucion anterior y se creo una nueva: las proximas facturas usaran el prefijo ' + updated.prefix + ' desde el numero ' + updated.rangeFrom + '.'
+            : 'La resolucion de facturacion se guardo correctamente.',
+          life: isReplacement ? 6000 : 3500
+        });
       },
       error: (error) => {
         this.saving = false;

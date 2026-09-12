@@ -79,7 +79,8 @@
           <p>
             Una vez la resolucion ha emitido facturas, no se puede cambiar el prefijo ni el inicio del rango:
             si los cambias, el sistema desactivara esta resolucion y creara una nueva en su lugar. Ampliar el
-            final del rango hacia arriba si es una edicion normal sobre la misma resolucion.
+            final del rango hacia arriba, en cambio, se considera una edicion normal sobre la misma resolucion
+            y no la reemplaza.
           </p>
         </div>
 
@@ -133,5 +134,11 @@
     <span>Cargando resolucion de facturacion…</span>
   </div>
 </ng-template>
+
+<!-- Confirmacion explicita antes de reemplazar la resolucion vigente -->
+<app-confirmation-modal
+  #replaceConfirmModal
+  (confirmAction)="onReplaceConfirmed()">
+</app-confirmation-modal>
 
 <p-toast position="top-right"></p-toast>
