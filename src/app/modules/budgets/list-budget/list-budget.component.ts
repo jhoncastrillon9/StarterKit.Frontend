@@ -19,7 +19,8 @@ import { OverlayPanel } from 'primeng/overlaypanel';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 import { InvoiceService } from 'src/app/modules/invoices/services/invoice.service';
-import { InvoiceModel } from 'src/app/modules/invoices/models/invoice.Model';
+import { InvoiceModel, INVOICE_STATUS } from 'src/app/modules/invoices/models/invoice.Model';
+import { extractApiErrorMessage } from 'src/app/shared/api-error';
 
 
 
@@ -707,6 +708,40 @@ export class ListBudgetComponent implements OnInit {
       + 'Esta acción consume el siguiente número de la resolución DIAN y no se puede anular. Confirma el correo destino:';
     this.emailSelectorModal.confirmButtonText = 'Sí, facturar';
     this.emailSelectorModal.openModal();
+
+    this.warnIfBudgetAlreadyInvoiced(budget, this.emailSelectorModal.message);
+  }
+
+  /**
+   * Facturar varias veces la misma cotización es intencionado y no se bloquea, pero
+   * conviene avisarlo: si un intento anterior fallo tras crear el borrador, puede haber
+   * quedado uno huérfano y el usuario acabaria con varias facturas de la misma obra.
+   *
+   * El backend no expone un endpoint "facturas de esta cotizacion" (InvoiceController
+   * solo tiene GET invoice, GET invoice/{id}, from-budget/{id}, issue, send,
+   * issue-and-send y pdf), pero GET /api/Invoice/invoice devuelve todas las facturas de
+   * la empresa con su budgetId, asi que se filtra en cliente. Es puramente informativo:
+   * se lanza en paralelo al modal ya abierto y, si falla, no se interrumpe nada.
+   */
+  private warnIfBudgetAlreadyInvoiced(budget: BudgetModel, baseMessage: string): void {
+    this.invoiceService.get().subscribe({
+      next: (invoices: InvoiceModel[]) => {
+        // El usuario pudo cerrar el modal o abrir otro flujo mientras llegaba la respuesta.
+        if (this.budgetToInvoice?.budgetId !== budget.budgetId) { return; }
+
+        const existing = (invoices || []).filter(i => i.budgetId === budget.budgetId);
+        if (existing.length === 0) { return; }
+
+        const drafts = existing.filter(i => i.status === INVOICE_STATUS.draft).length;
+        const detalle = drafts > 0
+          ? `${existing.length} factura(s), de las cuales ${drafts} sigue(n) en borrador`
+          : `${existing.length} factura(s) ya emitida(s)`;
+
+        this.emailSelectorModal.message = baseMessage
+          + ` ⚠ Esta cotización ya tiene ${detalle} en el módulo de facturación. Si no querías facturarla de nuevo, cancela y revísalo primero.`;
+      },
+      error: () => { /* Aviso informativo: si no se puede consultar, no se bloquea la facturación. */ }
+    });
   }
 
   /** Ejecuta issueAndSend tras confirmar cliente, correo y total en el modal de emails. */
@@ -770,9 +805,13 @@ export class ListBudgetComponent implements OnInit {
    * (InvoiceController.IssueAndSend + StarterKitMiddleware):
    *
    * - 400: el middleware traduce una BadHttpRequestException de negocio a
-   *   { error: 'mensaje en español' } y ocurre SIEMPRE antes de crear/emitir nada
-   *   (validación de correos, o los BadHttpRequestException de IssueAsync: sin
-   *   resolución, resolución no vigente, rango agotado). Se muestra tal cual.
+   *   { error: 'mensaje en español' }. OJO: un 400 NO garantiza que no se haya creado
+   *   nada. Solo la validación de correos ocurre antes de tocar la base de datos; los
+   *   BadHttpRequestException de IssueAsync (sin resolución, resolución no vigente,
+   *   rango agotado) se lanzan DESPUÉS de crear el borrador, así que — mientras el
+   *   backend no envuelva creación y emisión en una sola transacción — puede quedar un
+   *   borrador huérfano de esa cotización y cada reintento sumaría otro. El mensaje del
+   *   backend se muestra tal cual y se le añade el aviso de revisar el listado.
    * - Cualquier otra cosa (500 u otro fallo): el middleware devuelve un mensaje
    *   técnico crudo de .NET en { error: '...' } — no apto para el usuario — y en
    *   este endpoint solo puede llegar desde SendInvoiceEmailAsync, es decir, DESPUÉS
@@ -790,15 +829,21 @@ export class ListBudgetComponent implements OnInit {
   ): void {
     console.error('Error al facturar la cotización', error);
     const isBusinessValidationError = error?.status === 400;
-    const backendMessage: string | undefined = error?.error?.error;
+    // Entiende tanto { error: mensaje } como ValidationProblemDetails (ver shared/api-error.ts).
+    const backendMessage = extractApiErrorMessage(error);
 
     if (isBusinessValidationError) {
       const message = backendMessage || fallbackMessage;
       this.invoiceFeedbackSeverity = 'error';
       this.invoiceFeedbackTitle = isIssueFlow ? 'No se pudo facturar' : 'No se pudo crear la factura';
-      this.invoiceFeedbackMessage = message;
+      // El borrador puede haberse creado antes de que fallara la emisión: avisar de que
+      // lo revise en el listado de facturas evita acabar con varios borradores huérfanos
+      // de la misma cotización tras un par de reintentos.
+      this.invoiceFeedbackMessage = isIssueFlow
+        ? message + ' Puede que haya quedado un borrador de esta factura en el listado de facturas: revísalo antes de reintentar para no acabar con varios.'
+        : message;
       this.invoiceFeedbackShowResolutionLink = this.isResolutionNotConfiguredError(message);
-      this.invoiceFeedbackShowGoToInvoices = false;
+      this.invoiceFeedbackShowGoToInvoices = isIssueFlow;
       this.invoiceFeedbackVisible = true;
       return;
     }
