@@ -316,12 +316,44 @@
   </ng-template>
 </p-dialog>
 
-<!-- Modal de seleccion de emails -->
-<app-email-selector-modal 
+<!-- Modal de seleccion de emails (Enviar PDF/Excel y Facturar) -->
+<app-email-selector-modal
   #emailSelectorModal
   [emails]="availableEmails"
   (confirmAction)="onEmailsSelected($event)">
 </app-email-selector-modal>
+
+<!-- Resultado de "Facturar": exito, factura emitida con envio pendiente, o error -->
+<p-dialog
+  [(visible)]="invoiceFeedbackVisible"
+  [header]="invoiceFeedbackTitle"
+  [modal]="true"
+  [style]="{width: '440px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="modern-dialog invoice-feedback-dialog"
+  [ngClass]="{
+    'invoice-feedback-dialog--success': invoiceFeedbackSeverity === 'success',
+    'invoice-feedback-dialog--warning': invoiceFeedbackSeverity === 'warning',
+    'invoice-feedback-dialog--error': invoiceFeedbackSeverity === 'error'
+  }">
+  <div class="p-fluid dialog-content">
+    <p class="invoice-feedback__message">{{ invoiceFeedbackMessage }}</p>
+    <button type="button" class="invoice-feedback__link" *ngIf="invoiceFeedbackShowResolutionLink" (click)="goToResolutionConfigFromInvoice()">
+      <i class="fas fa-arrow-right"></i>
+      Ir a configurar la resolución de facturación
+    </button>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button class="btn-dialog btn-cancel" (click)="closeInvoiceFeedback()">Cerrar</button>
+      <button class="btn-dialog btn-confirm" *ngIf="invoiceFeedbackShowGoToInvoices" (click)="goToInvoicesModule()">
+        <i class="fas fa-file-invoice"></i>
+        Ir a Facturación
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
 
 <!-- Notificaciones sutiles (arriba-derecha) para edición de Estado / Factura -->
 <p-toast position="top-right" key="budget-inline"></p-toast>

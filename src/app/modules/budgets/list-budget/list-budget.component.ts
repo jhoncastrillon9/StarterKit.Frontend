@@ -18,6 +18,8 @@ import { Menu } from 'primeng/menu';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
+import { InvoiceService } from 'src/app/modules/invoices/services/invoice.service';
+import { InvoiceModel } from 'src/app/modules/invoices/models/invoice.Model';
 
 
 
@@ -150,10 +152,23 @@ export class ListBudgetComponent implements OnInit {
   public budgetToSendEmail: BudgetModel = new BudgetModel;
   public availableEmails: string[] = [];
   public selectedEmailsToSend: string[] = [];
-  public emailSendType: 'pdf' | 'excel' = 'pdf'; // Tipo de envío: PDF o Excel
+  public emailSendType: 'pdf' | 'excel' | 'invoice' = 'pdf'; // Tipo de envío: PDF, Excel o Facturar
 
   public budgetToSetInvoice: BudgetModel | null = null;
   private originalStatuses: Map<number, string> = new Map();
+
+  // --- Facturar / Editar y Facturar (Task 5) ---
+  public budgetToInvoice: BudgetModel | null = null;
+
+  invoiceFeedbackVisible: boolean = false;
+  invoiceFeedbackSeverity: 'success' | 'warning' | 'error' = 'success';
+  invoiceFeedbackTitle: string = '';
+  invoiceFeedbackMessage: string = '';
+  invoiceFeedbackShowResolutionLink: boolean = false;
+  invoiceFeedbackShowGoToInvoices: boolean = false;
+
+  private readonly errorFacturarMessage: string = 'No se pudo facturar la cotización. Por favor, intenta de nuevo más tarde.';
+  private readonly errorEditarYFacturarMessage: string = 'No se pudo crear el borrador de factura. Por favor, intenta de nuevo más tarde.';
 
   // Propiedades para edición inline de factura
   editingInvoiceBudgetId: number | null = null;
@@ -192,6 +207,7 @@ export class ListBudgetComponent implements OnInit {
   isProcessingAI: boolean = false; // Indica si está procesando con IA
 
   constructor(private budgetService: BudgetService,
+    private invoiceService: InvoiceService,
     public iconSet: IconSetService,
     private router: Router,
     private route: ActivatedRoute,
@@ -424,8 +440,10 @@ export class ListBudgetComponent implements OnInit {
     this.selectedEmailsToSend = selectedEmails;
     if (this.emailSendType === 'pdf') {
       this.sendEmailbudget();
-    } else {
+    } else if (this.emailSendType === 'excel') {
       this.sendEmailBudgetExcel();
+    } else {
+      this.confirmFacturar();
     }
   }
 
@@ -636,11 +654,160 @@ export class ListBudgetComponent implements OnInit {
     { label: 'Unir Cotizaciones',    icon: '⊕', iconClass: 'dc-icon-accent', itemClass: 'dc-menu-item--accent', hint: '',       run: (b) => this.openMergeDialog(b) },
     { label: 'Enviar PDF',           icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetWithComfirm(b) },
     { label: 'Enviar Excel',         icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetExcelWithConfirm(b) },
+    { label: 'Facturar',             icon: '$', iconClass: 'dc-icon-accent', itemClass: 'dc-menu-item--accent', hint: 'emite y envía', run: (b) => this.facturarWithConfirm(b) },
+    { label: 'Editar y Facturar',    icon: '✎$', iconClass: '',              itemClass: '',                     hint: 'borrador',      run: (b) => this.editarYFacturar(b) },
   ];
 
   runAction(item: { run: (b: BudgetModel) => void }, panel: OverlayPanel) {
     if (this.currentBudget) item.run(this.currentBudget);
     panel.hide();
+  }
+
+  /**
+   * "Facturar": crea, emite y envía la factura en una sola llamada (issueAndSend).
+   * Es irreversible (consume número de resolución + correo real al cliente), así que
+   * la confirmación (mismo patrón que sendEmailBudgetWithComfirm, reutilizando
+   * EmailSelectorModalComponent) debe dejar claro cliente, correo destino y total antes
+   * de continuar. Una cotización puede facturarse varias veces: no se bloquea por
+   * ya tener factura(s) asociadas.
+   */
+  facturarWithConfirm(budget: BudgetModel): void {
+    this.emailSendType = 'invoice';
+    this.budgetToInvoice = budget;
+
+    const emailString = budget.customerDto?.email || '';
+    this.availableEmails = emailString
+      .split(/[;,]/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+
+    if (this.availableEmails.length === 0) {
+      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+      return;
+    }
+
+    const clienteNombre = budget.customerDto?.customerName || 'el cliente';
+    const totalFormateado = '$ ' + (budget.total || 0).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+
+    this.emailSelectorModal.emails = this.availableEmails;
+    this.emailSelectorModal.title = 'Facturar cotización';
+    this.emailSelectorModal.message = `Se emitirá la factura para ${clienteNombre} por un total de ${totalFormateado} y se enviará al correo que selecciones. `
+      + 'Esta acción consume el siguiente número de la resolución DIAN y no se puede anular. Confirma el correo destino:';
+    this.emailSelectorModal.confirmButtonText = 'Sí, facturar';
+    this.emailSelectorModal.openModal();
+  }
+
+  /** Ejecuta issueAndSend tras confirmar cliente, correo y total en el modal de emails. */
+  confirmFacturar(): void {
+    const budget = this.budgetToInvoice;
+    if (!budget) { return; }
+
+    const emails = this.selectedEmailsToSend;
+    this.budgetToInvoice = null;
+    this.selectedEmailsToSend = [];
+
+    this.spinner.show();
+    this.loading = true;
+    this.invoiceService.issueAndSend(budget.budgetId, emails).subscribe({
+      next: (invoice: InvoiceModel) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+        this.showInvoiceSuccess(invoice);
+      },
+      error: (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleFacturarError(error);
+      }
+    });
+  }
+
+  /**
+   * "Editar y Facturar": crea el borrador de factura a partir de la cotización y navega
+   * a la pantalla de edición para que el usuario la ajuste antes de emitirla.
+   */
+  editarYFacturar(budget: BudgetModel): void {
+    this.spinner.show();
+    this.loading = true;
+    this.invoiceService.createDraftFromBudget(budget.budgetId).subscribe({
+      next: (invoice: InvoiceModel) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.router.navigate(['/invoices/edit', invoice.invoiceId]);
+      },
+      error: (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleFacturarError(error, this.errorEditarYFacturarMessage);
+      }
+    });
+  }
+
+  private showInvoiceSuccess(invoice: InvoiceModel): void {
+    this.invoiceFeedbackSeverity = 'success';
+    this.invoiceFeedbackTitle = '¡Factura emitida y enviada!';
+    this.invoiceFeedbackMessage = `La factura ${invoice.fullNumber} fue emitida y enviada correctamente.`;
+    this.invoiceFeedbackShowResolutionLink = false;
+    this.invoiceFeedbackShowGoToInvoices = true;
+    this.invoiceFeedbackVisible = true;
+  }
+
+  /**
+   * Los errores de negocio llegan como 400 con { error: 'mensaje en español' }: se
+   * muestra tal cual (mismo patrón que edit-invoice.component.ts). Caso delicado:
+   * issueAndSend es una única llamada al backend, así que si falla el envío del
+   * correo después de emitir, la factura YA quedó emitida — el mensaje del backend
+   * lo indica y aquí solo se detecta para no mostrarlo con tono de "todo falló" ni
+   * ocultar que ya puede reenviarse desde el listado de facturas.
+   */
+  private handleFacturarError(error: any, fallbackMessage: string = this.errorFacturarMessage): void {
+    console.error('Error al facturar la cotización', error);
+    const backendMessage: string | undefined = error?.error?.error;
+    const message = backendMessage || fallbackMessage;
+    const isEmailFailureAfterIssue = !!backendMessage && this.isEmailSendFailedAfterIssueError(backendMessage);
+
+    this.invoiceFeedbackSeverity = isEmailFailureAfterIssue ? 'warning' : 'error';
+    this.invoiceFeedbackTitle = isEmailFailureAfterIssue ? 'Factura emitida, envío pendiente' : 'No se pudo facturar';
+    this.invoiceFeedbackMessage = message;
+    this.invoiceFeedbackShowResolutionLink = !isEmailFailureAfterIssue && this.isResolutionNotConfiguredError(message);
+    this.invoiceFeedbackShowGoToInvoices = isEmailFailureAfterIssue;
+    this.invoiceFeedbackVisible = true;
+
+    if (isEmailFailureAfterIssue) {
+      // La factura ya existe en el backend: refrescamos por si cambió el estado de la cotización.
+      this.loadBudgets();
+    }
+  }
+
+  private isResolutionNotConfiguredError(message: string): boolean {
+    const normalized = message.toLowerCase();
+    if (!normalized.includes('resoluci')) { return false; }
+    return normalized.includes('no hay') || normalized.includes('no existe') || normalized.includes('no esta configurada')
+      || normalized.includes('no está configurada') || normalized.includes('no esta configurado') || normalized.includes('no está configurado')
+      || normalized.includes('sin configurar') || normalized.includes('configura');
+  }
+
+  /** El backend, cuando la factura ya se emitió y solo falló el envío del correo, lo indica en el mensaje. */
+  private isEmailSendFailedAfterIssueError(message: string): boolean {
+    const normalized = message.toLowerCase();
+    const mencionaCorreo = normalized.includes('correo') || normalized.includes('email') || normalized.includes('envi');
+    const mencionaYaEmitida = normalized.includes('emiti') || normalized.includes('ya se cre') || normalized.includes('ya se gener');
+    return mencionaCorreo && mencionaYaEmitida;
+  }
+
+  goToInvoicesModule(): void {
+    this.invoiceFeedbackVisible = false;
+    this.router.navigate(['/invoices/invoices']);
+  }
+
+  goToResolutionConfigFromInvoice(): void {
+    this.invoiceFeedbackVisible = false;
+    this.router.navigate(['/invoices/resolution']);
+  }
+
+  closeInvoiceFeedback(): void {
+    this.invoiceFeedbackVisible = false;
   }
 
   getMenuItems(budget: BudgetModel): MenuItem[] {
