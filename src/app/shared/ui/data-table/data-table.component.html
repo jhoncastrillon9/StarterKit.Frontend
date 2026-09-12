@@ -22,7 +22,7 @@
     </div>
   }
 
-  <div class="dc-card">
+  <div class="dc-card" [class.dc-panel-open]="!!openFilterField()">
     <p-table #dt
       [value]="value()" [loading]="loading()" [paginator]="true" [first]="first()" [rows]="pageSize()"
       [rowsPerPageOptions]="rowsPerPageOptions()" [globalFilterFields]="globalFilterFields()"
@@ -146,7 +146,9 @@
                     selectionMode="range" dateFormat="dd/mm/yy" [readonlyInput]="true"
                     [showButtonBar]="true" placeholder="Rango"
                     [ngModel]="dateRangeValue(dt, col.field)"
-                    (ngModelChange)="onDateRangeChange(dt, col.field, matchModeFor(col), $event)"></p-calendar>
+                    (ngModelChange)="onDateRangeChange(dt, col.field, matchModeFor(col), $event)"
+                    (onShow)="calendarOverlayOpen.set(true)"
+                    (onClose)="calendarOverlayOpen.set(false)"></p-calendar>
                 }
                 @case ('numericRange') {
                   <div class="dc-filter-range">

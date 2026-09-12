@@ -137,6 +137,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     this.searchValue.set('');
     this.searchChange.emit('');
     this.openFilterField.set(null);
+    this.calendarOverlayOpen.set(false);
     if (this.lazy()) {
       this.resetToFirstPage();
     } else {
@@ -150,20 +151,35 @@ export class DataTableComponent implements AfterContentInit, OnInit {
 
   toggleFilterPanel(field: string): void {
     this.openFilterField.set(this.openFilterField() === field ? null : field);
+    this.calendarOverlayOpen.set(false);
   }
 
   closeFilterPanel(): void {
     this.openFilterField.set(null);
+    this.calendarOverlayOpen.set(false);
   }
 
-  /** Cierra el panel al hacer clic fuera de él y fuera de cualquier botón de embudo.
-   *  No se usa stopPropagation en los botones para poder detectar aquí el "afuera". */
+  /** El p-calendar del rango de fechas usa appendTo="body": su popup vive fuera del
+   *  árbol del componente, así que closest('.dc-filter-panel') nunca lo encuentra.
+   *  En vez de asumir para siempre el estado de ese overlay a partir del nombre de
+   *  su clase CSS (frágil entre versiones de PrimeNG), se seguimos el estado real
+   *  vía sus eventos públicos (onShow/onClose, ver binding en el html). El nombre
+   *  de clase (.p-datepicker) solo se usa como respaldo puntual para distinguir,
+   *  mientras ese overlay sigue abierto, un clic dentro de él de uno realmente
+   *  afuera de todo. */
+  readonly calendarOverlayOpen = signal(false);
+
+  /** Cierra el panel al hacer clic fuera de él, fuera de cualquier botón de embudo
+   *  y fuera de un overlay propio (hoy: el calendario) que siga abierto. No se usa
+   *  stopPropagation en los botones para poder detectar aquí el "afuera". */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.openFilterField()) return;
     const target = event.target as HTMLElement | null;
     if (target && (target.closest('.dc-filter-panel') || target.closest('.dc-filter-btn'))) return;
+    if (this.calendarOverlayOpen() && target?.closest('.p-datepicker')) return;
     this.openFilterField.set(null);
+    this.calendarOverlayOpen.set(false);
   }
 
   /** IMPORTANTE: nunca llamar dt.filter(null, ...) para vaciar un filtro — PrimeNG 17

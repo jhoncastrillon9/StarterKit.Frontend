@@ -22,10 +22,15 @@
 
 .dc-card {
   background: #fff; border: 1px solid dc.$dc-border; border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(24,20,45,.05);
-  // "visible" (no "hidden") a propósito: el panel de filtro por columna se ancla
-  // bajo el <th> con position:absolute y necesita poder salir de estos bordes.
-  overflow: visible;
+  box-shadow: 0 1px 3px rgba(24,20,45,.05); overflow: hidden;
+
+  // El panel de filtro por columna se ancla bajo el <th> con position:absolute y
+  // puede necesitar salir de estos bordes (p.ej. con pocas filas visibles, que es
+  // justo cuando el usuario suele tener un filtro abierto). Se relaja el recorte
+  // SOLO mientras hay un panel abierto (.dc-panel-open, atado a openFilterField())
+  // en vez de dejarlo siempre visible: permanente perderia el scroll horizontal
+  // en pantallas angostas (la tabla tiene min-width:60rem).
+  &.dc-panel-open { overflow: visible; }
 }
 
 .dc-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -178,6 +183,15 @@
 }
 .dc-filter-option--checked .dc-filter-option__box {
   border-color: #6d28d9; background: #6d28d9;
+}
+
+// PrimeNG envuelve la tabla en .p-datatable-wrapper con overflow:auto INCONDICIONAL
+// (no depende de [scrollable]) — ese wrapper esta mas cerca del <th> que .dc-card y
+// recorta el panel de filtro aunque .dc-card ya sea overflow:visible, sobre todo con
+// pocas filas visibles (justo cuando el panel suele estar abierto). Igual que en
+// .dc-card, se relaja SOLO mientras hay un panel abierto.
+:host ::ng-deep .dc-card.dc-panel-open .p-datatable-wrapper {
+  overflow: visible;
 }
 
 // ---- p-table theming, scoped under :host so it never leaks to the Lara-blue app ----
