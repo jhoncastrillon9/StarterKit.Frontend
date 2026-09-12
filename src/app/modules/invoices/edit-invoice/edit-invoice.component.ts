@@ -29,6 +29,8 @@ export class EditInvoiceComponent implements OnInit {
   private readonly invalidFormMessage = 'Completa los campos obligatorios de los items antes de guardar. La cantidad debe ser un numero entero mayor o igual a 1.';
 
   loading = true;
+  /** true cuando la factura no se pudo cargar: se muestra un estado de error persistente. */
+  loadError = false;
   saving = false;
   issuing = false;
 
@@ -80,6 +82,7 @@ export class EditInvoiceComponent implements OnInit {
 
   loadInvoice(id: number): void {
     this.loading = true;
+    this.loadError = false;
     this.invoiceService.getById(id).subscribe({
       next: (invoice) => {
         this.applyInvoice(invoice);
@@ -88,9 +91,19 @@ export class EditInvoiceComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar la factura', error);
         this.loading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.errorLoadMessage, life: 4000 });
+        // Sin esto la pantalla se quedaba en blanco, con el formulario vacio titulado
+        // "Borrador" y un toast que desaparecia: el usuario no sabia que habia fallado
+        // ni tenia forma evidente de volver.
+        this.loadError = true;
+        this.errorMessage = extractApiErrorMessage(error) || this.errorLoadMessage;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.errorMessage, life: 4000 });
       }
     });
+  }
+
+  /** Reintenta la carga desde el estado de error. */
+  retryLoad(): void {
+    if (this.invoiceId) { this.loadInvoice(this.invoiceId); }
   }
 
   private applyInvoice(invoice: InvoiceModel): void {

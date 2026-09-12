@@ -1,4 +1,4 @@
-<div class="ei-page" *ngIf="!loading; else loadingState">
+<div class="ei-page" *ngIf="!loading && !loadError">
   <form class="ei-form" [formGroup]="form" (ngSubmit)="saveDraft()">
 
     <!-- Cabecera de solo lectura -->
@@ -231,12 +231,31 @@
   </form>
 </div>
 
-<ng-template #loadingState>
-  <div class="ei-loading">
-    <i class="fas fa-spinner fa-spin"></i>
-    <span>Cargando factura…</span>
+<div class="ei-loading" *ngIf="loading">
+  <i class="fas fa-spinner fa-spin"></i>
+  <span>Cargando factura…</span>
+</div>
+
+<!-- Estado de error persistente: antes quedaba una pagina en blanco con el
+     formulario vacio titulado "Borrador" y solo un toast que se desvanecia. -->
+<div class="ei-load-error" *ngIf="!loading && loadError">
+  <div class="ei-error-banner">
+    <i class="fas fa-exclamation-triangle"></i>
+    <div class="ei-error-banner__body">
+      <p>{{ errorMessage }}</p>
+      <div class="ei-load-error__actions">
+        <button type="button" class="ei-btn ei-btn--outline" (click)="retryLoad()">
+          <i class="fas fa-redo"></i>
+          <span>Reintentar</span>
+        </button>
+        <button type="button" class="ei-btn ei-btn--primary" (click)="goToList()">
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver al listado de facturas</span>
+        </button>
+      </div>
+    </div>
   </div>
-</ng-template>
+</div>
 
 <!-- Modal de confirmacion para "Emitir" -->
 <app-confirmation-modal
