@@ -38,6 +38,15 @@ export class InvoiceService {
       this.http.get(`${this.apiUrl}/api/Invoice/invoice/${id}`, { headers: this.getHeaders(), observe: 'response' }));
   }
 
+  /**
+   * Facturas de una cotizacion, borradores incluidos. Devuelve [] si no tiene ninguna
+   * o si la cotizacion es de otra compania, nunca 404.
+   */
+  getByBudget(budgetId: number): Observable<InvoiceModel[]> {
+    return this.handle<InvoiceModel[]>(
+      this.http.get(`${this.apiUrl}/api/Invoice/from-budget/${budgetId}/invoices`, { headers: this.getHeaders(), observe: 'response' }));
+  }
+
   createDraftFromBudget(budgetId: number): Observable<InvoiceModel> {
     return this.handle<InvoiceModel>(
       this.http.post(`${this.apiUrl}/api/Invoice/from-budget/${budgetId}`, {}, { headers: this.getHeaders(), observe: 'response' }));

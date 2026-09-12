@@ -714,23 +714,20 @@ export class ListBudgetComponent implements OnInit {
 
   /**
    * Facturar varias veces la misma cotización es intencionado y no se bloquea, pero
-   * conviene avisarlo: si un intento anterior fallo tras crear el borrador, puede haber
-   * quedado uno huérfano y el usuario acabaria con varias facturas de la misma obra.
+   * conviene avisarlo: sin esta señal el usuario no tiene forma de saber, desde el
+   * listado de cotizaciones, que esa obra ya tiene facturas o borradores.
    *
-   * El backend no expone un endpoint "facturas de esta cotizacion" (InvoiceController
-   * solo tiene GET invoice, GET invoice/{id}, from-budget/{id}, issue, send,
-   * issue-and-send y pdf), pero GET /api/Invoice/invoice devuelve todas las facturas de
-   * la empresa con su budgetId, asi que se filtra en cliente. Es puramente informativo:
-   * se lanza en paralelo al modal ya abierto y, si falla, no se interrumpe nada.
+   * Es un aviso en dos tiempos (se consulta al abrir el modal, se factura después), así
+   * que evita el duplicado por descuido pero no garantiza unicidad. Puramente
+   * informativo: si la consulta falla, no se interrumpe nada.
    */
   private warnIfBudgetAlreadyInvoiced(budget: BudgetModel, baseMessage: string): void {
-    this.invoiceService.get().subscribe({
-      next: (invoices: InvoiceModel[]) => {
+    this.invoiceService.getByBudget(budget.budgetId).subscribe({
+      next: (existing: InvoiceModel[]) => {
         // El usuario pudo cerrar el modal o abrir otro flujo mientras llegaba la respuesta.
         if (this.budgetToInvoice?.budgetId !== budget.budgetId) { return; }
 
-        const existing = (invoices || []).filter(i => i.budgetId === budget.budgetId);
-        if (existing.length === 0) { return; }
+        if (!existing || existing.length === 0) { return; }
 
         const drafts = existing.filter(i => i.status === INVOICE_STATUS.draft).length;
         const detalle = drafts > 0
