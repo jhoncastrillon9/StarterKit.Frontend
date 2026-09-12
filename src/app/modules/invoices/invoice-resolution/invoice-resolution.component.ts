@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InvoiceResolutionModel } from '../models/invoice.Model';
 import { InvoiceResolutionService } from '../services/invoice-resolution.service';
+import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 
 /** Bajo este numero de folios restantes se avisa para tramitar una resolucion nueva. */
 const LOW_REMAINING_THRESHOLD = 50;
@@ -173,14 +174,19 @@ export class InvoiceResolutionComponent implements OnInit {
   }
 
   /**
-   * Los errores de negocio llegan como 400 con { error: 'mensaje en espanol' }.
-   * Ese mensaje esta escrito para el usuario final: se muestra tal cual, sin
-   * reemplazarlo por un texto generico (mismo patron que edit-invoice.component.ts).
+   * Los errores de negocio llegan como 400 con { error: 'mensaje en espanol' }, y las
+   * validaciones de ModelState como ValidationProblemDetails ({ errors: {...} }).
+   * extractApiErrorMessage entiende las dos formas (ver src/app/shared/api-error.ts).
    */
   private handleBusinessError(error: any): void {
     console.error('Error de negocio en la resolucion de facturacion', error);
-    const backendMessage: string | undefined = error?.error?.error;
-    const message = backendMessage || this.errorSaveMessage;
+    const backendMessage = extractApiErrorMessage(error);
+    let message = backendMessage || this.errorSaveMessage;
+    if (backendMessage && isValidationProblemDetails(error)) {
+      // Texto tecnico de .NET: se antepone una explicacion util en espanol.
+      message = 'Hay datos de la resolucion que el servidor no acepta. Revisa el prefijo, '
+        + 'el rango (numeros enteros) y las fechas de vigencia. Detalle: ' + backendMessage;
+    }
     this.errorMessage = message;
     this.messageService.add({ severity: 'error', summary: 'No se pudo guardar', detail: message, life: 6000 });
   }

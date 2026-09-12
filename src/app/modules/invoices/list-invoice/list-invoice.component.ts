@@ -5,6 +5,7 @@ import { InvoiceModel, INVOICE_STATUS } from '../models/invoice.Model';
 import { InvoiceService } from '../services/invoice.service';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
+import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 
 @Component({
   selector: 'app-list-invoice',
@@ -116,7 +117,7 @@ export class ListInvoiceComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al descargar el PDF de la factura', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.errorDownloadMessage, life: 4000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.backendMessageOr(error, this.errorDownloadMessage), life: 5000 });
       }
     });
   }
@@ -153,9 +154,25 @@ export class ListInvoiceComponent implements OnInit {
       error: (error) => {
         console.error('Error al enviar la factura', error);
         this.loading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.errorSendMessage, life: 4000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.backendMessageOr(error, this.errorSendMessage), life: 5000 });
       }
     });
     this.invoiceToSend = null;
+  }
+
+  /**
+   * Esta pantalla mostraba siempre un texto generico y se tragaba los 400 utiles del
+   * backend ("La factura debe estar emitida antes de enviarla."). Ahora usa la misma
+   * extraccion que edit-invoice e invoice-resolution, que entiende tanto el contrato
+   * { error: mensaje } como ValidationProblemDetails ({ errors: {...} }).
+   */
+  private backendMessageOr(error: any, fallbackMessage: string): string {
+    const backendMessage = extractApiErrorMessage(error);
+    if (!backendMessage) { return fallbackMessage; }
+    if (isValidationProblemDetails(error)) {
+      // Texto tecnico de .NET: se acompana del mensaje propio para que sirva de algo.
+      return fallbackMessage + ' Detalle: ' + backendMessage;
+    }
+    return backendMessage;
   }
 }

@@ -6,6 +6,7 @@ import { INVOICE_STATUS, InvoiceDetailModel, InvoiceModel } from '../models/invo
 import { InvoiceService } from '../services/invoice.service';
 import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 
 @Component({
   selector: 'app-edit-invoice',
@@ -328,15 +329,19 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   /**
-   * Los errores de negocio llegan como 400 con { error: 'mensaje en espanol' }.
-   * Ese mensaje esta escrito para el usuario final: se muestra tal cual, sin
-   * reemplazarlo por un texto generico (ver register.component.ts / recovery-password.component.ts,
-   * que ya usan error.error.error para esta misma forma de respuesta).
+   * Los errores de negocio llegan como 400 con { error: 'mensaje en espanol' }, y las
+   * validaciones de ModelState como ValidationProblemDetails ({ errors: {...} }).
+   * extractApiErrorMessage entiende las dos formas (ver src/app/shared/api-error.ts).
    */
   private handleBusinessError(error: any, fallbackMessage: string): void {
     console.error('Error de negocio en factura', error);
-    const backendMessage: string | undefined = error?.error?.error;
-    const message = backendMessage || fallbackMessage;
+    const backendMessage = extractApiErrorMessage(error);
+    let message = backendMessage || fallbackMessage;
+    if (backendMessage && isValidationProblemDetails(error)) {
+      // Texto tecnico de .NET: se antepone una explicacion util en espanol.
+      message = 'Hay datos de la factura que el servidor no acepta. Revisa los items '
+        + '(la cantidad debe ser un numero entero) y vuelve a intentarlo. Detalle: ' + backendMessage;
+    }
     this.errorMessage = message;
     this.showResolutionLink = this.isResolutionNotConfiguredError(message);
     this.messageService.add({ severity: 'error', summary: 'No se pudo completar la accion', detail: message, life: 6000 });
