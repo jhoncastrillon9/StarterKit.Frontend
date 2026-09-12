@@ -110,6 +110,11 @@ export const navItems: INavData[] = [
         url: '/invoices/invoices',
         icon: 'nav-icon-bullet'
       },
+      {
+        name: 'Resolucion de facturacion',
+        url: '/invoices/resolution',
+        icon: 'nav-icon-bullet'
+      },
     ]
   },
 

@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { ListInvoiceComponent } from './list-invoice/list-invoice.component';
 import { EditInvoiceComponent } from './edit-invoice/edit-invoice.component';
+import { InvoiceResolutionComponent } from './invoice-resolution/invoice-resolution.component';
 import { InvoicesRoutingModule } from './invoices-routing.module';
 
 import { TableModule } from 'primeng/table';
@@ -20,7 +21,8 @@ import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.c
 @NgModule({
   declarations: [
     ListInvoiceComponent,
-    EditInvoiceComponent
+    EditInvoiceComponent,
+    InvoiceResolutionComponent
   ],
   imports: [
     CommonModule,

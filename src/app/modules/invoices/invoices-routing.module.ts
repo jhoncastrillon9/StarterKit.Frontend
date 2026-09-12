@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ListInvoiceComponent } from './list-invoice/list-invoice.component';
 import { EditInvoiceComponent } from './edit-invoice/edit-invoice.component';
+import { InvoiceResolutionComponent } from './invoice-resolution/invoice-resolution.component';
 
 const routes: Routes = [
   {
@@ -29,7 +30,13 @@ const routes: Routes = [
           title: 'Editar factura'
         }
       },
-      // La ruta 'resolution' (Task 4) se agrega en su propia tarea.
+      {
+        path: 'resolution',
+        component: InvoiceResolutionComponent,
+        data: {
+          title: 'Resolucion de facturacion'
+        }
+      },
     ]
   }
 ];
