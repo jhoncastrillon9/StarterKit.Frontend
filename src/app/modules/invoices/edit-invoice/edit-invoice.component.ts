@@ -25,6 +25,8 @@ export class EditInvoiceComponent implements OnInit {
   private readonly errorLoadMessage = 'Algo fallo al obtener la factura. Refresca la pagina.';
   private readonly errorSaveMessage = 'No se pudo guardar el borrador. Intenta de nuevo.';
   private readonly errorIssueMessage = 'No se pudo emitir la factura. Intenta de nuevo.';
+  /** Mismo texto de validacion para "Guardar borrador" y para emitir con cambios sin guardar. */
+  private readonly invalidFormMessage = 'Completa los campos obligatorios de los items antes de guardar. La cantidad debe ser un numero entero mayor o igual a 1.';
 
   loading = true;
   saving = false;
@@ -126,7 +128,10 @@ export class EditInvoiceComponent implements OnInit {
       invoiceId: [detail.invoiceId ?? this.invoiceId],
       description: [detail.description ?? '', [Validators.required]],
       unitMeasurement: [isTitle ? '' : (detail.unitMeasurement ?? 'Und')],
-      quantity: [isTitle ? 0 : (detail.quantity ?? 1), isTitle ? [] : [Validators.required, Validators.min(0.01)]],
+      // Quantity es int en el backend (InvoiceDetailDTO / BudgetDetailDTO y la entidad):
+      // un decimal no se puede deserializar y el guardado se va en un 400 de ModelState.
+      // Mismo validador que add-update-budget.component.ts: solo digitos, minimo 1.
+      quantity: [isTitle ? 0 : (detail.quantity ?? 1), isTitle ? [] : [Validators.required, Validators.pattern(/^\d+$/), Validators.min(1)]],
       price: [isTitle ? 0 : (detail.price ?? 0), isTitle ? [] : [Validators.required, Validators.min(0)]],
       isTitle: [isTitle],
     });
@@ -145,6 +150,24 @@ export class EditInvoiceComponent implements OnInit {
   removeDetail(index: number): void {
     if (this.isReadOnly) { return; }
     this.details.removeAt(index);
+  }
+
+  /** Bloquea todo lo que no sea un digito en el input de cantidad (mismo patron que add-update-budget). */
+  onlyNumbers(event: KeyboardEvent): boolean {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  /** El keypress no cubre el pegado: se descarta si el texto pegado no son solo digitos. */
+  onPasteOnlyNumbers(event: ClipboardEvent): void {
+    const pasted = event.clipboardData?.getData('text') ?? '';
+    if (!/^\d+$/.test(pasted.trim())) {
+      event.preventDefault();
+    }
   }
 
   isTitleRow(index: number): boolean {
@@ -205,7 +228,7 @@ export class EditInvoiceComponent implements OnInit {
 
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.messageService.add({ severity: 'warn', summary: 'Revisa el formulario', detail: 'Completa los campos obligatorios de los items antes de guardar.', life: 4000 });
+      this.messageService.add({ severity: 'warn', summary: 'Revisa el formulario', detail: this.invalidFormMessage, life: 4000 });
       return;
     }
 

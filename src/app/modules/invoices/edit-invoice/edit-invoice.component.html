@@ -133,7 +133,11 @@
                 </div>
                 <div class="ei-cell ei-cell--qty">
                   <span class="ei-cell__label">Cantidad</span>
-                  <input type="number" class="ei-input" formControlName="quantity" min="0" step="0.01" />
+                  <!-- Quantity es int en el backend (InvoiceDetailDTO): con decimales
+                       System.Text.Json no puede deserializar y el PUT se va en un 400.
+                       Mismo patron que add-update-budget: type="text" + onlyNumbers. -->
+                  <input type="text" inputmode="numeric" class="ei-input" formControlName="quantity"
+                         (keypress)="onlyNumbers($event)" (paste)="onPasteOnlyNumbers($event)" />
                 </div>
                 <div class="ei-cell ei-cell--price">
                   <span class="ei-cell__label">Precio</span>
