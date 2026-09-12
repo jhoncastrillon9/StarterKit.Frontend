@@ -290,6 +290,23 @@
     color: #6f6987;
     border-bottom: 1px solid #e6e3f0;
   }
+
+  &--title {
+    grid-template-columns: 1fr auto;
+    background: #f8f6ff;
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+.ei-cell--title-desc {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ei-title-icon {
+  color: #5b21b6;
 }
 
 .ei-cell__label {

@@ -112,14 +112,22 @@ export class EditInvoiceComponent implements OnInit {
     }
   }
 
+  /**
+   * Las filas de titulo/seccion (isTitle: true) solo llevan descripcion: no tienen
+   * cantidad ni precio facturables, y por lo tanto no deben exigir esos campos ni
+   * contar en los subtotales. Mismo patron que add-update-budget.component.ts
+   * (ver addBudgetDetail/addTitleRow y updateAmount, que salta isTitle al sumar).
+   */
   private buildDetailGroup(detail: Partial<InvoiceDetailModel>): FormGroup {
+    const isTitle = !!detail.isTitle;
     return this.fb.group({
       invoiceDetailId: [detail.invoiceDetailId ?? 0],
       invoiceId: [detail.invoiceId ?? this.invoiceId],
       description: [detail.description ?? '', [Validators.required]],
-      unitMeasurement: [detail.unitMeasurement ?? 'Und'],
-      quantity: [detail.quantity ?? 1, [Validators.required, Validators.min(0.01)]],
-      price: [detail.price ?? 0, [Validators.required, Validators.min(0)]],
+      unitMeasurement: [isTitle ? '' : (detail.unitMeasurement ?? 'Und')],
+      quantity: [isTitle ? 0 : (detail.quantity ?? 1), isTitle ? [] : [Validators.required, Validators.min(0.01)]],
+      price: [isTitle ? 0 : (detail.price ?? 0), isTitle ? [] : [Validators.required, Validators.min(0)]],
+      isTitle: [isTitle],
     });
   }
 
@@ -128,13 +136,23 @@ export class EditInvoiceComponent implements OnInit {
     this.details.push(this.buildDetailGroup({}));
   }
 
+  addTitleRow(): void {
+    if (this.isReadOnly) { return; }
+    this.details.push(this.buildDetailGroup({ isTitle: true }));
+  }
+
   removeDetail(index: number): void {
     if (this.isReadOnly) { return; }
     this.details.removeAt(index);
   }
 
+  isTitleRow(index: number): boolean {
+    return !!this.details.at(index).get('isTitle')?.value;
+  }
+
   lineTotal(index: number): number {
     const group = this.details.at(index);
+    if (group.get('isTitle')?.value) { return 0; }
     const quantity = Number(group.get('quantity')?.value) || 0;
     const price = Number(group.get('price')?.value) || 0;
     return quantity * price;
@@ -142,11 +160,14 @@ export class EditInvoiceComponent implements OnInit {
 
   /**
    * Suma de los items en el cliente, solo para feedback inmediato mientras se edita.
-   * Los totales definitivos (subtotal, aiu, iva, total) siempre vienen del backend
-   * y se refrescan al guardar: nunca se muestran como si fueran el total final.
+   * Las filas de titulo se excluyen (no tienen cantidad ni precio facturables), igual
+   * que hace InvoiceDTO.Subtotal en el backend. Los totales definitivos (subtotal, aiu,
+   * iva, total) siempre vienen del backend y se refrescan al guardar: nunca se muestran
+   * como si fueran el total final.
    */
   get estimatedSubtotal(): number {
     return this.details.controls.reduce((sum, group) => {
+      if (group.get('isTitle')?.value) { return sum; }
       const quantity = Number(group.get('quantity')?.value) || 0;
       const price = Number(group.get('price')?.value) || 0;
       return sum + (quantity * price);
@@ -159,11 +180,11 @@ export class EditInvoiceComponent implements OnInit {
       invoiceDetailId: d.invoiceDetailId,
       invoiceId: this.invoiceId,
       description: d.description,
-      unitMeasurement: d.unitMeasurement,
-      quantity: Number(d.quantity),
-      price: Number(d.price),
-      isTitle: false,
-      total: Number(d.quantity) * Number(d.price),
+      unitMeasurement: d.isTitle ? '' : d.unitMeasurement,
+      quantity: d.isTitle ? 0 : Number(d.quantity),
+      price: d.isTitle ? 0 : Number(d.price),
+      isTitle: !!d.isTitle,
+      total: d.isTitle ? 0 : Number(d.quantity) * Number(d.price),
     }));
 
     return {
@@ -214,7 +235,7 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   confirmIssue(): void {
-    if (!this.invoice) { return; }
+    if (!this.invoice || this.isReadOnly) { return; }
     this.clearBusinessError();
     this.issuing = true;
     this.invoiceService.issue(this.invoice.invoiceId).subscribe({
@@ -252,7 +273,7 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   onIssueAndSendConfirmed(selectedEmails: string[]): void {
-    if (!this.invoice) { return; }
+    if (!this.invoice || this.isReadOnly) { return; }
 
     this.clearBusinessError();
     this.issuing = true;

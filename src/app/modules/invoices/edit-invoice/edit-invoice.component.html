@@ -104,35 +104,52 @@
               <div class="ei-cell ei-cell--act"></div>
             </div>
 
-            <div class="ei-items__row" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
-              <div class="ei-cell ei-cell--desc">
-                <span class="ei-cell__label">Descripcion</span>
-                <input type="text" class="ei-input" formControlName="description" placeholder="Describe el item…" maxlength="500" />
+            <ng-container *ngFor="let detail of details.controls; let i = index">
+              <!-- Fila de titulo/seccion: solo descripcion, sin cantidad/precio/total -->
+              <div class="ei-items__row ei-items__row--title" *ngIf="isTitleRow(i)" [formGroupName]="i">
+                <div class="ei-cell ei-cell--desc ei-cell--title-desc">
+                  <span class="ei-cell__label">Titulo de seccion</span>
+                  <i class="fas fa-bookmark ei-title-icon"></i>
+                  <input type="text" class="ei-input" formControlName="description" placeholder="Nombre del capitulo…" maxlength="500" />
+                </div>
+                <div class="ei-cell ei-cell--act">
+                  <button type="button" class="ei-icon-btn" (click)="removeDetail(i)" [disabled]="isReadOnly" title="Quitar titulo">
+                    <i class="far fa-trash-alt"></i>
+                  </button>
+                </div>
               </div>
-              <div class="ei-cell ei-cell--unit">
-                <span class="ei-cell__label">Unidad</span>
-                <select class="ei-input ei-select" formControlName="unitMeasurement">
-                  <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
-                </select>
+
+              <!-- Fila de item facturable -->
+              <div class="ei-items__row" *ngIf="!isTitleRow(i)" [formGroupName]="i">
+                <div class="ei-cell ei-cell--desc">
+                  <span class="ei-cell__label">Descripcion</span>
+                  <input type="text" class="ei-input" formControlName="description" placeholder="Describe el item…" maxlength="500" />
+                </div>
+                <div class="ei-cell ei-cell--unit">
+                  <span class="ei-cell__label">Unidad</span>
+                  <select class="ei-input ei-select" formControlName="unitMeasurement">
+                    <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+                  </select>
+                </div>
+                <div class="ei-cell ei-cell--qty">
+                  <span class="ei-cell__label">Cantidad</span>
+                  <input type="number" class="ei-input" formControlName="quantity" min="0" step="0.01" />
+                </div>
+                <div class="ei-cell ei-cell--price">
+                  <span class="ei-cell__label">Precio</span>
+                  <input type="number" class="ei-input" formControlName="price" min="0" step="0.01" />
+                </div>
+                <div class="ei-cell ei-cell--total">
+                  <span class="ei-cell__label">Total</span>
+                  <span class="ei-line-total">$ {{ lineTotal(i).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+                </div>
+                <div class="ei-cell ei-cell--act">
+                  <button type="button" class="ei-icon-btn" (click)="removeDetail(i)" [disabled]="isReadOnly" title="Quitar item">
+                    <i class="far fa-trash-alt"></i>
+                  </button>
+                </div>
               </div>
-              <div class="ei-cell ei-cell--qty">
-                <span class="ei-cell__label">Cantidad</span>
-                <input type="number" class="ei-input" formControlName="quantity" min="0" step="0.01" />
-              </div>
-              <div class="ei-cell ei-cell--price">
-                <span class="ei-cell__label">Precio</span>
-                <input type="number" class="ei-input" formControlName="price" min="0" step="0.01" />
-              </div>
-              <div class="ei-cell ei-cell--total">
-                <span class="ei-cell__label">Total</span>
-                <span class="ei-line-total">$ {{ lineTotal(i).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
-              </div>
-              <div class="ei-cell ei-cell--act">
-                <button type="button" class="ei-icon-btn" (click)="removeDetail(i)" [disabled]="isReadOnly" title="Quitar item">
-                  <i class="far fa-trash-alt"></i>
-                </button>
-              </div>
-            </div>
+            </ng-container>
           </div>
         </div>
 
@@ -145,6 +162,10 @@
           <button type="button" class="ei-add-btn" (click)="addDetail()" [disabled]="isReadOnly">
             <i class="fas fa-plus"></i>
             <span>Agregar item</span>
+          </button>
+          <button type="button" class="ei-add-btn" (click)="addTitleRow()" [disabled]="isReadOnly">
+            <i class="fas fa-plus"></i>
+            <span>Agregar titulo de seccion</span>
           </button>
         </div>
       </section>
