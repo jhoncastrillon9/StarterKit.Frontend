@@ -1,5 +1,5 @@
 import {
-  AfterContentInit, Component, ContentChild, ContentChildren, DestroyRef, OnInit, QueryList,
+  AfterContentInit, Component, ContentChild, ContentChildren, DestroyRef, HostListener, OnInit, QueryList,
   TemplateRef, inject, input, output, signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -8,7 +8,6 @@ import { TableModule, Table, TableLazyLoadEvent } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { FilterService } from 'primeng/api';
 import { DataTableColumnDirective } from './data-table-column.directive';
 import { DataTableColumn, KpiDef, DataTableLazyEvent } from './data-table.types';
@@ -39,7 +38,7 @@ function endOfDay(d: Date): Date {
   standalone: true,
   imports: [
     NgTemplateOutlet, FormsModule, TableModule, InputTextModule, InputNumberModule,
-    CalendarModule, MultiSelectModule, KpiCardComponent, FilterChipsComponent,
+    CalendarModule, KpiCardComponent, FilterChipsComponent,
   ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
@@ -117,7 +116,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     return field.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), row);
   }
 
-  /** true si alguna columna declaró filtro: sin esto no se pinta la fila de filtros. */
+  /** true si alguna columna declaró filtro: sin esto no se pinta el botón de embudo. */
   hasColumnFilters(): boolean {
     return this.columns().some(c => !!c.filter);
   }
@@ -137,12 +136,164 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     if (dt.filters['global']) (dt.filters['global'] as any).value = null;
     this.searchValue.set('');
     this.searchChange.emit('');
+    this.openFilterField.set(null);
     if (this.lazy()) {
       this.resetToFirstPage();
     } else {
       dt._filter();
       this.first.set(0);
     }
+  }
+
+  // ---- Panel de filtro por columna (uno solo abierto a la vez) ----
+  readonly openFilterField = signal<string | null>(null);
+
+  toggleFilterPanel(field: string): void {
+    this.openFilterField.set(this.openFilterField() === field ? null : field);
+  }
+
+  closeFilterPanel(): void {
+    this.openFilterField.set(null);
+  }
+
+  /** Cierra el panel al hacer clic fuera de él y fuera de cualquier botón de embudo.
+   *  No se usa stopPropagation en los botones para poder detectar aquí el "afuera". */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.openFilterField()) return;
+    const target = event.target as HTMLElement | null;
+    if (target && (target.closest('.dc-filter-panel') || target.closest('.dc-filter-btn'))) return;
+    this.openFilterField.set(null);
+  }
+
+  /** IMPORTANTE: nunca llamar dt.filter(null, ...) para vaciar un filtro — PrimeNG 17
+   *  borra la clave de dt.filters cuando el valor queda "vacío" y ColumnFilter revienta
+   *  al leer filterConstraint.value sin optional chaining en el siguiente ciclo. Por eso
+   *  todo cambio de valor (incluida la limpieza) pasa por aquí: se escribe en el sitio
+   *  sobre el objeto constraint ya existente (o uno nuevo creado una sola vez) y se
+   *  dispara el filtrado explícitamente, nunca a través de dt.filter(...). */
+  private applyColumnFilter(dt: Table, field: string, matchMode: string, value: unknown): void {
+    let c = dt.filters[field] as any;
+    if (!c || Array.isArray(c)) {
+      c = { value: null, matchMode };
+      dt.filters[field] = c;
+    }
+    c.value = value;
+    if (this.lazy()) {
+      this.resetToFirstPage();
+    } else {
+      dt._filter();
+      this.first.set(0);
+    }
+  }
+
+  clearOneFilter(dt: Table, field: string): void {
+    this.applyColumnFilter(dt, field, this.matchModeForField(dt, field), null);
+  }
+
+  private matchModeForField(dt: Table, field: string): string {
+    const c = dt.filters[field] as any;
+    if (c && !Array.isArray(c) && c.matchMode) return c.matchMode;
+    const col = this.columns().find(x => x.field === field);
+    return col ? this.matchModeFor(col) : 'contains';
+  }
+
+  isFilterActive(dt: Table, field: string): boolean {
+    const c = dt.filters[field] as any;
+    if (!c || Array.isArray(c)) return false;
+    const v = c.value;
+    if (v == null) return false;
+    if (typeof v === 'string') return v.trim().length > 0;
+    if (Array.isArray(v)) return v.length > 0;
+    return true;
+  }
+
+  // -- Texto --
+  filterTextValue(dt: Table, field: string): string {
+    const c = dt.filters[field] as any;
+    return c && !Array.isArray(c) && typeof c.value === 'string' ? c.value : '';
+  }
+
+  onFilterText(dt: Table, field: string, matchMode: string, value: string): void {
+    this.applyColumnFilter(dt, field, matchMode, value && value.length ? value : null);
+  }
+
+  // -- Selección múltiple --
+  filterSelectValues(dt: Table, field: string): unknown[] {
+    const c = dt.filters[field] as any;
+    return c && !Array.isArray(c) && Array.isArray(c.value) ? c.value : [];
+  }
+
+  toggleFilterOption(dt: Table, field: string, matchMode: string, optionValue: unknown): void {
+    const current = this.filterSelectValues(dt, field);
+    const next = current.includes(optionValue)
+      ? current.filter(v => v !== optionValue)
+      : [...current, optionValue];
+    this.applyColumnFilter(dt, field, matchMode, next.length ? next : null);
+  }
+
+  /** Conteo por opción sobre los datos ya visibles (post búsqueda/chip de estado,
+   *  pre filtros de columna), igual que en el prototipo aprobado. */
+  optionCount(col: DataTableColumn, optionValue: unknown): number {
+    return this.value().filter(row => this.resolve(row, col.field) === optionValue).length;
+  }
+
+  // -- Rango numérico --
+  rangeValue(dt: Table, field: string): unknown[] {
+    const c = dt.filters[field] as any;
+    return c && !Array.isArray(c) && Array.isArray(c.value) ? c.value : [null, null];
+  }
+
+  onRangePart(dt: Table, field: string, matchMode: string, index: 0 | 1, value: unknown): void {
+    this.applyColumnFilter(dt, field, matchMode, this.updateRange(this.rangeValue(dt, field), index, value));
+  }
+
+  // -- Rango de fechas --
+  dateRangeValue(dt: Table, field: string): Date[] | null {
+    const c = dt.filters[field] as any;
+    return c && !Array.isArray(c) && Array.isArray(c.value) ? (c.value as Date[]) : null;
+  }
+
+  onDateRangeChange(dt: Table, field: string, matchMode: string, range: Date[] | null): void {
+    this.applyColumnFilter(dt, field, matchMode, range && (range[0] || range[1]) ? range : null);
+  }
+
+  // -- Franja de chips con los filtros activos --
+  activeFilterChips(dt: Table): { field: string; label: string }[] {
+    return this.columns()
+      .filter(c => c.filter && this.isFilterActive(dt, c.field))
+      .map(c => ({ field: c.field, label: c.header + ': ' + this.filterValueLabel(dt, c) }));
+  }
+
+  anyActiveFilter(dt: Table): boolean {
+    return this.activeFilterChips(dt).length > 0 || !!this.searchValue();
+  }
+
+  private filterValueLabel(dt: Table, col: DataTableColumn): string {
+    switch (col.filter?.type) {
+      case 'select': {
+        const opts = col.filter.options || [];
+        const selected = this.filterSelectValues(dt, col.field);
+        return selected.map(v => opts.find(o => o.value === v)?.label ?? String(v)).join(', ');
+      }
+      case 'dateRange': {
+        const range = this.dateRangeValue(dt, col.field) || [null, null];
+        return this.formatDateLabel(range[0]) + ' a ' + this.formatDateLabel(range[1]);
+      }
+      case 'numericRange': {
+        const range = this.rangeValue(dt, col.field);
+        const min = range[0], max = range[1];
+        return (min != null ? String(min) : '…') + ' a ' + (max != null ? String(max) : '…');
+      }
+      default:
+        return this.filterTextValue(dt, col.field);
+    }
+  }
+
+  private formatDateLabel(value: unknown): string {
+    if (!value) return '…';
+    const date = value instanceof Date ? value : new Date(String(value));
+    return Number.isNaN(date.getTime()) ? '…' : date.toLocaleDateString('es-CO');
   }
 
   matchModeFor(col: DataTableColumn): string {

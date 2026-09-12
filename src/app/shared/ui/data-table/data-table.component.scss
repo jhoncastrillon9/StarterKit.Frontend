@@ -22,7 +22,10 @@
 
 .dc-card {
   background: #fff; border: 1px solid dc.$dc-border; border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(24,20,45,.05); overflow: hidden;
+  box-shadow: 0 1px 3px rgba(24,20,45,.05);
+  // "visible" (no "hidden") a propósito: el panel de filtro por columna se ancla
+  // bajo el <th> con position:absolute y necesita poder salir de estos bordes.
+  overflow: visible;
 }
 
 .dc-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -38,38 +41,143 @@
 }
 .dc-toolbar__count { margin-left: auto; font-size: 12px; font-weight: 600; color: #8b85a1; }
 
-// ---- Filtros por columna (opt-in vía DataTableColumn.filter) ----
-.dc-clear-filters {
-  height: 34px; padding: 0 12px; border-radius: 8px;
-  border: 1px solid #e2e0ec; background: #fff; color: #6f6987;
-  font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 700;
-  cursor: pointer; transition: all .15s ease;
-  &:hover { background: #f5f2ff; border-color: #d6ccf5; color: #6d28d9; }
+// ---- Franja de chips con los filtros activos (entre buscador y tabla) ----
+.dc-active-filters {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  width: 100%; padding: 10px 0 2px; margin-top: 2px; border-top: 1px solid #f2f1f7;
+  &__label {
+    font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8b85a1;
+  }
+  &__clearall {
+    height: 26px; padding: 0 11px; border-radius: 999px; border: 1px solid #e2e0ec;
+    background: #fff; color: #6f6987; font-family: dc.$dc-font-body; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all .15s ease;
+    &:hover { background: #f5f2ff; border-color: #d6ccf5; color: #6d28d9; }
+  }
 }
 
-.dc-filter-range { display: flex; gap: 6px; }
+.dc-chip-filter {
+  display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 6px 0 10px;
+  border-radius: 999px; background: #ede9fe; border: 1px solid #ddd6fe; color: #5b21b6;
+  font-family: dc.$dc-font-body; font-size: 12px; font-weight: 700;
 
-:host ::ng-deep .dc-datatable .dc-filter-row > th {
-  padding: 6px 10px 8px; background: #fafafc;
-  border-bottom: 1px solid #ebe9f3; text-transform: none; letter-spacing: 0;
-
-  .p-column-filter { width: 100%; }
-
-  .dc-filter-input,
-  .p-multiselect,
-  .p-calendar .p-inputtext,
-  .p-inputnumber .p-inputtext {
-    width: 100%; min-width: 0; height: 30px; border-radius: 7px;
-    border: 1px solid #e2e0ec; background: #fff;
-    font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 500;
-    color: dc.$dc-text; padding: 0 9px; text-transform: none; letter-spacing: 0;
+  button {
+    display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+    padding: 0; border: none; border-radius: 999px; background: rgba(91,33,182,.12); color: #5b21b6;
+    cursor: pointer; flex-shrink: 0;
+    &:hover { background: rgba(91,33,182,.22); }
   }
-  .p-multiselect { display: flex; align-items: center; }
-  .p-multiselect-label { padding: 0; font-size: 12.5px; line-height: 28px; }
-  .p-calendar { width: 100%; }
+}
+
+// ---- Estado vacío: botón para limpiar todos los filtros ----
+.dc-empty { text-align: center; }
+.dc-empty__clearall {
+  display: inline-flex; align-items: center; margin-top: 12px; height: 32px; padding: 0 14px;
+  border-radius: 8px; border: 1px solid #e2e0ec; background: #fff; color: dc.$dc-primary;
+  font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  transition: all .15s ease;
+  &:hover { background: #f5f2ff; border-color: #d6ccf5; }
+}
+
+// ---- Filtros por columna (opt-in vía DataTableColumn.filter) ----
+// El embudo vive dentro del <th>, junto al botón de ordenar.
+.dc-th__inner { display: flex; align-items: center; gap: 2px; }
+
+.dc-filter-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0; border-radius: 6px; flex-shrink: 0;
+  border: 1px solid transparent; background: transparent; color: #b3adc4;
+  cursor: pointer; transition: all .15s ease;
+  &:hover { color: #6d28d9; }
+  &--active { background: #ede9fe; border-color: #c4b5fd; color: #5b21b6; }
+  &--active:hover { color: #5b21b6; }
+}
+
+.dc-filter-range { display: flex; align-items: center; gap: 6px; &__sep { font-size: 12px; color: #a09ab5; font-weight: 700; } }
+
+// Panel anclado bajo la columna: NO va dentro de :host ::ng-deep .dc-datatable
+// porque no es contenido de p-table propiamente, sino nuestro propio markup.
+.dc-filter-panel {
+  position: absolute; top: 100%; left: 0; margin-top: 4px; width: 250px; z-index: 40;
+  background: #fff; border: 1px solid #e2e0ec; border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(24,20,45,.16);
+  text-transform: none; letter-spacing: 0; font-weight: 400; text-align: left;
+  &--right { left: auto; right: 0; }
+
+  &__head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 11px 13px 9px;
+    span { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8b85a1; }
+  }
+  &__close {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    padding: 0; border: none; border-radius: 6px; background: transparent; color: #a09ab5; cursor: pointer;
+    &:hover { background: #f4f4f7; color: #6f6987; }
+  }
+
+  &__body { padding: 0 13px 12px; }
+
+  &__input {
+    width: 100%; height: 34px; padding: 0 11px; border-radius: 8px;
+    border: 1px solid #e2e0ec; background: #fafafc; font-family: dc.$dc-font-body;
+    font-size: 13px; color: dc.$dc-text; outline: none;
+    &:focus { border-color: #a78bfa; background: #fff; }
+  }
+
+  &__options { display: flex; flex-direction: column; gap: 2px; max-height: 190px; overflow: auto; }
+
+  &__footer {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 13px; border-top: 1px solid #f2f1f7; background: #fcfcfe; border-radius: 0 0 11px 11px;
+  }
+  &__clear {
+    height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid #e2e0ec; background: #fff;
+    font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 700; color: #6f6987; cursor: pointer;
+    transition: all .15s ease;
+    &:hover:not(:disabled) { background: #f5f2ff; border-color: #d6ccf5; color: #6d28d9; }
+    &:disabled { color: #c9c5d6; cursor: default; }
+  }
+  &__done {
+    height: 30px; padding: 0 14px; border-radius: 8px; border: none; background: dc.$dc-primary;
+    color: #fff; font-family: dc.$dc-font-body; font-size: 12.5px; font-weight: 800; cursor: pointer;
+    &:hover { background: dc.$dc-primary-dark; }
+  }
+
+  .dc-filter-range { padding: 0; }
+}
+
+// PrimeNG (p-inputNumber / p-calendar) renderiza su propio DOM interno con su propio
+// marcador de encapsulación: hace falta ::ng-deep para poder pintarlo con el estilo
+// del panel (no el tema Lara-azul por defecto de la app).
+:host ::ng-deep .dc-filter-panel {
+  .p-inputnumber .p-inputtext,
+  .p-calendar .p-inputtext {
+    width: 100%; min-width: 0; height: 34px; border-radius: 8px;
+    border: 1px solid #e2e0ec; background: #fafafc; font-family: dc.$dc-font-body;
+    font-size: 13px; font-weight: 500; color: dc.$dc-text; padding: 0 11px;
+    &:focus { border-color: #a78bfa; outline: none; box-shadow: none; }
+  }
   .p-inputnumber { width: 100%; }
-  .dc-filter-input:focus,
-  .p-inputtext:focus { border-color: #a78bfa; outline: none; box-shadow: none; }
+  .p-calendar { width: 100%; }
+}
+
+.dc-filter-option {
+  display: flex; align-items: center; gap: 9px; width: 100%; height: 32px; padding: 0 9px;
+  border: none; border-radius: 7px; cursor: pointer; background: transparent;
+  font-family: dc.$dc-font-body; font-size: 13px; font-weight: 600; text-align: left; color: dc.$dc-text;
+  &:hover { background: #faf9ff; }
+  &--checked { background: #f5f2ff; }
+  &--checked:hover { background: #f5f2ff; }
+
+  &__box {
+    display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+    border-radius: 5px; flex-shrink: 0; border: 1.5px solid #d6d2e3; background: #fff;
+  }
+  &__label { flex: 1; }
+  &__count { font-size: 11.5px; font-weight: 700; color: #a09ab5; }
+}
+.dc-filter-option--checked .dc-filter-option__box {
+  border-color: #6d28d9; background: #6d28d9;
 }
 
 // ---- p-table theming, scoped under :host so it never leaks to the Lara-blue app ----
@@ -78,6 +186,8 @@
     background: #fafafc; border-bottom: 1px solid #ebe9f3; color: #8b85a1;
     font-family: dc.$dc-font-body; font-size: 10.5px; font-weight: 800;
     letter-spacing: .09em; text-transform: uppercase; padding: 7px 14px;
+    // El panel de filtro (.dc-filter-panel) se ancla bajo la columna abierta.
+    position: relative;
   }
   // Filas compactas
   .p-datatable-tbody > tr { transition: background .12s ease; }

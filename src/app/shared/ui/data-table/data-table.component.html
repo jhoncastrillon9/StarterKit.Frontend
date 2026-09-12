@@ -47,15 +47,24 @@
               <app-filter-chips [options]="chips()" [value]="activeChip()"
                 (valueChange)="chipChange.emit($event)"></app-filter-chips>
             }
-            @if (hasColumnFilters()) {
-              <button type="button" class="dc-clear-filters" (click)="clearColumnFilters(dt)">
-                Limpiar filtros
-              </button>
-            }
             @if (!lazy()) {
               <span class="dc-toolbar__count">{{ value().length }} visibles</span>
             }
           </div>
+          @if (hasColumnFilters() && activeFilterChips(dt).length) {
+            <div class="dc-active-filters">
+              <span class="dc-active-filters__label">Filtros activos</span>
+              @for (chip of activeFilterChips(dt); track chip.field) {
+                <div class="dc-chip-filter">
+                  <span>{{ chip.label }}</span>
+                  <button type="button" title="Quitar este filtro" (click)="clearOneFilter(dt, chip.field)">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              }
+              <button type="button" class="dc-active-filters__clearall" (click)="clearColumnFilters(dt)">Limpiar todos</button>
+            </div>
+          }
         </ng-template>
       }
 
@@ -65,72 +74,99 @@
           @for (col of columns(); track col.field) {
             @if (col.sortable) {
               <th [pSortableColumn]="col.sortField || col.field" [class]="'dc-th align-' + (col.align || 'left')">
-                <span>{{ col.header }}</span>
-                <p-sortIcon [field]="col.sortField || col.field"></p-sortIcon>
+                <div class="dc-th__inner">
+                  <span class="dc-th__label">{{ col.header }}</span>
+                  <p-sortIcon [field]="col.sortField || col.field"></p-sortIcon>
+                  @if (col.filter) {
+                    <button type="button" class="dc-filter-btn" [class.dc-filter-btn--active]="isFilterActive(dt, col.field)"
+                      title="Filtrar" (click)="toggleFilterPanel(col.field); $event.stopPropagation()">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
+                    </button>
+                  }
+                </div>
+                <ng-container *ngTemplateOutlet="filterPanel; context: { col: col }"></ng-container>
               </th>
             } @else {
-              <th [class]="'dc-th align-' + (col.align || 'left')">{{ col.header }}</th>
+              <th [class]="'dc-th align-' + (col.align || 'left')">
+                <div class="dc-th__inner">
+                  <span class="dc-th__label">{{ col.header }}</span>
+                  @if (col.filter) {
+                    <button type="button" class="dc-filter-btn" [class.dc-filter-btn--active]="isFilterActive(dt, col.field)"
+                      title="Filtrar" (click)="toggleFilterPanel(col.field)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>
+                    </button>
+                  }
+                </div>
+                <ng-container *ngTemplateOutlet="filterPanel; context: { col: col }"></ng-container>
+              </th>
             }
           }
         </tr>
-        @if (hasColumnFilters()) {
-          <tr class="dc-filter-row">
-            @if (expandable()) { <th class="dc-th dc-th--filter"></th> }
-            @for (col of columns(); track col.field) {
-              <th class="dc-th dc-th--filter">
-                @switch (col.filter?.type) {
-                  @case ('text') {
-                    <p-columnFilter [field]="col.field" matchMode="contains" display="row"
-                      [showMenu]="false" [showClearButton]="false">
-                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <input pInputText type="text" class="dc-filter-input"
-                          [ngModel]="value" (ngModelChange)="filter($event)"
-                          [placeholder]="col.filter?.placeholder || 'Filtrar'" />
-                      </ng-template>
-                    </p-columnFilter>
-                  }
-                  @case ('select') {
-                    <p-columnFilter [field]="col.field" matchMode="in" display="row"
-                      [showMenu]="false" [showClearButton]="false">
-                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <p-multiSelect styleClass="dc-filter-multiselect" appendTo="body"
-                          [options]="col.filter?.options || []" optionLabel="label" optionValue="value"
-                          [ngModel]="value" (ngModelChange)="filter($event?.length ? $event : null)"
-                          [placeholder]="col.filter?.placeholder || 'Todos'"
-                          selectedItemsLabel="{0} seleccionados" [maxSelectedLabels]="1"></p-multiSelect>
-                      </ng-template>
-                    </p-columnFilter>
-                  }
-                  @case ('dateRange') {
-                    <p-columnFilter [field]="col.field" matchMode="dcDateRange" display="row"
-                      [showMenu]="false" [showClearButton]="false">
-                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <p-calendar styleClass="dc-filter-calendar" appendTo="body"
-                          selectionMode="range" dateFormat="dd/mm/yy" [readonlyInput]="true"
-                          [showButtonBar]="true" placeholder="Rango"
-                          [ngModel]="value" (ngModelChange)="filter($event?.[0] && $event?.[1] ? $event : null)"></p-calendar>
-                      </ng-template>
-                    </p-columnFilter>
-                  }
-                  @case ('numericRange') {
-                    <p-columnFilter [field]="col.field" matchMode="dcNumericRange" display="row"
-                      [showMenu]="false" [showClearButton]="false">
-                      <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                        <div class="dc-filter-range">
-                          <p-inputNumber styleClass="dc-filter-number" placeholder="Min" [min]="0"
-                            [ngModel]="value?.[0]"
-                            (ngModelChange)="filter(updateRange(value, 0, $event))"></p-inputNumber>
-                          <p-inputNumber styleClass="dc-filter-number" placeholder="Max" [min]="0"
-                            [ngModel]="value?.[1]"
-                            (ngModelChange)="filter(updateRange(value, 1, $event))"></p-inputNumber>
-                        </div>
-                      </ng-template>
-                    </p-columnFilter>
-                  }
+      </ng-template>
+
+      <!-- Panel de filtro anclado bajo la columna abierta. Solo uno a la vez
+           (data-table.component.ts: openFilterField). Un ng-template compartido
+           evita duplicar el switch de tipos entre la rama sortable y la que no. -->
+      <ng-template #filterPanel let-col="col">
+        @if (col.filter && openFilterField() === col.field) {
+          <div class="dc-filter-panel" [class.dc-filter-panel--right]="col.align === 'right'">
+            <div class="dc-filter-panel__head">
+              <span>Filtrar por {{ col.header.toLowerCase() }}</span>
+              <button type="button" class="dc-filter-panel__close" title="Cerrar" (click)="closeFilterPanel()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="dc-filter-panel__body">
+              @switch (col.filter.type) {
+                @case ('text') {
+                  <input type="text" class="dc-filter-panel__input"
+                    [ngModel]="filterTextValue(dt, col.field)"
+                    (ngModelChange)="onFilterText(dt, col.field, matchModeFor(col), $event)"
+                    [placeholder]="col.filter.placeholder || 'Filtrar'" autocomplete="off">
                 }
-              </th>
-            }
-          </tr>
+                @case ('select') {
+                  <div class="dc-filter-panel__options">
+                    @for (opt of col.filter.options || []; track opt.value) {
+                      <button type="button" class="dc-filter-option"
+                        [class.dc-filter-option--checked]="filterSelectValues(dt, col.field).includes(opt.value)"
+                        (click)="toggleFilterOption(dt, col.field, matchModeFor(col), opt.value)">
+                        <span class="dc-filter-option__box">
+                          @if (filterSelectValues(dt, col.field).includes(opt.value)) {
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                          }
+                        </span>
+                        <span class="dc-filter-option__label">{{ opt.label }}</span>
+                        <span class="dc-filter-option__count">{{ optionCount(col, opt.value) }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+                @case ('dateRange') {
+                  <p-calendar styleClass="dc-filter-calendar" appendTo="body"
+                    selectionMode="range" dateFormat="dd/mm/yy" [readonlyInput]="true"
+                    [showButtonBar]="true" placeholder="Rango"
+                    [ngModel]="dateRangeValue(dt, col.field)"
+                    (ngModelChange)="onDateRangeChange(dt, col.field, matchModeFor(col), $event)"></p-calendar>
+                }
+                @case ('numericRange') {
+                  <div class="dc-filter-range">
+                    <p-inputNumber styleClass="dc-filter-number" placeholder="Minimo" [min]="0"
+                      [ngModel]="rangeValue(dt, col.field)[0]"
+                      (ngModelChange)="onRangePart(dt, col.field, matchModeFor(col), 0, $event)"></p-inputNumber>
+                    <span class="dc-filter-range__sep">a</span>
+                    <p-inputNumber styleClass="dc-filter-number" placeholder="Maximo" [min]="0"
+                      [ngModel]="rangeValue(dt, col.field)[1]"
+                      (ngModelChange)="onRangePart(dt, col.field, matchModeFor(col), 1, $event)"></p-inputNumber>
+                  </div>
+                }
+              }
+            </div>
+            <div class="dc-filter-panel__footer">
+              <button type="button" class="dc-filter-panel__clear" [disabled]="!isFilterActive(dt, col.field)"
+                (click)="clearOneFilter(dt, col.field)">Limpiar este filtro</button>
+              <button type="button" class="dc-filter-panel__done" (click)="closeFilterPanel()">Listo</button>
+            </div>
+          </div>
         }
       </ng-template>
 
@@ -170,6 +206,9 @@
       <ng-template pTemplate="emptymessage">
         <tr><td [attr.colspan]="totalColumnCount()" class="dc-empty">
           <ng-content select="[dt-empty]"></ng-content>
+          @if (hasColumnFilters() && anyActiveFilter(dt)) {
+            <button type="button" class="dc-empty__clearall" (click)="clearColumnFilters(dt)">Limpiar todos los filtros</button>
+          }
         </td></tr>
       </ng-template>
     </p-table>
