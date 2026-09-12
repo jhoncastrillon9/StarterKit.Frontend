@@ -43,6 +43,6 @@ export class InvoiceResolutionService {
 
   save(resolution: InvoiceResolutionModel): Observable<InvoiceResolutionModel> {
     return this.handle<InvoiceResolutionModel>(
-      this.http.post(`${this.apiUrl}/api/invoice-resolution`, resolution, { headers: this.getHeaders(), observe: 'response' }));
+      this.http.put(`${this.apiUrl}/api/invoice-resolution`, resolution, { headers: this.getHeaders(), observe: 'response' }));
   }
 }
