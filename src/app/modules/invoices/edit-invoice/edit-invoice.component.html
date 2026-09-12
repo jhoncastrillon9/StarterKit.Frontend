@@ -1,0 +1,229 @@
+<div class="ei-page" *ngIf="!loading; else loadingState">
+  <form class="ei-form" [formGroup]="form" (ngSubmit)="saveDraft()">
+
+    <!-- Cabecera de solo lectura -->
+    <header class="ei-header">
+      <div class="ei-header__left">
+        <a class="ei-back" (click)="goToList()" title="Volver al listado">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="ei-header__titles">
+          <span class="ei-breadcrumb">Facturas / {{ invoice?.fullNumber || 'Borrador' }}</span>
+          <div class="ei-title-row">
+            <h1 class="ei-title">{{ invoice?.fullNumber || 'Borrador' }}</h1>
+            <app-status-pill *ngIf="invoice" [status]="invoice.status"></app-status-pill>
+          </div>
+        </div>
+      </div>
+      <div class="ei-header__right">
+        <div class="ei-header__field">
+          <span class="ei-header__label">Cliente</span>
+          <span class="ei-header__value">{{ invoice?.customerDto?.customerName || '—' }}</span>
+        </div>
+        <div class="ei-header__field">
+          <span class="ei-header__label">Cotizacion de origen</span>
+          <span class="ei-header__value">{{ invoice?.budgetInternalCode || '—' }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ei-content">
+
+      <!-- Mensaje de error de negocio -->
+      <div class="ei-error-banner" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="ei-error-banner__body">
+          <p>{{ errorMessage }}</p>
+          <button type="button" class="ei-error-banner__link" *ngIf="showResolutionLink" (click)="goToResolutionConfig()">
+            Ir a configurar la resolucion de facturacion
+          </button>
+        </div>
+      </div>
+
+      <!-- Datos generales -->
+      <section class="ei-card">
+        <div class="ei-card__head">
+          <h2 class="ei-card__title">Datos generales</h2>
+          <p class="ei-card__subtitle" *ngIf="isReadOnly">Solo lectura: la factura ya no esta en estado Borrador.</p>
+        </div>
+        <div class="ei-card__body ei-grid">
+          <div class="ei-field">
+            <label class="ei-label" for="dueDate">Fecha de vencimiento</label>
+            <input id="dueDate" type="date" class="ei-input" formControlName="dueDate" />
+          </div>
+          <div class="ei-field">
+            <label class="ei-label" for="wayToPay">Forma de pago</label>
+            <input id="wayToPay" type="text" class="ei-input" formControlName="wayToPay" placeholder="Ej: Contado" maxlength="500" />
+          </div>
+          <div class="ei-field ei-field--wide">
+            <label class="ei-label" for="note">Nota</label>
+            <textarea id="note" class="ei-input ei-textarea" formControlName="note" maxlength="500" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="ei-card__body ei-switches">
+          <label class="ei-switch-row">
+            <span class="ei-switch-row__title">IVA</span>
+            <span class="ei-switch">
+              <input type="checkbox" formControlName="hasIVA" />
+              <span class="ei-switch__track"><span class="ei-switch__knob"></span></span>
+            </span>
+          </label>
+          <label class="ei-switch-row">
+            <span class="ei-switch-row__title">AIU</span>
+            <span class="ei-switch">
+              <input type="checkbox" formControlName="hasAIU" />
+              <span class="ei-switch__track"><span class="ei-switch__knob"></span></span>
+            </span>
+          </label>
+          <label class="ei-switch-row">
+            <span class="ei-switch-row__title">Sumar AIU</span>
+            <span class="ei-switch">
+              <input type="checkbox" formControlName="sumAIU" />
+              <span class="ei-switch__track"><span class="ei-switch__knob"></span></span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Items -->
+      <section class="ei-card">
+        <div class="ei-card__head ei-items__head">
+          <h2 class="ei-card__title">Items</h2>
+          <span class="ei-count-badge">{{ details.length }} item(s)</span>
+        </div>
+
+        <div class="ei-items__scroll">
+          <div class="ei-items" formArrayName="invoiceDetailsDto">
+            <div class="ei-items__row ei-items__row--header">
+              <div class="ei-cell ei-cell--desc">Descripcion</div>
+              <div class="ei-cell ei-cell--unit">Unidad</div>
+              <div class="ei-cell ei-cell--qty">Cantidad</div>
+              <div class="ei-cell ei-cell--price">Precio</div>
+              <div class="ei-cell ei-cell--total">Total</div>
+              <div class="ei-cell ei-cell--act"></div>
+            </div>
+
+            <div class="ei-items__row" *ngFor="let detail of details.controls; let i = index" [formGroupName]="i">
+              <div class="ei-cell ei-cell--desc">
+                <span class="ei-cell__label">Descripcion</span>
+                <input type="text" class="ei-input" formControlName="description" placeholder="Describe el item…" maxlength="500" />
+              </div>
+              <div class="ei-cell ei-cell--unit">
+                <span class="ei-cell__label">Unidad</span>
+                <select class="ei-input ei-select" formControlName="unitMeasurement">
+                  <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+                </select>
+              </div>
+              <div class="ei-cell ei-cell--qty">
+                <span class="ei-cell__label">Cantidad</span>
+                <input type="number" class="ei-input" formControlName="quantity" min="0" step="0.01" />
+              </div>
+              <div class="ei-cell ei-cell--price">
+                <span class="ei-cell__label">Precio</span>
+                <input type="number" class="ei-input" formControlName="price" min="0" step="0.01" />
+              </div>
+              <div class="ei-cell ei-cell--total">
+                <span class="ei-cell__label">Total</span>
+                <span class="ei-line-total">$ {{ lineTotal(i).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+              </div>
+              <div class="ei-cell ei-cell--act">
+                <button type="button" class="ei-icon-btn" (click)="removeDetail(i)" [disabled]="isReadOnly" title="Quitar item">
+                  <i class="far fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ei-empty" *ngIf="details.length === 0">
+          <i class="fas fa-inbox"></i>
+          <p>No hay items agregados</p>
+        </div>
+
+        <div class="ei-items__foot">
+          <button type="button" class="ei-add-btn" (click)="addDetail()" [disabled]="isReadOnly">
+            <i class="fas fa-plus"></i>
+            <span>Agregar item</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Totales -->
+      <section class="ei-card">
+        <div class="ei-card__head">
+          <h2 class="ei-card__title">Totales</h2>
+        </div>
+        <div class="ei-card__body">
+          <div class="ei-total-line">
+            <span class="ei-total-line__label">Subtotal estimado</span>
+            <span class="ei-total-line__value">$ {{ estimatedSubtotal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+          </div>
+          <p class="ei-hint">
+            El subtotal estimado es solo de referencia mientras editas. Los totales definitivos (subtotal, AIU, IVA y total) los calcula el backend y se actualizan al guardar.
+          </p>
+
+          <div class="ei-total-divider"></div>
+
+          <div class="ei-total-line">
+            <span class="ei-total-line__label">Subtotal</span>
+            <span class="ei-total-line__value">$ {{ (invoice?.subtotal || 0).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+          </div>
+          <div class="ei-total-line" *ngIf="invoice?.hasAIU">
+            <span class="ei-total-line__label">AIU</span>
+            <span class="ei-total-line__value">$ {{ (invoice?.aiu || 0).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+          </div>
+          <div class="ei-total-line" *ngIf="invoice?.hasIVA">
+            <span class="ei-total-line__label">IVA</span>
+            <span class="ei-total-line__value">$ {{ (invoice?.iva || 0).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+          </div>
+          <div class="ei-total-line ei-total-line--grand">
+            <span class="ei-total-line__label">Total</span>
+            <span class="ei-total-line__value">$ {{ (invoice?.total || 0).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Acciones -->
+    <footer class="ei-footer">
+      <a class="ei-btn ei-btn--ghost" (click)="goToList()">Volver al listado</a>
+      <div class="ei-footer__actions">
+        <button type="submit" class="ei-btn ei-btn--secondary" *ngIf="!isReadOnly" [disabled]="saving || issuing">
+          <i class="fas fa-save"></i>
+          <span>{{ saving ? 'Guardando…' : 'Guardar borrador' }}</span>
+        </button>
+        <button type="button" class="ei-btn ei-btn--outline" *ngIf="!isReadOnly" [disabled]="saving || issuing" (click)="openIssueConfirm()">
+          <i class="fas fa-file-invoice"></i>
+          <span>Emitir</span>
+        </button>
+        <button type="button" class="ei-btn ei-btn--primary" *ngIf="!isReadOnly" [disabled]="saving || issuing" (click)="openIssueAndSendModal()">
+          <i class="fas fa-paper-plane"></i>
+          <span>Emitir y enviar</span>
+        </button>
+      </div>
+    </footer>
+  </form>
+</div>
+
+<ng-template #loadingState>
+  <div class="ei-loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span>Cargando factura…</span>
+  </div>
+</ng-template>
+
+<!-- Modal de confirmacion para "Emitir" -->
+<app-confirmation-modal
+  #issueConfirmModal
+  (confirmAction)="confirmIssue()">
+</app-confirmation-modal>
+
+<!-- Modal de seleccion de correos para "Emitir y enviar" -->
+<app-email-selector-modal
+  #emailSelectorModal
+  [emails]="availableEmails"
+  (confirmAction)="onIssueAndSendConfirmed($event)">
+</app-email-selector-modal>
+
+<p-toast position="top-right"></p-toast>
