@@ -113,6 +113,15 @@ export class EditInvoiceComponent implements OnInit {
     } else {
       this.form.enable({ emitEvent: false });
     }
+
+    // El formulario acaba de quedar igual a lo persistido: sin esto seguiria marcado
+    // como sucio y "Emitir" creeria que quedan cambios pendientes de guardar.
+    this.form.markAsPristine();
+  }
+
+  /** true cuando hay ediciones en pantalla que todavia no se han guardado. */
+  get hasUnsavedChanges(): boolean {
+    return this.form.dirty;
   }
 
   /**
@@ -251,7 +260,8 @@ export class EditInvoiceComponent implements OnInit {
   openIssueConfirm(): void {
     if (!this.invoice || this.isReadOnly) { return; }
     this.issueConfirmModal.title = 'Emitir factura';
-    this.issueConfirmModal.messageModal = 'Al emitir la factura se consumira el siguiente numero disponible de la resolucion y esta accion no se puede deshacer. ¿Deseas continuar?';
+    this.issueConfirmModal.messageModal = this.pendingChangesNotice()
+      + 'Al emitir la factura se consumira el siguiente numero disponible de la resolucion y esta accion no se puede deshacer. ¿Deseas continuar?';
     this.issueConfirmModal.isModalError = false;
     this.issueConfirmModal.isConfirmation = true;
     this.issueConfirmModal.titleButtonComfimationYes = 'Si, emitir';
@@ -259,6 +269,11 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   confirmIssue(): void {
+    if (!this.invoice || this.isReadOnly) { return; }
+    this.saveIfDirtyThen(() => this.issueOnly());
+  }
+
+  private issueOnly(): void {
     if (!this.invoice || this.isReadOnly) { return; }
     this.clearBusinessError();
     this.issuing = true;
@@ -291,12 +306,18 @@ export class EditInvoiceComponent implements OnInit {
 
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = 'Emitir y enviar factura';
-    this.emailSelectorModal.message = 'Al continuar se emitira la factura (se consume el siguiente numero de la resolucion; no se puede deshacer) y se enviara a los correos seleccionados:';
+    this.emailSelectorModal.message = this.pendingChangesNotice()
+      + 'Al continuar se emitira la factura (se consume el siguiente numero de la resolucion; no se puede deshacer) y se enviara a los correos seleccionados:';
     this.emailSelectorModal.confirmButtonText = 'Emitir y enviar';
     this.emailSelectorModal.openModal();
   }
 
   onIssueAndSendConfirmed(selectedEmails: string[]): void {
+    if (!this.invoice || this.isReadOnly) { return; }
+    this.saveIfDirtyThen(() => this.issueAndSend(selectedEmails));
+  }
+
+  private issueAndSend(selectedEmails: string[]): void {
     if (!this.invoice || this.isReadOnly) { return; }
 
     this.clearBusinessError();
@@ -334,6 +355,48 @@ export class EditInvoiceComponent implements OnInit {
       error: (error) => {
         this.issuing = false;
         this.handleBusinessError(error, this.errorIssueMessage);
+      }
+    });
+  }
+
+  /** Aviso que se antepone a la confirmacion cuando quedan cambios sin guardar. */
+  private pendingChangesNotice(): string {
+    return this.hasUnsavedChanges
+      ? 'Tienes cambios sin guardar en esta factura: se guardaran automaticamente antes de emitir. '
+      : '';
+  }
+
+  /**
+   * Emitir con el formulario sucio guardaba nada y emitia lo ya persistido: el usuario
+   * corregia un precio o la nota, pulsaba "Emitir y enviar" y se facturaba (consumiendo
+   * un numero DIAN, irreversible) con los datos anteriores, ademas de perder las
+   * ediciones cuando applyInvoice repoblaba el formulario.
+   *
+   * Ahora, si hay cambios pendientes: si son invalidos no se emite y se muestra el mismo
+   * aviso que "Guardar borrador"; si son validos se guarda primero y solo se emite cuando
+   * el guardado ha ido bien.
+   */
+  private saveIfDirtyThen(action: () => void): void {
+    if (!this.hasUnsavedChanges) { action(); return; }
+
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      this.messageService.add({ severity: 'warn', summary: 'Revisa el formulario', detail: this.invalidFormMessage, life: 4000 });
+      return;
+    }
+
+    this.clearBusinessError();
+    this.saving = true;
+    this.invoiceService.update(this.buildPayload()).subscribe({
+      next: (updated) => {
+        this.saving = false;
+        this.applyInvoice(updated);
+        this.messageService.add({ severity: 'success', summary: 'Borrador guardado', detail: 'Se guardaron los cambios pendientes antes de emitir.', life: 3000 });
+        action();
+      },
+      error: (error) => {
+        this.saving = false;
+        this.handleBusinessError(error, this.errorSaveMessage);
       }
     });
   }
