@@ -54,6 +54,8 @@ export class ListBudgetComponent implements OnInit {
   private readonly deleteMessage: string = "Una vez eliminado, no hay vuelta atrás... bueno, tal vez sí, pero mejor asegúrate antes de despedirlo para siempre. 😅";
   private readonly deleteTitleComfirmation: string = "¿Quieres eliminar esta cotización?";
   private readonly sendEmailTitleComfirmation: string = "¡Cotización en camino! 📬";
+  /** Texto por defecto del modal de emails (el mismo que trae EmailSelectorModalComponent). */
+  private readonly selectEmailsMessage: string = "Selecciona los correos a los que deseas enviar:";
 
   title: string = this.successDeleteTitle;
   messageModal: string = this.successDeleteMessage;
@@ -411,8 +413,12 @@ export class ListBudgetComponent implements OnInit {
     }
 
     // Abrir el modal de selección de emails
+    // emailSelectorModal es una instancia unica compartida por los tres flujos: si este
+    // metodo no fija su propio message, se queda el que dejo el anterior (el aviso de
+    // facturacion de facturarWithConfirm, con otro cliente y otro total).
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
+    this.emailSelectorModal.message = this.selectEmailsMessage;
     this.emailSelectorModal.confirmButtonText = 'Enviar Cotización';
     this.emailSelectorModal.openModal();
   }
@@ -433,8 +439,11 @@ export class ListBudgetComponent implements OnInit {
     }
 
     // Abrir el modal de selección de emails
+    // Ver la nota de sendEmailBudgetWithComfirm: el modal es compartido y hay que
+    // dejar siempre message en el valor propio de este flujo.
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = '¡Excel en camino! 📊';
+    this.emailSelectorModal.message = this.selectEmailsMessage;
     this.emailSelectorModal.confirmButtonText = 'Enviar Excel';
     this.emailSelectorModal.openModal();
   }
