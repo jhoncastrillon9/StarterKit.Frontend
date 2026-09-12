@@ -739,7 +739,7 @@ export class ListBudgetComponent implements OnInit {
       error: (error) => {
         this.spinner.hide();
         this.loading = false;
-        this.handleFacturarError(error, this.errorEditarYFacturarMessage);
+        this.handleFacturarError(error, this.errorEditarYFacturarMessage, false);
       }
     });
   }
@@ -766,8 +766,16 @@ export class ListBudgetComponent implements OnInit {
    *   este endpoint solo puede llegar desde SendInvoiceEmailAsync, es decir, DESPUÉS
    *   de crear y emitir la factura. Nunca se muestra ese texto crudo; se le dice al
    *   usuario que la factura pudo quedar creada y que lo confirme en el listado.
+   *
+   * isIssueFlow distingue las dos acciones: "Facturar" (emite y envía) y
+   * "Editar y Facturar" (solo crea un borrador). En la segunda no hay emisión ni
+   * correo, asi que hablarle al usuario de reenviar la factura no tendria sentido.
    */
-  private handleFacturarError(error: any, fallbackMessage: string = this.errorFacturarMessage): void {
+  private handleFacturarError(
+    error: any,
+    fallbackMessage: string = this.errorFacturarMessage,
+    isIssueFlow: boolean = true
+  ): void {
     console.error('Error al facturar la cotización', error);
     const isBusinessValidationError = error?.status === 400;
     const backendMessage: string | undefined = error?.error?.error;
@@ -775,7 +783,7 @@ export class ListBudgetComponent implements OnInit {
     if (isBusinessValidationError) {
       const message = backendMessage || fallbackMessage;
       this.invoiceFeedbackSeverity = 'error';
-      this.invoiceFeedbackTitle = 'No se pudo facturar';
+      this.invoiceFeedbackTitle = isIssueFlow ? 'No se pudo facturar' : 'No se pudo crear la factura';
       this.invoiceFeedbackMessage = message;
       this.invoiceFeedbackShowResolutionLink = this.isResolutionNotConfiguredError(message);
       this.invoiceFeedbackShowGoToInvoices = false;
@@ -788,8 +796,11 @@ export class ListBudgetComponent implements OnInit {
     // técnico de .NET en inglés cuando viene de un 500); se deja solo en consola.
     this.invoiceFeedbackSeverity = 'warning';
     this.invoiceFeedbackTitle = 'Verifica el estado de la factura';
-    this.invoiceFeedbackMessage = 'No se pudo confirmar el envío, pero la factura pudo haber quedado creada. '
-      + 'Revisa el listado de facturas: si ya existe, puedes reenviarla desde ahí.';
+    this.invoiceFeedbackMessage = isIssueFlow
+      ? 'No se pudo confirmar el envío, pero la factura pudo haber quedado creada. '
+        + 'Revisa el listado de facturas: si ya existe, puedes reenviarla desde ahí.'
+      : 'No se pudo confirmar el resultado, pero el borrador de la factura pudo haber quedado creado. '
+        + 'Revisa el listado de facturas antes de intentarlo de nuevo para no crear dos.';
     this.invoiceFeedbackShowResolutionLink = false;
     this.invoiceFeedbackShowGoToInvoices = true;
     this.invoiceFeedbackVisible = true;
