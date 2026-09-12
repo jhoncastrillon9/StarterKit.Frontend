@@ -35,8 +35,11 @@ export class ConfirmationModalComponent {
     this.alignment= '';
     this.isModalError = false;
     this.isConfirmation = false; 
-    this.titleButtonComfimationYes = ''; 
-    this.confirmAction =  new EventEmitter<void>(); 
+    this.titleButtonComfimationYes = '';
+    // OJO: aqui NO se debe reasignar this.confirmAction. Un @Output() se enlaza una
+    // sola vez (al inicializar la vista del padre): si se reemplaza la instancia, el
+    // binding de plantilla del padre queda suscrito a un emisor descartado y la accion
+    // deja de dispararse a partir del primer cierre del modal.
   }
 
   // Método para abrir el modal

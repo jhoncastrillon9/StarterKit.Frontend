@@ -90,9 +90,18 @@ export class ListcustomerComponent implements OnInit {
     this.confirmationModal.isConfirmation = true;
     this.confirmationModal.titleButtonComfimationYes = 'Si, Eliminar';
 
-    // Emitimos la acción a ejecutar cuando se confirme la eliminación
-    this.confirmationModal.confirmAction.subscribe(() => this.deleteCustomer(this.customerToDelete!)); 
+    // La accion de confirmar se enlaza por plantilla ((confirmAction)="onDeleteConfirmed()").
+    // Antes se suscribia aqui en cada apertura y solo no duplicaba el borrado porque
+    // ConfirmationModalComponent.closeModal() recreaba el EventEmitter. Ese reemplazo ya
+    // no existe, asi que suscribirse aqui acumularia suscripciones.
     this.confirmationModal.openModal(); // Abrimos el modal
+  }
+
+  /** Punto de entrada del binding de plantilla al confirmar la eliminacion. */
+  onDeleteConfirmed() {
+    const customer = this.customerToDelete;
+    this.customerToDelete = undefined;
+    if (customer) { this.deleteCustomer(customer); }
   }
 
   // Método para eliminar un cliente

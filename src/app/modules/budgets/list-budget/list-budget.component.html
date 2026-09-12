@@ -167,7 +167,8 @@
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
-  [alignment]="'top'">
+  [alignment]="'top'"
+  (confirmAction)="deleteBudget()">
 </app-confirmation-modal>
 
 <!-- Dialog para parametros del cronograma -->

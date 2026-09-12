@@ -365,8 +365,11 @@ export class ListBudgetComponent implements OnInit {
     this.confirmationModal.isConfirmation = true;
     this.confirmationModal.titleButtonComfimationYes = 'Si, eliminar';
 
-    // Emitimos la acción a ejecutar cuando se confirme la eliminación
-    this.confirmationModal.confirmAction.subscribe(() => this.deleteBudget());
+    // La accion de confirmar se enlaza por plantilla ((confirmAction)="deleteBudget()").
+    // Antes se suscribia aqui, en cada apertura: eso solo no duplicaba el borrado porque
+    // ConfirmationModalComponent.closeModal() recreaba el EventEmitter y tiraba la
+    // suscripcion anterior. Ese reemplazo ya no existe (dejaba muerto el boton Emitir de
+    // edit-invoice), asi que suscribirse aqui acumularia suscripciones y borraria N veces.
     this.confirmationModal.openModal();
   }
 
