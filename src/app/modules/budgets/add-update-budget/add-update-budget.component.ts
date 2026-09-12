@@ -155,8 +155,8 @@ export class AddUpdateBudgetComponent implements OnInit {
       estado: [''],
       projectReportId: [0],
       hasIVA: [true],
-      hasAIU: [false],
-      sumAIU: [false],
+      hasAIU: [true],
+      sumAIU: [true],
       budgetDetailsDto: this.fb.array([])
     });
 
