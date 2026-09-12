@@ -86,7 +86,13 @@
 
 // ---- Filtros por columna (opt-in vía DataTableColumn.filter) ----
 // El embudo vive dentro del <th>, junto al botón de ordenar.
-.dc-th__inner { display: flex; align-items: center; gap: 2px; }
+// inline-flex (no flex): como caja de nivel inline, la posiciona el text-align que
+// herede del <th>, asi que respeta .align-right / .align-center sin tener que
+// duplicar aqui una regla por cada clase de alineacion (ni depender de que el <th>
+// lleve una clase concreta: sirve igual si la alineacion viene de un estilo inline
+// o por herencia). Con display:flex el hijo se quedaba siempre en flex-start y la
+// cabecera dejaba de alinearse con las celdas del cuerpo en TODOS los listados.
+.dc-th__inner { display: inline-flex; align-items: center; gap: 2px; vertical-align: middle; }
 
 .dc-filter-btn {
   display: inline-flex; align-items: center; justify-content: center;
