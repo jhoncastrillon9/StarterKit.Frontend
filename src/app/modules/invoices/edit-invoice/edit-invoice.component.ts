@@ -138,6 +138,21 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   /**
+   * true mientras hay un guardado o una emision en vuelo.
+   *
+   * Los botones del pie ya estan [disabled] con saving || issuing, pero el boton de
+   * confirmar de los modales no lo esta y sigue clicable durante el fade-out del
+   * c-modal (~150ms). Sin este guard, dos clics con el formulario sucio lanzaban dos
+   * PUT concurrentes y luego dos emisiones: la numeracion DIAN no se duplica (el
+   * backend hace un compare-and-swap Draft->Issued y el perdedor recibe un 400 "Esta
+   * factura ya fue emitida."), pero el usuario veia a la vez un toast de exito y otro
+   * de error contradictorios sobre una accion fiscal irreversible.
+   */
+  get isBusy(): boolean {
+    return this.saving || this.issuing;
+  }
+
+  /**
    * Las filas de titulo/seccion (isTitle: true) solo llevan descripcion: no tienen
    * cantidad ni precio facturables, y por lo tanto no deben exigir esos campos ni
    * contar en los subtotales. Mismo patron que add-update-budget.component.ts
@@ -246,7 +261,8 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   saveDraft(): void {
-    if (!this.invoice || this.isReadOnly) { return; }
+    // El formulario usa (ngSubmit): un Enter puede dispararlo aunque el boton este [disabled].
+    if (!this.invoice || this.isReadOnly || this.isBusy) { return; }
 
     this.form.markAllAsTouched();
     if (this.form.invalid) {
@@ -282,7 +298,7 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   confirmIssue(): void {
-    if (!this.invoice || this.isReadOnly) { return; }
+    if (!this.invoice || this.isReadOnly || this.isBusy) { return; }
     this.saveIfDirtyThen(() => this.issueOnly());
   }
 
@@ -326,7 +342,7 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   onIssueAndSendConfirmed(selectedEmails: string[]): void {
-    if (!this.invoice || this.isReadOnly) { return; }
+    if (!this.invoice || this.isReadOnly || this.isBusy) { return; }
     this.saveIfDirtyThen(() => this.issueAndSend(selectedEmails));
   }
 
