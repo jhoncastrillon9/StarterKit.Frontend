@@ -805,13 +805,11 @@ export class ListBudgetComponent implements OnInit {
    * (InvoiceController.IssueAndSend + StarterKitMiddleware):
    *
    * - 400: el middleware traduce una BadHttpRequestException de negocio a
-   *   { error: 'mensaje en español' }. OJO: un 400 NO garantiza que no se haya creado
-   *   nada. Solo la validación de correos ocurre antes de tocar la base de datos; los
+   *   { error: 'mensaje en español' } y no queda nada creado. Los
    *   BadHttpRequestException de IssueAsync (sin resolución, resolución no vigente,
-   *   rango agotado) se lanzan DESPUÉS de crear el borrador, así que — mientras el
-   *   backend no envuelva creación y emisión en una sola transacción — puede quedar un
-   *   borrador huérfano de esa cotización y cada reintento sumaría otro. El mensaje del
-   *   backend se muestra tal cual y se le añade el aviso de revisar el listado.
+   *   rango agotado) se lanzan después de crear el borrador, pero el backend mete
+   *   creación y emisión en una sola transacción (CreateDraftFromBudgetAndIssueAsync),
+   *   así que el borrador se revierte con ellos. El mensaje se muestra tal cual.
    * - Cualquier otra cosa (500 u otro fallo): el middleware devuelve un mensaje
    *   técnico crudo de .NET en { error: '...' } — no apto para el usuario — y en
    *   este endpoint solo puede llegar desde SendInvoiceEmailAsync, es decir, DESPUÉS
@@ -836,14 +834,9 @@ export class ListBudgetComponent implements OnInit {
       const message = backendMessage || fallbackMessage;
       this.invoiceFeedbackSeverity = 'error';
       this.invoiceFeedbackTitle = isIssueFlow ? 'No se pudo facturar' : 'No se pudo crear la factura';
-      // El borrador puede haberse creado antes de que fallara la emisión: avisar de que
-      // lo revise en el listado de facturas evita acabar con varios borradores huérfanos
-      // de la misma cotización tras un par de reintentos.
-      this.invoiceFeedbackMessage = isIssueFlow
-        ? message + ' Puede que haya quedado un borrador de esta factura en el listado de facturas: revísalo antes de reintentar para no acabar con varios.'
-        : message;
+      this.invoiceFeedbackMessage = message;
       this.invoiceFeedbackShowResolutionLink = this.isResolutionNotConfiguredError(message);
-      this.invoiceFeedbackShowGoToInvoices = isIssueFlow;
+      this.invoiceFeedbackShowGoToInvoices = false;
       this.invoiceFeedbackVisible = true;
       return;
     }
