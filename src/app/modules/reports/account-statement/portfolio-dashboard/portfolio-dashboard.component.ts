@@ -77,7 +77,17 @@ export class PortfolioDashboardComponent implements OnInit {
     this.loadError.set(false);
     this.service.getDashboard().subscribe({
       next: (response) => {
-        this.data.set(response ?? null);
+        // Un 204 o un cuerpo vacío llegan aquí como `null` (`response.body as
+        // ...`), y un cuerpo sin `totals` incumple el contrato. Sin totales no
+        // hay nada que pintar: antes se quedaba la cabecera «Cartera» sola,
+        // sin esqueleto, sin error y sin vacío. Es un error y se dice.
+        if (!response?.totals) {
+          this.data.set(null);
+          this.loadError.set(true);
+          this.loading.set(false);
+          return;
+        }
+        this.data.set(response);
         this.loading.set(false);
       },
       error: () => {
@@ -98,7 +108,12 @@ export class PortfolioDashboardComponent implements OnInit {
     return (d.customers?.length ?? 0) === 0 && (d.totals?.billed ?? 0) === 0;
   });
 
-  readonly ready = computed(() => !this.loading() && !this.loadError() && !!this.data() && !this.isEmpty());
+  /**
+   * `totals()` no nulo es la condición, no `data()`: la plantilla pinta los KPIs
+   * con `totals()!` y sin esta garantía una respuesta con `customers` pero sin
+   * `totals` reventaría al pintar.
+   */
+  readonly ready = computed(() => !this.loading() && !this.loadError() && !!this.totals() && !this.isEmpty());
 
   readonly totals = computed(() => this.data()?.totals ?? null);
 
@@ -345,9 +360,5 @@ export class PortfolioDashboardComponent implements OnInit {
 
   private shortDate(date: Date): string {
     return date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  trackBucket(_index: number, item: { bucket: string }): string {
-    return item.bucket;
   }
 }

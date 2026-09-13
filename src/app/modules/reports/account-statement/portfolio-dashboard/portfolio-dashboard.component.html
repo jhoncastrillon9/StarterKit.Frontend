@@ -108,8 +108,8 @@
           }
         </div>
         <p class="pd-note">
-          Antigüedad contada desde la fecha de la cotización. No es mora: estas cotizaciones no
-          tienen fecha de vencimiento pactada en el sistema.
+          La antigüedad mide los días transcurridos desde la fecha de cada cotización. Es una
+          referencia informativa: no incorpora plazos ni intereses.
         </p>
       </div>
 
@@ -143,8 +143,11 @@
     <div class="pd-ranking">
       <div class="pd-card__head pd-ranking__head">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
-        <span>Clientes con saldo</span>
-        <span class="pd-card__head-right">Ordenado por saldo pendiente · pulsa una fila para ver su estado de cuenta</span>
+        <!-- El endpoint agrupa TODAS las cotizaciones facturadas, así que aquí
+             también aparecen los clientes ya saldados. El rótulo lo dice: el KPI
+             «Clientes con saldo» cuenta otra cosa y no pueden llamarse igual. -->
+        <span>Clientes con cotizaciones facturadas</span>
+        <span class="pd-card__head-right">Ordenado por saldo pendiente · incluye los ya saldados · pulsa una fila para ver su estado de cuenta</span>
       </div>
 
       <app-data-table
