@@ -781,6 +781,9 @@ export class AccountStatementComponent implements OnInit {
       const cliente = this.selectedCustomer();
       const doc = await buildAccountStatementPdf({
         budgets: rows,
+        // El anexo necesita nombrar cualquier cotización a la que se haya
+        // aplicado una transferencia, esté hoy facturada o no.
+        allBudgets: this.budgets().filter(b => b.customerId === cliente?.customerId),
         movements: this.movementsByBudget(),
         customer: cliente,
         company: this.companyInfo(),
