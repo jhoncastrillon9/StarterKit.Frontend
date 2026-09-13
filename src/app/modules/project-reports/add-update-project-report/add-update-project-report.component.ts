@@ -11,7 +11,7 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ButtonGroupModule, ButtonModule, CardModule, DropdownModule, FormModule, GridModule, ListGroupModule, ModalModule } from '@coreui/angular';
 import { AbstractControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
-import { EmailSelectorModalComponent } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
+import { EmailSelectorModalComponent, EmailSelectionResult } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { ProjectReportModel } from '../models/projectReport.Model';
@@ -395,8 +395,8 @@ export class AddUpdateProjectReportComponent {
       this.emailSelectorModal.openModal();
     }
 
-    onEmailsSelected(selectedEmails: string[]) {
-      this.selectedEmailsToSend = selectedEmails;
+    onEmailsSelected(result: EmailSelectionResult) {
+      this.selectedEmailsToSend = result.emails;
       this.sendEmailProjectReport();
     }
   

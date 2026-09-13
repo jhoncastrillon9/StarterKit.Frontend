@@ -30,11 +30,41 @@
           </ng-container>
         </div>
 
+        <!-- Añadir un correo que no está en la ficha del cliente -->
+        <div class="new-email-form">
+          <label class="new-email-label" for="newEmailInput">Añadir otro correo</label>
+          <div class="new-email-row">
+            <input
+              id="newEmailInput"
+              type="email"
+              class="form-control form-control-sm"
+              placeholder="nombre@ejemplo.com"
+              autocomplete="off"
+              [(ngModel)]="newEmailInput"
+              (ngModelChange)="onNewEmailInputChange()"
+              (keyup.enter)="addNewEmail()" />
+            <button
+              cButton
+              color="primary"
+              variant="outline"
+              size="sm"
+              type="button"
+              (click)="addNewEmail()">
+              <i class="pi pi-plus" style="margin-right: 0.25rem;"></i>
+              Añadir
+            </button>
+          </div>
+          <div *ngIf="newEmailError" class="text-danger new-email-error">{{newEmailError}}</div>
+          <div *ngIf="!newEmailError" class="text-muted new-email-hint">
+            Los correos que añadas aquí se guardarán también en la ficha del cliente.
+          </div>
+        </div>
+
         <!-- Emails no seleccionados (se pueden re-agregar) -->
-        <div *ngIf="emails.length > selectedEmails.length" style="margin-top: 1rem;">
+        <div *ngIf="allEmails.length > selectedEmails.length" style="margin-top: 1rem;">
           <p class="text-muted" style="font-size: 0.85rem;">Emails disponibles para agregar:</p>
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-            <ng-container *ngFor="let email of emails">
+            <ng-container *ngFor="let email of allEmails">
               <button 
                 *ngIf="!isSelected(email)"
                 cButton 
@@ -56,8 +86,8 @@
             cButton 
             color="link" 
             size="sm" 
-            (click)="selectAll()" 
-            [disabled]="selectedEmails.length === emails.length"
+            (click)="selectAll()"
+            [disabled]="selectedEmails.length === allEmails.length"
             style="font-size: 0.8rem;">
             Seleccionar todos
           </button>
@@ -72,10 +102,22 @@
           </button>
         </div>
 
-        <!-- Mensaje de error si no hay emails seleccionados -->
-        <div *ngIf="selectedEmails.length === 0" class="text-danger" style="margin-top: 0.5rem; font-size: 0.9rem;">
-          Debes seleccionar al menos un correo electrónico.
-        </div>
+        <!--
+          Sin correos en la ficha del cliente no hay nada que el usuario haya hecho mal:
+          es el estado inicial. Se le indica que escriba uno, en gris, no en rojo. El
+          mensaje de error queda para cuando habia correos y los quito todos.
+        -->
+        @if (selectedEmails.length === 0) {
+          @if (allEmails.length === 0) {
+            <div class="text-medium-emphasis" style="margin-top: 0.5rem; font-size: 0.9rem;">
+              Este cliente todavia no tiene correos. Escribe uno arriba para enviarselo.
+            </div>
+          } @else {
+            <div class="text-danger" style="margin-top: 0.5rem; font-size: 0.9rem;">
+              Debes seleccionar al menos un correo electrónico.
+            </div>
+          }
+        }
       </div>
 
       <!-- Botones de acción -->

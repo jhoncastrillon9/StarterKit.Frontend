@@ -10,7 +10,9 @@ import { MessageService } from 'primeng/api';
 import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { Table, TableModule } from 'primeng/table';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
-import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
+import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
+import { CustomerService } from 'src/app/modules/customers/services/customer.service';
+import { CustomerModel } from 'src/app/modules/customers/models/customer.Model';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
@@ -215,6 +217,7 @@ export class ListBudgetComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private spinner: NgxSpinnerService,
+    private customerService: CustomerService,
     private messageService: MessageService) {
     iconSet.icons = { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone };
   }
@@ -408,10 +411,8 @@ export class ListBudgetComponent implements OnInit {
       .map(e => e.trim())
       .filter(e => e.length > 0);
 
-    if (this.availableEmails.length === 0) {
-      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
-      return;
-    }
+    // Si el cliente no tiene correos ya NO se aborta: el modal permite escribir uno
+    // nuevo, así que abrirlo es justamente la forma de resolverlo.
 
     // Abrir el modal de selección de emails
     // emailSelectorModal es una instancia unica compartida por los tres flujos: si este
@@ -434,10 +435,7 @@ export class ListBudgetComponent implements OnInit {
       .map(e => e.trim())
       .filter(e => e.length > 0);
 
-    if (this.availableEmails.length === 0) {
-      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
-      return;
-    }
+    // Ver sendEmailBudgetWithComfirm: sin correos en la ficha se abre igual el modal.
 
     // Abrir el modal de selección de emails
     // Ver la nota de sendEmailBudgetWithComfirm: el modal es compartido y hay que
@@ -460,8 +458,38 @@ export class ListBudgetComponent implements OnInit {
     this.selectedEmailsToSend = [];
   }
 
-  onEmailsSelected(selectedEmails: string[]) {
-    this.selectedEmailsToSend = selectedEmails;
+  onEmailsSelected(result: EmailSelectionResult) {
+    this.selectedEmailsToSend = result.emails;
+
+    const customer = this.emailSendType === 'invoice'
+      ? this.budgetToInvoice?.customerDto
+      : this.budgetToSendEmail?.customerDto;
+
+    // Primero se guardan los correos nuevos en el cliente y SOLO despues se envia o se
+    // factura. El orden no es indiferente: guardar un correo es recuperable, emitir una
+    // factura consume numeracion DIAN y es irreversible. Si se facturase primero y el
+    // guardado fallase, el usuario tendria una factura emitida y la ficha sin actualizar.
+    // El guardado de correos es asincrono y el modal ya esta cerrado, asi que el usuario
+    // puede abrir otro flujo sobre otra fila mientras vuela la peticion. Si la accion
+    // leyera el estado en el callback, ejecutaria el flujo NUEVO con los correos del
+    // VIEJO. Se captura aqui y se restaura justo antes de actuar.
+    const flujo = {
+      tipo: this.emailSendType,
+      budgetSend: this.budgetToSendEmail,
+      budgetInvoice: this.budgetToInvoice,
+      emails: result.emails
+    };
+
+    this.persistNewCustomerEmails(customer, result.newEmails, () => this.runEmailSendAction(flujo));
+  }
+
+  /** Ejecuta la accion del flujo capturado al confirmar, una vez resuelto el guardado. */
+  private runEmailSendAction(flujo: { tipo: 'pdf' | 'excel' | 'invoice'; budgetSend: BudgetModel; budgetInvoice: BudgetModel | null; emails: string[] }) {
+    this.emailSendType = flujo.tipo;
+    this.budgetToSendEmail = flujo.budgetSend;
+    this.budgetToInvoice = flujo.budgetInvoice;
+    this.selectedEmailsToSend = flujo.emails;
+
     if (this.emailSendType === 'pdf') {
       this.sendEmailbudget();
     } else if (this.emailSendType === 'excel') {
@@ -469,6 +497,55 @@ export class ListBudgetComponent implements OnInit {
     } else {
       this.confirmFacturar();
     }
+  }
+
+  /**
+   * Guarda en la ficha del cliente los correos que el usuario escribio en el modal y
+   * luego ejecuta `proceed()`.
+   *
+   * Si el guardado falla NO se aborta el envio: el usuario pidio mandar un correo, no
+   * editar la ficha del cliente. Se continua y se avisa aparte con un toast, que es
+   * independiente del modal de resultado que abre el propio envio/facturacion.
+   */
+  private persistNewCustomerEmails(customer: CustomerModel | undefined | null, newEmails: string[], proceed: () => void) {
+    if (!newEmails || newEmails.length === 0 || !customer || !customer.customerId) {
+      proceed();
+      return;
+    }
+
+    this.customerService.addEmails(customer.customerId, newEmails).subscribe({
+      next: (updatedCustomer: any) => {
+        this.applyUpdatedCustomer(updatedCustomer);
+        proceed();
+      },
+      error: (error) => {
+        console.error('Error al guardar los correos nuevos en el cliente', error);
+        const detalle = extractApiErrorMessage(error);
+        this.messageService.add({
+          key: 'budget-inline',
+          severity: 'warn',
+          summary: 'Correo no guardado en el cliente',
+          detail: 'El envío continúa, pero el correo nuevo no se pudo guardar en la ficha del cliente.'
+            + (detalle ? ' Detalle: ' + detalle : ''),
+          life: 6000
+        });
+        proceed();
+      }
+    });
+  }
+
+  /**
+   * Refresca en memoria el email del cliente con el DTO que devuelve el backend, en todas
+   * las cotizaciones cargadas que sean de ese cliente. Sin esto, volver a abrir el modal
+   * sobre la misma fila seguiria mostrando la lista antigua de correos.
+   */
+  private applyUpdatedCustomer(updatedCustomer: any) {
+    if (!updatedCustomer || !updatedCustomer.customerId) { return; }
+    this.budgets.forEach(b => {
+      if (b.customerDto && b.customerDto.customerId === updatedCustomer.customerId) {
+        b.customerDto.email = updatedCustomer.email;
+      }
+    });
   }
 
   sendEmailbudget() {
@@ -705,10 +782,7 @@ export class ListBudgetComponent implements OnInit {
       .map(e => e.trim())
       .filter(e => e.length > 0);
 
-    if (this.availableEmails.length === 0) {
-      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
-      return;
-    }
+    // Ver sendEmailBudgetWithComfirm: sin correos en la ficha se abre igual el modal.
 
     const clienteNombre = budget.customerDto?.customerName || 'el cliente';
     const totalFormateado = '$ ' + (budget.total || 0).toLocaleString('es-ES', { maximumFractionDigits: 0 });
@@ -889,7 +963,9 @@ export class ListBudgetComponent implements OnInit {
 
   goToResolutionConfigFromInvoice(): void {
     this.invoiceFeedbackVisible = false;
-    this.router.navigate(['/invoices/resolution']);
+    // El usuario venia de facturar desde aqui: al guardar la resolucion vuelve a este
+    // listado en vez de acabar en el de facturacion, que no es donde estaba.
+    this.router.navigate(['/invoices/resolution'], { queryParams: { returnUrl: '/budgets/budgets' } });
   }
 
   closeInvoiceFeedback(): void {

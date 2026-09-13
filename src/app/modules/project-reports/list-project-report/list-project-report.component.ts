@@ -26,7 +26,7 @@ import { InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule as PrimeButtonModule }  from 'primeng/button';
 import { CustomSharedModule} from '../../../shared/shared.module';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
-import { EmailSelectorModalComponent } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
+import { EmailSelectorModalComponent, EmailSelectionResult } from '../../../shared/components/email-selector-modal/email-selector-modal.component';
 import { SendProjectReportPdfRequest } from '../models/SendProjectReportPdfRequest';
 import { TooltipModule } from 'primeng/tooltip';
 import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
@@ -202,8 +202,8 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
     this.emailSelectorModal.openModal();
   }
 
-  onEmailsSelected(selectedEmails: string[]) {
-    this.selectedEmailsToSend = selectedEmails;
+  onEmailsSelected(result: EmailSelectionResult) {
+    this.selectedEmailsToSend = result.emails;
     this.sendEmailProjectReport();
   }
 

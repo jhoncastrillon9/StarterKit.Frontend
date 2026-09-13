@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { INVOICE_STATUS, InvoiceDetailModel, InvoiceModel } from '../models/invoice.Model';
 import { InvoiceService } from '../services/invoice.service';
-import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
+import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 
@@ -367,9 +367,11 @@ export class EditInvoiceComponent implements OnInit {
     this.emailSelectorModal.openModal();
   }
 
-  onIssueAndSendConfirmed(selectedEmails: string[]): void {
+  onIssueAndSendConfirmed(result: EmailSelectionResult): void {
     if (!this.invoice || this.isReadOnly || this.isBusy) { return; }
-    this.saveIfDirtyThen(() => this.issueAndSend(selectedEmails));
+    // Esta pantalla no persiste result.newEmails en el cliente (se hace desde los
+    // listados de cotizaciones y facturas); aqui solo se usan como destinatarios.
+    this.saveIfDirtyThen(() => this.issueAndSend(result.emails));
   }
 
   private issueAndSend(selectedEmails: string[]): void {
@@ -468,7 +470,10 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   goToResolutionConfig(): void {
-    this.router.navigate(['/invoices/resolution']);
+    // Al guardar la resolucion, el usuario vuelve a la factura que estaba intentando
+    // emitir, no al listado.
+    const returnUrl = this.invoice ? '/invoices/edit/' + this.invoice.invoiceId : '/invoices/invoices';
+    this.router.navigate(['/invoices/resolution'], { queryParams: { returnUrl } });
   }
 
   private clearBusinessError(): void {
