@@ -65,6 +65,12 @@ export class EmailSelectorModalComponent implements OnChanges {
   }
 
   confirm() {
+    // Mismo vector que en ConfirmationModalComponent: closeModal() solo pone
+    // visible=false y el fade-out del c-modal deja el boton clicable ~150ms mas.
+    // Sin este guard, un doble clic emite dos veces (aqui son envios de correo y,
+    // desde list-budget, emisiones de factura).
+    if (!this.visible) { return; }
+
     if (this.selectedEmails.length > 0) {
       this.confirmAction.emit([...this.selectedEmails]);
       this.closeModal();

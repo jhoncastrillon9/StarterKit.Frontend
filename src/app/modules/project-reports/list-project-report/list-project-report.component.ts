@@ -152,9 +152,11 @@ deleteProjectReportWithComfirm(projectReport: ProjectReportModel){
   this.confirmationModal.isConfirmation = true; 
   this.confirmationModal.titleButtonComfimationYes = 'Si, eliminar';
 
-  // Emitimos la acción a ejecutar cuando se confirme la eliminación
-  this.confirmationModal.confirmAction.subscribe(() => this.deleteProjectReport()); 
-  this.confirmationModal.openModal(); 
+  // La accion de confirmar se enlaza por plantilla ((confirmAction)="deleteProjectReport()").
+  // Antes se suscribia aqui en cada apertura y solo no duplicaba el borrado porque
+  // ConfirmationModalComponent.closeModal() recreaba el EventEmitter. Ese reemplazo ya no
+  // existe, asi que suscribirse aqui acumularia suscripciones.
+  this.confirmationModal.openModal();
 }
 
   deleteProjectReport(){      

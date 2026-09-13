@@ -10,6 +10,10 @@ export const STATUS_COLORS: Record<string, PillColors> = {
   'En Desarrollo': { bg: '#fff3e0', fg: '#9a5a00', border: '#ffe0b2', dot: '#ff9800' },
   'Finalizado':    { bg: '#e8f5ec', fg: '#1b5e20', border: '#c4e4cc', dot: '#2e7d32' },
   'Pagada':        { bg: '#f3e8ff', fg: '#6b21a8', border: '#e3d1f7', dot: '#9333ea' },
+  // Estados de factura (modulo de facturacion)
+  'Borrador':      { bg: '#f2f1f7', fg: '#5b5670', border: '#e2e0ec', dot: '#9a94ad' },
+  'Emitida':       { bg: '#f3e8ff', fg: '#6b21a8', border: '#e3d1f7', dot: '#9333ea' },
+  'Enviada':       { bg: '#eafaf0', fg: '#15703f', border: '#c4ecd4', dot: '#1aa35c' },
 };
 const NEUTRAL: PillColors = { bg: '#f2f1f7', fg: '#5b5670', border: '#e2e0ec', dot: '#9a94ad' };
 

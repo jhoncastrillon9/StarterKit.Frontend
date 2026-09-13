@@ -76,7 +76,8 @@
   [messageModal]="messageModal"
   [title]="title"
   [isModalError]="isModalError"
-  [alignment]="'top'">
+  [alignment]="'top'"
+  (confirmAction)="deleteProjectReport()">
 </app-confirmation-modal>
 
 <!-- Modal de selección de emails -->

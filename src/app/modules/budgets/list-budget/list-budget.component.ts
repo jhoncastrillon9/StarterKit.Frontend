@@ -18,6 +18,9 @@ import { Menu } from 'primeng/menu';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
+import { InvoiceService } from 'src/app/modules/invoices/services/invoice.service';
+import { InvoiceModel, INVOICE_STATUS } from 'src/app/modules/invoices/models/invoice.Model';
+import { extractApiErrorMessage } from 'src/app/shared/api-error';
 
 
 
@@ -52,6 +55,8 @@ export class ListBudgetComponent implements OnInit {
   private readonly deleteMessage: string = "Una vez eliminado, no hay vuelta atrás... bueno, tal vez sí, pero mejor asegúrate antes de despedirlo para siempre. 😅";
   private readonly deleteTitleComfirmation: string = "¿Quieres eliminar esta cotización?";
   private readonly sendEmailTitleComfirmation: string = "¡Cotización en camino! 📬";
+  /** Texto por defecto del modal de emails (el mismo que trae EmailSelectorModalComponent). */
+  private readonly selectEmailsMessage: string = "Selecciona los correos a los que deseas enviar:";
 
   title: string = this.successDeleteTitle;
   messageModal: string = this.successDeleteMessage;
@@ -150,10 +155,23 @@ export class ListBudgetComponent implements OnInit {
   public budgetToSendEmail: BudgetModel = new BudgetModel;
   public availableEmails: string[] = [];
   public selectedEmailsToSend: string[] = [];
-  public emailSendType: 'pdf' | 'excel' = 'pdf'; // Tipo de envío: PDF o Excel
+  public emailSendType: 'pdf' | 'excel' | 'invoice' = 'pdf'; // Tipo de envío: PDF, Excel o Facturar
 
   public budgetToSetInvoice: BudgetModel | null = null;
   private originalStatuses: Map<number, string> = new Map();
+
+  // --- Facturar / Editar y Facturar (Task 5) ---
+  public budgetToInvoice: BudgetModel | null = null;
+
+  invoiceFeedbackVisible: boolean = false;
+  invoiceFeedbackSeverity: 'success' | 'warning' | 'error' = 'success';
+  invoiceFeedbackTitle: string = '';
+  invoiceFeedbackMessage: string = '';
+  invoiceFeedbackShowResolutionLink: boolean = false;
+  invoiceFeedbackShowGoToInvoices: boolean = false;
+
+  private readonly errorFacturarMessage: string = 'No se pudo facturar la cotización. Por favor, intenta de nuevo más tarde.';
+  private readonly errorEditarYFacturarMessage: string = 'No se pudo crear el borrador de factura. Por favor, intenta de nuevo más tarde.';
 
   // Propiedades para edición inline de factura
   editingInvoiceBudgetId: number | null = null;
@@ -192,6 +210,7 @@ export class ListBudgetComponent implements OnInit {
   isProcessingAI: boolean = false; // Indica si está procesando con IA
 
   constructor(private budgetService: BudgetService,
+    private invoiceService: InvoiceService,
     public iconSet: IconSetService,
     private router: Router,
     private route: ActivatedRoute,
@@ -349,8 +368,11 @@ export class ListBudgetComponent implements OnInit {
     this.confirmationModal.isConfirmation = true;
     this.confirmationModal.titleButtonComfimationYes = 'Si, eliminar';
 
-    // Emitimos la acción a ejecutar cuando se confirme la eliminación
-    this.confirmationModal.confirmAction.subscribe(() => this.deleteBudget());
+    // La accion de confirmar se enlaza por plantilla ((confirmAction)="deleteBudget()").
+    // Antes se suscribia aqui, en cada apertura: eso solo no duplicaba el borrado porque
+    // ConfirmationModalComponent.closeModal() recreaba el EventEmitter y tiraba la
+    // suscripcion anterior. Ese reemplazo ya no existe (dejaba muerto el boton Emitir de
+    // edit-invoice), asi que suscribirse aqui acumularia suscripciones y borraria N veces.
     this.confirmationModal.openModal();
   }
 
@@ -392,8 +414,12 @@ export class ListBudgetComponent implements OnInit {
     }
 
     // Abrir el modal de selección de emails
+    // emailSelectorModal es una instancia unica compartida por los tres flujos: si este
+    // metodo no fija su propio message, se queda el que dejo el anterior (el aviso de
+    // facturacion de facturarWithConfirm, con otro cliente y otro total).
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = this.sendEmailTitleComfirmation;
+    this.emailSelectorModal.message = this.selectEmailsMessage;
     this.emailSelectorModal.confirmButtonText = 'Enviar Cotización';
     this.emailSelectorModal.openModal();
   }
@@ -414,18 +440,34 @@ export class ListBudgetComponent implements OnInit {
     }
 
     // Abrir el modal de selección de emails
+    // Ver la nota de sendEmailBudgetWithComfirm: el modal es compartido y hay que
+    // dejar siempre message en el valor propio de este flujo.
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = '¡Excel en camino! 📊';
+    this.emailSelectorModal.message = this.selectEmailsMessage;
     this.emailSelectorModal.confirmButtonText = 'Enviar Excel';
     this.emailSelectorModal.openModal();
+  }
+
+  /**
+   * Cancelar el modal de correos tiene que dejar el estado limpio: budgetToInvoice solo
+   * se limpiaba en confirmFacturar(), y quedarse colgado hacia que un aviso asincrono de
+   * "esta cotizacion ya tiene facturas" pudiera escribirse sobre el modal de otro flujo.
+   */
+  onEmailSelectorCancelled() {
+    this.budgetToInvoice = null;
+    this.budgetToSendEmail = new BudgetModel;
+    this.selectedEmailsToSend = [];
   }
 
   onEmailsSelected(selectedEmails: string[]) {
     this.selectedEmailsToSend = selectedEmails;
     if (this.emailSendType === 'pdf') {
       this.sendEmailbudget();
-    } else {
+    } else if (this.emailSendType === 'excel') {
       this.sendEmailBudgetExcel();
+    } else {
+      this.confirmFacturar();
     }
   }
 
@@ -636,11 +678,222 @@ export class ListBudgetComponent implements OnInit {
     { label: 'Unir Cotizaciones',    icon: '⊕', iconClass: 'dc-icon-accent', itemClass: 'dc-menu-item--accent', hint: '',       run: (b) => this.openMergeDialog(b) },
     { label: 'Enviar PDF',           icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetWithComfirm(b) },
     { label: 'Enviar Excel',         icon: '→', iconClass: '',               itemClass: '',                     hint: 'correo', run: (b) => this.sendEmailBudgetExcelWithConfirm(b) },
+    { label: 'Facturar',             icon: '$', iconClass: 'dc-icon-accent', itemClass: 'dc-menu-item--accent', hint: 'emite y envía', run: (b) => this.facturarWithConfirm(b) },
+    { label: 'Editar y Facturar',    icon: '✎$', iconClass: '',              itemClass: '',                     hint: 'borrador',      run: (b) => this.editarYFacturar(b) },
   ];
 
   runAction(item: { run: (b: BudgetModel) => void }, panel: OverlayPanel) {
     if (this.currentBudget) item.run(this.currentBudget);
     panel.hide();
+  }
+
+  /**
+   * "Facturar": crea, emite y envía la factura en una sola llamada (issueAndSend).
+   * Es irreversible (consume número de resolución + correo real al cliente), así que
+   * la confirmación (mismo patrón que sendEmailBudgetWithComfirm, reutilizando
+   * EmailSelectorModalComponent) debe dejar claro cliente, correo destino y total antes
+   * de continuar. Una cotización puede facturarse varias veces: no se bloquea por
+   * ya tener factura(s) asociadas.
+   */
+  facturarWithConfirm(budget: BudgetModel): void {
+    this.emailSendType = 'invoice';
+    this.budgetToInvoice = budget;
+
+    const emailString = budget.customerDto?.email || '';
+    this.availableEmails = emailString
+      .split(/[;,]/)
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+
+    if (this.availableEmails.length === 0) {
+      this.showModal(true, 'El cliente no tiene correos electrónicos configurados.', 'Sin correos');
+      return;
+    }
+
+    const clienteNombre = budget.customerDto?.customerName || 'el cliente';
+    const totalFormateado = '$ ' + (budget.total || 0).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+
+    this.emailSelectorModal.emails = this.availableEmails;
+    this.emailSelectorModal.title = 'Facturar cotización';
+    this.emailSelectorModal.message = `Se emitirá la factura para ${clienteNombre} por un total de ${totalFormateado} y se enviará al correo que selecciones. `
+      + 'Esta acción consume el siguiente número de la resolución DIAN y no se puede anular. Confirma el correo destino:';
+    this.emailSelectorModal.confirmButtonText = 'Sí, facturar';
+    this.emailSelectorModal.openModal();
+
+    this.warnIfBudgetAlreadyInvoiced(budget, this.emailSelectorModal.message);
+  }
+
+  /**
+   * Facturar varias veces la misma cotización es intencionado y no se bloquea, pero
+   * conviene avisarlo: sin esta señal el usuario no tiene forma de saber, desde el
+   * listado de cotizaciones, que esa obra ya tiene facturas o borradores.
+   *
+   * Es un aviso en dos tiempos (se consulta al abrir el modal, se factura después), así
+   * que evita el duplicado por descuido pero no garantiza unicidad. Puramente
+   * informativo: si la consulta falla, no se interrumpe nada.
+   */
+  private warnIfBudgetAlreadyInvoiced(budget: BudgetModel, baseMessage: string): void {
+    this.invoiceService.getByBudget(budget.budgetId).subscribe({
+      next: (existing: InvoiceModel[]) => {
+        // El usuario pudo cancelar el modal o abrir otro flujo mientras llegaba la
+        // respuesta. Mirar solo budgetToInvoice no basta: cancelar no lo limpiaba, asi
+        // que "Facturar" en A -> cancelar -> "Enviar PDF" en B terminaba pintando el
+        // aviso con los datos de A sobre el modal de B (el mismo sintoma que arreglo A1,
+        // por la via asincrona). Se exige ademas que el flujo activo siga siendo el de
+        // facturacion y que el modal siga abierto.
+        if (this.emailSendType !== 'invoice') { return; }
+        if (!this.emailSelectorModal?.visible) { return; }
+        if (this.budgetToInvoice?.budgetId !== budget.budgetId) { return; }
+
+        if (!existing || existing.length === 0) { return; }
+
+        const drafts = existing.filter(i => i.status === INVOICE_STATUS.draft).length;
+        const detalle = drafts > 0
+          ? `${existing.length} factura(s), de las cuales ${drafts} sigue(n) en borrador`
+          : `${existing.length} factura(s) ya emitida(s)`;
+
+        this.emailSelectorModal.message = baseMessage
+          + ` ⚠ Esta cotización ya tiene ${detalle} en el módulo de facturación. Si no querías facturarla de nuevo, cancela y revísalo primero.`;
+      },
+      error: () => { /* Aviso informativo: si no se puede consultar, no se bloquea la facturación. */ }
+    });
+  }
+
+  /** Ejecuta issueAndSend tras confirmar cliente, correo y total en el modal de emails. */
+  confirmFacturar(): void {
+    const budget = this.budgetToInvoice;
+    if (!budget) { return; }
+
+    const emails = this.selectedEmailsToSend;
+    this.budgetToInvoice = null;
+    this.selectedEmailsToSend = [];
+
+    this.spinner.show();
+    this.loading = true;
+    this.invoiceService.issueAndSend(budget.budgetId, emails).subscribe({
+      next: (invoice: InvoiceModel) => {
+        this.loadBudgets();
+        this.spinner.hide();
+        this.loading = false;
+        this.showInvoiceSuccess(invoice);
+      },
+      error: (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleFacturarError(error);
+      }
+    });
+  }
+
+  /**
+   * "Editar y Facturar": crea el borrador de factura a partir de la cotización y navega
+   * a la pantalla de edición para que el usuario la ajuste antes de emitirla.
+   */
+  editarYFacturar(budget: BudgetModel): void {
+    this.spinner.show();
+    this.loading = true;
+    this.invoiceService.createDraftFromBudget(budget.budgetId).subscribe({
+      next: (invoice: InvoiceModel) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.router.navigate(['/invoices/edit', invoice.invoiceId]);
+      },
+      error: (error) => {
+        this.spinner.hide();
+        this.loading = false;
+        this.handleFacturarError(error, this.errorEditarYFacturarMessage, false);
+      }
+    });
+  }
+
+  private showInvoiceSuccess(invoice: InvoiceModel): void {
+    this.invoiceFeedbackSeverity = 'success';
+    this.invoiceFeedbackTitle = '¡Factura emitida y enviada!';
+    this.invoiceFeedbackMessage = `La factura ${invoice.fullNumber} fue emitida y enviada correctamente.`;
+    this.invoiceFeedbackShowResolutionLink = false;
+    this.invoiceFeedbackShowGoToInvoices = true;
+    this.invoiceFeedbackVisible = true;
+  }
+
+  /**
+   * Regla estructural (no de texto) según cómo responde el backend
+   * (InvoiceController.IssueAndSend + StarterKitMiddleware):
+   *
+   * - 400: el middleware traduce una BadHttpRequestException de negocio a
+   *   { error: 'mensaje en español' } y no queda nada creado. Los
+   *   BadHttpRequestException de IssueAsync (sin resolución, resolución no vigente,
+   *   rango agotado) se lanzan después de crear el borrador, pero el backend mete
+   *   creación y emisión en una sola transacción (CreateDraftFromBudgetAndIssueAsync),
+   *   así que el borrador se revierte con ellos. El mensaje se muestra tal cual.
+   * - Cualquier otra cosa (500 u otro fallo): el middleware devuelve un mensaje
+   *   técnico crudo de .NET en { error: '...' } — no apto para el usuario — y en
+   *   este endpoint solo puede llegar desde SendInvoiceEmailAsync, es decir, DESPUÉS
+   *   de crear y emitir la factura. Nunca se muestra ese texto crudo; se le dice al
+   *   usuario que la factura pudo quedar creada y que lo confirme en el listado.
+   *
+   * isIssueFlow distingue las dos acciones: "Facturar" (emite y envía) y
+   * "Editar y Facturar" (solo crea un borrador). En la segunda no hay emisión ni
+   * correo, asi que hablarle al usuario de reenviar la factura no tendria sentido.
+   */
+  private handleFacturarError(
+    error: any,
+    fallbackMessage: string = this.errorFacturarMessage,
+    isIssueFlow: boolean = true
+  ): void {
+    console.error('Error al facturar la cotización', error);
+    const isBusinessValidationError = error?.status === 400;
+    // Entiende tanto { error: mensaje } como ValidationProblemDetails (ver shared/api-error.ts).
+    const backendMessage = extractApiErrorMessage(error);
+
+    if (isBusinessValidationError) {
+      const message = backendMessage || fallbackMessage;
+      this.invoiceFeedbackSeverity = 'error';
+      this.invoiceFeedbackTitle = isIssueFlow ? 'No se pudo facturar' : 'No se pudo crear la factura';
+      this.invoiceFeedbackMessage = message;
+      this.invoiceFeedbackShowResolutionLink = this.isResolutionNotConfiguredError(message);
+      this.invoiceFeedbackShowGoToInvoices = false;
+      this.invoiceFeedbackVisible = true;
+      return;
+    }
+
+    // No es un 400 de negocio: la factura pudo haber quedado creada/emitida antes
+    // de que fallara el envío del correo. No se muestra backendMessage (es texto
+    // técnico de .NET en inglés cuando viene de un 500); se deja solo en consola.
+    this.invoiceFeedbackSeverity = 'warning';
+    this.invoiceFeedbackTitle = 'Verifica el estado de la factura';
+    this.invoiceFeedbackMessage = isIssueFlow
+      ? 'No se pudo confirmar el envío, pero la factura pudo haber quedado creada. '
+        + 'Revisa el listado de facturas: si ya existe, puedes reenviarla desde ahí.'
+      : 'No se pudo confirmar el resultado, pero el borrador de la factura pudo haber quedado creado. '
+        + 'Revisa el listado de facturas antes de intentarlo de nuevo para no crear dos.';
+    this.invoiceFeedbackShowResolutionLink = false;
+    this.invoiceFeedbackShowGoToInvoices = true;
+    this.invoiceFeedbackVisible = true;
+
+    // Puede que la factura ya exista en el backend: refrescamos por si acaso.
+    this.loadBudgets();
+  }
+
+  private isResolutionNotConfiguredError(message: string): boolean {
+    const normalized = message.toLowerCase();
+    if (!normalized.includes('resoluci')) { return false; }
+    return normalized.includes('no hay') || normalized.includes('no existe') || normalized.includes('no esta configurada')
+      || normalized.includes('no está configurada') || normalized.includes('no esta configurado') || normalized.includes('no está configurado')
+      || normalized.includes('sin configurar') || normalized.includes('configura');
+  }
+
+  goToInvoicesModule(): void {
+    this.invoiceFeedbackVisible = false;
+    this.router.navigate(['/invoices/invoices']);
+  }
+
+  goToResolutionConfigFromInvoice(): void {
+    this.invoiceFeedbackVisible = false;
+    this.router.navigate(['/invoices/resolution']);
+  }
+
+  closeInvoiceFeedback(): void {
+    this.invoiceFeedbackVisible = false;
   }
 
   getMenuItems(budget: BudgetModel): MenuItem[] {

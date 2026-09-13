@@ -528,6 +528,38 @@ $transition: all 0.3s ease;
   padding-top: 1rem;
 }
 
+// Resultado de "Facturar" (exito / emitida-pero-correo-pendiente / error)
+.invoice-feedback__message {
+  color: #202021;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-feedback__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.25rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: $primary-color;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.invoice-feedback-dialog--warning .p-dialog-header {
+  color: #a8590f;
+}
+
+.invoice-feedback-dialog--error .p-dialog-header {
+  color: $danger-color;
+}
+
 .btn-dialog {
   display: inline-flex;
   align-items: center;
