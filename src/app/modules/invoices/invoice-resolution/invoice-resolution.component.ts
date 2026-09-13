@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InvoiceResolutionModel } from '../models/invoice.Model';
 import { InvoiceResolutionService } from '../services/invoice-resolution.service';
@@ -44,6 +44,7 @@ export class InvoiceResolutionComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private invoiceResolutionService: InvoiceResolutionService,
     private messageService: MessageService
   ) {
@@ -221,6 +222,17 @@ export class InvoiceResolutionComponent implements OnInit {
             : 'La resolucion de facturacion se guardo correctamente.',
           life: isReplacement ? 6000 : 3500
         });
+
+        // El <p-toast> que pinta este mensaje vive en la plantilla de esta pantalla, y
+        // MessageService usa un Subject (no ReplaySubject): al navegar, el componente se
+        // destruye y el aviso no llega a ningun sitio. Por eso:
+        //  - en un guardado normal, se navega tras una pausa corta, suficiente para leerlo;
+        //  - al reemplazar, NO se navega. Ese mensaje explica que se desactivo la
+        //    resolucion anterior y desde que numero seguiran las facturas, y no esta en
+        //    ninguna otra parte. El usuario se va cuando lo haya leido.
+        if (!isReplacement) {
+          setTimeout(() => this.volverAlOrigen(), 1500);
+        }
       },
       error: (error) => {
         this.saving = false;
@@ -231,6 +243,18 @@ export class InvoiceResolutionComponent implements OnInit {
 
   goToInvoiceList(): void {
     this.router.navigate(['/invoices/invoices']);
+  }
+
+  /**
+   * Tras guardar, devuelve al usuario a donde estaba. Quien navega hasta aqui desde
+   * un flujo interrumpido (emitir una factura sin resolucion configurada, por ejemplo)
+   * pasa ?returnUrl=; el resto cae al listado de facturacion, que es el destino
+   * natural de esta pantalla.
+   */
+  private volverAlOrigen(): void {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const destino = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/invoices/invoices';
+    this.router.navigateByUrl(destino);
   }
 
   private clearBusinessError(): void {

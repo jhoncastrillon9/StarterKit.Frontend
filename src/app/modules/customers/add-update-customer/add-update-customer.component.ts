@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../services/customer.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import { isValidEmail } from 'src/app/shared/email-validation';
 
 @Component({
   selector: 'app-add-update-customer',
@@ -76,9 +77,8 @@ export class AddUpdateCustomerComponent implements OnInit {
 
   // Validar email al agregar
   validateEmail(event: any) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const addedEmail = event.value;
-    if (!emailRegex.test(addedEmail)) {
+    if (!isValidEmail(addedEmail)) {
       // Remover el email inválido
       const index = this.emailsList.indexOf(addedEmail);
       if (index >= 0) {

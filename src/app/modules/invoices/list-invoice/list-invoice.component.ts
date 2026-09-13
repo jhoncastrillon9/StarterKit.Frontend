@@ -4,8 +4,9 @@ import { MessageService } from 'primeng/api';
 import { InvoiceModel, INVOICE_STATUS } from '../models/invoice.Model';
 import { InvoiceService } from '../services/invoice.service';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
-import { EmailSelectorModalComponent } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
+import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
+import { CustomerService } from 'src/app/modules/customers/services/customer.service';
 
 @Component({
   selector: 'app-list-invoice',
@@ -56,6 +57,7 @@ export class ListInvoiceComponent implements OnInit {
   constructor(
     private invoiceService: InvoiceService,
     private router: Router,
+    private customerService: CustomerService,
     private messageService: MessageService
   ) { }
 
@@ -130,10 +132,7 @@ export class ListInvoiceComponent implements OnInit {
       .map(e => e.trim())
       .filter(e => e.length > 0);
 
-    if (this.availableEmails.length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Sin correos', detail: 'El cliente no tiene correos electronicos configurados.', life: 4000 });
-      return;
-    }
+    // Si el cliente no tiene correos ya NO se aborta: el modal permite escribir uno nuevo.
 
     this.emailSelectorModal.emails = this.availableEmails;
     this.emailSelectorModal.title = invoice.status === INVOICE_STATUS.sent ? 'Reenviar factura' : 'Enviar factura';
@@ -141,9 +140,58 @@ export class ListInvoiceComponent implements OnInit {
     this.emailSelectorModal.openModal();
   }
 
-  onEmailsSelected(selectedEmails: string[]): void {
+  onEmailsSelected(result: EmailSelectionResult): void {
     if (!this.invoiceToSend) { return; }
     const invoice = this.invoiceToSend;
+    this.invoiceToSend = null;
+
+    // Primero guardar los correos nuevos en el cliente, despues enviar (ver la nota
+    // equivalente en list-budget: guardar es recuperable, enviar no).
+    this.persistNewCustomerEmails(invoice, result.newEmails, () => this.sendInvoice(invoice, result.emails));
+  }
+
+  /**
+   * Guarda los correos escritos en el modal en la ficha del cliente y luego ejecuta
+   * `proceed()`. Un fallo al guardar no cancela el envio: se avisa aparte con un toast.
+   */
+  private persistNewCustomerEmails(invoice: InvoiceModel, newEmails: string[], proceed: () => void): void {
+    const customerId = invoice.customerDto?.customerId;
+    if (!newEmails || newEmails.length === 0 || !customerId) {
+      proceed();
+      return;
+    }
+
+    this.customerService.addEmails(customerId, newEmails).subscribe({
+      next: (updatedCustomer: any) => {
+        this.applyUpdatedCustomer(updatedCustomer);
+        proceed();
+      },
+      error: (error) => {
+        console.error('Error al guardar los correos nuevos en el cliente', error);
+        const detalle = extractApiErrorMessage(error);
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Correo no guardado en el cliente',
+          detail: 'El envio continua, pero el correo nuevo no se pudo guardar en la ficha del cliente.'
+            + (detalle ? ' Detalle: ' + detalle : ''),
+          life: 6000
+        });
+        proceed();
+      }
+    });
+  }
+
+  /** Refresca en memoria el email del cliente en todas las facturas cargadas de ese cliente. */
+  private applyUpdatedCustomer(updatedCustomer: any): void {
+    if (!updatedCustomer || !updatedCustomer.customerId) { return; }
+    this.invoices.forEach(i => {
+      if (i.customerDto && i.customerDto.customerId === updatedCustomer.customerId) {
+        i.customerDto.email = updatedCustomer.email;
+      }
+    });
+  }
+
+  private sendInvoice(invoice: InvoiceModel, selectedEmails: string[]): void {
     this.loading = true;
     this.invoiceService.send(invoice.invoiceId, selectedEmails).subscribe({
       next: () => {
@@ -157,7 +205,6 @@ export class ListInvoiceComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: this.backendMessageOr(error, this.errorSendMessage), life: 5000 });
       }
     });
-    this.invoiceToSend = null;
   }
 
   /**

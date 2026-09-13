@@ -11,6 +11,41 @@
   }
 }
 
+.new-email-form {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.new-email-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #202021;
+  margin-bottom: 0.25rem;
+}
+
+.new-email-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  input {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
+}
+
+.new-email-error {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.new-email-hint {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+}
+
 .email-chips-container {
   min-height: 50px;
   padding: 0.5rem;
