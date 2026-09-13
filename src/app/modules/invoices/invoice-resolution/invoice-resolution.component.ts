@@ -222,7 +222,17 @@ export class InvoiceResolutionComponent implements OnInit {
             : 'La resolucion de facturacion se guardo correctamente.',
           life: isReplacement ? 6000 : 3500
         });
-        this.volverAlOrigen();
+
+        // El <p-toast> que pinta este mensaje vive en la plantilla de esta pantalla, y
+        // MessageService usa un Subject (no ReplaySubject): al navegar, el componente se
+        // destruye y el aviso no llega a ningun sitio. Por eso:
+        //  - en un guardado normal, se navega tras una pausa corta, suficiente para leerlo;
+        //  - al reemplazar, NO se navega. Ese mensaje explica que se desactivo la
+        //    resolucion anterior y desde que numero seguiran las facturas, y no esta en
+        //    ninguna otra parte. El usuario se va cuando lo haya leido.
+        if (!isReplacement) {
+          setTimeout(() => this.volverAlOrigen(), 1500);
+        }
       },
       error: (error) => {
         this.saving = false;

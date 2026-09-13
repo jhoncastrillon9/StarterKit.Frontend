@@ -8,8 +8,14 @@
  *
  * Sin bandera /g a propósito: una regex global mantiene lastIndex entre llamadas a
  * test() y devolvería false de forma intermitente al reutilizar la misma instancia.
+ *
+ * Es deliberadamente la MISMA que la del backend en CustomerApplicationService: si el
+ * front fuera más laxo, el usuario podría pegar "uno@obra.com;dos@obra.com" como un solo
+ * destinatario — el backend lo rechazaría (el ';' partiría la cadena Customer.Email) pero
+ * el envío seguiría adelante con esa cadena como destinatario, y el correo rebotaría.
+ * Se rechazan ';' y ',' por eso, y se exige un TLD de al menos dos caracteres.
  */
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_REGEX = /^[^@\s;,]+@[^@\s;,]+\.[^@\s;,]{2,}$/;
 
 /** true si la cadena (ya recortada) tiene formato de correo válido. */
 export function isValidEmail(email: string): boolean {

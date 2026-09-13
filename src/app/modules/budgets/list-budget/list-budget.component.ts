@@ -469,11 +469,27 @@ export class ListBudgetComponent implements OnInit {
     // factura. El orden no es indiferente: guardar un correo es recuperable, emitir una
     // factura consume numeracion DIAN y es irreversible. Si se facturase primero y el
     // guardado fallase, el usuario tendria una factura emitida y la ficha sin actualizar.
-    this.persistNewCustomerEmails(customer, result.newEmails, () => this.runEmailSendAction());
+    // El guardado de correos es asincrono y el modal ya esta cerrado, asi que el usuario
+    // puede abrir otro flujo sobre otra fila mientras vuela la peticion. Si la accion
+    // leyera el estado en el callback, ejecutaria el flujo NUEVO con los correos del
+    // VIEJO. Se captura aqui y se restaura justo antes de actuar.
+    const flujo = {
+      tipo: this.emailSendType,
+      budgetSend: this.budgetToSendEmail,
+      budgetInvoice: this.budgetToInvoice,
+      emails: result.emails
+    };
+
+    this.persistNewCustomerEmails(customer, result.newEmails, () => this.runEmailSendAction(flujo));
   }
 
-  /** Ejecuta la accion del flujo activo una vez resuelto el guardado de correos nuevos. */
-  private runEmailSendAction() {
+  /** Ejecuta la accion del flujo capturado al confirmar, una vez resuelto el guardado. */
+  private runEmailSendAction(flujo: { tipo: 'pdf' | 'excel' | 'invoice'; budgetSend: BudgetModel; budgetInvoice: BudgetModel | null; emails: string[] }) {
+    this.emailSendType = flujo.tipo;
+    this.budgetToSendEmail = flujo.budgetSend;
+    this.budgetToInvoice = flujo.budgetInvoice;
+    this.selectedEmailsToSend = flujo.emails;
+
     if (this.emailSendType === 'pdf') {
       this.sendEmailbudget();
     } else if (this.emailSendType === 'excel') {
