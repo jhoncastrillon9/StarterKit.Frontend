@@ -14,9 +14,13 @@ import { CustomSharedModule } from 'src/app/shared/shared.module';
 import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
 import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
 import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.component';
+import { KpiCardComponent } from 'src/app/shared/ui/kpi-card/kpi-card.component';
+import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-avatar.component';
+import { ChartjsModule } from '@coreui/angular-chartjs';
+import { PortfolioDashboardComponent } from './account-statement/portfolio-dashboard/portfolio-dashboard.component';
 
 @NgModule({
-  declarations: [AccountStatementComponent],
+  declarations: [AccountStatementComponent, PortfolioDashboardComponent],
   imports: [
     CommonModule,
     ReportsRoutingModule,
@@ -32,7 +36,11 @@ import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.c
     DataTableComponent,
     DataTableColumnDirective,
     StatusPillComponent,
+    KpiCardComponent,
+    ClientAvatarComponent,
+    ChartjsModule,
   ],
+  exports: [PortfolioDashboardComponent],
   providers: [MessageService]
 })
 export class ReportsModule { } 

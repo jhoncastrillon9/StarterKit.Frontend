@@ -11,13 +11,15 @@ import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation, 
 import { BudgetModel } from '../../budgets/models/budget.Model';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import { buildAccountStatementPdf, accountStatementFileName } from './account-statement-pdf';
 import { DataTableColumn } from '../../../shared/ui/data-table/data-table.types';
+import * as cartera from './account-statement.calculations';
+import { MovementKind } from './account-statement.calculations';
+import { PortfolioCustomerRow } from './portfolio-dashboard/portfolio-dashboard.models';
 
 /** Tipo de movimiento que descuenta saldo de una cotización facturada. */
-export type MovementKind = 'Abono' | 'Ajuste';
+export { MovementKind };
 
 /** Borrador del formulario de "registrar movimiento" de una fila. */
 interface MovementDraft {
@@ -25,6 +27,36 @@ interface MovementDraft {
   amount: number | null;
   note: string;
   date: Date;
+}
+
+/**
+ * Un color por tramo de antigüedad. Mismos valores que `$dc-primary`,
+ * `$dc-primary-light`, `$dc-adjust` y `$dc-debt` y que los del dashboard: la
+ * franja del ledger y los puntos de la tabla se pintan con estilos en línea,
+ * así que el color tiene que existir también en TypeScript.
+ */
+const AGING_COLORS: Readonly<Record<cartera.AgingBucket, string>> = {
+  '0-30': '#6d28d9',
+  '31-60': '#a78bfa',
+  '61-90': '#b45309',
+  '+90': '#c0392b',
+};
+
+/** Etiqueta corta de cada tramo, para la leyenda de la franja y la tabla. */
+const AGING_SHORT_LABELS: Readonly<Record<cartera.AgingBucket, string>> = {
+  '0-30': '0–30',
+  '31-60': '31–60',
+  '61-90': '61–90',
+  '+90': '+90',
+};
+
+/** Un tramo de la franja de antigüedad del ledger. */
+interface AgingSegment {
+  bucket: cartera.AgingBucket;
+  label: string;
+  color: string;
+  amount: number;
+  percent: number;
 }
 
 @Component({
@@ -40,20 +72,6 @@ export class AccountStatementComponent implements OnInit {
   private paymentTransferService = inject(PaymentTransferService);
   private messageService = inject(MessageService);
   private spinner = inject(NgxSpinnerService);
-
-  /** Solo las cotizaciones en este estado se cobran en el estado de cuenta. */
-  private static readonly BILLED_STATUS = 'facturada';
-
-  /** Mismos valores que $primary/$primary-dark/$credit en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
-  private static readonly PDF_PRIMARY_LIGHT: [number, number, number] = [243, 240, 252];
-  private static readonly PDF_CREDIT: [number, number, number] = [21, 112, 63];
-  /** Mismo valor que $ink en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_INK: [number, number, number] = [31, 27, 46];
-  /** Mismo valor que $debt en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_DEBT: [number, number, number] = [192, 57, 43];
-  /** Mismo valor que $muted en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_MUTED: [number, number, number] = [124, 118, 145];
 
   customers = signal<CustomerModel[]>([]);
   budgets = signal<BudgetModel[]>([]);
@@ -103,6 +121,7 @@ export class AccountStatementComponent implements OnInit {
     { field: 'date', header: 'Fecha', width: '118px' },
     { field: 'budgetName', header: 'Obra' },
     { field: 'externalInvoice', header: 'Factura', width: '132px' },
+    { field: 'antiguedad', header: 'Antigüedad', width: '118px' },
     { field: 'estado', header: 'Estado', width: '150px' },
     { field: 'total', header: 'Facturado', align: 'right', width: '132px' },
     { field: 'movimientos', header: 'Abonos y ajustes', align: 'right', width: '150px' },
@@ -155,17 +174,13 @@ export class AccountStatementComponent implements OnInit {
   }
 
   private indexMovements(payments: PaymentModel[]): Map<number, PaymentModel[]> {
-    const map = new Map<number, PaymentModel[]>();
-    for (const payment of payments) {
-      if (!payment?.budgetId) continue;
-      const list = map.get(payment.budgetId) ?? [];
-      list.push(payment);
-      map.set(payment.budgetId, list);
-    }
-    return map;
+    return cartera.indexMovementsByBudget(payments);
   }
 
   // -------------------------------------------------------------- cálculo
+  //
+  // La aritmética vive en `account-statement.calculations.ts` (funciones puras);
+  // aquí solo quedan los envoltorios que consume la plantilla.
 
   /**
    * Solo cotizaciones del cliente en estado Facturada: son las únicas que
@@ -175,73 +190,148 @@ export class AccountStatementComponent implements OnInit {
   filteredBudgets = computed(() => {
     const customer = this.selectedCustomer();
     if (!customer) return [];
-    return this.budgets()
-      .filter(b =>
-        b.customerId === customer.customerId &&
-        (b.estado ?? '').trim().toLowerCase() === AccountStatementComponent.BILLED_STATUS
-      )
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return cartera.billedBudgetsOf(this.budgets(), customer.customerId);
   });
 
   movementsFor(budgetId: number): PaymentModel[] {
-    return this.movementsByBudget().get(budgetId) ?? [];
+    return cartera.movementsFor(this.movementsByBudget(), budgetId);
   }
 
   /** Un movimiento es ajuste si su tipo menciona ajuste/retención/impuesto. */
   kindOf(movement: PaymentModel): MovementKind {
-    return /ajust|retenc|impuest/i.test(movement.paymentType ?? '') ? 'Ajuste' : 'Abono';
+    return cartera.kindOf(movement);
   }
 
   abonosFor(budgetId: number): number {
-    return this.sum(this.movementsFor(budgetId).filter(m => this.kindOf(m) === 'Abono'));
+    return cartera.abonosFor(this.movementsByBudget(), budgetId);
   }
 
   ajustesFor(budgetId: number): number {
-    return this.sum(this.movementsFor(budgetId).filter(m => this.kindOf(m) === 'Ajuste'));
+    return cartera.ajustesFor(this.movementsByBudget(), budgetId);
   }
 
   /** Lo aplicado a la factura: abonos reales + ajustes (impuestos retenidos). */
   appliedFor(budgetId: number): number {
-    return this.abonosFor(budgetId) + this.ajustesFor(budgetId);
+    return cartera.appliedFor(this.movementsByBudget(), budgetId);
   }
 
   saldoFor(budget: BudgetModel): number {
-    return (budget.total ?? 0) - this.appliedFor(budget.budgetId);
+    return cartera.saldoFor(budget, this.movementsByBudget());
   }
 
   /** Porcentaje cubierto de la factura, para la barra de progreso. */
   progressFor(budget: BudgetModel): number {
-    const total = budget.total ?? 0;
-    if (total <= 0) return 0;
-    return Math.max(0, Math.min(100, (this.appliedFor(budget.budgetId) / total) * 100));
+    return cartera.progressFor(budget, this.movementsByBudget());
   }
 
   isSettled(budget: BudgetModel): boolean {
-    return this.saldoFor(budget) <= 0.5;
+    return cartera.isSettled(budget, this.movementsByBudget());
   }
 
-  private sum(movements: PaymentModel[]): number {
-    return movements.reduce((acc, m) => acc + (Number(m.amountPaid) || 0), 0);
+  /** Días transcurridos desde la fecha de la cotización. No es mora: no hay vencimiento. */
+  agingDaysFor(budget: BudgetModel): number {
+    return cartera.agingDays(budget);
   }
 
-  totalFacturado = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + (b.total ?? 0), 0)
-  );
+  /** Tramo de antigüedad de la cotización: 0-30, 31-60, 61-90 o +90. */
+  agingBucketFor(budget: BudgetModel): cartera.AgingBucket {
+    return cartera.agingBucketOf(budget);
+  }
 
-  totalAbonos = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + this.abonosFor(b.budgetId), 0)
-  );
+  agingLabelFor(budget: BudgetModel): string {
+    return cartera.AGING_BUCKET_LABELS[this.agingBucketFor(budget)];
+  }
 
-  totalAjustes = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + this.ajustesFor(b.budgetId), 0)
-  );
+  totalFacturado = computed(() => cartera.totalFacturado(this.filteredBudgets()));
+
+  totalAbonos = computed(() => cartera.totalAbonos(this.filteredBudgets(), this.movementsByBudget()));
+
+  totalAjustes = computed(() => cartera.totalAjustes(this.filteredBudgets(), this.movementsByBudget()));
 
   /** Total adeudado real: facturado menos abonos y ajustes. */
   totalSaldo = computed(() =>
     this.totalFacturado() - this.totalAbonos() - this.totalAjustes()
   );
 
-  settledCount = computed(() => this.filteredBudgets().filter(b => this.isSettled(b)).length);
+  settledCount = computed(() => cartera.settledCount(this.filteredBudgets(), this.movementsByBudget()));
+
+  /** Saldo pendiente repartido por tramo de antigüedad, solo del cliente en pantalla. */
+  agingBreakdown = computed(() =>
+    cartera.saldoByAgingBucket(this.filteredBudgets(), this.movementsByBudget())
+  );
+
+  /** Color del tramo de antigüedad de una cotización. */
+  agingColorFor(budget: BudgetModel): string {
+    return AGING_COLORS[this.agingBucketFor(budget)];
+  }
+
+  /**
+   * Franja de antigüedad del ledger: los cuatro tramos con su peso relativo.
+   *
+   * Se construye siempre con los cuatro, aunque valgan cero, para que la leyenda
+   * no baile de tamaño al registrar abonos.
+   */
+  agingSegments = computed<AgingSegment[]>(() => {
+    const breakdown = this.agingBreakdown();
+    const total = cartera.AGING_BUCKETS.reduce((acc, b) => acc + breakdown[b], 0);
+    return cartera.AGING_BUCKETS.map(bucket => ({
+      bucket,
+      label: AGING_SHORT_LABELS[bucket],
+      color: AGING_COLORS[bucket],
+      amount: breakdown[bucket],
+      percent: total > 0 ? (breakdown[bucket] / total) * 100 : 0,
+    }));
+  });
+
+  /** Cuánto del total facturado sigue pendiente, para la línea bajo el saldo. */
+  saldoShareLabel = computed(() => {
+    const facturado = this.totalFacturado();
+    if (facturado <= 0) return '';
+    const percent = (this.totalSaldo() / facturado) * 100;
+    return `${percent.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} % del total facturado`;
+  });
+
+  /** Fecha del abono más reciente del cliente; `null` si aún no ha abonado nada. */
+  lastPaymentDate = computed<Date | null>(() => {
+    let latest: number | null = null;
+    for (const movements of this.movementsByBudget().values()) {
+      for (const movement of movements) {
+        if (cartera.kindOf(movement) !== 'Abono') continue;
+        const time = new Date(movement.paymentDate).getTime();
+        if (!Number.isFinite(time)) continue;
+        if (latest === null || time > latest) latest = time;
+      }
+    }
+    return latest === null ? null : new Date(latest);
+  });
+
+  /** Valor del `<select>` de cliente: cadena, como los `value` de sus `<option>`. */
+  selectedCustomerValue = computed(() => {
+    const customer = this.selectedCustomer();
+    return customer ? String(customer.customerId) : '';
+  });
+
+  /**
+   * Texto de la pastilla de transferencia de un movimiento.
+   *
+   * El propio pago trae ya el valor y la fecha de su transferencia
+   * (`transferAmount` / `transferDate`), así que no hay nada que pedir. Si por
+   * lo que sea vinieran vacíos se muestra solo el número: es información
+   * cierta, la pastilla se degrada pero no miente.
+   */
+  transferLabelFor(movement: PaymentModel): string {
+    const id = movement?.transferId;
+    if (!id) return 'Sin transferencia';
+    if (movement.transferAmount == null || !movement.transferDate) return `Transferencia #${id}`;
+    return `Transferencia #${id} · $ ${this.money(movement.transferAmount)} del ${this.shortDate(movement.transferDate)}`;
+  }
+
+  /** "20 mar": día y mes, sin año, como en el diseño. */
+  private shortDate(value: Date | string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }).replace('.', '');
+  }
 
   money(value: number): string {
     return (value ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -249,20 +339,46 @@ export class AccountStatementComponent implements OnInit {
 
   // ------------------------------------------------------------- clientes
 
-  onCustomerChange(customerId: string): void {
+  onCustomerChange(customerId: string | number): void {
     if (!customerId) {
-      this.selectedCustomer.set(null);
-      this.movementsByBudget.set(new Map());
+      this.backToDashboard();
       return;
     }
     const customer = this.customers().find(c => c.customerId === +customerId) ?? null;
     this.selectedCustomer.set(customer);
-    this.movementsByBudget.set(new Map());
+    this.resetCustomerScopedState();
     if (customer) this.loadMovementsFor(customer.customerId);
   }
 
-  onCustomerSelectChange(event: Event): void {
-    this.onCustomerChange((event.target as HTMLSelectElement).value);
+  /**
+   * Vuelve a la vista de cartera (el dashboard).
+   *
+   * No hace falta pedirle al dashboard un `load()` explícito: se muestra con
+   * `*ngIf`, así que al volver se crea de nuevo y su propio `ngOnInit` recarga
+   * los datos. Es justo lo que se quiere cuando el usuario acaba de registrar
+   * abonos en el detalle, y el coste es una única petición al entrar.
+   */
+  backToDashboard(): void {
+    this.selectedCustomer.set(null);
+    this.resetCustomerScopedState();
+  }
+
+  /** El cliente elegido en el ranking del dashboard abre su detalle. */
+  onPortfolioCustomerSelected(row: PortfolioCustomerRow): void {
+    if (!row?.customerId) return;
+    const customer = this.customers().find(c => c.customerId === row.customerId) ?? null;
+    if (!customer) {
+      this.notifyError('Ese cliente no está en la lista del selector. Recarga la pantalla e inténtalo de nuevo.');
+      return;
+    }
+    this.onCustomerChange(customer.customerId);
+  }
+
+  /** Todo lo que depende del cliente en pantalla y no debe sobrevivir al cambio. */
+  private resetCustomerScopedState(): void {
+    this.movementsByBudget.set(new Map());
+    this.cancelEditingInvoice();
+    this.cancelEditingMovement();
   }
 
   // ------------------------------------------- autoguardado factura/estado
@@ -616,6 +732,14 @@ export class AccountStatementComponent implements OnInit {
     });
   }
 
+  /**
+   * Abre el diálogo con el reparto completo de una transferencia.
+   *
+   * Es lo único que sigue necesitando `GET /api/payment-transfer/{id}`: el
+   * diálogo lista `detail.payments`, es decir las OTRAS cotizaciones que cubrió
+   * la misma consignación, y eso no cabe en el `PaymentDTO` de un solo pago. Se
+   * pide al abrir, que es cuando el usuario lo pide: ya no hay precarga.
+   */
   showTransferDetail(transferId: number): void {
     this.paymentTransferService.getById(transferId).subscribe({
       next: (detail: any) => {
@@ -648,117 +772,21 @@ export class AccountStatementComponent implements OnInit {
     this.spinner.show();
     try {
       const cliente = this.selectedCustomer();
-      const empresa = this.companyInfo();
-
-      const doc = new jsPDF();
-      const marginX = 14;
-
-      if (empresa?.urlImageLogo) {
-        try {
-          doc.addImage(await this.getBase64ImageFromURL(empresa.urlImageLogo), 'PNG', marginX, 12, 34, 17);
-        } catch {
-          // Sin logo: el encabezado de texto es suficiente.
-        }
-      }
-
-      doc.setFontSize(13);
-      doc.setFont('helvetica', 'bold');
-      doc.text(empresa?.companyName || 'Estado de cuenta', 52, 18);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.text(empresa?.address || '', 52, 24);
-      doc.text([empresa?.telephones, empresa?.email].filter(Boolean).join('  ·  '), 52, 29);
-
-      doc.setFontSize(15);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Estado de cuenta', marginX, 44);
-
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Cliente: ${cliente?.customerName ?? ''}`, marginX, 52);
-      if (cliente?.email) doc.text(`Email: ${cliente.email}`, marginX, 57);
-      if (cliente?.address) doc.text(`Dirección: ${cliente.address}`, marginX, 62);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-CO')}`, marginX, 67);
-
-      // Bloque de resumen: facturado / abonado / saldo, antes de la tabla de detalle.
-      const summaryY = 76;
-      const summaryBoxWidth = 56;
-      const summaryLabels: [string, string, [number, number, number]][] = [
-        ['Facturado', `$ ${this.money(this.totalFacturado())}`, AccountStatementComponent.PDF_INK],
-        ['Abonado', `$ ${this.money(this.totalAbonos() + this.totalAjustes())}`, AccountStatementComponent.PDF_CREDIT],
-        ['Saldo', `$ ${this.money(this.totalSaldo())}`, AccountStatementComponent.PDF_DEBT],
-      ];
-      summaryLabels.forEach(([label, value, color], i) => {
-        const x = marginX + i * (summaryBoxWidth + 6);
-        doc.setFillColor(...AccountStatementComponent.PDF_PRIMARY_LIGHT);
-        doc.roundedRect(x, summaryY, summaryBoxWidth, 22, 2, 2, 'F');
-        doc.setFontSize(8);
-        doc.setTextColor(...AccountStatementComponent.PDF_MUTED);
-        doc.text(label.toUpperCase(), x + 5, summaryY + 8);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...color);
-        doc.text(value, x + 5, summaryY + 17);
-        doc.setFont('helvetica', 'normal');
+      const doc = await buildAccountStatementPdf({
+        budgets: rows,
+        // El anexo necesita nombrar cualquier cotización a la que se haya
+        // aplicado una transferencia, esté hoy facturada o no.
+        allBudgets: this.budgets().filter(b => b.customerId === cliente?.customerId),
+        movements: this.movementsByBudget(),
+        customer: cliente,
+        company: this.companyInfo(),
       });
-      doc.setTextColor(0, 0, 0);
-
-      const body = rows.map(b => [
-        String(b.internalCode),
-        b.externalInvoice && b.externalInvoice !== '0' ? b.externalInvoice : '—',
-        new Date(b.date).toLocaleDateString('es-CO'),
-        b.budgetName,
-        `$ ${this.money(b.total ?? 0)}`,
-        `$ ${this.money(this.abonosFor(b.budgetId))}`,
-        `$ ${this.money(this.ajustesFor(b.budgetId))}`,
-        `$ ${this.money(this.saldoFor(b))}`,
-      ]);
-
-      autoTable(doc, {
-        head: [['Código', 'Factura', 'Fecha', 'Obra', 'Facturado', 'Abonos', 'Ajustes', 'Saldo']],
-        body,
-        foot: [[
-          { content: 'Totales', colSpan: 4 },
-          `$ ${this.money(this.totalFacturado())}`,
-          `$ ${this.money(this.totalAbonos())}`,
-          `$ ${this.money(this.totalAjustes())}`,
-          `$ ${this.money(this.totalSaldo())}`,
-        ]],
-        startY: summaryY + 30,
-        theme: 'grid',
-        headStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY, textColor: 255, fontStyle: 'bold' },
-        footStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY_LIGHT, textColor: 20, fontStyle: 'bold' },
-        styles: { fontSize: 8.5, cellPadding: 2.4 },
-        alternateRowStyles: { fillColor: [250, 249, 253] },
-        columnStyles: {
-          4: { halign: 'right' }, 5: { halign: 'right' },
-          6: { halign: 'right' }, 7: { halign: 'right' },
-        },
-      });
-
-      const nombre = (cliente?.customerName ?? 'cliente').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
-      doc.save(`estado-cuenta-${nombre}.pdf`);
+      doc.save(accountStatementFileName(cliente));
     } catch (error) {
       console.error('Error al generar PDF:', error);
       this.notifyError('No se pudo generar el PDF.');
     } finally {
       this.spinner.hide();
     }
-  }
-
-  private getBase64ImageFromURL(url: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.setAttribute('crossOrigin', 'anonymous');
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext('2d')?.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
   }
 }

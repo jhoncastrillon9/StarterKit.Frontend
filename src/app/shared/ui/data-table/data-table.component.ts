@@ -68,14 +68,21 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   /** Habilita una columna de despliegue por fila. Requiere rowKey y un
    *  <ng-template #dtRowExpansion let-row> con el contenido del panel. */
   expandable = input<boolean>(false);
+  /** Hace la fila pulsable: cursor de mano y emisión de `rowClick`. */
+  clickableRows = input<boolean>(false);
 
   kpiClick = output<string>();
+  /** Fila pulsada. Solo se emite si `clickableRows` está activo. */
+  rowClick = output<any>();
   chipChange = output<string>();
   searchChange = output<string>();
   lazyLoad = output<DataTableLazyEvent>();
 
   @ContentChildren(DataTableColumnDirective) private columnDirectives!: QueryList<DataTableColumnDirective>;
   @ContentChild('dtRowExpansion') rowExpansionTemplate: TemplateRef<{ $implicit: unknown }> | null = null;
+  /** Fila fija al pie de la tabla (totales). El consumidor aporta el `<tr>` completo,
+   *  porque solo él sabe cómo agrupar sus columnas. Opcional: sin plantilla no hay tfoot. */
+  @ContentChild('dtFooter') footerTemplate: TemplateRef<unknown> | null = null;
   private templates = new Map<string, TemplateRef<{ $implicit: unknown }>>();
   private destroyRef = inject(DestroyRef);
   private filterService = inject(FilterService);
@@ -349,6 +356,30 @@ export class DataTableComponent implements AfterContentInit, OnInit {
       if (range[1] != null && n > Number(range[1])) return false;
       return true;
     });
+  }
+
+  /** Ignora los clics sobre controles interactivos de la propia fila. */
+  onRowClick(row: any, event: MouseEvent): void {
+    if (!this.clickableRows()) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea')) return;
+    this.rowClick.emit(row);
+  }
+
+  /**
+   * Enter y Espacio abren la fila, igual que el clic.
+   *
+   * Con `clickableRows` la fila lleva `role="button"` y `tabindex`, así que el
+   * teclado tiene que llegar donde llega el ratón. Si el foco está sobre un
+   * control de la propia fila, la tecla es suya.
+   */
+  onRowKeydown(row: any, event: Event): void {
+    if (!this.clickableRows()) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea')) return;
+    // El espacio, sin esto, desplaza la página.
+    event.preventDefault();
+    this.rowClick.emit(row);
   }
 
   onSearch(dt: Table, value: string): void {
