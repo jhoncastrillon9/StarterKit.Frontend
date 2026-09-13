@@ -113,18 +113,6 @@ export class AccountStatementComponent implements OnInit {
   transferDetailVisible = signal(false);
   transferDetail = signal<PaymentTransferModel | null>(null);
 
-  /**
-   * Transferencias ya resueltas, por id.
-   *
-   * El pago solo trae `transferId`; el valor y la fecha viven en la transferencia.
-   * Se piden UNA vez por transferencia distinta del cliente (no una por fila del
-   * panel de movimientos) y se reutilizan tanto en la pastilla como en el diálogo
-   * de detalle. Ver `ensureTransfersLoaded`.
-   */
-  private transfersById = signal<Map<number, PaymentTransferModel>>(new Map());
-  /** Peticiones en vuelo, para no pedir dos veces la misma transferencia. */
-  private transfersInFlight = new Set<number>();
-
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
 
@@ -175,42 +163,7 @@ export class AccountStatementComponent implements OnInit {
       .pipe(catchError(() => of([])))
       .subscribe((payments: any) => {
         this.movementsByBudget.set(this.indexMovements(payments ?? []));
-        this.ensureTransfersLoaded(payments ?? []);
       });
-  }
-
-  /**
-   * Resuelve el valor y la fecha de las transferencias que aparecen en los
-   * movimientos del cliente.
-   *
-   * El backend no devuelve esos datos dentro del pago (`PaymentDTO` solo trae
-   * `TransferId`) y no hay endpoint que liste las transferencias de un cliente,
-   * así que hay que preguntar por cada transferencia. El coste se acota
-   * deduplicando: una petición por transferencia DISTINTA del cliente, no una
-   * por fila ni una por cada vez que se despliega un panel. Los movimientos sin
-   * transferencia y los ya cacheados no piden nada.
-   */
-  private ensureTransfersLoaded(payments: PaymentModel[]): void {
-    const pending = new Set<number>();
-    for (const payment of payments) {
-      const id = payment?.transferId;
-      if (!id) continue;
-      if (this.transfersById().has(id) || this.transfersInFlight.has(id)) continue;
-      pending.add(id);
-    }
-
-    for (const id of pending) {
-      this.transfersInFlight.add(id);
-      this.paymentTransferService.getById(id)
-        .pipe(catchError(() => of(null)))
-        .subscribe((detail: PaymentTransferModel | null) => {
-          this.transfersInFlight.delete(id);
-          // Sin detalle la pastilla se queda en "Transferencia #N": se degrada,
-          // no se rompe. No se avisa al usuario por un dato decorativo.
-          if (!detail) return;
-          this.transfersById.update(map => new Map(map).set(id, detail));
-        });
-    }
   }
 
   loadCompanyInfo(): void {
@@ -368,15 +321,16 @@ export class AccountStatementComponent implements OnInit {
   /**
    * Texto de la pastilla de transferencia de un movimiento.
    *
-   * Mientras la transferencia no se ha resuelto se muestra solo su número: es
-   * información cierta, y el valor y la fecha aparecen al llegar.
+   * El propio pago trae ya el valor y la fecha de su transferencia
+   * (`transferAmount` / `transferDate`), así que no hay nada que pedir. Si por
+   * lo que sea vinieran vacíos se muestra solo el número: es información
+   * cierta, la pastilla se degrada pero no miente.
    */
   transferLabelFor(movement: PaymentModel): string {
     const id = movement?.transferId;
     if (!id) return 'Sin transferencia';
-    const transfer = this.transfersById().get(id);
-    if (!transfer) return `Transferencia #${id}`;
-    return `Transferencia #${id} · $ ${this.money(transfer.totalAmount)} del ${this.shortDate(transfer.transferDate)}`;
+    if (movement.transferAmount == null || !movement.transferDate) return `Transferencia #${id}`;
+    return `Transferencia #${id} · $ ${this.money(movement.transferAmount)} del ${this.shortDate(movement.transferDate)}`;
   }
 
   /** "20 mar": día y mes, sin año, como en el diseño. */
@@ -430,8 +384,6 @@ export class AccountStatementComponent implements OnInit {
   /** Todo lo que depende del cliente en pantalla y no debe sobrevivir al cambio. */
   private resetCustomerScopedState(): void {
     this.movementsByBudget.set(new Map());
-    this.transfersById.set(new Map());
-    this.transfersInFlight.clear();
     this.cancelEditingInvoice();
     this.cancelEditingMovement();
   }
@@ -787,21 +739,19 @@ export class AccountStatementComponent implements OnInit {
     });
   }
 
+  /**
+   * Abre el diálogo con el reparto completo de una transferencia.
+   *
+   * Es lo único que sigue necesitando `GET /api/payment-transfer/{id}`: el
+   * diálogo lista `detail.payments`, es decir las OTRAS cotizaciones que cubrió
+   * la misma consignación, y eso no cabe en el `PaymentDTO` de un solo pago. Se
+   * pide al abrir, que es cuando el usuario lo pide: ya no hay precarga.
+   */
   showTransferDetail(transferId: number): void {
-    // La pastilla ya resolvió esta transferencia para mostrar su valor y fecha:
-    // el diálogo reutiliza esa copia en vez de repetir la petición.
-    const cached = this.transfersById().get(transferId);
-    if (cached) {
-      this.transferDetail.set(cached);
-      this.transferDetailVisible.set(true);
-      return;
-    }
-
     this.paymentTransferService.getById(transferId).subscribe({
       next: (detail: any) => {
         this.transferDetail.set(detail ?? null);
         this.transferDetailVisible.set(true);
-        if (detail) this.transfersById.update(map => new Map(map).set(transferId, detail));
       },
       error: () => this.notifyError('No se pudo cargar el detalle de la transferencia.'),
     });
