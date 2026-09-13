@@ -1,0 +1,216 @@
+<div class="pd-root">
+
+  <!-- ============================ CABECERA ============================ -->
+  <div class="pd-header">
+    <div class="pd-header__left">
+      <div class="pd-header__icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+      </div>
+      <div>
+        <div class="pd-header__title">Cartera</div>
+        <div class="pd-header__subtitle">{{ headerSubtitle() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ CARGANDO ============================ -->
+  @if (loading()) {
+    <div class="pd-skeleton">
+      <div class="pd-skeleton__kpis">
+        @for (i of [1, 2, 3, 4, 5]; track i) { <div class="pd-skel pd-skel--kpi"></div> }
+      </div>
+      <div class="pd-skeleton__charts">
+        <div class="pd-skel pd-skel--chart"></div>
+        <div class="pd-skel pd-skel--chart"></div>
+      </div>
+      <div class="pd-skel pd-skel--table"></div>
+      <p class="pd-skeleton__note">Cargando la cartera de la empresa…</p>
+    </div>
+  }
+
+  <!-- ============================= ERROR ============================== -->
+  @if (loadError()) {
+    <div class="pd-state pd-state--error">
+      <div class="pd-state__icon pd-state__icon--error">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <div class="pd-state__title">No se pudo cargar la cartera</div>
+      <p class="pd-state__text">
+        El servidor no respondió a la consulta de los totales de cartera. No se ha perdido nada:
+        vuelve a intentarlo y, si el problema persiste, avisa al administrador.
+      </p>
+      <button type="button" class="pd-btn" (click)="load()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        <span>Reintentar</span>
+      </button>
+    </div>
+  }
+
+  <!-- ============================== VACÍO ============================= -->
+  @if (isEmpty()) {
+    <div class="pd-state">
+      <div class="pd-state__icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h7"/></svg>
+      </div>
+      <div class="pd-state__title">Todavía no hay cartera que mostrar</div>
+      <p class="pd-state__text">
+        Ninguna cotización de la empresa está marcada como facturada, así que no hay facturado,
+        recaudado ni saldo que resumir. En cuanto marques una cotización como facturada, aparecerán
+        aquí los totales, la antigüedad y el ranking de clientes.
+      </p>
+    </div>
+  }
+
+  <!-- ============================ CONTENIDO =========================== -->
+  @if (ready()) {
+
+    <!-- ------------------------------ KPIs ---------------------------- -->
+    <div class="pd-kpis">
+      <app-kpi-card
+        [value]="money(totals()!.outstanding)" label="Cartera pendiente"
+        [dotColor]="colors.debt" [share]="outstandingShare()"></app-kpi-card>
+      <app-kpi-card
+        [value]="money(totals()!.billed)" label="Total facturado"
+        [dotColor]="colors.primary" [share]="billedShare()"></app-kpi-card>
+      <app-kpi-card
+        [value]="money(totals()!.collected)" label="Total recaudado"
+        [dotColor]="colors.credit" [share]="collectedShare()"></app-kpi-card>
+      <app-kpi-card
+        [value]="money(totals()!.adjustments)" label="Ajustes aplicados"
+        [dotColor]="colors.adjust" [share]="adjustmentsShare()"></app-kpi-card>
+      <app-kpi-card
+        [value]="totals()!.customersWithBalance" label="Clientes con saldo"
+        [dotColor]="colors.info" [share]="customersShare()"></app-kpi-card>
+    </div>
+
+    <!-- ---------------------------- GRÁFICOS -------------------------- -->
+    <div class="pd-charts">
+
+      <!-- Antigüedad. NUNCA "vencido" ni "mora": no hay vencimiento pactado. -->
+      <div class="pd-card">
+        <div class="pd-card__head">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>Antigüedad de la cartera</span>
+          <span class="pd-card__head-right">Días desde la fecha de la cotización</span>
+        </div>
+
+        <div class="pd-chart-wrap">
+          <c-chart class="pd-chart" type="bar" [customTooltips]="false" [wrapper]="false"
+            [data]="agingChartData()" [options]="agingChartOptions()"></c-chart>
+        </div>
+
+        <div class="pd-legend">
+          @for (item of agingLegend(); track item.bucket) {
+            <span class="pd-lg">
+              <span class="pd-lg__dot" [style.background]="item.color"></span>
+              {{ item.label }} <span class="pd-lg__val">{{ item.percent }}</span>
+            </span>
+          }
+        </div>
+        <p class="pd-note">
+          Antigüedad contada desde la fecha de la cotización. No es mora: estas cotizaciones no
+          tienen fecha de vencimiento pactada en el sistema.
+        </p>
+      </div>
+
+      <!-- Recaudo por mes -->
+      <div class="pd-card">
+        <div class="pd-card__head">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/></svg>
+          <span>Recaudo por mes</span>
+          <span class="pd-card__head-right">{{ collectionsRangeLabel() }}</span>
+        </div>
+
+        <div class="pd-chart-wrap">
+          <c-chart class="pd-chart" type="line" [customTooltips]="false" [wrapper]="false"
+            [data]="collectionsChartData()" [options]="collectionsChartOptions()"></c-chart>
+        </div>
+
+        <div class="pd-legend">
+          <span class="pd-lg">
+            <span class="pd-lg__dot" [style.background]="colors.primary"></span>
+            Abonos de los 12 meses <span class="pd-lg__val">{{ money(collectionsTotal()) }}</span>
+          </span>
+        </div>
+        <p class="pd-note">
+          Cada punto suma los abonos aplicados en el mes, sin importar de qué cotización o
+          transferencia provengan. El mes en curso todavía no está cerrado.
+        </p>
+      </div>
+    </div>
+
+    <!-- ------------------------ RANKING DE CLIENTES ------------------- -->
+    <div class="pd-ranking">
+      <div class="pd-card__head pd-ranking__head">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        <span>Clientes con saldo</span>
+        <span class="pd-card__head-right">Ordenado por saldo pendiente · pulsa una fila para ver su estado de cuenta</span>
+      </div>
+
+      <app-data-table
+        [columns]="tableColumns"
+        [value]="rows()"
+        rowKey="customerId"
+        [globalFilterFields]="globalFilterFields"
+        searchPlaceholder="Buscar cliente…"
+        sortField="outstanding"
+        [sortOrder]="-1"
+        [rows]="25"
+        [rowsPerPageOptions]="[25, 50, 100]"
+        [clickableRows]="true"
+        (rowClick)="onRowClick($event)">
+
+        <ng-template dtColumn="customerName" let-row>
+          <div class="pd-cli">
+            <app-client-avatar [name]="row.customerName"></app-client-avatar>
+            <span class="pd-cli__body">
+              <span class="pd-cli__name">{{ row.customerName }}</span>
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template dtColumn="budgetsWithBalance" let-row>
+          <span class="pd-soft">{{ row.budgetsWithBalance }}</span>
+        </ng-template>
+
+        <ng-template dtColumn="billed" let-row>
+          <span class="pd-amount">{{ money(row.billed) }}</span>
+        </ng-template>
+
+        <ng-template dtColumn="collected" let-row>
+          <span class="pd-amount pd-amount--credit">{{ money(row.collected) }}</span>
+        </ng-template>
+
+        <ng-template dtColumn="outstanding" let-row>
+          <span class="pd-amount pd-amount--debt">{{ money(row.outstanding) }}</span>
+        </ng-template>
+
+        <ng-template dtColumn="segments" let-row>
+          @if (row.segments.length) {
+            <div class="pd-agebar">
+              <div class="pd-agebar__track">
+                @for (seg of row.segments; track seg.bucket) {
+                  <span class="pd-agebar__seg" [style.width.%]="seg.percent"
+                    [style.background]="seg.color" [title]="seg.bucket + ': ' + money(seg.amount)"></span>
+                }
+              </div>
+              <span class="pd-agebar__label">{{ row.oldestLabel }}</span>
+            </div>
+          } @else {
+            <span class="pd-agebar__label">Sin saldo pendiente</span>
+          }
+        </ng-template>
+
+        <ng-template dtColumn="goto" let-row>
+          <span class="pd-goto" aria-hidden="true">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
+        </ng-template>
+
+        <div dt-empty class="pd-empty">
+          Ningún cliente coincide con la búsqueda o los filtros aplicados.
+        </div>
+      </app-data-table>
+    </div>
+  }
+</div>

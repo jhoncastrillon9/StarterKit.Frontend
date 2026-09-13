@@ -68,8 +68,12 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   /** Habilita una columna de despliegue por fila. Requiere rowKey y un
    *  <ng-template #dtRowExpansion let-row> con el contenido del panel. */
   expandable = input<boolean>(false);
+  /** Hace la fila pulsable: cursor de mano y emisión de `rowClick`. */
+  clickableRows = input<boolean>(false);
 
   kpiClick = output<string>();
+  /** Fila pulsada. Solo se emite si `clickableRows` está activo. */
+  rowClick = output<any>();
   chipChange = output<string>();
   searchChange = output<string>();
   lazyLoad = output<DataTableLazyEvent>();
@@ -349,6 +353,14 @@ export class DataTableComponent implements AfterContentInit, OnInit {
       if (range[1] != null && n > Number(range[1])) return false;
       return true;
     });
+  }
+
+  /** Ignora los clics sobre controles interactivos de la propia fila. */
+  onRowClick(row: any, event: MouseEvent): void {
+    if (!this.clickableRows()) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea')) return;
+    this.rowClick.emit(row);
   }
 
   onSearch(dt: Table, value: string): void {

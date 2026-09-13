@@ -182,7 +182,8 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-row let-expanded="expanded">
-        <tr [class.dc-tr--expanded]="expanded">
+        <tr [class.dc-tr--expanded]="expanded" [class.dc-tr--clickable]="clickableRows()"
+            (click)="onRowClick(row, $event)">
           @if (expandable()) {
             <td class="dc-td dc-td--toggle">
               <button type="button" class="dc-toggle" [pRowToggler]="row"

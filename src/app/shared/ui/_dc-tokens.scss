@@ -8,3 +8,17 @@ $dc-muted:        #7c7691;
 $dc-border:       #e8e6f0;
 $dc-font-head: 'Nunito', system-ui, sans-serif;
 $dc-font-body: 'Nunito Sans', system-ui, sans-serif;
+
+// Tono claro de la marca: segundo escalón de las series moradas.
+$dc-primary-light: #a78bfa;
+// Superficies y separadores secundarios.
+$dc-surface:      #fafafc;
+$dc-border-soft:  #efedf5;
+$dc-muted-soft:   #a09ab5;
+
+// Semántica del dinero: el color dice la dirección del movimiento, no decora.
+// Verde entra, ámbar se retiene, rojo queda debiendo, azul informa.
+$dc-credit: #15703f;
+$dc-adjust: #b45309;
+$dc-debt:   #c0392b;
+$dc-info:   #12a0d8;
