@@ -291,6 +291,11 @@
 
 :host ::ng-deep tr.dc-tr--expanded > .dc-td { background: #faf8ff; }
 :host ::ng-deep tr.dc-tr--clickable { cursor: pointer; }
+// La fila pulsable se recorre con el tabulador: el foco tiene que verse.
+:host ::ng-deep tr.dc-tr--clickable:focus-visible {
+  outline: 2px solid dc.$dc-primary;
+  outline-offset: -2px;
+}
 :host ::ng-deep tr.dc-tr--panel > .dc-td--panel {
   padding: 0; background: #faf8ff; border-bottom: 1px solid #efedf5;
 }

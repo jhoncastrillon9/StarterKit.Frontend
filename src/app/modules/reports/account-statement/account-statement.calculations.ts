@@ -1,5 +1,4 @@
 import { BudgetModel } from '../../budgets/models/budget.Model';
-import { CustomerModel } from '../../customers/models/customer.Model';
 import { PaymentModel } from '../../payments/models/payment.Model';
 
 /**
@@ -214,70 +213,4 @@ export function saldoByAgingBucket(
   return breakdown;
 }
 
-/**
- * Tramo del saldo pendiente más antiguo del conjunto, o `null` si no hay saldo.
- * Es el tramo con el que se etiqueta a un cliente.
- */
-export function oldestPendingBucket(
-  budgets: readonly BudgetModel[],
-  index: MovementIndex,
-  now: Date = new Date()
-): AgingBucket | null {
-  let oldest = -1;
-  for (const budget of budgets ?? []) {
-    if (isSettled(budget, index)) continue;
-    oldest = Math.max(oldest, agingDays(budget, now));
-  }
-  return oldest < 0 ? null : agingBucketOfDays(oldest);
-}
-
-// -------------------------------------------------------- agregados de cartera
-
-/** Cartera de un cliente. */
-export interface CustomerCartera {
-  customerId: number;
-  customerName: string;
-  /** Suma de `budget.total` de sus cotizaciones facturadas. */
-  facturado: number;
-  abonos: number;
-  ajustes: number;
-  /** facturado − abonos − ajustes. */
-  saldo: number;
-  /** Cotizaciones facturadas con saldo pendiente. */
-  pendingCount: number;
-  /** Total de cotizaciones facturadas. */
-  billedCount: number;
-  /** Tramo del saldo pendiente más antiguo; `null` si está al día. */
-  oldestBucket: AgingBucket | null;
-  /** Días de antigüedad del saldo pendiente más antiguo; 0 si está al día. */
-  oldestDays: number;
-}
-
-/** Cartera de un cliente a partir de sus cotizaciones ya filtradas. */
-export function carteraOfCustomer(
-  customer: CustomerModel,
-  budgets: readonly BudgetModel[],
-  index: MovementIndex,
-  now: Date = new Date()
-): CustomerCartera {
-  const billed = (budgets ?? []).filter(b => b.customerId === customer.customerId && isBilled(b));
-  const pending = billed.filter(b => !isSettled(b, index));
-  const abonos = totalAbonos(billed, index);
-  const ajustes = totalAjustes(billed, index);
-  const facturado = totalFacturado(billed);
-  const oldestDays = pending.reduce((acc, b) => Math.max(acc, agingDays(b, now)), 0);
-
-  return {
-    customerId: customer.customerId,
-    customerName: customer.customerName ?? '',
-    facturado,
-    abonos,
-    ajustes,
-    saldo: facturado - abonos - ajustes,
-    pendingCount: pending.length,
-    billedCount: billed.length,
-    oldestBucket: pending.length ? agingBucketOfDays(oldestDays) : null,
-    oldestDays: pending.length ? oldestDays : 0,
-  };
-}
 

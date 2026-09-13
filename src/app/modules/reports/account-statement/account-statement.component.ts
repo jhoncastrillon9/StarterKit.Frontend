@@ -260,13 +260,6 @@ export class AccountStatementComponent implements OnInit {
     cartera.saldoByAgingBucket(this.filteredBudgets(), this.movementsByBudget())
   );
 
-  /** Cartera del cliente seleccionado: facturado, abonos, ajustes, saldo y antigüedad. */
-  customerCartera = computed<cartera.CustomerCartera | null>(() => {
-    const customer = this.selectedCustomer();
-    if (!customer) return null;
-    return cartera.carteraOfCustomer(customer, this.budgets(), this.movementsByBudget());
-  });
-
   /** Color del tramo de antigüedad de una cotización. */
   agingColorFor(budget: BudgetModel): string {
     return AGING_COLORS[this.agingBucketFor(budget)];

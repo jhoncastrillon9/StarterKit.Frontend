@@ -366,6 +366,22 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     this.rowClick.emit(row);
   }
 
+  /**
+   * Enter y Espacio abren la fila, igual que el clic.
+   *
+   * Con `clickableRows` la fila lleva `role="button"` y `tabindex`, así que el
+   * teclado tiene que llegar donde llega el ratón. Si el foco está sobre un
+   * control de la propia fila, la tecla es suya.
+   */
+  onRowKeydown(row: any, event: Event): void {
+    if (!this.clickableRows()) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea')) return;
+    // El espacio, sin esto, desplaza la página.
+    event.preventDefault();
+    this.rowClick.emit(row);
+  }
+
   onSearch(dt: Table, value: string): void {
     this.searchValue.set(value);
     dt.filterGlobal(value, 'contains');

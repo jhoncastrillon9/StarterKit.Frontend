@@ -7,6 +7,12 @@
   text-align: left; cursor: pointer; transition: border-color .15s ease;
   &:hover { border-color: #c4b5fd; }
   &--active { border-color: #a78bfa; }
+  // Tarjeta informativa: ni cursor de mano ni realce al pasar, porque no hay
+  // nada que pulsar.
+  &--static {
+    cursor: default;
+    &:not(.dc-kpi--active):hover { border-color: dc.$dc-border; }
+  }
 }
 .dc-kpi__dot { width: 6px; height: 30px; border-radius: 3px; flex: none; }
 .dc-kpi__body { display: flex; flex-direction: column; gap: 1px; }

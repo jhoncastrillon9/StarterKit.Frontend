@@ -17,7 +17,8 @@
       @for (k of kpis(); track k.key) {
         <app-kpi-card
           [value]="k.value" [label]="k.label" [dotColor]="k.dotColor" [share]="k.share ?? ''"
-          [active]="k.key === activeKpi()" (cardClick)="kpiClick.emit(k.key)"></app-kpi-card>
+          [active]="k.key === activeKpi()" [interactive]="true"
+          (cardClick)="kpiClick.emit(k.key)"></app-kpi-card>
       }
     </div>
   }
@@ -182,8 +183,14 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-row let-expanded="expanded">
+        <!-- Con `clickableRows` la fila es el control: sin tabindex ni manejador
+             de teclado solo se alcanzaba con el ratón. -->
         <tr [class.dc-tr--expanded]="expanded" [class.dc-tr--clickable]="clickableRows()"
-            (click)="onRowClick(row, $event)">
+            [attr.tabindex]="clickableRows() ? 0 : null"
+            [attr.role]="clickableRows() ? 'button' : null"
+            (click)="onRowClick(row, $event)"
+            (keydown.enter)="onRowKeydown(row, $event)"
+            (keydown.space)="onRowKeydown(row, $event)">
           @if (expandable()) {
             <td class="dc-td dc-td--toggle">
               <button type="button" class="dc-toggle" [pRowToggler]="row"
