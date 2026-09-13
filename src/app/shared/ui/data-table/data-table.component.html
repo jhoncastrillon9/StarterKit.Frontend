@@ -109,7 +109,16 @@
            evita duplicar el switch de tipos entre la rama sortable y la que no. -->
       <ng-template #filterPanel let-col="col">
         @if (col.filter && openFilterField() === col.field) {
-          <div class="dc-filter-panel" [class.dc-filter-panel--right]="col.align === 'right'">
+          <!--
+            El panel se pinta DENTRO del <th [pSortableColumn]>, asi que sin este
+            stopPropagation cualquier clic dentro (incluido enfocar el input) burbujea
+            hasta SortableColumn.onClick, que ordena la tabla, la devuelve a la pagina 1
+            y llama a DomHandler.clearSelection() — lo que borra el caret del input y
+            hace imposible escribir el valor del filtro. La salvaguarda isFilterElement()
+            de PrimeNG no nos cubre: solo reconoce sus propias clases.
+          -->
+          <div class="dc-filter-panel" [class.dc-filter-panel--right]="col.align === 'right'"
+               (click)="$event.stopPropagation()">
             <div class="dc-filter-panel__head">
               <span>Filtrar por {{ col.header.toLowerCase() }}</span>
               <button type="button" class="dc-filter-panel__close" title="Cerrar" (click)="closeFilterPanel()">

@@ -339,7 +339,9 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (error?.error) {
       if (typeof error.error === 'string' && error.error.trim()) return error.error;
       if (typeof error.error === 'object') {
-        const msg = error.error.message || error.error.title || error.error.Message;
+        // `error` en minuscula es la forma que usa StarterKitMiddleware para los errores
+        // de negocio ({ error: 'mensaje en espanol' }); va primero porque es la nuestra.
+        const msg = error.error.error || error.error.message || error.error.title || error.error.Message;
         if (typeof msg === 'string' && msg.trim()) return msg;
       }
     }
