@@ -11,9 +11,8 @@ import { PaymentModel, CreatePaymentTransferRequest, PaymentTransferAllocation, 
 import { BudgetModel } from '../../budgets/models/budget.Model';
 import { CustomerModel } from '../../customers/models/customer.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
+import { buildAccountStatementPdf, accountStatementFileName } from './account-statement-pdf';
 import { DataTableColumn } from '../../../shared/ui/data-table/data-table.types';
 import * as cartera from './account-statement.calculations';
 import { MovementKind } from './account-statement.calculations';
@@ -73,17 +72,6 @@ export class AccountStatementComponent implements OnInit {
   private paymentTransferService = inject(PaymentTransferService);
   private messageService = inject(MessageService);
   private spinner = inject(NgxSpinnerService);
-
-  /** Mismos valores que $primary/$primary-dark/$credit en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
-  private static readonly PDF_PRIMARY_LIGHT: [number, number, number] = [243, 240, 252];
-  private static readonly PDF_CREDIT: [number, number, number] = [21, 112, 63];
-  /** Mismo valor que $ink en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_INK: [number, number, number] = [31, 27, 46];
-  /** Mismo valor que $debt en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_DEBT: [number, number, number] = [192, 57, 43];
-  /** Mismo valor que $muted en el .scss, en RGB para jsPDF. */
-  private static readonly PDF_MUTED: [number, number, number] = [124, 118, 145];
 
   customers = signal<CustomerModel[]>([]);
   budgets = signal<BudgetModel[]>([]);
@@ -841,117 +829,18 @@ export class AccountStatementComponent implements OnInit {
     this.spinner.show();
     try {
       const cliente = this.selectedCustomer();
-      const empresa = this.companyInfo();
-
-      const doc = new jsPDF();
-      const marginX = 14;
-
-      if (empresa?.urlImageLogo) {
-        try {
-          doc.addImage(await this.getBase64ImageFromURL(empresa.urlImageLogo), 'PNG', marginX, 12, 34, 17);
-        } catch {
-          // Sin logo: el encabezado de texto es suficiente.
-        }
-      }
-
-      doc.setFontSize(13);
-      doc.setFont('helvetica', 'bold');
-      doc.text(empresa?.companyName || 'Estado de cuenta', 52, 18);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.text(empresa?.address || '', 52, 24);
-      doc.text([empresa?.telephones, empresa?.email].filter(Boolean).join('  ·  '), 52, 29);
-
-      doc.setFontSize(15);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Estado de cuenta', marginX, 44);
-
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Cliente: ${cliente?.customerName ?? ''}`, marginX, 52);
-      if (cliente?.email) doc.text(`Email: ${cliente.email}`, marginX, 57);
-      if (cliente?.address) doc.text(`Dirección: ${cliente.address}`, marginX, 62);
-      doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-CO')}`, marginX, 67);
-
-      // Bloque de resumen: facturado / abonado / saldo, antes de la tabla de detalle.
-      const summaryY = 76;
-      const summaryBoxWidth = 56;
-      const summaryLabels: [string, string, [number, number, number]][] = [
-        ['Facturado', `$ ${this.money(this.totalFacturado())}`, AccountStatementComponent.PDF_INK],
-        ['Abonado', `$ ${this.money(this.totalAbonos() + this.totalAjustes())}`, AccountStatementComponent.PDF_CREDIT],
-        ['Saldo', `$ ${this.money(this.totalSaldo())}`, AccountStatementComponent.PDF_DEBT],
-      ];
-      summaryLabels.forEach(([label, value, color], i) => {
-        const x = marginX + i * (summaryBoxWidth + 6);
-        doc.setFillColor(...AccountStatementComponent.PDF_PRIMARY_LIGHT);
-        doc.roundedRect(x, summaryY, summaryBoxWidth, 22, 2, 2, 'F');
-        doc.setFontSize(8);
-        doc.setTextColor(...AccountStatementComponent.PDF_MUTED);
-        doc.text(label.toUpperCase(), x + 5, summaryY + 8);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...color);
-        doc.text(value, x + 5, summaryY + 17);
-        doc.setFont('helvetica', 'normal');
+      const doc = await buildAccountStatementPdf({
+        budgets: rows,
+        movements: this.movementsByBudget(),
+        customer: cliente,
+        company: this.companyInfo(),
       });
-      doc.setTextColor(0, 0, 0);
-
-      const body = rows.map(b => [
-        String(b.internalCode),
-        b.externalInvoice && b.externalInvoice !== '0' ? b.externalInvoice : '—',
-        new Date(b.date).toLocaleDateString('es-CO'),
-        b.budgetName,
-        `$ ${this.money(b.total ?? 0)}`,
-        `$ ${this.money(this.abonosFor(b.budgetId))}`,
-        `$ ${this.money(this.ajustesFor(b.budgetId))}`,
-        `$ ${this.money(this.saldoFor(b))}`,
-      ]);
-
-      autoTable(doc, {
-        head: [['Código', 'Factura', 'Fecha', 'Obra', 'Facturado', 'Abonos', 'Ajustes', 'Saldo']],
-        body,
-        foot: [[
-          { content: 'Totales', colSpan: 4 },
-          `$ ${this.money(this.totalFacturado())}`,
-          `$ ${this.money(this.totalAbonos())}`,
-          `$ ${this.money(this.totalAjustes())}`,
-          `$ ${this.money(this.totalSaldo())}`,
-        ]],
-        startY: summaryY + 30,
-        theme: 'grid',
-        headStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY, textColor: 255, fontStyle: 'bold' },
-        footStyles: { fillColor: AccountStatementComponent.PDF_PRIMARY_LIGHT, textColor: 20, fontStyle: 'bold' },
-        styles: { fontSize: 8.5, cellPadding: 2.4 },
-        alternateRowStyles: { fillColor: [250, 249, 253] },
-        columnStyles: {
-          4: { halign: 'right' }, 5: { halign: 'right' },
-          6: { halign: 'right' }, 7: { halign: 'right' },
-        },
-      });
-
-      const nombre = (cliente?.customerName ?? 'cliente').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
-      doc.save(`estado-cuenta-${nombre}.pdf`);
+      doc.save(accountStatementFileName(cliente));
     } catch (error) {
       console.error('Error al generar PDF:', error);
       this.notifyError('No se pudo generar el PDF.');
     } finally {
       this.spinner.hide();
     }
-  }
-
-  private getBase64ImageFromURL(url: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.setAttribute('crossOrigin', 'anonymous');
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext('2d')?.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
   }
 }
