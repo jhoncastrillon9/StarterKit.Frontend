@@ -655,6 +655,9 @@ function drawTransferBlock(doc: jsPDF, group: TransferGroup, y: number): number 
     startY: cursor,
     theme: 'plain',
     rowPageBreak: 'avoid',
+    // La fila de cierre es el total del bloque, no el de la página: si se
+    // repitiese al pie de cada página el cliente la leería como un subtotal.
+    showFoot: 'lastPage',
     margin: { top: CONT_HEAD_H, bottom: FOOT_RESERVE, left: M, right: M },
     tableWidth: CONTENT_W,
     styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak', valign: 'middle' },
@@ -694,11 +697,16 @@ function drawLooseMovements(
   y: number
 ): number {
   let cursor = ensureSpace(doc, y, 30);
-  cursor = drawSectionTitle(doc, 'Movimientos sin transferencia', '', cursor + 2);
+  cursor = drawSectionTitle(
+    doc,
+    'Movimientos sin transferencia',
+    'Sobre las cotizaciones facturadas del detalle',
+    cursor + 2
+  );
 
   if (!loose.length) {
     setText(doc, 7, MUTED_SOFT);
-    doc.text('Todos los movimientos registrados pertenecen a alguna de las transferencias anteriores.', M, cursor + 4);
+    doc.text('Todos los movimientos de las cotizaciones del detalle pertenecen a alguna de las transferencias anteriores.', M, cursor + 4);
     return cursor + 8;
   }
 
@@ -732,6 +740,8 @@ function drawLooseMovements(
     startY: cursor + 2,
     theme: 'plain',
     rowPageBreak: 'avoid',
+    // Igual que en los bloques de transferencia: el total va una sola vez.
+    showFoot: 'lastPage',
     margin: { top: CONT_HEAD_H, bottom: FOOT_RESERVE, left: M, right: M },
     tableWidth: CONTENT_W,
     styles: { fontSize: 7, cellPadding: 1.5, overflow: 'linebreak', valign: 'middle' },
@@ -766,12 +776,25 @@ function drawClosingTotals(
 ): number {
   let cursor = ensureSpace(doc, y, 42);
 
-  const recibido = groups.reduce((acc, g) => acc + (g.declared ?? 0), 0);
-  const aplicado = groups.reduce((acc, g) => acc + g.applied, 0);
+  /**
+   * La comprobación «recibido vs. aplicado» solo tiene sentido sobre las
+   * transferencias de las que se conoce el valor registrado.
+   *
+   * Sumar `declared ?? 0` en el recibido pero todo lo aplicado en el aplicado
+   * hacía que una sola transferencia sin valor registrado dejara `sinAplicar`
+   * en negativo, y el panel anunciaba «se aplicaron $X de más» sin que fuera
+   * cierto. El bloque de cada transferencia ya dice, una a una, que su reparto
+   * no se puede comprobar; aquí se las excluye del cálculo y se declaran aparte.
+   */
+  const comprobables = groups.filter(g => g.declared != null);
+  const sinComprobar = groups.filter(g => g.declared == null);
+  const recibido = comprobables.reduce((acc, g) => acc + (g.declared ?? 0), 0);
+  const aplicado = comprobables.reduce((acc, g) => acc + g.applied, 0);
   const sinAplicar = recibido - aplicado;
+  const aplicadoSinComprobar = sinComprobar.reduce((acc, g) => acc + g.applied, 0);
   const looseAbonos = loose.filter(m => cartera.kindOf(m) === 'Abono');
   const looseAjustes = loose.filter(m => cartera.kindOf(m) === 'Ajuste');
-  const desbalanceadas = groups.filter(g => !g.balanced).length;
+  const desbalanceadas = comprobables.filter(g => !g.balanced).length;
 
   const headH = 6;
   const bodyH = 16;
@@ -793,15 +816,19 @@ function drawClosingTotals(
   const cells: [string, string, RGB, string][] = [
     [
       'Recibido en transferencias', cop(recibido), CREDIT,
-      `${groups.length} ${groups.length === 1 ? 'consignación' : 'consignaciones'}`,
+      sinComprobar.length
+        ? `${comprobables.length} de ${groups.length} con valor registrado`
+        : `${groups.length} ${groups.length === 1 ? 'consignación' : 'consignaciones'}`,
     ],
     [
       'Aplicado a cotizaciones', cop(aplicado), CREDIT,
-      Math.abs(sinAplicar) <= TRANSFER_TOLERANCE
-        ? 'Repartido íntegramente'
-        : (sinAplicar > 0
-          ? `Quedan ${cop(sinAplicar)} sin aplicar`
-          : `Se aplicaron ${cop(Math.abs(sinAplicar))} de más`),
+      comprobables.length === 0
+        ? 'Sin valores que comprobar'
+        : (Math.abs(sinAplicar) <= TRANSFER_TOLERANCE
+          ? 'Repartido íntegramente'
+          : (sinAplicar > 0
+            ? `Quedan ${cop(sinAplicar)} sin aplicar`
+            : `Se aplicaron ${cop(Math.abs(sinAplicar))} de más`)),
     ],
     [
       'Movimientos sin transferencia', cop(cartera.sumMovements(loose)), ADJUST,
@@ -858,6 +885,14 @@ function drawClosingTotals(
   cursor += headH + bodyH + eqH + 3;
 
   const warnings: string[] = [];
+  if (sinComprobar.length > 0) {
+    warnings.push(
+      `${sinComprobar.length} ${sinComprobar.length === 1 ? 'transferencia no tiene' : 'transferencias no tienen'} registrado su valor, ` +
+      `así que ${sinComprobar.length === 1 ? 'queda' : 'quedan'} fuera de las dos primeras cifras de este panel: ` +
+      `se ${sinComprobar.length === 1 ? 'aplicó' : 'aplicaron'} ${cop(aplicadoSinComprobar)} a cotizaciones sin un valor recibido contra el que contrastarlo. ` +
+      'El detalle de cada una está en su bloque del anexo.'
+    );
+  }
   if (desbalanceadas > 0) {
     warnings.push(
       `${desbalanceadas} ${desbalanceadas === 1 ? 'transferencia no cuadra' : 'transferencias no cuadran'} con su reparto. ` +
@@ -890,7 +925,23 @@ function drawAnnex(
   y: number
 ): void {
   const groups = groupTransfers(movements, budgetsById);
-  const loose = allMovements(movements).filter(m => !m.transferId);
+  /**
+   * Los movimientos sueltos se limitan a las cotizaciones facturadas.
+   *
+   * El backend devuelve TODOS los pagos del cliente, también los de cotizaciones
+   * que hoy no están facturadas. Un bloque de transferencia sí tiene que
+   * enseñarlos —marcados con `°`— porque sin ellos el reparto de esa
+   * transferencia no cuadraría; aquí es justo al revés: este bloque existe para
+   * explicar los abonos y ajustes que el cliente ve en la tabla de detalle, y
+   * colar movimientos de cotizaciones que no salen en esa tabla haría que la
+   * tarjeta «Movimientos sin transferencia» sumase más que el propio detalle.
+   * Cada bloque enseña exactamente lo que su comprobación necesita.
+   */
+  const loose = allMovements(movements).filter(m => {
+    if (m.transferId) return false;
+    const budget = budgetsById.get(m.budgetId);
+    return !!budget && cartera.isBilled(budget);
+  });
 
   // El anexo empieza en página propia salvo que quede sitio de sobra: es una
   // sección de lectura independiente, no la cola de la tabla anterior.
@@ -926,10 +977,13 @@ function drawAnnex(
  */
 function drawChrome(doc: jsPDF, empresa: any, cliente: CustomerModel | null): void {
   const total = doc.getNumberOfPages();
+  // La nota se imprime en TODAS las páginas y la lee el cliente final de la
+  // constructora: dice lo mismo en positivo, sin nombrar términos que puedan
+  // sugerirle una condición que su acuerdo comercial no contempla.
   const note =
-    'La antigüedad se cuenta en días desde la fecha de la cotización. Estas cotizaciones no tienen fecha de ' +
-    'vencimiento pactada, de modo que la antigüedad no debe leerse como mora ni genera intereses. El anexo del ' +
-    'final detalla cómo se repartió cada transferencia recibida.';
+    'La antigüedad indica los días transcurridos desde la fecha de cada cotización; es una referencia ' +
+    'informativa y no incorpora plazos ni intereses. El anexo del final detalla cómo se repartió cada ' +
+    'transferencia recibida.';
 
   for (let page = 1; page <= total; page++) {
     doc.setPage(page);
@@ -1001,6 +1055,10 @@ export async function buildAccountStatementPdf(input: AccountStatementPdfInput):
     theme: 'plain',
     // Una nota larga nunca se parte entre dos páginas: o cabe entera o baja.
     rowPageBreak: 'avoid',
+    // El detalle ocupa varias páginas desde que cada cotización es un bloque.
+    // `showFoot` por defecto es 'everyPage', y eso imprimía «Totales del estado
+    // de cuenta» a mitad del documento, donde se lee como el total de la página.
+    showFoot: 'lastPage',
     margin: { top: CONT_HEAD_H, bottom: FOOT_RESERVE, left: M, right: M },
     tableWidth: CONTENT_W,
     styles: { fontSize: 7, cellPadding: 1.6, overflow: 'linebreak', textColor: INK, valign: 'middle' },
