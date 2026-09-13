@@ -889,7 +889,9 @@ export class ListBudgetComponent implements OnInit {
 
   goToResolutionConfigFromInvoice(): void {
     this.invoiceFeedbackVisible = false;
-    this.router.navigate(['/invoices/resolution']);
+    // El usuario venia de facturar desde aqui: al guardar la resolucion vuelve a este
+    // listado en vez de acabar en el de facturacion, que no es donde estaba.
+    this.router.navigate(['/invoices/resolution'], { queryParams: { returnUrl: '/budgets/budgets' } });
   }
 
   closeInvoiceFeedback(): void {

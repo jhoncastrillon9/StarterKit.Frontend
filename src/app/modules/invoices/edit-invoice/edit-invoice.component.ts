@@ -468,7 +468,10 @@ export class EditInvoiceComponent implements OnInit {
   }
 
   goToResolutionConfig(): void {
-    this.router.navigate(['/invoices/resolution']);
+    // Al guardar la resolucion, el usuario vuelve a la factura que estaba intentando
+    // emitir, no al listado.
+    const returnUrl = this.invoice ? '/invoices/edit/' + this.invoice.invoiceId : '/invoices/invoices';
+    this.router.navigate(['/invoices/resolution'], { queryParams: { returnUrl } });
   }
 
   private clearBusinessError(): void {

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InvoiceResolutionModel } from '../models/invoice.Model';
 import { InvoiceResolutionService } from '../services/invoice-resolution.service';
@@ -44,6 +44,7 @@ export class InvoiceResolutionComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private invoiceResolutionService: InvoiceResolutionService,
     private messageService: MessageService
   ) {
@@ -221,6 +222,7 @@ export class InvoiceResolutionComponent implements OnInit {
             : 'La resolucion de facturacion se guardo correctamente.',
           life: isReplacement ? 6000 : 3500
         });
+        this.volverAlOrigen();
       },
       error: (error) => {
         this.saving = false;
@@ -231,6 +233,18 @@ export class InvoiceResolutionComponent implements OnInit {
 
   goToInvoiceList(): void {
     this.router.navigate(['/invoices/invoices']);
+  }
+
+  /**
+   * Tras guardar, devuelve al usuario a donde estaba. Quien navega hasta aqui desde
+   * un flujo interrumpido (emitir una factura sin resolucion configurada, por ejemplo)
+   * pasa ?returnUrl=; el resto cae al listado de facturacion, que es el destino
+   * natural de esta pantalla.
+   */
+  private volverAlOrigen(): void {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const destino = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/invoices/invoices';
+    this.router.navigateByUrl(destino);
   }
 
   private clearBusinessError(): void {
