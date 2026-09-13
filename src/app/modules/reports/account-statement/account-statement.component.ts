@@ -15,9 +15,11 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
 import { DataTableColumn } from '../../../shared/ui/data-table/data-table.types';
+import * as cartera from './account-statement.calculations';
+import { MovementKind } from './account-statement.calculations';
 
 /** Tipo de movimiento que descuenta saldo de una cotización facturada. */
-export type MovementKind = 'Abono' | 'Ajuste';
+export { MovementKind };
 
 /** Borrador del formulario de "registrar movimiento" de una fila. */
 interface MovementDraft {
@@ -40,9 +42,6 @@ export class AccountStatementComponent implements OnInit {
   private paymentTransferService = inject(PaymentTransferService);
   private messageService = inject(MessageService);
   private spinner = inject(NgxSpinnerService);
-
-  /** Solo las cotizaciones en este estado se cobran en el estado de cuenta. */
-  private static readonly BILLED_STATUS = 'facturada';
 
   /** Mismos valores que $primary/$primary-dark/$credit en el .scss, en RGB para jsPDF. */
   private static readonly PDF_PRIMARY: [number, number, number] = [109, 40, 217];
@@ -155,17 +154,13 @@ export class AccountStatementComponent implements OnInit {
   }
 
   private indexMovements(payments: PaymentModel[]): Map<number, PaymentModel[]> {
-    const map = new Map<number, PaymentModel[]>();
-    for (const payment of payments) {
-      if (!payment?.budgetId) continue;
-      const list = map.get(payment.budgetId) ?? [];
-      list.push(payment);
-      map.set(payment.budgetId, list);
-    }
-    return map;
+    return cartera.indexMovementsByBudget(payments);
   }
 
   // -------------------------------------------------------------- cálculo
+  //
+  // La aritmética vive en `account-statement.calculations.ts` (funciones puras);
+  // aquí solo quedan los envoltorios que consume la plantilla.
 
   /**
    * Solo cotizaciones del cliente en estado Facturada: son las únicas que
@@ -175,73 +170,82 @@ export class AccountStatementComponent implements OnInit {
   filteredBudgets = computed(() => {
     const customer = this.selectedCustomer();
     if (!customer) return [];
-    return this.budgets()
-      .filter(b =>
-        b.customerId === customer.customerId &&
-        (b.estado ?? '').trim().toLowerCase() === AccountStatementComponent.BILLED_STATUS
-      )
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return cartera.billedBudgetsOf(this.budgets(), customer.customerId);
   });
 
   movementsFor(budgetId: number): PaymentModel[] {
-    return this.movementsByBudget().get(budgetId) ?? [];
+    return cartera.movementsFor(this.movementsByBudget(), budgetId);
   }
 
   /** Un movimiento es ajuste si su tipo menciona ajuste/retención/impuesto. */
   kindOf(movement: PaymentModel): MovementKind {
-    return /ajust|retenc|impuest/i.test(movement.paymentType ?? '') ? 'Ajuste' : 'Abono';
+    return cartera.kindOf(movement);
   }
 
   abonosFor(budgetId: number): number {
-    return this.sum(this.movementsFor(budgetId).filter(m => this.kindOf(m) === 'Abono'));
+    return cartera.abonosFor(this.movementsByBudget(), budgetId);
   }
 
   ajustesFor(budgetId: number): number {
-    return this.sum(this.movementsFor(budgetId).filter(m => this.kindOf(m) === 'Ajuste'));
+    return cartera.ajustesFor(this.movementsByBudget(), budgetId);
   }
 
   /** Lo aplicado a la factura: abonos reales + ajustes (impuestos retenidos). */
   appliedFor(budgetId: number): number {
-    return this.abonosFor(budgetId) + this.ajustesFor(budgetId);
+    return cartera.appliedFor(this.movementsByBudget(), budgetId);
   }
 
   saldoFor(budget: BudgetModel): number {
-    return (budget.total ?? 0) - this.appliedFor(budget.budgetId);
+    return cartera.saldoFor(budget, this.movementsByBudget());
   }
 
   /** Porcentaje cubierto de la factura, para la barra de progreso. */
   progressFor(budget: BudgetModel): number {
-    const total = budget.total ?? 0;
-    if (total <= 0) return 0;
-    return Math.max(0, Math.min(100, (this.appliedFor(budget.budgetId) / total) * 100));
+    return cartera.progressFor(budget, this.movementsByBudget());
   }
 
   isSettled(budget: BudgetModel): boolean {
-    return this.saldoFor(budget) <= 0.5;
+    return cartera.isSettled(budget, this.movementsByBudget());
   }
 
-  private sum(movements: PaymentModel[]): number {
-    return movements.reduce((acc, m) => acc + (Number(m.amountPaid) || 0), 0);
+  /** Días transcurridos desde la fecha de la cotización. No es mora: no hay vencimiento. */
+  agingDaysFor(budget: BudgetModel): number {
+    return cartera.agingDays(budget);
   }
 
-  totalFacturado = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + (b.total ?? 0), 0)
-  );
+  /** Tramo de antigüedad de la cotización: 0-30, 31-60, 61-90 o +90. */
+  agingBucketFor(budget: BudgetModel): cartera.AgingBucket {
+    return cartera.agingBucketOf(budget);
+  }
 
-  totalAbonos = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + this.abonosFor(b.budgetId), 0)
-  );
+  agingLabelFor(budget: BudgetModel): string {
+    return cartera.AGING_BUCKET_LABELS[this.agingBucketFor(budget)];
+  }
 
-  totalAjustes = computed(() =>
-    this.filteredBudgets().reduce((acc, b) => acc + this.ajustesFor(b.budgetId), 0)
-  );
+  totalFacturado = computed(() => cartera.totalFacturado(this.filteredBudgets()));
+
+  totalAbonos = computed(() => cartera.totalAbonos(this.filteredBudgets(), this.movementsByBudget()));
+
+  totalAjustes = computed(() => cartera.totalAjustes(this.filteredBudgets(), this.movementsByBudget()));
 
   /** Total adeudado real: facturado menos abonos y ajustes. */
   totalSaldo = computed(() =>
     this.totalFacturado() - this.totalAbonos() - this.totalAjustes()
   );
 
-  settledCount = computed(() => this.filteredBudgets().filter(b => this.isSettled(b)).length);
+  settledCount = computed(() => cartera.settledCount(this.filteredBudgets(), this.movementsByBudget()));
+
+  /** Saldo pendiente repartido por tramo de antigüedad, solo del cliente en pantalla. */
+  agingBreakdown = computed(() =>
+    cartera.saldoByAgingBucket(this.filteredBudgets(), this.movementsByBudget())
+  );
+
+  /** Cartera del cliente seleccionado: facturado, abonos, ajustes, saldo y antigüedad. */
+  customerCartera = computed<cartera.CustomerCartera | null>(() => {
+    const customer = this.selectedCustomer();
+    if (!customer) return null;
+    return cartera.carteraOfCustomer(customer, this.budgets(), this.movementsByBudget());
+  });
 
   money(value: number): string {
     return (value ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
