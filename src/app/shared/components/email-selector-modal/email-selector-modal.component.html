@@ -102,10 +102,22 @@
           </button>
         </div>
 
-        <!-- Mensaje de error si no hay emails seleccionados -->
-        <div *ngIf="selectedEmails.length === 0" class="text-danger" style="margin-top: 0.5rem; font-size: 0.9rem;">
-          Debes seleccionar al menos un correo electrónico.
-        </div>
+        <!--
+          Sin correos en la ficha del cliente no hay nada que el usuario haya hecho mal:
+          es el estado inicial. Se le indica que escriba uno, en gris, no en rojo. El
+          mensaje de error queda para cuando habia correos y los quito todos.
+        -->
+        @if (selectedEmails.length === 0) {
+          @if (allEmails.length === 0) {
+            <div class="text-medium-emphasis" style="margin-top: 0.5rem; font-size: 0.9rem;">
+              Este cliente todavia no tiene correos. Escribe uno arriba para enviarselo.
+            </div>
+          } @else {
+            <div class="text-danger" style="margin-top: 0.5rem; font-size: 0.9rem;">
+              Debes seleccionar al menos un correo electrónico.
+            </div>
+          }
+        }
       </div>
 
       <!-- Botones de acción -->
