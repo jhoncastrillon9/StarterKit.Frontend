@@ -30,11 +30,41 @@
           </ng-container>
         </div>
 
+        <!-- Añadir un correo que no está en la ficha del cliente -->
+        <div class="new-email-form">
+          <label class="new-email-label" for="newEmailInput">Añadir otro correo</label>
+          <div class="new-email-row">
+            <input
+              id="newEmailInput"
+              type="email"
+              class="form-control form-control-sm"
+              placeholder="nombre@ejemplo.com"
+              autocomplete="off"
+              [(ngModel)]="newEmailInput"
+              (ngModelChange)="onNewEmailInputChange()"
+              (keyup.enter)="addNewEmail()" />
+            <button
+              cButton
+              color="primary"
+              variant="outline"
+              size="sm"
+              type="button"
+              (click)="addNewEmail()">
+              <i class="pi pi-plus" style="margin-right: 0.25rem;"></i>
+              Añadir
+            </button>
+          </div>
+          <div *ngIf="newEmailError" class="text-danger new-email-error">{{newEmailError}}</div>
+          <div *ngIf="!newEmailError" class="text-muted new-email-hint">
+            Los correos que añadas aquí se guardarán también en la ficha del cliente.
+          </div>
+        </div>
+
         <!-- Emails no seleccionados (se pueden re-agregar) -->
-        <div *ngIf="emails.length > selectedEmails.length" style="margin-top: 1rem;">
+        <div *ngIf="allEmails.length > selectedEmails.length" style="margin-top: 1rem;">
           <p class="text-muted" style="font-size: 0.85rem;">Emails disponibles para agregar:</p>
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-            <ng-container *ngFor="let email of emails">
+            <ng-container *ngFor="let email of allEmails">
               <button 
                 *ngIf="!isSelected(email)"
                 cButton 
@@ -56,8 +86,8 @@
             cButton 
             color="link" 
             size="sm" 
-            (click)="selectAll()" 
-            [disabled]="selectedEmails.length === emails.length"
+            (click)="selectAll()"
+            [disabled]="selectedEmails.length === allEmails.length"
             style="font-size: 0.8rem;">
             Seleccionar todos
           </button>
