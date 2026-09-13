@@ -215,6 +215,12 @@
         </ng-template>
       }
 
+      @if (footerTemplate) {
+        <ng-template pTemplate="footer">
+          <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
+        </ng-template>
+      }
+
       <ng-template pTemplate="emptymessage">
         <tr><td [attr.colspan]="totalColumnCount()" class="dc-empty">
           <ng-content select="[dt-empty]"></ng-content>

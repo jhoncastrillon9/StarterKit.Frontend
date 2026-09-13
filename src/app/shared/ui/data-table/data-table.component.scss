@@ -215,6 +215,11 @@
   .p-datatable-tbody > tr > td { border-bottom: 1px solid #f2f1f7; padding: 4px 14px; font-size: 13px; }
   .p-sortable-column.p-highlight,
   .p-sortable-column.p-highlight .p-sortable-column-icon { color: dc.$dc-primary-dark; }
+  // Fila de totales (opt-in vía <ng-template #dtFooter>)
+  .p-datatable-tfoot > tr > td {
+    background: #faf8ff; border-top: 1px solid #ebe9f3; border-bottom: none;
+    padding: 9px 14px; font-size: 13px;
+  }
   // Paginador nativo oculto: usamos el footer custom (.dc-footer)
   .p-paginator { display: none !important; }
   .align-right { text-align: right; }

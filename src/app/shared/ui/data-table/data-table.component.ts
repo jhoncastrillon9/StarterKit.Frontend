@@ -80,6 +80,9 @@ export class DataTableComponent implements AfterContentInit, OnInit {
 
   @ContentChildren(DataTableColumnDirective) private columnDirectives!: QueryList<DataTableColumnDirective>;
   @ContentChild('dtRowExpansion') rowExpansionTemplate: TemplateRef<{ $implicit: unknown }> | null = null;
+  /** Fila fija al pie de la tabla (totales). El consumidor aporta el `<tr>` completo,
+   *  porque solo él sabe cómo agrupar sus columnas. Opcional: sin plantilla no hay tfoot. */
+  @ContentChild('dtFooter') footerTemplate: TemplateRef<unknown> | null = null;
   private templates = new Map<string, TemplateRef<{ $implicit: unknown }>>();
   private destroyRef = inject(DestroyRef);
   private filterService = inject(FilterService);

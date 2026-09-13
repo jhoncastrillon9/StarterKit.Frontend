@@ -17,6 +17,7 @@ import { BUDGET_ESTADOS } from '../../../shared/constants';
 import { DataTableColumn } from '../../../shared/ui/data-table/data-table.types';
 import * as cartera from './account-statement.calculations';
 import { MovementKind } from './account-statement.calculations';
+import { PortfolioCustomerRow } from './portfolio-dashboard/portfolio-dashboard.models';
 
 /** Tipo de movimiento que descuenta saldo de una cotización facturada. */
 export { MovementKind };
@@ -27,6 +28,36 @@ interface MovementDraft {
   amount: number | null;
   note: string;
   date: Date;
+}
+
+/**
+ * Un color por tramo de antigüedad. Mismos valores que `$dc-primary`,
+ * `$dc-primary-light`, `$dc-adjust` y `$dc-debt` y que los del dashboard: la
+ * franja del ledger y los puntos de la tabla se pintan con estilos en línea,
+ * así que el color tiene que existir también en TypeScript.
+ */
+const AGING_COLORS: Readonly<Record<cartera.AgingBucket, string>> = {
+  '0-30': '#6d28d9',
+  '31-60': '#a78bfa',
+  '61-90': '#b45309',
+  '+90': '#c0392b',
+};
+
+/** Etiqueta corta de cada tramo, para la leyenda de la franja y la tabla. */
+const AGING_SHORT_LABELS: Readonly<Record<cartera.AgingBucket, string>> = {
+  '0-30': '0–30',
+  '31-60': '31–60',
+  '61-90': '61–90',
+  '+90': '+90',
+};
+
+/** Un tramo de la franja de antigüedad del ledger. */
+interface AgingSegment {
+  bucket: cartera.AgingBucket;
+  label: string;
+  color: string;
+  amount: number;
+  percent: number;
 }
 
 @Component({
@@ -94,6 +125,18 @@ export class AccountStatementComponent implements OnInit {
   transferDetailVisible = signal(false);
   transferDetail = signal<PaymentTransferModel | null>(null);
 
+  /**
+   * Transferencias ya resueltas, por id.
+   *
+   * El pago solo trae `transferId`; el valor y la fecha viven en la transferencia.
+   * Se piden UNA vez por transferencia distinta del cliente (no una por fila del
+   * panel de movimientos) y se reutilizan tanto en la pastilla como en el diálogo
+   * de detalle. Ver `ensureTransfersLoaded`.
+   */
+  private transfersById = signal<Map<number, PaymentTransferModel>>(new Map());
+  /** Peticiones en vuelo, para no pedir dos veces la misma transferencia. */
+  private transfersInFlight = new Set<number>();
+
   /** Borradores del formulario de movimiento, uno por cotización. */
   private drafts = new Map<number, MovementDraft>();
 
@@ -102,6 +145,7 @@ export class AccountStatementComponent implements OnInit {
     { field: 'date', header: 'Fecha', width: '118px' },
     { field: 'budgetName', header: 'Obra' },
     { field: 'externalInvoice', header: 'Factura', width: '132px' },
+    { field: 'antiguedad', header: 'Antigüedad', width: '118px' },
     { field: 'estado', header: 'Estado', width: '150px' },
     { field: 'total', header: 'Facturado', align: 'right', width: '132px' },
     { field: 'movimientos', header: 'Abonos y ajustes', align: 'right', width: '150px' },
@@ -143,7 +187,42 @@ export class AccountStatementComponent implements OnInit {
       .pipe(catchError(() => of([])))
       .subscribe((payments: any) => {
         this.movementsByBudget.set(this.indexMovements(payments ?? []));
+        this.ensureTransfersLoaded(payments ?? []);
       });
+  }
+
+  /**
+   * Resuelve el valor y la fecha de las transferencias que aparecen en los
+   * movimientos del cliente.
+   *
+   * El backend no devuelve esos datos dentro del pago (`PaymentDTO` solo trae
+   * `TransferId`) y no hay endpoint que liste las transferencias de un cliente,
+   * así que hay que preguntar por cada transferencia. El coste se acota
+   * deduplicando: una petición por transferencia DISTINTA del cliente, no una
+   * por fila ni una por cada vez que se despliega un panel. Los movimientos sin
+   * transferencia y los ya cacheados no piden nada.
+   */
+  private ensureTransfersLoaded(payments: PaymentModel[]): void {
+    const pending = new Set<number>();
+    for (const payment of payments) {
+      const id = payment?.transferId;
+      if (!id) continue;
+      if (this.transfersById().has(id) || this.transfersInFlight.has(id)) continue;
+      pending.add(id);
+    }
+
+    for (const id of pending) {
+      this.transfersInFlight.add(id);
+      this.paymentTransferService.getById(id)
+        .pipe(catchError(() => of(null)))
+        .subscribe((detail: PaymentTransferModel | null) => {
+          this.transfersInFlight.delete(id);
+          // Sin detalle la pastilla se queda en "Transferencia #N": se degrada,
+          // no se rompe. No se avisa al usuario por un dato decorativo.
+          if (!detail) return;
+          this.transfersById.update(map => new Map(map).set(id, detail));
+        });
+    }
   }
 
   loadCompanyInfo(): void {
@@ -247,26 +326,126 @@ export class AccountStatementComponent implements OnInit {
     return cartera.carteraOfCustomer(customer, this.budgets(), this.movementsByBudget());
   });
 
+  /** Color del tramo de antigüedad de una cotización. */
+  agingColorFor(budget: BudgetModel): string {
+    return AGING_COLORS[this.agingBucketFor(budget)];
+  }
+
+  /**
+   * Franja de antigüedad del ledger: los cuatro tramos con su peso relativo.
+   *
+   * Se construye siempre con los cuatro, aunque valgan cero, para que la leyenda
+   * no baile de tamaño al registrar abonos.
+   */
+  agingSegments = computed<AgingSegment[]>(() => {
+    const breakdown = this.agingBreakdown();
+    const total = cartera.AGING_BUCKETS.reduce((acc, b) => acc + breakdown[b], 0);
+    return cartera.AGING_BUCKETS.map(bucket => ({
+      bucket,
+      label: AGING_SHORT_LABELS[bucket],
+      color: AGING_COLORS[bucket],
+      amount: breakdown[bucket],
+      percent: total > 0 ? (breakdown[bucket] / total) * 100 : 0,
+    }));
+  });
+
+  /** Cuánto del total facturado sigue pendiente, para la línea bajo el saldo. */
+  saldoShareLabel = computed(() => {
+    const facturado = this.totalFacturado();
+    if (facturado <= 0) return '';
+    const percent = (this.totalSaldo() / facturado) * 100;
+    return `${percent.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} % del total facturado`;
+  });
+
+  /** Fecha del abono más reciente del cliente; `null` si aún no ha abonado nada. */
+  lastPaymentDate = computed<Date | null>(() => {
+    let latest: number | null = null;
+    for (const movements of this.movementsByBudget().values()) {
+      for (const movement of movements) {
+        if (cartera.kindOf(movement) !== 'Abono') continue;
+        const time = new Date(movement.paymentDate).getTime();
+        if (!Number.isFinite(time)) continue;
+        if (latest === null || time > latest) latest = time;
+      }
+    }
+    return latest === null ? null : new Date(latest);
+  });
+
+  /** Valor del `<select>` de cliente: cadena, como los `value` de sus `<option>`. */
+  selectedCustomerValue = computed(() => {
+    const customer = this.selectedCustomer();
+    return customer ? String(customer.customerId) : '';
+  });
+
+  /**
+   * Texto de la pastilla de transferencia de un movimiento.
+   *
+   * Mientras la transferencia no se ha resuelto se muestra solo su número: es
+   * información cierta, y el valor y la fecha aparecen al llegar.
+   */
+  transferLabelFor(movement: PaymentModel): string {
+    const id = movement?.transferId;
+    if (!id) return 'Sin transferencia';
+    const transfer = this.transfersById().get(id);
+    if (!transfer) return `Transferencia #${id}`;
+    return `Transferencia #${id} · $ ${this.money(transfer.totalAmount)} del ${this.shortDate(transfer.transferDate)}`;
+  }
+
+  /** "20 mar": día y mes, sin año, como en el diseño. */
+  private shortDate(value: Date | string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }).replace('.', '');
+  }
+
   money(value: number): string {
     return (value ?? 0).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 
   // ------------------------------------------------------------- clientes
 
-  onCustomerChange(customerId: string): void {
+  onCustomerChange(customerId: string | number): void {
     if (!customerId) {
-      this.selectedCustomer.set(null);
-      this.movementsByBudget.set(new Map());
+      this.backToDashboard();
       return;
     }
     const customer = this.customers().find(c => c.customerId === +customerId) ?? null;
     this.selectedCustomer.set(customer);
-    this.movementsByBudget.set(new Map());
+    this.resetCustomerScopedState();
     if (customer) this.loadMovementsFor(customer.customerId);
   }
 
-  onCustomerSelectChange(event: Event): void {
-    this.onCustomerChange((event.target as HTMLSelectElement).value);
+  /**
+   * Vuelve a la vista de cartera (el dashboard).
+   *
+   * No hace falta pedirle al dashboard un `load()` explícito: se muestra con
+   * `*ngIf`, así que al volver se crea de nuevo y su propio `ngOnInit` recarga
+   * los datos. Es justo lo que se quiere cuando el usuario acaba de registrar
+   * abonos en el detalle, y el coste es una única petición al entrar.
+   */
+  backToDashboard(): void {
+    this.selectedCustomer.set(null);
+    this.resetCustomerScopedState();
+  }
+
+  /** El cliente elegido en el ranking del dashboard abre su detalle. */
+  onPortfolioCustomerSelected(row: PortfolioCustomerRow): void {
+    if (!row?.customerId) return;
+    const customer = this.customers().find(c => c.customerId === row.customerId) ?? null;
+    if (!customer) {
+      this.notifyError('Ese cliente no está en la lista del selector. Recarga la pantalla e inténtalo de nuevo.');
+      return;
+    }
+    this.onCustomerChange(customer.customerId);
+  }
+
+  /** Todo lo que depende del cliente en pantalla y no debe sobrevivir al cambio. */
+  private resetCustomerScopedState(): void {
+    this.movementsByBudget.set(new Map());
+    this.transfersById.set(new Map());
+    this.transfersInFlight.clear();
+    this.cancelEditingInvoice();
+    this.cancelEditingMovement();
   }
 
   // ------------------------------------------- autoguardado factura/estado
@@ -621,10 +800,20 @@ export class AccountStatementComponent implements OnInit {
   }
 
   showTransferDetail(transferId: number): void {
+    // La pastilla ya resolvió esta transferencia para mostrar su valor y fecha:
+    // el diálogo reutiliza esa copia en vez de repetir la petición.
+    const cached = this.transfersById().get(transferId);
+    if (cached) {
+      this.transferDetail.set(cached);
+      this.transferDetailVisible.set(true);
+      return;
+    }
+
     this.paymentTransferService.getById(transferId).subscribe({
       next: (detail: any) => {
         this.transferDetail.set(detail ?? null);
         this.transferDetailVisible.set(true);
+        if (detail) this.transfersById.update(map => new Map(map).set(transferId, detail));
       },
       error: () => this.notifyError('No se pudo cargar el detalle de la transferencia.'),
     });

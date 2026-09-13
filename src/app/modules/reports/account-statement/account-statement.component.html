@@ -1,16 +1,48 @@
 <div class="account-statement-container">
-  <!-- Selector de cliente -->
+  <!-- Migas: la vuelta a la cartera desde el detalle de un cliente -->
+  <nav class="crumbs" *ngIf="selectedCustomer() as cliente" aria-label="Ruta">
+    <button type="button" class="crumbs__back" (click)="backToDashboard()">
+      <i class="fas fa-arrow-left"></i> Cartera
+    </button>
+    <span class="crumbs__sep">/</span>
+    <span class="crumbs__current">{{ cliente.customerName }}</span>
+  </nav>
+
+  <!-- Selector de cliente + ficha del cliente elegido -->
   <div class="ac-card">
     <div class="ac-card__head"><i class="fas fa-user-tie"></i><span>Estado de cuenta</span></div>
     <div class="ac-card__body">
       <div class="ac-field">
         <label for="customerSelect"><i class="fas fa-users"></i> Cliente</label>
-        <select id="customerSelect" class="ac-select" (change)="onCustomerSelectChange($event)">
-          <option value="">-- Seleccione un cliente --</option>
+        <select id="customerSelect" class="ac-select"
+          [ngModel]="selectedCustomerValue()" [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="onCustomerChange($event)">
+          <option value="">-- Toda la cartera --</option>
           <option *ngFor="let customer of customers()" [value]="customer.customerId">
             {{ customer.customerName }}
           </option>
         </select>
+      </div>
+
+      <div class="ac-aside" *ngIf="selectedCustomer() as cliente">
+        <div class="mini">
+          <span class="mini__k">NIT</span>
+          <span class="mini__v">{{ cliente.customId || '—' }}</span>
+        </div>
+        <div class="mini">
+          <span class="mini__k">Contacto</span>
+          <span class="mini__v">{{ cliente.email || '—' }}</span>
+        </div>
+        <div class="mini">
+          <span class="mini__k">Dirección</span>
+          <span class="mini__v">{{ cliente.address || '—' }}</span>
+        </div>
+        <div class="mini">
+          <span class="mini__k">Último abono</span>
+          <span class="mini__v">
+            {{ lastPaymentDate() ? (lastPaymentDate() | date:'dd MMM yyyy') : 'Sin abonos' }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -25,7 +57,9 @@
         </strong>
         <span class="ledger__balance-meta">
           {{ filteredBudgets().length }} factura{{ filteredBudgets().length === 1 ? '' : 's' }}
-          <ng-container *ngIf="settledCount()">· {{ settledCount() }} al día</ng-container>
+          <ng-container *ngIf="settledCount(); else ningunaAlDia">· {{ settledCount() }} al día</ng-container>
+          <ng-template #ningunaAlDia>· ninguna al día</ng-template>
+          <ng-container *ngIf="saldoShareLabel()">· {{ saldoShareLabel() }}</ng-container>
         </span>
       </div>
 
@@ -43,6 +77,23 @@
         <div class="ledger__term">
           <span class="ledger__term-label">Ajustes</span>
           <span class="ledger__term-value is-adjust">$ {{ money(totalAjustes()) }}</span>
+        </div>
+      </div>
+
+      <!-- Antigüedad del saldo: cuánto lleva esperando cada peso pendiente.
+           No es mora: estas cotizaciones no tienen fecha de vencimiento. -->
+      <div class="ledger__aging">
+        <span class="ledger__term-label">Antigüedad del saldo · desde la fecha de la cotización</span>
+        <div class="aging__track">
+          <span class="aging__seg" *ngFor="let seg of agingSegments()"
+            [style.width.%]="seg.percent" [style.background]="seg.color"
+            [attr.title]="seg.label + ' días: $ ' + money(seg.amount)"></span>
+        </div>
+        <div class="aging__legend">
+          <span class="lg" *ngFor="let seg of agingSegments()">
+            <span class="lg__dot" [style.background]="seg.color"></span>{{ seg.label }}
+            <span class="lg__v">$ {{ money(seg.amount) }}</span>
+          </span>
         </div>
       </div>
     </section>
@@ -114,6 +165,20 @@
         </div>
       </ng-template>
 
+      <!-- Antigüedad: días desde la fecha de la cotización. Lo ya cobrado no envejece. -->
+      <ng-template dtColumn="antiguedad" let-budget>
+        <span class="age-chip" *ngIf="!isSettled(budget); else alDia"
+          [attr.title]="agingLabelFor(budget)">
+          <span class="age-chip__dot" [style.background]="agingColorFor(budget)"></span>
+          {{ agingDaysFor(budget) }} días
+        </span>
+        <ng-template #alDia>
+          <span class="age-chip age-chip--settled">
+            <span class="age-chip__dot"></span> Al día
+          </span>
+        </ng-template>
+      </ng-template>
+
       <ng-template dtColumn="estado" let-budget>
         <div class="cell-edit">
           <button type="button" class="status-trigger"
@@ -162,11 +227,14 @@
                 <span class="mov__date">{{ mov.paymentDate | date:'dd MMM yyyy' }}</span>
                 <span class="mov__note">
                   {{ mov.note || '—' }}
-                  <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId"
+                  <button type="button" class="mov__transfer-badge" *ngIf="mov.transferId; else sinTransferencia"
                     (click)="showTransferDetail(mov.transferId!)"
                     pTooltip="Ver otras facturas de esta transferencia" tooltipPosition="top">
-                    <i class="fas fa-right-left"></i> #{{ mov.transferId }}
+                    <i class="fas fa-right-left"></i> {{ transferLabelFor(mov) }}
                   </button>
+                  <ng-template #sinTransferencia>
+                    <span class="mov__nolink">Sin transferencia</span>
+                  </ng-template>
                 </span>
                 <span class="mov__amount" [class.is-adjust]="kindOf(mov) === 'Ajuste'">
                   $ {{ money(mov.amountPaid) }}
@@ -254,6 +322,19 @@
         </div>
       </ng-template>
 
+      <!-- Fila de totales: cierra la tabla con la misma aritmética del ledger.
+           El colspan cubre la columna de despliegue más las seis descriptivas. -->
+      <ng-template #dtFooter>
+        <tr class="ac-totals">
+          <td class="ac-totals__label" colspan="7">
+            Total {{ filteredBudgets().length }} cotización{{ filteredBudgets().length === 1 ? '' : 'es' }} facturada{{ filteredBudgets().length === 1 ? '' : 's' }}
+          </td>
+          <td class="align-right"><span class="amount">$ {{ money(totalFacturado()) }}</span></td>
+          <td class="align-right"><span class="applied__value">− $ {{ money(totalAbonos() + totalAjustes()) }}</span></td>
+          <td class="align-right"><span class="amount amount--balance" [class.is-settled]="totalSaldo() <= 0.5">$ {{ money(totalSaldo()) }}</span></td>
+        </tr>
+      </ng-template>
+
       <div dt-empty class="empty-content">
         <i class="fas fa-inbox empty-icon"></i>
         <h3>Sin facturas por cobrar</h3>
@@ -262,12 +343,12 @@
     </app-data-table>
   </ng-container>
 
-  <!-- Sin cliente seleccionado -->
-  <div class="ac-card ac-empty" *ngIf="!selectedCustomer()">
-    <i class="fas fa-users"></i>
-    <h3>Elige un cliente</h3>
-    <p>Selecciona un cliente para ver qué facturas tiene pendientes y registrar sus abonos</p>
-  </div>
+  <!-- Sin cliente seleccionado: la cartera completa es la entrada de la pantalla.
+       Va con *ngIf a propósito: al volver del detalle el componente se crea de
+       nuevo y recarga sus datos, que pueden haber cambiado con los abonos que el
+       usuario acabe de registrar. -->
+  <app-portfolio-dashboard *ngIf="!selectedCustomer()"
+    (customerSelected)="onPortfolioCustomerSelected($event)"></app-portfolio-dashboard>
 </div>
 
 <!-- Cambio de estado -->
