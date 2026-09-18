@@ -25,6 +25,13 @@ const routes: Routes = [
     },
     children: [
       {
+        path: 'subscription',
+        loadComponent: () =>
+          import('./modules/subscription/my-subscription.component').then(m => m.MySubscriptionComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Mi suscripción' }
+      },
+      {
         // Panel de plataforma. El guard es comodidad: quien protege de verdad es
         // el backend, que exige rol de SuperAdmin en el controlador y otra vez
         // dentro del servicio.

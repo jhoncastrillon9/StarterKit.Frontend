@@ -1,0 +1,100 @@
+/* Mi suscripción. Una sola pregunta manda: hasta cuándo puedo trabajar.
+   El resto es lo que hace falta para responderla. Paleta de la aplicación. */
+
+$ms-ink: #1f1b2e;
+$ms-muted: #6f6987;
+$ms-line: #ece9f3;
+$ms-primary: #6d28d9;
+
+.ms { padding-block: 4px 40px; color: $ms-ink; max-width: 760px; }
+
+.ms-loading, .ms-error { color: $ms-muted; font-size: 14px; }
+.ms-error { color: #b91c1c; }
+
+.ms-hero {
+  padding: 26px 28px;
+  border-radius: 16px;
+  border: 1px solid $ms-line;
+  background: #fff;
+  border-left: 5px solid $ms-primary;
+  margin-bottom: 18px;
+
+  h1 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.25; text-wrap: balance; }
+  &__sub { margin: 8px 0 0; font-size: 14px; color: $ms-muted; }
+
+  &[data-tone="warn"] { border-left-color: #b45309; background: #fffbf5; }
+  &[data-tone="bad"]  { border-left-color: #b91c1c; background: #fef7f7; }
+}
+
+.ms-card {
+  padding: 22px 24px;
+  border-radius: 14px;
+  border: 1px solid $ms-line;
+  background: #fff;
+  margin-bottom: 14px;
+
+  h2 { margin: 0 0 10px; font-size: 15px; font-weight: 800; }
+  &__lead { margin: 0 0 16px; font-size: 14px; color: $ms-muted; line-height: 1.55; max-width: 60ch; }
+  &__note { margin: 14px 0 0; font-size: 13.5px; color: $ms-muted; line-height: 1.5; }
+  &__missing { margin: 12px 0 0; font-size: 13.5px; color: #b45309; }
+}
+
+.ms-bank {
+  margin: 0;
+  display: grid;
+  gap: 9px;
+
+  > div {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-bottom: 9px; border-bottom: 1px solid #f5f3fa;
+  }
+  > div:last-child { border-bottom: none; padding-bottom: 0; }
+
+  dt { margin: 0; font-size: 13.5px; color: $ms-muted; }
+  dd { margin: 0; font-weight: 700; font-size: 14px; text-align: right; }
+
+  &__copy {
+    display: flex; align-items: center; gap: 9px;
+
+    button {
+      border: 1px solid $ms-line; background: #fff; color: $ms-primary;
+      border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      &:hover { background: #f7f6fb; }
+    }
+  }
+}
+
+.ms-mono { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.ms-copied { margin: 10px 0 0; font-size: 12.5px; color: #15703f; }
+
+.ms-contact { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+
+.ms-btn {
+  display: inline-flex; align-items: center; height: 40px; padding: 0 18px;
+  border: 1px solid $ms-line; border-radius: 10px;
+  background: #fff; color: $ms-ink; text-decoration: none;
+  font-size: 13.5px; font-weight: 700;
+
+  &:hover { background: #f7f6fb; color: $ms-ink; }
+  &--primary { background: $ms-primary; color: #fff; border-color: transparent;
+               &:hover { background: #5b21b6; color: #fff; } }
+}
+
+.ms-table {
+  width: 100%; border-collapse: collapse;
+
+  th { text-align: left; padding: 9px 10px; font-size: 11.5px; font-weight: 800;
+       color: $ms-muted; border-bottom: 1px solid $ms-line; }
+  td { padding: 11px 10px; font-size: 13.5px; border-bottom: 1px solid #f5f3fa; }
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.ms-num { text-align: right; font-variant-numeric: tabular-nums; }
+.ms-total { margin: 12px 0 0; font-size: 13.5px; color: $ms-muted; text-align: right; }
+
+@media (max-width: 560px) {
+  .ms-bank > div { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .ms-bank dd { text-align: left; }
+  .ms-table { font-size: 12.5px; }
+}

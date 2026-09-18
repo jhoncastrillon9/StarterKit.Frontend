@@ -20,7 +20,10 @@ export class DefaultLayoutComponent {
   public navItems: INavData[] = [];
 
   private buildNav(): INavData[] {
-    const items = [...navItems];
+    const items: INavData[] = [
+      ...navItems,
+      { name: 'Mi suscripción', url: '/subscription', iconComponent: { name: 'cil-credit-card' } },
+    ];
     if (this.currentUser.isSuperAdmin) {
       items.push({
         name: 'Plataforma',
