@@ -25,6 +25,13 @@ const routes: Routes = [
     },
     children: [
       {
+        path: 'schedules',
+        loadComponent: () =>
+          import('./modules/schedules/schedules.component').then(m => m.SchedulesComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Cronogramas' }
+      },
+      {
         path: 'companydocuments',
         loadComponent: () =>
           import('./modules/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),

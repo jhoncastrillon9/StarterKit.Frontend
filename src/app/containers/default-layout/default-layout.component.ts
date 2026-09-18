@@ -22,6 +22,7 @@ export class DefaultLayoutComponent {
   private buildNav(): INavData[] {
     const items: INavData[] = [
       ...navItems,
+      { name: 'Cronogramas', url: '/schedules', iconComponent: { name: 'cil-calendar' } },
       { name: 'Documentos', url: '/companydocuments', iconComponent: { name: 'cil-folder' } },
       { name: 'Mi suscripción', url: '/subscription', iconComponent: { name: 'cil-credit-card' } },
     ];
