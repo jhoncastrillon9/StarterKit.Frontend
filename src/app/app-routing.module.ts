@@ -25,6 +25,13 @@ const routes: Routes = [
     },
     children: [
       {
+        path: 'companydocuments',
+        loadComponent: () =>
+          import('./modules/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Documentos' }
+      },
+      {
         path: 'subscription',
         loadComponent: () =>
           import('./modules/subscription/my-subscription.component').then(m => m.MySubscriptionComponent),
