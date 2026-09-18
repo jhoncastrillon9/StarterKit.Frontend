@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InvoiceModel, INVOICE_STATUS } from '../models/invoice.Model';
 import { InvoiceService } from '../services/invoice.service';
-import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
+import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 import { CustomerService } from 'src/app/modules/customers/services/customer.service';
@@ -38,7 +39,7 @@ export class ListInvoiceComponent implements OnInit {
     { field: 'fullNumber', header: 'Numero', sortable: true, filter: { type: 'text', placeholder: 'Numero' } },
     { field: 'issueDate', header: 'Fecha de emision', sortable: true, filter: { type: 'dateRange' } },
     { field: 'customerDto.customerName', header: 'Cliente', sortable: true, filter: { type: 'text', placeholder: 'Cliente' } },
-    { field: 'budgetInternalCode', header: 'Cotizacion de origen', sortable: true },
+    { field: 'budgetInternalCode', header: 'Cotizacion de origen', sortable: true, filter: { type: 'text', placeholder: 'Cotizacion' } },
     { field: 'total', header: 'Total', sortable: true, align: 'right', filter: { type: 'numericRange' } },
     {
       field: 'status', header: 'Estado', sortable: true, align: 'center',
@@ -53,6 +54,37 @@ export class ListInvoiceComponent implements OnInit {
     },
     { field: 'acciones', header: 'Acciones', align: 'right' },
   ];
+
+  /** Estado seleccionado en los chips de la cabecera. */
+  activeStatusFilter = 'Todas';
+
+  get kpis(): KpiDef[] {
+    const emitidas = this.invoices.filter(i => i.status !== INVOICE_STATUS.draft);
+    const facturado = emitidas.reduce((acc, i) => acc + (i.total || 0), 0);
+    return [
+      { key: 'total', label: 'Facturas', value: this.invoices.length, dotColor: '#6d28d9' },
+      { key: 'emitidas', label: 'Emitidas', value: emitidas.length, dotColor: '#15703f' },
+      { key: 'facturado', label: 'Total facturado', value: '$ ' + facturado.toLocaleString('es-CO'), dotColor: '#1d4ed8' },
+    ];
+  }
+
+  get chipOptions(): ChipOption[] {
+    return [
+      { label: 'Todas', value: 'Todas', count: this.invoices.length },
+      { label: INVOICE_STATUS.draft, value: INVOICE_STATUS.draft, count: this.countByStatus(INVOICE_STATUS.draft) },
+      { label: INVOICE_STATUS.issued, value: INVOICE_STATUS.issued, count: this.countByStatus(INVOICE_STATUS.issued) },
+      { label: INVOICE_STATUS.sent, value: INVOICE_STATUS.sent, count: this.countByStatus(INVOICE_STATUS.sent) },
+    ];
+  }
+
+  private countByStatus(status: string): number {
+    return this.invoices.filter(i => i.status === status).length;
+  }
+
+  onChipChange(value: string): void {
+    this.activeStatusFilter = value;
+    this.recalcFilteredInvoices();
+  }
 
   constructor(
     private invoiceService: InvoiceService,
@@ -81,8 +113,16 @@ export class ListInvoiceComponent implements OnInit {
     });
   }
 
+  /**
+   * Array estable para [value] de app-data-table: se recalcula solo al cambiar
+   * los datos o el chip activo, nunca en cada ciclo de deteccion de cambios
+   * (mismo motivo que en el listado de cotizaciones: devolver un array nuevo en
+   * cada tick reinicia la paginacion cuando hay filtros de columna).
+   */
   private recalcFilteredInvoices(): void {
-    this.filteredInvoices = [...this.invoices];
+    this.filteredInvoices = this.activeStatusFilter === 'Todas'
+      ? [...this.invoices]
+      : this.invoices.filter(i => i.status === this.activeStatusFilter);
   }
 
   displayNumber(invoice: InvoiceModel): string {

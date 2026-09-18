@@ -62,7 +62,25 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
       telephones: [''],
       urlImageLogo: [''],
       fileLogo: [''],
-      urlWeb: ['']
+      urlWeb: [''],
+
+      // Datos del emisor para facturacion electronica (DIAN). Opcionales: la FE
+      // no esta activa. Ver CompanyDTO en el backend para la referencia al anexo.
+      personType: [''],
+      documentType: [''],
+      verificationDigit: [''],
+      registrationName: [''],
+      taxLevelCode: [''],
+      taxSchemeId: [''],
+      economicActivityCode: [''],
+      economicActivityName: [''],
+      commercialRegistration: [''],
+      cityCode: [''],
+      cityName: [''],
+      departmentCode: [''],
+      departmentName: [''],
+      postalZone: [''],
+      countryCode: ['CO'],
     });
   }
 
@@ -78,7 +96,22 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
             companyId: company.companyId || '',
             document: company.document || '',
             telephones: company.telephones || '',
-            urlWeb: company.urlWeb || ''
+            urlWeb: company.urlWeb || '',
+            personType: company.personType || '',
+            documentType: company.documentType || '',
+            verificationDigit: company.verificationDigit || '',
+            registrationName: company.registrationName || '',
+            taxLevelCode: company.taxLevelCode || '',
+            taxSchemeId: company.taxSchemeId || '',
+            economicActivityCode: company.economicActivityCode || '',
+            economicActivityName: company.economicActivityName || '',
+            commercialRegistration: company.commercialRegistration || '',
+            cityCode: company.cityCode || '',
+            cityName: company.cityName || '',
+            departmentCode: company.departmentCode || '',
+            departmentName: company.departmentName || '',
+            postalZone: company.postalZone || '',
+            countryCode: company.countryCode || ''
           });
           this.urlImageLogo = company.urlImageLogo || '';
         }
@@ -178,6 +211,18 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
     formData.append('Document', this.companyForm.get('document')?.value);
     formData.append('Telephones', this.companyForm.get('telephones')?.value);
     formData.append('UrlWeb', this.companyForm.get('urlWeb')?.value);
+
+    // Datos fiscales (DIAN). Todos opcionales: se manda cadena vacia si no hay nada,
+    // que es lo que el backend guarda como "sin especificar".
+    for (const field of [
+      'personType', 'documentType', 'verificationDigit', 'registrationName',
+      'taxLevelCode', 'taxSchemeId', 'economicActivityCode', 'economicActivityName',
+      'commercialRegistration', 'cityCode', 'cityName', 'departmentCode',
+      'departmentName', 'postalZone', 'countryCode',
+    ]) {
+      const pascal = field.charAt(0).toUpperCase() + field.slice(1);
+      formData.append(pascal, this.companyForm.get(field)?.value ?? '');
+    }
 
     if (this.selectedFile) {
       formData.append('FileLogo', this.selectedFile);

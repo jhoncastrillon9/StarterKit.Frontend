@@ -53,7 +53,15 @@ export class AddUpdateProductComponent implements OnInit {
       description: ['', [Validators.maxLength(500)]],
       price: [0, [Validators.required, Validators.min(0)]],
       productInternalCode: ['', [Validators.required, Validators.maxLength(50)]],
-      unitMeasurement: ['Und', [Validators.maxLength(20)]]
+      unitMeasurement: ['Und', [Validators.maxLength(20)]],
+
+      // Datos para facturacion electronica (DIAN). Opcionales. El codigo estandar
+      // de unidad no esta aqui a proposito: lo deriva el backend de unitMeasurement,
+      // asi sale igual venga el producto de aqui, de la IA o de una importacion.
+      taxRate: [null],
+      isTaxExempt: [false],
+      standardItemCode: [''],
+      standardItemSchemeId: ['']
     });
   }
 
