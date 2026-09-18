@@ -1,5 +1,5 @@
 import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
@@ -26,7 +26,7 @@ import * as _ from 'lodash';
   styleUrls: ['./add-update-budget.component.scss']
 })
 
-export class AddUpdateBudgetComponent implements OnInit {
+export class AddUpdateBudgetComponent implements OnInit, OnDestroy {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
   private readonly errorTitle: string = "¡Ups! ocurrió un error.";
@@ -171,6 +171,17 @@ export class AddUpdateBudgetComponent implements OnInit {
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
           this.internalCode = budget.internalCode;
           this.budgetForm.patchValue(budget);
+
+          // El chat pasa a saber en que cotizacion esta el usuario aunque no haya
+          // pulsado "Agregar desde IA": antes solo se enteraba al abrirlo desde el
+          // boton, asi que si el usuario cambiaba de cotizacion y volvia al chat,
+          // el agente seguia pensando en la anterior.
+          this.chatUi.setContext({
+            scope: 'budget',
+            budgetId: Number(this.budgetId),
+            internalCode: Number(budget.internalCode),
+            label: budget.budgetName || undefined,
+          });
 
           // Agrega el código aquí para cargar los detalles del presupuesto
           if (budget && budget.budgetDetailsDto) {
@@ -758,6 +769,12 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
   showNotify() {
     // Implementación del método showNotify si es necesario
+  }
+
+  ngOnDestroy(): void {
+    // Al salir de la cotizacion, el chat deja de estar en su contexto: si no, el
+    // agente seguiria agregandole items desde cualquier otra pantalla.
+    this.chatUi.clearContext();
   }
 
   /**
