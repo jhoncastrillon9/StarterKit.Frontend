@@ -23,7 +23,7 @@ export class DefaultLayoutComponent {
     const items: INavData[] = [
       ...navItems,
       { name: 'Cronogramas', url: '/schedules', iconComponent: { name: 'cil-calendar' } },
-      { name: 'Documentos', url: '/companydocuments', iconComponent: { name: 'cil-folder' } },
+      { name: 'Documentos', url: '/companydocuments', iconComponent: { name: 'cil-description' } },
       { name: 'Mi suscripción', url: '/subscription', iconComponent: { name: 'cil-credit-card' } },
     ];
     if (this.currentUser.isSuperAdmin) {
