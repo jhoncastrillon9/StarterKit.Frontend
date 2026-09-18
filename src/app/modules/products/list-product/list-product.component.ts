@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Product } from '../models/product.model';
+import { Product, ProductFilterRequest } from '../models/product.model';
 import { ProductService } from '../services/product.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
-import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { DataTableColumn, DataTableFilterValue, DataTableLazyEvent, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
 
 @Component({
@@ -38,12 +38,30 @@ export class ListProductComponent implements OnInit {
   products: Product[] = [];
 
   tableColumns: DataTableColumn[] = [
-    { field: 'productInternalCode', header: 'Código', sortable: true, width: '140px' },
-    { field: 'name', header: 'Nombre', sortable: true },
-    { field: 'description', header: 'Descripción', sortable: true },
-    { field: 'price', header: 'Precio', sortable: true, align: 'right', width: '160px' },
+    { field: 'productInternalCode', header: 'Código', sortable: true, width: '140px', filter: { type: 'text', placeholder: 'Código' } },
+    { field: 'name', header: 'Nombre', sortable: true, filter: { type: 'text', placeholder: 'Nombre' } },
+    { field: 'description', header: 'Descripción', sortable: true, filter: { type: 'text', placeholder: 'Descripción' } },
+    { field: 'price', header: 'Precio', sortable: true, align: 'right', width: '160px', filter: { type: 'numericRange' } },
     { field: 'acciones', header: 'Acciones', align: 'right', width: '150px' },
   ];
+
+  /** Peticion al backend: paginacion, busqueda global, filtros por columna y orden. */
+  filterRequest = new ProductFilterRequest();
+
+  /** Traduce los filtros por columna de la tabla a la peticion del backend. */
+  private applyColumnFilters(filters?: Record<string, DataTableFilterValue>): void {
+    const f = filters ?? {};
+    const text = (k: string) => (typeof f[k]?.value === 'string' ? (f[k].value as string) : '');
+
+    this.filterRequest.code = text('productInternalCode');
+    this.filterRequest.name = text('name');
+    this.filterRequest.description = text('description');
+
+    const range = f['price']?.value;
+    const [from, to] = Array.isArray(range) ? range : [null, null];
+    this.filterRequest.priceFrom = typeof from === 'number' ? from : null;
+    this.filterRequest.priceTo = typeof to === 'number' ? to : null;
+  }
 
   get kpis(): KpiDef[] {
     return [{ key: 'total', label: 'Total productos', value: this.totalRecords, dotColor: '#6d28d9' }];
@@ -51,6 +69,7 @@ export class ListProductComponent implements OnInit {
 
   onSearchChange(value: string): void {
     this.searchValue = value;
+    this.filterRequest.search = value || '';
     this.onSearch();
   }
 
@@ -88,8 +107,11 @@ export class ListProductComponent implements OnInit {
   loadProducts(): void {
     this.loading = true;
     this.spinner.show();
-    
-    this.productService.getPaged(this.searchValue, this.currentPage, this.pageSize).subscribe({
+
+    this.filterRequest.page = this.currentPage;
+    this.filterRequest.pageSize = this.pageSize;
+
+    this.productService.getFiltered(this.filterRequest).subscribe({
       next: (response) => {
         this.products = response.items;
         this.totalRecords = response.total;
@@ -110,14 +132,18 @@ export class ListProductComponent implements OnInit {
     this.loadProducts();
   }
 
-  onPageChange(event: any): void {
+  onPageChange(event: DataTableLazyEvent): void {
     this.currentPage = Math.floor(event.first / event.rows) + 1;
     this.pageSize = event.rows;
+    this.filterRequest.sortField = event.sortField || 'name';
+    this.filterRequest.sortOrder = event.sortOrder ?? 1;
+    this.applyColumnFilters(event.filters);
     this.loadProducts();
   }
 
   clear(table: Table): void {
     this.searchValue = '';
+    this.filterRequest = new ProductFilterRequest();
     table.clear();
     this.loadProducts();
   }

@@ -1,6 +1,6 @@
 import {
   AfterContentInit, Component, ContentChild, ContentChildren, DestroyRef, HostListener, OnInit, QueryList,
-  TemplateRef, inject, input, output, signal,
+  TemplateRef, ViewChild, inject, input, output, signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
 import { FilterService } from 'primeng/api';
 import { DataTableColumnDirective } from './data-table-column.directive';
-import { DataTableColumn, KpiDef, DataTableLazyEvent } from './data-table.types';
+import { DataTableColumn, DataTableFilterValue, KpiDef, DataTableLazyEvent } from './data-table.types';
 import { KpiCardComponent } from '../kpi-card/kpi-card.component';
 import { FilterChipsComponent, ChipOption } from '../filter-chips/filter-chips.component';
 
@@ -78,6 +78,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   searchChange = output<string>();
   lazyLoad = output<DataTableLazyEvent>();
 
+  @ViewChild(Table) private table?: Table;
   @ContentChildren(DataTableColumnDirective) private columnDirectives!: QueryList<DataTableColumnDirective>;
   @ContentChild('dtRowExpansion') rowExpansionTemplate: TemplateRef<{ $implicit: unknown }> | null = null;
   /** Fila fija al pie de la tabla (totales). El consumidor aporta el `<tr>` completo,
@@ -424,7 +425,27 @@ export class DataTableComponent implements AfterContentInit, OnInit {
       rows: this.pageSize(),
       sortField: this.sortField() || undefined,
       sortOrder: this.sortOrder(),
+      filters: this.activeFilters(),
     });
+  }
+
+  /**
+   * Filtros por columna con valor, listos para que el consumidor los mande al
+   * backend. En modo lazy la tabla no filtra nada por su cuenta: si no se
+   * emitieran aqui, poner un filtro solo recargaria la misma pagina sin cambios.
+   */
+  private activeFilters(): Record<string, DataTableFilterValue> | undefined {
+    const dt = this.table;
+    if (!dt) return undefined;
+
+    const out: Record<string, DataTableFilterValue> = {};
+    for (const col of this.columns()) {
+      if (!col.filter) continue;
+      if (!this.isFilterActive(dt, col.field)) continue;
+      const c = dt.filters[col.field] as any;
+      out[col.field] = { value: c.value, matchMode: c.matchMode };
+    }
+    return Object.keys(out).length ? out : undefined;
   }
 
   totalCount(dt: Table): number {
@@ -453,6 +474,7 @@ export class DataTableComponent implements AfterContentInit, OnInit {
       sortField: Array.isArray(event.sortField) ? event.sortField[0] : event.sortField ?? undefined,
       sortOrder: event.sortOrder ?? undefined,
       globalFilter: typeof event.globalFilter === 'string' ? event.globalFilter : undefined,
+      filters: this.activeFilters(),
     });
   }
 }

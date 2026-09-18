@@ -9,7 +9,7 @@ import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { Subscription } from 'rxjs';
 import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
-import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
+import { DataTableColumn, DataTableFilterValue, DataTableLazyEvent, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
 @Component({
   selector: 'app-list-budget-history',
@@ -21,14 +21,61 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   @ViewChild('dt') dataTable!: DataTableComponent;
 
+  // Mismas capacidades que el listado de cotizaciones: orden, filtro por columna
+  // y busqueda global. Al ser lazy, los filtros viajan al backend en el evento.
   tableColumns: DataTableColumn[] = [
-    { field: 'internalCode', header: 'Codigo', align: 'center' },
-    { field: 'fecha', header: 'Fecha' },
-    { field: 'budgetName', header: 'Obra' },
-    { field: 'estado', header: 'Estado' },
-    { field: 'logCambio', header: 'Log de Cambio' },
+    { field: 'internalCode', header: 'Codigo', align: 'center', sortable: true, filter: { type: 'text', placeholder: 'Codigo' } },
+    { field: 'fecha', header: 'Fecha', sortable: true, filter: { type: 'dateRange' } },
+    { field: 'budgetName', header: 'Obra', sortable: true, filter: { type: 'text', placeholder: 'Obra' } },
+    { field: 'estado', header: 'Estado', sortable: true, filter: { type: 'select', options: [] } },
+    { field: 'logCambio', header: 'Log de Cambio', sortable: true, filter: { type: 'text', placeholder: 'Cambio' } },
     { field: 'acciones', header: 'Acciones', align: 'right' },
   ];
+
+  get kpis(): KpiDef[] {
+    return [{ key: 'total', label: 'Registros', value: this.totalRecords, dotColor: '#6d28d9' }];
+  }
+
+  /**
+   * Opciones del filtro de Estado. Salen de la pagina cargada, igual que en el
+   * listado de cotizaciones; se acumulan para no perder las ya vistas al paginar.
+   */
+  private estadosVistos = new Set<string>();
+
+  private refreshEstadoFilterOptions(): void {
+    for (const h of this.historyItems) {
+      if (h.estado) this.estadosVistos.add(h.estado);
+    }
+    const options = [...this.estadosVistos].sort().map(e => ({ label: e, value: e }));
+    this.tableColumns = this.tableColumns.map(col =>
+      col.field === 'estado' ? { ...col, filter: { ...col.filter!, options } } : col);
+  }
+
+  onSearchChange(value: string): void {
+    this.filterRequest.search = value || '';
+    if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadHistory(); }
+  }
+
+  /** Traduce los filtros por columna de la tabla a la peticion del backend. */
+  private applyColumnFilters(filters?: Record<string, DataTableFilterValue>): void {
+    const f = filters ?? {};
+
+    const code = f['internalCode']?.value;
+    const parsedCode = typeof code === 'string' ? parseInt(code, 10) : (typeof code === 'number' ? code : NaN);
+    this.filterRequest.internalCode = Number.isFinite(parsedCode) ? parsedCode : null;
+
+    this.filterRequest.budgetName = typeof f['budgetName']?.value === 'string' ? f['budgetName'].value as string : '';
+    this.filterRequest.logCambio = typeof f['logCambio']?.value === 'string' ? f['logCambio'].value as string : '';
+
+    const estados = f['estado']?.value;
+    this.filterRequest.estados = Array.isArray(estados) ? estados.map(String) : [];
+
+    // El rango de fechas llega como [desde, hasta]; cualquiera de los dos puede faltar.
+    const range = f['fecha']?.value;
+    const [from, to] = Array.isArray(range) ? range : [null, null];
+    this.filterRequest.fromDate = from ? new Date(from as any) : null;
+    this.filterRequest.toDate = to ? new Date(to as any) : null;
+  }
 
   private readonly successRestoreMessage: string = "¡El presupuesto ha sido restaurado correctamente!";
   private readonly successRestoreTitle: string = "¡Restauración Completada!";
@@ -48,10 +95,6 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
   
   // Filtros
   filterRequest: BudgetHistoryFilterRequest = new BudgetHistoryFilterRequest();
-  internalCodeFilter: number | null = null;
-  logCambioFilter: string = "";
-  fromDateFilter: Date | null = null;
-  toDateFilter: Date | null = null;
 
   isModalError: boolean = false;
   public visible = false;
@@ -79,33 +122,27 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
 
   clear() {
     this.searchValue = '';
-    this.internalCodeFilter = null;
-    this.logCambioFilter = "";
-    this.fromDateFilter = null;
-    this.toDateFilter = null;
     this.filterRequest = new BudgetHistoryFilterRequest();
     if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadHistory(); }
   }
 
-  loadHistory(event?: any) {
+  loadHistory(event?: DataTableLazyEvent) {
     this.spinner.show();
     this.loading = true;
 
-    // Si viene del paginador de PrimeNG
     if (event) {
       this.filterRequest.page = Math.floor(event.first / event.rows) + 1;
       this.filterRequest.pageSize = event.rows;
+      this.filterRequest.sortField = event.sortField || 'fecha';
+      this.filterRequest.sortOrder = event.sortOrder ?? -1;
+      this.applyColumnFilters(event.filters);
     }
-
-    // Aplicar filtros
-    this.filterRequest.logCambio = this.logCambioFilter || "";
-    this.filterRequest.fromDate = this.fromDateFilter;
-    this.filterRequest.toDate = this.toDateFilter;
 
     this.budgetHistoryService.getHistory(this.filterRequest).subscribe(
       response => {
         this.historyItems = response.items;
         this.totalRecords = response.total;
+        this.refreshEstadoFilterOptions();
         this.spinner.hide();
         this.loading = false;
       },
@@ -115,11 +152,6 @@ export class ListBudgetHistoryComponent implements OnInit, OnDestroy {
         this.handleError('Error to Load History', this.errorGeneralMessage);
       }
     );
-  }
-
-  applyFilters() {
-    this.filterRequest.page = 1; // Resetear a la primera página al aplicar filtros
-    if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadHistory(); }
   }
 
   restoreBudgetWithConfirm(history: BudgetHistoryModel) {
