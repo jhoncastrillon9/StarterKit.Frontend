@@ -1,0 +1,293 @@
+<div class="pa">
+
+  <header class="pa-head">
+    <div>
+      <h1>Administración de la plataforma</h1>
+      <p class="pa-head__sub">Empresas, suscripciones y cobros de Cotiza Constructor</p>
+    </div>
+    <nav class="pa-tabs" role="tablist" aria-label="Secciones">
+      <button *ngFor="let t of tabs" type="button" role="tab"
+              [attr.aria-selected]="tab === t.id"
+              [class.is-active]="tab === t.id"
+              (click)="setTab(t.id)">{{ t.label }}</button>
+    </nav>
+  </header>
+
+  <p class="pa-error" *ngIf="error">
+    <i class="fas fa-circle-exclamation" aria-hidden="true"></i> {{ error }}
+  </p>
+
+  <p class="pa-loading" *ngIf="loading">Cargando…</p>
+
+  <!-- ===================== PANEL ===================== -->
+  <ng-container *ngIf="tab === 'panel' && dashboard">
+
+    <!-- Lo que hay que atender va primero: un panel que empieza por totales
+         obliga a buscar el problema. -->
+    <section class="pa-section" *ngIf="dashboard.reminders.length">
+      <h2 class="pa-h2">Requiere atención <span class="pa-count">{{ dashboard.reminders.length }}</span></h2>
+      <ul class="pa-reminders">
+        <li *ngFor="let r of dashboard.reminders" class="pa-reminder" [attr.data-kind]="r.kind">
+          <span class="pa-reminder__bar" aria-hidden="true"></span>
+          <div class="pa-reminder__body">
+            <span class="pa-reminder__company">{{ r.companyName }}</span>
+            <span class="pa-reminder__msg">{{ r.message }}</span>
+          </div>
+          <span class="pa-reminder__date">{{ fecha(r.endDate) }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="pa-section" *ngIf="!dashboard.reminders.length">
+      <div class="pa-clear">
+        <i class="fas fa-circle-check" aria-hidden="true"></i>
+        <p>Nada pendiente: ninguna empresa vencida, bloqueada ni por vencer esta semana.</p>
+      </div>
+    </section>
+
+    <section class="pa-section">
+      <h2 class="pa-h2">Dinero</h2>
+      <div class="pa-tiles">
+        <div class="pa-tile">
+          <span class="pa-tile__label">Cobrado este mes</span>
+          <span class="pa-tile__value">{{ cop(dashboard.revenueThisMonthCop) }}</span>
+        </div>
+        <div class="pa-tile" [class.pa-tile--warn]="dashboard.pendingCop > 0">
+          <span class="pa-tile__label">Vencido sin cobrar</span>
+          <span class="pa-tile__value">{{ cop(dashboard.pendingCop) }}</span>
+        </div>
+        <div class="pa-tile">
+          <span class="pa-tile__label">Cobrado en total</span>
+          <span class="pa-tile__value">{{ cop(dashboard.revenueTotalCop) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pa-section">
+      <h2 class="pa-h2">Suscripciones</h2>
+      <div class="pa-mini">
+        <div class="pa-mini__item"><b>{{ dashboard.activeSubscriptions }}</b><span>al día</span></div>
+        <div class="pa-mini__item"><b>{{ dashboard.trialSubscriptions }}</b><span>en prueba</span></div>
+        <div class="pa-mini__item pa-mini__item--warn"><b>{{ dashboard.expiringSoon }}</b><span>vencen en 7 días</span></div>
+        <div class="pa-mini__item pa-mini__item--warn"><b>{{ dashboard.pastDueSubscriptions }}</b><span>vencidas</span></div>
+        <div class="pa-mini__item pa-mini__item--bad"><b>{{ dashboard.blockedSubscriptions }}</b><span>bloqueadas</span></div>
+      </div>
+    </section>
+
+    <section class="pa-section">
+      <h2 class="pa-h2">Uso</h2>
+      <div class="pa-mini">
+        <div class="pa-mini__item"><b>{{ dashboard.totalCompanies }}</b><span>empresas</span></div>
+        <div class="pa-mini__item"><b>{{ dashboard.newCompaniesThisMonth }}</b><span>nuevas este mes</span></div>
+        <div class="pa-mini__item"><b>{{ dashboard.totalUsers }}</b><span>usuarios</span></div>
+        <div class="pa-mini__item"><b>{{ dashboard.totalBudgets }}</b><span>cotizaciones</span></div>
+      </div>
+    </section>
+  </ng-container>
+
+  <!-- ===================== EMPRESAS ===================== -->
+  <ng-container *ngIf="tab === 'empresas'">
+    <div class="pa-filters">
+      <input type="text" class="pa-input" [(ngModel)]="companySearch"
+             (keyup.enter)="loadCompanies()" placeholder="Buscar por nombre, correo o NIT"
+             aria-label="Buscar empresa" />
+      <select class="pa-input" [(ngModel)]="companyStatus" (ngModelChange)="loadCompanies()"
+              aria-label="Filtrar por estado">
+        <option *ngFor="let s of companyStatuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+      <button type="button" class="pa-btn" (click)="loadCompanies()">Buscar</button>
+    </div>
+
+    <div class="pa-table-wrap">
+      <table class="pa-table">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Suscripción</th>
+            <th>Vence</th>
+            <th>Último acceso</th>
+            <th class="pa-num">Cotiz.</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of companies" [attr.data-sev]="severity(c)">
+            <td>
+              <span class="pa-sev" aria-hidden="true"></span>
+              <div class="pa-company">
+                <span class="pa-company__name">{{ c.companyName }}</span>
+                <span class="pa-company__mail">{{ c.email }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="pa-pill" [attr.data-status]="c.subscription?.status">
+                {{ subLabel(c.subscription?.status) }}
+              </span>
+              <span class="pa-pill pa-pill--company" *ngIf="c.status && c.status !== 'Active'">
+                {{ companyLabel(c.status) }}
+              </span>
+            </td>
+            <td>
+              {{ fecha(c.subscription?.endDate) }}
+              <span class="pa-days" *ngIf="c.subscription">
+                {{ c.subscription.daysToExpiry < 0
+                    ? '(hace ' + (-c.subscription.daysToExpiry) + ' d)'
+                    : '(en ' + c.subscription.daysToExpiry + ' d)' }}
+              </span>
+            </td>
+            <td>{{ desde(c.lastLoginAt) }}</td>
+            <td class="pa-num">{{ c.budgetCount }}</td>
+            <td class="pa-num">
+              <button type="button" class="pa-btn pa-btn--ghost" (click)="select(c)">Gestionar</button>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && companies.length === 0">
+            <td colspan="6" class="pa-empty">Ninguna empresa coincide con la búsqueda.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ===================== USUARIOS ===================== -->
+  <ng-container *ngIf="tab === 'usuarios'">
+    <div class="pa-filters">
+      <input type="text" class="pa-input" [(ngModel)]="userSearch"
+             (keyup.enter)="loadUsers()" placeholder="Buscar por correo, nombre o empresa"
+             aria-label="Buscar usuario" />
+      <button type="button" class="pa-btn" (click)="loadUsers()">Buscar</button>
+    </div>
+
+    <div class="pa-table-wrap">
+      <table class="pa-table">
+        <thead>
+          <tr><th>Usuario</th><th>Empresa</th><th>Rol</th><th>Último acceso</th><th>Alta</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>
+              <div class="pa-company">
+                <span class="pa-company__name">{{ u.userName || u.email }}</span>
+                <span class="pa-company__mail">{{ u.email }}</span>
+              </div>
+            </td>
+            <td>{{ u.companyName }}</td>
+            <td><span class="pa-pill" [attr.data-role]="u.role">{{ u.role }}</span></td>
+            <td>{{ desde(u.lastLoginAt) }}</td>
+            <td>{{ fecha(u.createdAt) }}</td>
+          </tr>
+          <tr *ngIf="!loading && users.length === 0">
+            <td colspan="5" class="pa-empty">Ningún usuario coincide con la búsqueda.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ===================== PAGOS ===================== -->
+  <ng-container *ngIf="tab === 'pagos'">
+    <div class="pa-table-wrap">
+      <table class="pa-table">
+        <thead>
+          <tr><th>Fecha</th><th>Empresa</th><th class="pa-num">Importe</th><th>Método</th><th>Referencia</th><th class="pa-num">Meses</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of payments">
+            <td>{{ fecha(p.paidAt) }}</td>
+            <td>{{ p.companyName }}</td>
+            <td class="pa-num">{{ cop(p.amountCop) }}</td>
+            <td>{{ p.method }}</td>
+            <td>{{ p.reference || '—' }}</td>
+            <td class="pa-num">{{ p.coversMonths }}</td>
+          </tr>
+          <tr *ngIf="!loading && payments.length === 0">
+            <td colspan="6" class="pa-empty">Todavía no hay pagos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- ===================== PANEL DE GESTIÓN ===================== -->
+  <aside class="pa-drawer" *ngIf="selected" role="dialog" aria-label="Gestionar empresa">
+    <div class="pa-drawer__head">
+      <div>
+        <h2>{{ selected.companyName }}</h2>
+        <p>{{ selected.email }} · NIT {{ selected.document || '—' }}</p>
+      </div>
+      <button type="button" class="pa-drawer__close" (click)="closePanel()" aria-label="Cerrar">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <p class="pa-drawer__msg" *ngIf="message">{{ message }}</p>
+
+    <section class="pa-drawer__section">
+      <h3>Suscripción</h3>
+      <dl class="pa-dl">
+        <div><dt>Estado</dt><dd>{{ subLabel(selected.subscription?.status) }}</dd></div>
+        <div><dt>Vence</dt><dd>{{ fecha(selected.subscription?.endDate) }}</dd></div>
+        <div><dt>Importe</dt><dd>{{ cop(selected.subscription?.amountCop) }}</dd></div>
+        <div><dt>Pagado</dt><dd>{{ cop(selected.subscription?.totalPaidCop) }}</dd></div>
+        <div><dt>Acceso</dt><dd>{{ selected.hasAccess ? 'Sí' : 'No' }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="pa-drawer__section">
+      <h3>Registrar pago</h3>
+      <div class="pa-grid">
+        <label>Importe
+          <input type="number" class="pa-input" [(ngModel)]="paymentForm.amountCop" min="1" />
+        </label>
+        <label>Fecha
+          <input type="date" class="pa-input" [(ngModel)]="paymentForm.paidAt" />
+        </label>
+        <label>Meses que cubre
+          <input type="number" class="pa-input" [(ngModel)]="paymentForm.coversMonths" min="1" max="24" />
+        </label>
+        <label>Método
+          <select class="pa-input" [(ngModel)]="paymentForm.method">
+            <option value="Transferencia">Transferencia</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Consignación">Consignación</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+        <label class="pa-grid__full">Referencia
+          <input type="text" class="pa-input" [(ngModel)]="paymentForm.reference"
+                 placeholder="Número de la transferencia" />
+        </label>
+        <label class="pa-grid__full">Observaciones
+          <input type="text" class="pa-input" [(ngModel)]="paymentForm.notes" />
+        </label>
+      </div>
+      <button type="button" class="pa-btn pa-btn--primary" (click)="registerPayment()" [disabled]="saving">
+        Registrar pago
+      </button>
+      <p class="pa-hint">Registrar un pago reactiva la cuenta y mueve la fecha de vencimiento.</p>
+    </section>
+
+    <section class="pa-drawer__section">
+      <h3>Estado de la cuenta</h3>
+      <div class="pa-grid">
+        <label class="pa-grid__full">Estado
+          <select class="pa-input" [(ngModel)]="statusForm.status">
+            <option value="Active">Activa</option>
+            <option value="Suspended">Suspendida</option>
+            <option value="Blocked">Bloqueada</option>
+          </select>
+        </label>
+        <label class="pa-grid__full" *ngIf="statusForm.status !== 'Active'">Motivo
+          <input type="text" class="pa-input" [(ngModel)]="statusForm.reason"
+                 placeholder="Lo verá el cliente al intentar entrar" />
+        </label>
+      </div>
+      <button type="button" class="pa-btn pa-btn--danger" (click)="changeStatus()" [disabled]="saving">
+        Aplicar estado
+      </button>
+      <p class="pa-hint">Bloquear deja a la empresa sin acceso de inmediato, en toda la API.</p>
+    </section>
+  </aside>
+
+  <div class="pa-backdrop" *ngIf="selected" (click)="closePanel()"></div>
+</div>
