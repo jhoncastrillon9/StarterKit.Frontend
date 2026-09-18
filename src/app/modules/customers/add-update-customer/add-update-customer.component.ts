@@ -47,8 +47,27 @@ export class AddUpdateCustomerComponent implements OnInit {
       email: [''],
       customerName: ['', [Validators.required]],
       customId: [''],
-      address: [''],  
+      address: [''],
       customerId: ['0'],
+
+      // Datos para facturacion electronica (DIAN). Opcionales: la FE todavia no
+      // esta activa y los clientes que ya existen no los tienen. Ver
+      // CustomerDTO en el backend para las referencias al Anexo Tecnico v1.9.
+      personType: [''],
+      documentType: [''],
+      verificationDigit: [''],
+      registrationName: [''],
+      commercialName: [''],
+      taxLevelCode: [''],
+      taxSchemeId: [''],
+      cityCode: [''],
+      cityName: [''],
+      departmentCode: [''],
+      departmentName: [''],
+      postalZone: [''],
+      countryCode: ['CO'],
+      phone: [''],
+      contactName: [''],
     });
 
     this.route.paramMap.subscribe(params => {
