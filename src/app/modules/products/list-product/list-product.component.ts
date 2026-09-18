@@ -7,6 +7,7 @@ import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 import { DataTableColumn, DataTableFilterValue, DataTableLazyEvent, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.component';
 import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
 })
 export class ListProductComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
+  @ViewChild('dt') dataTable!: DataTableComponent;
 
   private readonly successDeleteMessage: string = "¡El producto ha sido eliminado correctamente!";
   private readonly successDeleteTitle: string = "¡Eliminación Completada!";
@@ -70,7 +72,12 @@ export class ListProductComponent implements OnInit {
   onSearchChange(value: string): void {
     this.searchValue = value;
     this.filterRequest.search = value || '';
-    this.onSearch();
+    // Se recarga a traves de la tabla, no llamando a loadProducts() aqui: al
+    // limpiar los filtros la tabla emite tambien su propio evento lazy y las dos
+    // peticiones competian, con lo que a veces ganaba la respuesta ya filtrada y
+    // el listado se quedaba sin limpiar.
+    this.currentPage = 1;
+    if (this.dataTable) { this.dataTable.resetToFirstPage(); } else { this.loadProducts(); }
   }
 
   isModalForDelete: boolean = false;

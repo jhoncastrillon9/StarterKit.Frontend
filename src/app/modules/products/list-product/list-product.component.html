@@ -1,6 +1,7 @@
 <!-- Listado de productos rediseñado (lazy) -->
 <div class="product-list-container">
   <app-data-table
+    #dt
     [columns]="tableColumns"
     [value]="products"
     [loading]="loading"
