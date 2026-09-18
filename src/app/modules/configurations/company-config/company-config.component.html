@@ -28,10 +28,10 @@
       <div class="card-body-custom">
         <div class="logo-section">
           <div class="logo-preview">
-            <img 
-              [src]="urlImageLogo ? urlImageLogo : 'https://cotizaconstructorstorage.blob.core.windows.net/logos/8cbe1a7d-e127-48a0-81d6-19150f45234c.png'" 
-              alt="Logo de la empresa"
-            />
+            <img [src]="logoSrc" alt="Logo de la empresa" />
+            <span class="logo-pending-badge" *ngIf="hasPendingLogo">
+              <i class="fas fa-clock"></i> Sin guardar
+            </span>
           </div>
           <div class="logo-upload">
             <div class="form-group-modern">
@@ -55,8 +55,16 @@
               </div>
               <small class="helper-text">
                 <i class="fas fa-info-circle"></i>
-                Formatos: PNG, JPG, JPEG. Tamaño recomendado: 200x100px
+                Formatos: PNG, JPG, JPEG. Máximo 2 MB. Tamaño recomendado: 200x100px
               </small>
+              <div class="logo-pending" *ngIf="hasPendingLogo">
+                <span class="logo-pending__text">
+                  <i class="fas fa-image"></i> {{ selectedFile?.name }}
+                </span>
+                <button type="button" class="logo-pending__undo" (click)="clearSelectedLogo()">
+                  <i class="fas fa-times"></i> Descartar
+                </button>
+              </div>
             </div>
           </div>
         </div>

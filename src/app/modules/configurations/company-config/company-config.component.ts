@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '../services/company.service';
@@ -10,7 +10,7 @@ import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-m
   templateUrl: './company-config.component.html',
   styleUrls: ['./company-config.component.scss']
 })
-export class CompanyConfigComponent implements OnInit {
+export class CompanyConfigComponent implements OnInit, OnDestroy {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
 
@@ -18,6 +18,21 @@ export class CompanyConfigComponent implements OnInit {
   companyId?: string = '0';  
   selectedFile: File | null = null;
   urlImageLogo: string = '';
+
+  /** Logo por defecto cuando la empresa todavia no ha subido ninguno. */
+  private readonly defaultLogo =
+    'https://cotizaconstructorstorage.blob.core.windows.net/logos/8cbe1a7d-e127-48a0-81d6-19150f45234c.png';
+
+  /** Tamano maximo del logo. Por encima, el upload suele fallar en el backend. */
+  private readonly maxLogoBytes = 2 * 1024 * 1024;
+
+  /**
+   * URL local (blob:) del archivo recien elegido. Existe para que la vista previa
+   * cambie en el momento: antes solo se guardaba el File y la imagen no se
+   * actualizaba hasta guardar y recargar, con lo que el usuario no sabia si habia
+   * elegido bien el archivo.
+   */
+  previewUrl: string | null = null;
 
   // Mensajes reutilizables
   private readonly successMessage: string = "¡Los datos de tu empresa han sido actualizados con éxito!";
@@ -76,13 +91,57 @@ export class CompanyConfigComponent implements OnInit {
     );
   }
 
+  /** Imagen que se muestra: la recien elegida, la guardada, o la de por defecto. */
+  get logoSrc(): string {
+    return this.previewUrl || this.urlImageLogo || this.defaultLogo;
+  }
+
+  /** True si hay un archivo elegido pendiente de guardar. */
+  get hasPendingLogo(): boolean {
+    return !!this.selectedFile;
+  }
+
   onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      this.selectedFile = file;
-    } else {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Si el usuario abre el dialogo y cancela, no hay archivo: se deja todo como estaba.
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      input.value = '';
       this.showModal(true, 'Solo puedes cargar archivos de tipo imagenes 😉', this.errorTitle);
+      return;
     }
+
+    if (file.size > this.maxLogoBytes) {
+      input.value = '';
+      this.showModal(true, 'La imagen no puede pesar mas de 2 MB. Prueba con una mas ligera.', this.errorTitle);
+      return;
+    }
+
+    this.releasePreview();
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);
+  }
+
+  /** Descarta el archivo elegido y vuelve a mostrar el logo guardado. */
+  clearSelectedLogo(): void {
+    this.releasePreview();
+    this.selectedFile = null;
+    const input = document.getElementById('logoInput') as HTMLInputElement | null;
+    if (input) input.value = '';
+  }
+
+  /** Libera la URL temporal; si no, el blob se queda en memoria. */
+  private releasePreview(): void {
+    if (this.previewUrl) {
+      URL.revokeObjectURL(this.previewUrl);
+      this.previewUrl = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.releasePreview();
   }
 
   updateCompany() {
@@ -92,8 +151,12 @@ export class CompanyConfigComponent implements OnInit {
 
       this.companyService.updateCompanyByUser(formData).subscribe(
         (response: any) => {
+          // Se suelta la vista previa local para que pase a verse la imagen ya
+          // subida; si se dejara, seguiriamos mirando el blob y no sabriamos si
+          // el upload funciono de verdad.
+          this.clearSelectedLogo();
           this.ngOnInit();
-          this.spinner.hide();  
+          this.spinner.hide();
           this.showModal(false, this.successMessage, this.successTitle);
         },
         (error: any) => {
