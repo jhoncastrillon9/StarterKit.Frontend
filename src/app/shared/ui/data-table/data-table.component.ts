@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule, Table, TableLazyLoadEvent } from 'primeng/table';
+import { TableModule, Table } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
@@ -99,9 +99,31 @@ export class DataTableComponent implements AfterContentInit, OnInit {
   readonly pageSize = signal(20);
   readonly searchValue = signal('');
 
+  /** Orden actual. p-table lo mantiene por dentro, pero [sortField]/[sortOrder] son
+   *  entradas de un solo sentido: sin esto, en modo lazy siempre se mandaba al
+   *  backend el orden inicial por mucho que el usuario pulsara otra cabecera. */
+  readonly currentSortField = signal<string>('');
+  readonly currentSortOrder = signal<number>(-1);
+
   ngOnInit(): void {
     this.pageSize.set(this.rows());
+    this.currentSortField.set(this.sortField());
+    this.currentSortOrder.set(this.sortOrder());
     this.registerRangeFilters();
+  }
+
+  onSortChange(event: { field?: string; order?: number } | null): void {
+    const field = event?.field ?? '';
+    const order = event?.order ?? 1;
+
+    // p-table emite onSort tambien al inicializarse con el orden que recibe por
+    // input; sin este corte se dispararia una carga extra nada mas abrir la pagina.
+    if (field === this.currentSortField() && order === this.currentSortOrder()) return;
+
+    this.currentSortField.set(field);
+    this.currentSortOrder.set(order);
+    this.first.set(0);
+    if (this.lazy()) this.emitLazy();
   }
 
   ngAfterContentInit(): void {
@@ -423,8 +445,8 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     this.lazyLoad.emit({
       first: this.first(),
       rows: this.pageSize(),
-      sortField: this.sortField() || undefined,
-      sortOrder: this.sortOrder(),
+      sortField: this.currentSortField() || undefined,
+      sortOrder: this.currentSortOrder(),
       filters: this.activeFilters(),
     });
   }
@@ -466,15 +488,4 @@ export class DataTableComponent implements AfterContentInit, OnInit {
     return this.first() + this.pageSize() >= this.totalCount(dt);
   }
 
-  onLazy(event: TableLazyLoadEvent): void {
-    if (!this.lazy()) return;
-    this.lazyLoad.emit({
-      first: event.first ?? 0,
-      rows: event.rows ?? this.rows(),
-      sortField: Array.isArray(event.sortField) ? event.sortField[0] : event.sortField ?? undefined,
-      sortOrder: event.sortOrder ?? undefined,
-      globalFilter: typeof event.globalFilter === 'string' ? event.globalFilter : undefined,
-      filters: this.activeFilters(),
-    });
-  }
 }
