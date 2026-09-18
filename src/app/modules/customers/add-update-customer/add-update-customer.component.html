@@ -150,18 +150,14 @@
       </div>
     </div>
 
-    <!-- Card de Datos Tributarios (facturación electrónica DIAN) -->
-    <div class="customer-card info-card">
-      <div class="card-header-custom">
-        <i class="fas fa-file-invoice-dollar"></i>
-        <span>Datos tributarios</span>
-      </div>
+    <app-form-section
+      title="Datos tributarios"
+      why="No hacen falta para cotizar. Los necesitarás cuando factures electrónicamente ante la DIAN."
+      icon="fa-file-invoice-dollar"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showTax">
       <div class="card-body-custom">
-        <p class="section-note">
-          <i class="fas fa-info-circle"></i>
-          Estos datos no hacen falta para cotizar, pero sí para emitir facturas
-          electrónicas ante la DIAN. Puedes completarlos más adelante.
-        </p>
         <div class="row g-4">
           <c-col xs="12" sm="6" md="6">
             <div class="form-group-modern">
@@ -237,14 +233,15 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
-    <!-- Card de Ubicación -->
-    <div class="customer-card info-card">
-      <div class="card-header-custom">
-        <i class="fas fa-map-marked-alt"></i>
-        <span>Ubicación</span>
-      </div>
+    <app-form-section
+      title="Ubicación"
+      why="Municipio y departamento con sus códigos oficiales; van en la factura electrónica."
+      icon="fa-map-marked-alt"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showLocation">
       <div class="card-body-custom">
         <div class="row g-4">
           <c-col xs="12" sm="6" md="6">
@@ -295,14 +292,15 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
-    <!-- Card de Contacto adicional -->
-    <div class="customer-card info-card">
-      <div class="card-header-custom">
-        <i class="fas fa-phone-alt"></i>
-        <span>Contacto</span>
-      </div>
+    <app-form-section
+      title="Contacto"
+      why="Persona y teléfono, por si hay que llamar."
+      icon="fa-phone-alt"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showContact">
       <div class="card-body-custom">
         <div class="row g-4">
           <c-col xs="12" sm="6" md="6">
@@ -325,7 +323,7 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
     <!-- Botones de acción -->
     <div class="form-actions">

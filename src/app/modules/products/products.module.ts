@@ -9,6 +9,7 @@ import { ProductsRoutingModule } from './products-routing.module';
 // Components
 import { ListProductComponent } from './list-product/list-product.component';
 import { AddUpdateProductComponent } from './add-update-product/add-update-product.component';
+import { FormSectionComponent } from 'src/app/shared/ui/form-section/form-section.component';
 
 // PrimeNG Modules
 import { TableModule } from 'primeng/table';
@@ -31,6 +32,7 @@ import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-tabl
     AddUpdateProductComponent
   ],
   imports: [
+    FormSectionComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

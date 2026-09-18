@@ -207,18 +207,14 @@
     </div>
 
     <!-- Botones de acción -->
-    <!-- Card de Datos para facturación (DIAN) -->
-    <div class="product-card">
-      <div class="card-header-custom">
-        <i class="fas fa-file-invoice-dollar"></i>
-        <span>Datos para facturación</span>
-      </div>
+    <app-form-section
+      title="Datos para facturación"
+      why="Hace falta para emitir facturas electrónicas. La unidad estándar se deduce sola de la unidad de medida."
+      icon="fa-file-invoice-dollar"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showTax">
       <div class="card-body-custom">
-        <p class="section-note">
-          <i class="fas fa-info-circle"></i>
-          Opcional. Hace falta para emitir facturas electrónicas ante la DIAN; la
-          unidad estándar se deduce sola de la unidad de medida.
-        </p>
         <div class="row g-4">
           <c-col xs="12" sm="6" md="4">
             <div class="form-group-modern">
@@ -263,7 +259,7 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
     <div class="form-actions">
       <a

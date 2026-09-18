@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { ReferenceSelectComponent } from 'src/app/shared/ui/reference-select/reference-select.component';
+import { FormSectionComponent } from 'src/app/shared/ui/form-section/form-section.component';
 import { CommonModule } from '@angular/common';
 import { ConfigurationsRoutingModule } from './configurations-routing.module';
 import { CompanyConfigComponent } from './company-config/company-config.component';
@@ -27,6 +28,7 @@ import { CustomSharedModule} from '../../shared/shared.module';
   ],
   imports: [
     ReferenceSelectComponent,
+    FormSectionComponent,
     CommonModule,
     ConfigurationsRoutingModule,
     NgxSpinnerModule,    

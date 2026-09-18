@@ -32,6 +32,15 @@ export class AddUpdateCustomerComponent implements OnInit {
    * porque el componente de catalogo trabaja con senales y no con ControlValueAccessor;
    * se vuelcan al formulario justo antes de guardar.
    */
+  /**
+   * Bloques plegables. Empiezan cerrados porque lo obligatorio para cotizar son
+   * cuatro campos y, con los de la DIAN abiertos, quedaban ahogados entre treinta.
+   * Si el cliente ya trae datos fiscales, se abren solos: significa que se usan.
+   */
+  showTax = false;
+  showLocation = false;
+  showContact = false;
+
   ref: CatalogCodes = {
     documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: 'CO',
   };
@@ -56,6 +65,11 @@ export class AddUpdateCustomerComponent implements OnInit {
 
   /** Rellena los desplegables al abrir un cliente que ya existe. */
   private cargarCatalogos(customer: any): void {
+    // Si ya hay datos fiscales, el bloque se abre: esconderlos sería peor.
+    this.showTax = !!(customer?.documentType || customer?.registrationName || customer?.taxLevelCode);
+    this.showLocation = !!(customer?.cityCode || customer?.cityName || customer?.departmentCode);
+    this.showContact = !!(customer?.phone || customer?.contactName);
+
     this.ref.documentType = customer?.documentType || '';
     this.ref.taxSchemeId = customer?.taxSchemeId || '';
     this.ref.departmentCode = customer?.departmentCode || '';

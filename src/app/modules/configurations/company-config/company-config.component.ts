@@ -50,6 +50,10 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
    * porque el componente de catalogo usa senales y no ControlValueAccessor; se
    * vuelcan al formulario justo antes de guardar.
    */
+  /** Bloques plegables: lo fiscal no debe tapar los datos que se usan a diario. */
+  showTax = false;
+  showLocation = false;
+
   ref: CatalogCodes = {
     documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: 'CO',
   };
@@ -71,6 +75,9 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
   }
 
   private cargarCatalogos(company: any): void {
+    this.showTax = !!(company?.documentType || company?.registrationName || company?.economicActivityCode);
+    this.showLocation = !!(company?.cityCode || company?.cityName || company?.departmentCode);
+
     this.ref.documentType = company?.documentType || '';
     this.ref.taxSchemeId = company?.taxSchemeId || '';
     this.ref.departmentCode = company?.departmentCode || '';

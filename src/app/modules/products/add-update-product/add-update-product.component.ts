@@ -34,6 +34,9 @@ export class AddUpdateProductComponent implements OnInit {
   private readonly errorMessage: string = 'Hubo un problema al guardar el producto. Por favor, intenta de nuevo.';
   private readonly loadDataError: string = 'No se pudo cargar la información del producto.';
 
+  /** El bloque fiscal empieza cerrado; se abre si el producto ya lo tiene. */
+  showTax = false;
+
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,

@@ -234,18 +234,14 @@
       </div>
     </div>
 
-    <!-- Card de Datos Tributarios del emisor (facturación electrónica DIAN) -->
-    <div class="company-card contact-card">
-      <div class="card-header-custom">
-        <i class="fas fa-file-invoice-dollar"></i>
-        <span>Datos tributarios</span>
-      </div>
+    <app-form-section
+      title="Datos tributarios"
+      why="Lo que la DIAN exige de ti como emisor. No hacen falta para cotizar; complétalos antes de empezar a facturar."
+      icon="fa-file-invoice-dollar"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showTax">
       <div class="card-body-custom">
-        <p class="section-note">
-          <i class="fas fa-info-circle"></i>
-          Datos que la DIAN exige del emisor en una factura electrónica. No hacen
-          falta para cotizar; complétalos antes de empezar a facturar.
-        </p>
         <div class="row g-4">
           <c-col xs="12" sm="6" md="6">
             <div class="form-group-modern">
@@ -319,14 +315,15 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
-    <!-- Card de Ubicación fiscal -->
-    <div class="company-card contact-card">
-      <div class="card-header-custom">
-        <i class="fas fa-map-marked-alt"></i>
-        <span>Ubicación</span>
-      </div>
+    <app-form-section
+      title="Ubicación"
+      why="Municipio y departamento con sus códigos oficiales."
+      icon="fa-map-marked-alt"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showLocation">
       <div class="card-body-custom">
         <div class="row g-4">
           <c-col xs="12" sm="6" md="6">
@@ -374,7 +371,7 @@
           </c-col>
         </div>
       </div>
-    </div>
+    </app-form-section>
 
     <!-- Botones de acción -->
     <div class="form-actions">
