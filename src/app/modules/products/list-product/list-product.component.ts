@@ -7,6 +7,7 @@ import { Table } from 'primeng/table';
 import { ViewEncapsulation } from '@angular/core';
 import { ConfirmationModalComponent } from '../../../shared/components/reusable-modal/reusable-modal.component';
 import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
+import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
 
 @Component({
   selector: 'app-list-product',
@@ -65,8 +66,20 @@ export class ListProductComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private chatUi: ChatbotUiService
   ) { }
+
+  /**
+   * Abre el chat de IA en contexto de catalogo. El contexto le dice al agente que
+   * aqui se crean PRODUCTOS, no items de una cotizacion.
+   */
+  agregarProductosConIA(): void {
+    this.chatUi.open({
+      context: { scope: 'products' },
+      prefill: 'Crea estos productos en el catalogo: '
+    });
+  }
 
   ngOnInit(): void {
     this.loadProducts();

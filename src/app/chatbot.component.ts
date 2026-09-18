@@ -3,6 +3,8 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 import { ConfirmationModalComponent } from './shared/components/reusable-modal/reusable-modal.component';
 import { ChatbotSignalRService, ChatMessage, ChatFileResponse, ConnectionStatus } from './shared/services/chatbot-signalr.service';
 import { ChatAttachment, ChatAttachmentService } from './shared/services/chat-attachment.service';
+import { ChatContext, ChatbotUiService } from './shared/services/chatbot-ui.service';
+import { SpeechInputError, SpeechInputService, SpeechInputState } from './shared/services/speech-input.service';
 import { Subscription } from 'rxjs';
 
 interface PendingAttachment {
@@ -64,14 +66,39 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   showConfirmationModal = false;
   confirmationMessage = '¿Estas seguro de que quieres borrar toda la conversacion?';
 
+  // Dictado por voz
+  micState: SpeechInputState = 'idle';
+  micHint = '';
+
+  // Contexto de trabajo activo (cotizacion abierta, catalogo de productos...)
+  context: ChatContext | null = null;
+
   constructor(
     private chatService: ChatbotSignalRService,
-    private attachmentService: ChatAttachmentService
+    private attachmentService: ChatAttachmentService,
+    private chatUi: ChatbotUiService,
+    private speech: SpeechInputService
   ) {}
 
   async ngOnInit() {
     // Detect mobile
     this.checkMobile();
+
+    this.micState = this.speech.isSupported ? 'idle' : 'unsupported';
+
+    // Apertura desde otros modulos ("Crear con IA", "Agregar desde IA", ...)
+    this.subs.push(
+      this.chatUi.open$.subscribe(req => {
+        this.isOpen = true;
+        this.shouldScrollToBottom = true;
+        if (req.prefill) this.message = req.prefill;
+        setTimeout(() => this.messageInput?.nativeElement?.focus(), 350);
+      })
+    );
+
+    this.subs.push(
+      this.chatUi.context$.subscribe(ctx => { this.context = ctx; })
+    );
 
     // Subscribe to messages
     this.subs.push(
@@ -136,6 +163,93 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy() {
     this.subs.forEach(s => s.unsubscribe());
+    this.speech.cancel();
+  }
+
+  // ---------- Contexto ----------
+
+  /** Texto del banner de contexto; null si el chat es de proposito general. */
+  get contextLabel(): string | null {
+    const c = this.context;
+    if (!c) return null;
+    if (c.scope === 'budget') {
+      const code = c.internalCode ?? c.budgetId;
+      return c.label ? `Cotizacion ${code} — ${c.label}` : `Cotizacion ${code}`;
+    }
+    if (c.scope === 'products') return 'Catalogo de productos';
+    return 'Cotizaciones';
+  }
+
+  clearContext(): void {
+    this.chatUi.clearContext();
+  }
+
+  get inputPlaceholder(): string {
+    if (this.micState === 'listening') return 'Escuchando...';
+    if (this.micState === 'processing') return 'Transcribiendo...';
+    return 'Escribe un mensaje...';
+  }
+
+  // ---------- Dictado por voz ----------
+
+  get micSupported(): boolean {
+    return this.micState !== 'unsupported';
+  }
+
+  get micTitle(): string {
+    switch (this.micState) {
+      case 'listening': return 'Detener y transcribir';
+      case 'processing': return 'Transcribiendo...';
+      default: return 'Dictar mensaje';
+    }
+  }
+
+  async toggleMic(): Promise<void> {
+    if (this.micState === 'processing') return;
+
+    if (this.micState === 'listening') {
+      this.micState = 'processing';
+      this.micHint = '';
+      try {
+        const text = await this.speech.stopAndTranscribe();
+        // El texto se deja en el input para que el usuario lo revise antes de
+        // enviarlo: el dictado no manda el mensaje por su cuenta.
+        this.message = this.message.trim() ? `${this.message.trim()} ${text}` : text;
+        this.micState = 'idle';
+        setTimeout(() => this.messageInput?.nativeElement?.focus(), 0);
+      } catch (err) {
+        this.applyMicError(err);
+      }
+      return;
+    }
+
+    this.micHint = '';
+    try {
+      await this.speech.start();
+      this.micState = 'listening';
+      this.micHint = 'Grabando. Pulsa de nuevo para transcribir.';
+    } catch (err) {
+      this.applyMicError(err);
+    }
+  }
+
+  private applyMicError(err: unknown): void {
+    if (err instanceof SpeechInputError) {
+      this.micState = err.state;
+      this.micHint = err.message;
+    } else {
+      this.micState = 'error';
+      this.micHint = 'No se pudo usar el microfono.';
+    }
+    // 'unsupported' es permanente; el resto vuelve a 'idle' para poder reintentar.
+    if (this.micState !== 'unsupported') {
+      setTimeout(() => {
+        if (this.micState !== 'listening' && this.micState !== 'processing') {
+          this.micState = 'idle';
+          this.micHint = '';
+        }
+      }, 6000);
+    }
   }
 
   toggleChat(): void {
@@ -151,6 +265,12 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   closeChat(): void {
     this.isOpen = false;
+    // Cerrar con el microfono abierto dejaria el stream vivo y el led encendido.
+    if (this.micState === 'listening') {
+      this.speech.cancel();
+      this.micState = 'idle';
+      this.micHint = '';
+    }
   }
 
   sendMessage(): void {

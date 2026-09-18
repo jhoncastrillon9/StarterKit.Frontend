@@ -3,6 +3,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } fro
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../../environment';
 import { ChatAttachment } from './chat-attachment.service';
+import { ChatbotUiService } from './chatbot-ui.service';
 
 export interface ChatMessage {
   id?: string;
@@ -62,7 +63,7 @@ export class ChatbotSignalRService {
 
   private currentStreamingMessageId: string | null = null;
 
-  constructor() {
+  constructor(private chatUi: ChatbotUiService) {
     this.startConnection();
   }
 
@@ -518,9 +519,20 @@ export class ChatbotSignalRService {
     }
 
     if (this.hubConnection && this.isConnected()) {
+      // El contexto (cotizacion abierta, catalogo de productos...) viaja con
+      // cada mensaje para que el agente no tenga que deducirlo del texto.
+      const ctx = this.chatUi.context;
       const chatRequest = {
         Message: message,
-        AttachmentIds: attachments.map(a => a.attachmentId)
+        AttachmentIds: attachments.map(a => a.attachmentId),
+        Context: ctx
+          ? {
+              Scope: ctx.scope,
+              BudgetId: ctx.budgetId ?? null,
+              InternalCode: ctx.internalCode ?? null,
+              Label: ctx.label ?? null
+            }
+          : null
       };
 
       const userMessage: ChatMessage = {

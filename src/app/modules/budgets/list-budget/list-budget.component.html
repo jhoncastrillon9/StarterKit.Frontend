@@ -21,19 +21,15 @@
 
     <!-- Header actions -->
     <button dt-actions
-      pButton type="button" class="btn-ai-recording"
-      [ngClass]="{'recording': isRecording, 'processing': isProcessingAI && !isRecording, 'idle': !isRecording && !isProcessingAI}"
-      (click)="toggleRecordingAI()" [disabled]="isProcessingAI && !isRecording"
-      [pTooltip]="isRecording ? 'Toca para detener' : (isProcessingAI ? aiProcessingStatus : 'Crear cotizacion con IA')"
+      pButton type="button" class="btn-ai-recording idle"
+      (click)="crearConIA()"
+      pTooltip="Crear cotizacion con el asistente de IA"
       tooltipPosition="bottom">
       <div class="btn-ai-content">
-        <div class="mic-container" [class.pulse-animation]="isRecording || isProcessingAI">
-          <i class="pi" [ngClass]="{'pi-microphone': !isProcessingAI || isRecording, 'pi-spin pi-spinner': isProcessingAI && !isRecording}"></i>
+        <div class="mic-container">
+          <i class="pi pi-sparkles"></i>
         </div>
-        <span class="btn-ai-text">{{ isRecording ? 'Grabando...' : (isProcessingAI ? aiProcessingStatus : 'Crear con IA') }}</span>
-      </div>
-      <div *ngIf="isRecording" class="recording-waves">
-        <span class="wave"></span><span class="wave"></span><span class="wave"></span><span class="wave"></span>
+        <span class="btn-ai-text">Crear con IA</span>
       </div>
     </button>
     <a dt-actions [routerLink]="'/budgets/add'" class="btn-new-budget">
