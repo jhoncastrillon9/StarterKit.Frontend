@@ -63,7 +63,7 @@
         </time>
 
         <div class="pr-report__body">
-          <h3 class="pr-report__name">{{ report.projectReportName }}</h3>
+          <h3 class="pr-report__name">{{ nombreInforme(report, obra) }}</h3>
           <p class="pr-report__note" *ngIf="report.note">{{ report.note | truncate:90 }}</p>
         </div>
 

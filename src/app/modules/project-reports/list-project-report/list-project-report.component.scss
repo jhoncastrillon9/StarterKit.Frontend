@@ -164,7 +164,7 @@ $pr-surface:  #ffffff;
   background: $pr-surface;
   border: 1px solid $pr-line;
   border-radius: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   overflow: hidden;
 
   &__head {
@@ -172,7 +172,9 @@ $pr-surface:  #ffffff;
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 18px;
+    /* Casi todas las obras tienen un solo informe: con mas alto que este, la
+       pantalla se convierte en una lista de cabeceras en vez de una de trabajo. */
+    padding: 10px 18px;
     border-bottom: 1px solid $pr-line;
     background: #fbfaff;
   }
@@ -204,7 +206,7 @@ $pr-surface:  #ffffff;
   grid-template-columns: 52px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 14px;
-  padding: 12px 18px;
+  padding: 10px 18px;
   border-bottom: 1px solid $pr-line;
 
   &:last-child { border-bottom: none; }

@@ -125,6 +125,21 @@ export class ListProjectReportComponent {
       this.recalcObras();
     }
 
+    /**
+     * Nombre del informe sin el codigo de cotizacion que suelen llevar delante
+     * ("555 - La casita"): ese codigo ya esta en la cabecera del grupo, asi que
+     * repetirlo en cada fila solo mete ruido. Si al quitarlo no queda nada util,
+     * se deja el nombre tal cual.
+     */
+    nombreInforme(report: ProjectReportModel, obra: ObraConInformes): string {
+      const nombre = (report.projectReportName || '').trim();
+      const codigo = String(obra.budgetInternalCode ?? '');
+      if (!codigo) return nombre;
+
+      const sinCodigo = nombre.replace(new RegExp('^' + codigo + '\s*[-–]\s*'), '').trim();
+      return sinCodigo.length > 0 ? sinCodigo : nombre;
+    }
+
     /** Hasta tres fotos del informe, que es lo que se ve en la tira. */
     fotos(report: ProjectReportModel): string[] {
       return (report.projectReportDetailsDTO || [])
