@@ -46,3 +46,296 @@ $muted: #7c7691;
 }
 
 @media (max-width: 768px) { .project-report-list-container { padding: 14px 12px 30px; } }
+
+/* =========================================================================
+   Vista "Por obra".
+   El constructor piensa en obras, no en registros: por eso los informes se
+   agrupan por obra y la tira de fotos manda, que es lo que hace util un
+   informe. Se reutiliza la paleta de la aplicacion a proposito, para que la
+   pantalla no parezca de otro producto.
+   ========================================================================= */
+
+$pr-ink:      #1f1b2e;
+$pr-muted:    #6f6987;
+$pr-line:     #ece9f3;
+$pr-primary:  #6d28d9;
+$pr-surface:  #ffffff;
+
+.pr-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+
+  h1 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 800;
+    color: $pr-ink;
+    letter-spacing: -0.01em;
+  }
+
+  &__meta {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: $pr-muted;
+  }
+
+  &__tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+.pr-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__icon {
+    position: absolute;
+    left: 11px;
+    font-size: 15px;
+    color: $pr-muted;
+    pointer-events: none;
+  }
+
+  input {
+    height: 38px;
+    width: 250px;
+    max-width: 100%;
+    padding: 0 12px 0 30px;
+    border: 1px solid $pr-line;
+    border-radius: 10px;
+    font-size: 13px;
+    color: $pr-ink;
+    background: $pr-surface;
+
+    &::placeholder { color: #a39cb8; }
+    &:focus { outline: 2px solid rgba(109, 40, 217, .35); outline-offset: 1px; border-color: $pr-primary; }
+  }
+}
+
+.pr-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid $pr-line;
+  border-radius: 10px;
+  background: #f7f6fb;
+
+  button {
+    border: none;
+    background: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: $pr-muted;
+    cursor: pointer;
+
+    &.is-active { background: $pr-surface; color: $pr-primary; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    &:focus-visible { outline: 2px solid rgba(109, 40, 217, .5); outline-offset: 1px; }
+  }
+}
+
+.pr-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: $pr-primary;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+
+  &:hover { background: #5b21b6; color: #fff; }
+  &:focus-visible { outline: 2px solid rgba(109, 40, 217, .5); outline-offset: 2px; }
+}
+
+/* --- Grupo de obra --- */
+.pr-obra {
+  background: $pr-surface;
+  border: 1px solid $pr-line;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid $pr-line;
+    background: #fbfaff;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: $pr-ink;
+  }
+
+  &__client {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: $pr-muted;
+  }
+
+  &__budget {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: $pr-primary;
+  }
+}
+
+/* --- Una fila de informe --- */
+.pr-report {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid $pr-line;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: #fcfbff; }
+
+  &__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.05;
+  }
+
+  &__day   { font-size: 19px; font-weight: 800; color: $pr-ink; font-variant-numeric: tabular-nums; }
+  &__month { font-size: 11px; font-weight: 700; color: $pr-muted; }
+
+  &__name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: $pr-ink;
+  }
+
+  &__note {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: $pr-muted;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* --- Tira de fotos: el unico sitio donde el diseno levanta la voz --- */
+.pr-photos {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid $pr-line;
+    background: #f3f1f8;
+  }
+
+  &__more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 46px;
+    padding: 0 7px;
+    border-radius: 8px;
+    background: #f3f0ff;
+    color: #5b21b6;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  &__none {
+    font-size: 12px;
+    color: #a39cb8;
+  }
+}
+
+/* --- Acciones --- */
+.pr-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 11px;
+  border: 1px solid $pr-line;
+  border-radius: 9px;
+  background: $pr-surface;
+  color: $pr-ink;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover { background: #f7f6fb; color: $pr-ink; border-color: #ddd6fe; }
+  &:focus-visible { outline: 2px solid rgba(109, 40, 217, .5); outline-offset: 1px; }
+
+  &--icon { padding: 0 9px; color: $pr-muted; }
+  &--danger:hover { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
+}
+
+/* --- Estado vacio: una invitacion, no un cartel de error --- */
+.pr-empty {
+  text-align: center;
+  padding: 54px 20px;
+  background: $pr-surface;
+  border: 1px solid $pr-line;
+  border-radius: 14px;
+
+  i { font-size: 34px; color: #cdc6e0; }
+
+  h2 {
+    margin: 14px 0 6px;
+    font-size: 16px;
+    font-weight: 800;
+    color: $pr-ink;
+  }
+
+  p {
+    margin: 0 auto 18px;
+    max-width: 44ch;
+    font-size: 13.5px;
+    color: $pr-muted;
+    line-height: 1.5;
+  }
+}
+
+/* --- Movil: la fila se apila y las fotos pasan a ancho completo --- */
+@media (max-width: 720px) {
+  .pr-head { align-items: flex-start; }
+  .pr-head__tools { width: 100%; }
+  .pr-search input { width: 100%; }
+
+  .pr-report {
+    grid-template-columns: 46px minmax(0, 1fr);
+    row-gap: 10px;
+  }
+
+  .pr-photos,
+  .pr-report__actions { grid-column: 1 / -1; }
+  .pr-report__actions { flex-wrap: wrap; }
+}
