@@ -6,6 +6,17 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { isValidEmail } from 'src/app/shared/email-validation';
 
+/** Códigos de catálogo que usa el formulario. Tipado explícito y no Record<string,string>
+ *  porque las plantillas de Angular en modo estricto no dejan acceder por punto a una
+ *  firma de índice. */
+export interface CatalogCodes {
+  documentType: string;
+  taxSchemeId: string;
+  departmentCode: string;
+  cityCode: string;
+  countryCode: string;
+}
+
 @Component({
   selector: 'app-add-update-customer',
   templateUrl: './add-update-customer.component.html',
@@ -15,6 +26,44 @@ export class AddUpdateCustomerComponent implements OnInit {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   
   customerForm: FormGroup = new FormGroup({});
+
+  /**
+   * Codigos elegidos en los desplegables de catalogo. Van fuera del FormGroup
+   * porque el componente de catalogo trabaja con senales y no con ControlValueAccessor;
+   * se vuelcan al formulario justo antes de guardar.
+   */
+  ref: CatalogCodes = {
+    documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: 'CO',
+  };
+
+  /** Nombre visible de cada codigo, para pintarlo sin volver a consultar. */
+  refName: CatalogCodes = {
+    documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: '',
+  };
+
+  /** Copia los codigos de los desplegables al formulario reactivo. */
+  private volcarCatalogos(): void {
+    this.customerForm.patchValue({
+      documentType: this.ref.documentType || '',
+      taxSchemeId: this.ref.taxSchemeId || '',
+      departmentCode: this.ref.departmentCode || '',
+      departmentName: this.refName.departmentCode || '',
+      cityCode: this.ref.cityCode || '',
+      cityName: this.refName.cityCode || '',
+      countryCode: this.ref.countryCode || '',
+    });
+  }
+
+  /** Rellena los desplegables al abrir un cliente que ya existe. */
+  private cargarCatalogos(customer: any): void {
+    this.ref.documentType = customer?.documentType || '';
+    this.ref.taxSchemeId = customer?.taxSchemeId || '';
+    this.ref.departmentCode = customer?.departmentCode || '';
+    this.ref.cityCode = customer?.cityCode || '';
+    this.ref.countryCode = customer?.countryCode || 'CO';
+    this.refName.departmentCode = customer?.departmentName || '';
+    this.refName.cityCode = customer?.cityName || '';
+  }
   customerId?: string;
   titlePage: string = "Nuevo cliente";
   currentDate: Date = new Date();
@@ -79,6 +128,7 @@ export class AddUpdateCustomerComponent implements OnInit {
         this.customerService.getById(this.customerId).subscribe(
           (customer: any) => {
             this.customerForm.patchValue(customer);
+            this.cargarCatalogos(customer);
             // Convertir emails separados por ; a lista
             if (customer.email) {
               this.emailsList = customer.email.split(';').map((e: string) => e.trim()).filter((e: string) => e.length > 0);
@@ -116,6 +166,9 @@ export class AddUpdateCustomerComponent implements OnInit {
   }
 
   onAddUpdateCustomer() {
+    // Los desplegables de catalogo viven fuera del FormGroup: hay que volcarlos
+    // antes de validar y enviar, o se guardarian vacios.
+    this.volcarCatalogos();
     this.customerForm.markAllAsTouched();
     
     // Validar que haya al menos un email

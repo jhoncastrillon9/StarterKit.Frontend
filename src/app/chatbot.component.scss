@@ -610,14 +610,19 @@ $shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     flex-shrink: 0;
 
     i {
-      font-size: 1.1rem;
-      transform: rotate(-45deg);
+      font-size: 1.05rem;
+      /* La flecha apunta a la derecha, sin girar: el icono girado -45 grados
+         parecia un avion de papel y no se leia como "enviar". */
+      transform: none;
     }
 
     &.active {
-      background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+      /* Verde: es la accion que confirma y manda, no una accion mas del chat. */
+      background: #16a34a;
       color: $text-white;
     }
+
+    &.active:not(:disabled):hover { background: #15803d; }
 
     &:not(:disabled):hover {
       transform: scale(1.05);

@@ -5,6 +5,17 @@ import { CompanyService } from '../services/company.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 
+/** Códigos de catálogo que usa el formulario. Tipado explícito y no Record<string,string>
+ *  porque las plantillas de Angular en modo estricto no dejan acceder por punto a una
+ *  firma de índice. */
+export interface CatalogCodes {
+  documentType: string;
+  taxSchemeId: string;
+  departmentCode: string;
+  cityCode: string;
+  countryCode: string;
+}
+
 @Component({
   selector: 'app-company-config',
   templateUrl: './company-config.component.html',
@@ -33,6 +44,41 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
    * elegido bien el archivo.
    */
   previewUrl: string | null = null;
+
+  /**
+   * Codigos elegidos en los desplegables de catalogo. Van fuera del FormGroup
+   * porque el componente de catalogo usa senales y no ControlValueAccessor; se
+   * vuelcan al formulario justo antes de guardar.
+   */
+  ref: CatalogCodes = {
+    documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: 'CO',
+  };
+
+  refName: CatalogCodes = {
+    documentType: '', taxSchemeId: '', departmentCode: '', cityCode: '', countryCode: '',
+  };
+
+  private volcarCatalogos(): void {
+    this.companyForm.patchValue({
+      documentType: this.ref.documentType || '',
+      taxSchemeId: this.ref.taxSchemeId || '',
+      departmentCode: this.ref.departmentCode || '',
+      departmentName: this.refName.departmentCode || '',
+      cityCode: this.ref.cityCode || '',
+      cityName: this.refName.cityCode || '',
+      countryCode: this.ref.countryCode || '',
+    });
+  }
+
+  private cargarCatalogos(company: any): void {
+    this.ref.documentType = company?.documentType || '';
+    this.ref.taxSchemeId = company?.taxSchemeId || '';
+    this.ref.departmentCode = company?.departmentCode || '';
+    this.ref.cityCode = company?.cityCode || '';
+    this.ref.countryCode = company?.countryCode || 'CO';
+    this.refName.departmentCode = company?.departmentName || '';
+    this.refName.cityCode = company?.cityName || '';
+  }
 
   // Mensajes reutilizables
   private readonly successMessage: string = "¡Los datos de tu empresa han sido actualizados con éxito!";
@@ -114,6 +160,7 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
             countryCode: company.countryCode || ''
           });
           this.urlImageLogo = company.urlImageLogo || '';
+          this.cargarCatalogos(company);
         }
         this.spinner.hide();
       },
@@ -178,6 +225,9 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
   }
 
   updateCompany() {
+    // Los desplegables de catalogo viven fuera del FormGroup: hay que volcarlos
+    // antes de validar y enviar, o se guardarian vacios.
+    this.volcarCatalogos();
     if (this.companyForm.valid) {
       this.spinner.show();
       const formData = this.buildFormData();

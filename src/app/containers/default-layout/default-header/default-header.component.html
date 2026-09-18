@@ -48,7 +48,7 @@
     <c-dropdown [popperOptions]="{ placement: 'bottom-end' }" variant="nav-item">
       <button [caret]="false" cDropdownToggle class="avatar-btn" aria-label="Open user menu">
         <div class="avatar-wrapper">
-          <img src="./assets/img/avatars/3d_1.png" alt="User avatar" class="avatar-img" />
+          <img [src]="avatarSrc" alt="Fotografia del usuario" class="avatar-img" />
           <span class="status-indicator"></span>
         </div>
       </button>
@@ -56,7 +56,7 @@
         <!-- User Info Header -->
         <li class="dropdown-header-modern">
           <div class="user-info">
-            <img src="./assets/img/avatars/3d_1.png" alt="User" class="header-avatar" />
+            <img [src]="avatarSrc" alt="Fotografia del usuario" class="header-avatar" />
             <div class="user-details">
               <span class="user-name">{{ userEmail }}</span>
               <span class="user-role">Constructor</span>

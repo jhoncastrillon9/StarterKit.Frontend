@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ListcustomerComponent } from './listcustomer/listcustomer.component';
 import { AddUpdateCustomerComponent } from './add-update-customer/add-update-customer.component';
+import { ReferenceSelectComponent } from 'src/app/shared/ui/reference-select/reference-select.component';
 import { CustomersRoutingModule } from './customers-routing.module';
 import { IconModule, IconSetService } from '@coreui/icons-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -130,6 +131,7 @@ import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-av
     AddUpdateCustomerComponent
   ],
   imports: [
+    ReferenceSelectComponent,
     CustomSharedModulePipes,
     CommonModule,
     CustomersRoutingModule,

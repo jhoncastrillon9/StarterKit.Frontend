@@ -222,8 +222,10 @@
         class="send-btn"
         (click)="sendMessage()"
         [disabled]="!canSend"
-        [class.active]="canSend">
-        <i class="pi pi-send"></i>
+        [class.active]="canSend"
+        [attr.aria-label]="'Enviar mensaje'"
+        title="Enviar mensaje">
+        <i class="pi pi-arrow-right"></i>
       </button>
     </div>
 
