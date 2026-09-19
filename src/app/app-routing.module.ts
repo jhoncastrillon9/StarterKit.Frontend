@@ -39,6 +39,14 @@ const routes: Routes = [
         data: { title: 'Documentos' }
       },
       {
+        path: 'electronicinvoicing',
+        loadComponent: () =>
+          import('./modules/electronic-invoicing/electronic-invoicing.component')
+            .then(m => m.ElectronicInvoicingComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Facturación electrónica' }
+      },
+      {
         path: 'subscription',
         loadComponent: () =>
           import('./modules/subscription/my-subscription.component').then(m => m.MySubscriptionComponent),

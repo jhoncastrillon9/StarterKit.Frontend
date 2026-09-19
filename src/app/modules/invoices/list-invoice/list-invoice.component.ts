@@ -8,6 +8,7 @@ import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.componen
 import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
 import { extractApiErrorMessage, isValidationProblemDetails } from 'src/app/shared/api-error';
 import { CustomerService } from 'src/app/modules/customers/services/customer.service';
+import { CorrectInvoiceModalComponent } from 'src/app/modules/electronic-invoicing/correct-invoice-modal.component';
 
 @Component({
   selector: 'app-list-invoice',
@@ -16,6 +17,7 @@ import { CustomerService } from 'src/app/modules/customers/services/customer.ser
 })
 export class ListInvoiceComponent implements OnInit {
   @ViewChild('emailSelectorModal') emailSelectorModal!: EmailSelectorModalComponent;
+  @ViewChild('correctModal') correctModal!: CorrectInvoiceModalComponent;
 
   private readonly errorLoadMessage = 'Algo fallo al obtener las facturas. Refresca la pagina.';
   private readonly errorDownloadMessage = 'No se pudo descargar el PDF de la factura. Intenta de nuevo.';
@@ -135,6 +137,19 @@ export class ListInvoiceComponent implements OnInit {
 
   canSend(invoice: InvoiceModel): boolean {
     return invoice.status === INVOICE_STATUS.issued || invoice.status === INVOICE_STATUS.sent;
+  }
+
+  /**
+   * Corregir solo tiene sentido sobre lo que ya salio. Un borrador se edita, y
+   * por eso el boton no aparece ahi: ofrecer las dos cosas a la vez invita a
+   * corregir con una nota algo que todavia se podia cambiar.
+   */
+  canCorrect(invoice: InvoiceModel): boolean {
+    return invoice.status === INVOICE_STATUS.issued || invoice.status === INVOICE_STATUS.sent;
+  }
+
+  openCorrectModal(invoice: InvoiceModel): void {
+    this.correctModal.show(invoice.invoiceId, this.displayNumber(invoice));
   }
 
   sendActionLabel(invoice: InvoiceModel): string {

@@ -24,6 +24,7 @@ export class DefaultLayoutComponent {
       ...navItems,
       { name: 'Cronogramas', url: '/schedules', iconComponent: { name: 'cil-calendar' } },
       { name: 'Documentos', url: '/companydocuments', iconComponent: { name: 'cil-description' } },
+      { name: 'Facturación electrónica', url: '/electronicinvoicing', iconComponent: { name: 'cil-task' } },
       { name: 'Mi suscripción', url: '/subscription', iconComponent: { name: 'cil-credit-card' } },
     ];
     if (this.currentUser.isSuperAdmin) {

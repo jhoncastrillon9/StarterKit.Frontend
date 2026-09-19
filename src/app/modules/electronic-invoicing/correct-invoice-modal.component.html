@@ -1,0 +1,115 @@
+<div class="ci-backdrop" *ngIf="open()" (click)="close()"></div>
+
+<aside class="ci-modal" *ngIf="open()" role="dialog" aria-label="Corregir factura">
+
+  <!-- ===================== Hecho ===================== -->
+  <ng-container *ngIf="done() as r">
+    <div class="ci-done">
+      <i class="fas fa-circle-check" aria-hidden="true"></i>
+      <h2>{{ r.number }} generada</h2>
+      <p>{{ r.message }}</p>
+      <div class="ci-modal__actions">
+        <button type="button" class="ci-btn ci-btn--primary" (click)="close()">Entendido</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ===================== Formulario ===================== -->
+  <ng-container *ngIf="!done()">
+    <h2>Corregir la factura {{ invoiceNumber }}</h2>
+    <p class="ci-lede">
+      Una factura emitida no se edita ni se borra. Se corrige con una nota, y la nota también
+      queda registrada.
+    </p>
+
+    <div class="ci-balance" *ngIf="balance() as b">
+      <div><span>Total</span><b>{{ b.total | currency:'COP':'symbol-narrow':'1.0-0' }}</b></div>
+      <div><span>Ya acreditado</span><b>{{ b.creditedAmount | currency:'COP':'symbol-narrow':'1.0-0' }}</b></div>
+      <div class="ci-balance__live"><span>Queda vivo</span><b>{{ b.outstanding | currency:'COP':'symbol-narrow':'1.0-0' }}</b></div>
+    </div>
+
+    <p class="ci-error" *ngIf="error()">{{ error() }}</p>
+
+    <!-- 1. qué tipo -->
+    <div class="ci-field">
+      <span class="ci-label">¿Qué necesitas hacer?</span>
+      <div class="ci-choice">
+        <button type="button" [class.on]="form.noteType === 1"
+                (click)="form.noteType = 1; onTypeChange()">
+          <b>Descontar</b>
+          <small>Devolución, anulación, descuento o ajuste a la baja</small>
+        </button>
+        <button type="button" [class.on]="form.noteType === 2"
+                (click)="form.noteType = 2; onTypeChange()">
+          <b>Cobrar de más</b>
+          <small>Intereses, gastos por cobrar o ajuste al alza</small>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. por qué -->
+    <div class="ci-field">
+      <span class="ci-label">¿Por qué?</span>
+      <app-reference-select
+        [catalog]="catalogo"
+        [(value)]="form.reasonCode"
+        placeholder="Elige el motivo">
+      </app-reference-select>
+      <small class="ci-help">
+        El motivo no es texto libre: la DIAN solo acepta los de su tabla oficial.
+      </small>
+    </div>
+
+    <!-- 3. cuánto -->
+    <ng-container *ngIf="form.reasonCode">
+      <div class="ci-annul" *ngIf="esAnulacion">
+        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+        <div>
+          <b>Se anula la factura entera</b>
+          <p>
+            Una anulación es por el total, no por una parte. Después de esto la factura no
+            admite más notas.
+          </p>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!esAnulacion">
+        <label class="ci-field">
+          <span class="ci-label">¿Qué se corrige?</span>
+          <input [(ngModel)]="form.description" maxlength="300"
+                 placeholder="Por ejemplo: devolución de 3 m³ de concreto" />
+        </label>
+
+        <div class="ci-row">
+          <label class="ci-field">
+            <span class="ci-label">Valor sin IVA</span>
+            <input type="number" min="0" [(ngModel)]="form.amount" />
+          </label>
+          <label class="ci-field ci-field--small">
+            <span class="ci-label">IVA %</span>
+            <input type="number" min="0" max="100" [(ngModel)]="form.ivaRate" />
+          </label>
+        </div>
+      </ng-container>
+
+      <label class="ci-field">
+        <span class="ci-label">Observación (opcional)</span>
+        <input [(ngModel)]="form.note" maxlength="300" placeholder="Lo que quieras que aparezca en la nota" />
+      </label>
+
+      <div class="ci-total">
+        <span>Total de la nota</span>
+        <b>{{ total | currency:'COP':'symbol-narrow':'1.0-0' }}</b>
+      </div>
+    </ng-container>
+
+    <div class="ci-modal__actions">
+      <button type="button" class="ci-btn ci-btn--ghost" (click)="close()">Cancelar</button>
+      <button type="button" class="ci-btn ci-btn--primary"
+              [disabled]="!puedeGuardar() || saving()" (click)="guardarYEmitir()">
+        {{ saving() ? 'Generando…' : 'Generar la nota' }}
+      </button>
+    </div>
+  </ng-container>
+
+</aside>
