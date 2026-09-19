@@ -1,0 +1,90 @@
+/* Bloque de formulario. Los bloques opcionales se leen como secundarios: el borde
+   más suave y el fondo de la cabecera los separan de lo que hay que rellenar sí o sí. */
+
+$fs-ink: #1f1b2e;
+$fs-muted: #6f6987;
+$fs-line: #ece9f3;
+$fs-primary: #6d28d9;
+
+.fs {
+  background: #fff;
+  border: 1px solid $fs-line;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px 20px;
+    border-bottom: 1px solid transparent;
+  }
+
+  &--open &__head { border-bottom-color: $fs-line; }
+  &:not(.fs--collapsible) &__head { border-bottom-color: $fs-line; }
+
+  &--collapsible &__head {
+    cursor: pointer;
+    user-select: none;
+    &:hover { background: #fcfbff; }
+    &:focus-visible { outline: 2px solid rgba(109, 40, 217, .5); outline-offset: -2px; }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #f3f0ff;
+    color: $fs-primary;
+    font-size: 14px;
+  }
+
+  &__titles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    color: $fs-ink;
+  }
+
+  &__badge {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #f3f1f8;
+    color: $fs-muted;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  &__why {
+    font-size: 12.5px;
+    color: $fs-muted;
+    line-height: 1.45;
+    max-width: 72ch;
+  }
+
+  &__chevron { flex-shrink: 0; color: $fs-muted; font-size: 12px; }
+
+  &__body { padding: 20px; }
+}
+
+/* Un bloque opcional no compite con los obligatorios */
+.fs:has(.fs__badge) {
+  border-color: #f1eff6;
+  .fs__icon { background: #f5f4f8; color: $fs-muted; }
+}
+
+@media (max-width: 560px) {
+  .fs__head { padding: 14px 15px; }
+  .fs__body { padding: 15px; }
+  .fs__icon { display: none; }
+}

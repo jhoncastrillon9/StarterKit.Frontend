@@ -3,15 +3,35 @@
   <!-- Header Principal con Avatar -->
   <div class="profile-header">
     <div class="avatar-container">
-      <img 
-        src="./assets/img/avatars/3d_1.png" 
-        alt="Avatar del usuario" 
-        class="avatar-image"
-      />
-      <div class="avatar-badge">
-        <i class="fas fa-check"></i>
-      </div>
+      <img [src]="avatarSrc" alt="Fotografia del usuario" class="avatar-image" />
+
+      <!-- El boton se superpone al avatar: es donde el usuario espera pulsar -->
+      <label for="photoInput" class="avatar-edit" title="Cambiar fotografia">
+        <i class="fas fa-camera"></i>
+      </label>
+      <input type="file" id="photoInput" class="avatar-input"
+             accept="image/png,image/jpeg,image/webp" (change)="onPhotoSelected($event)" />
     </div>
+
+    <div class="avatar-actions" *ngIf="selectedPhoto">
+      <button type="button" class="avatar-btn avatar-btn--save" (click)="savePhoto()" [disabled]="savingPhoto">
+        <i class="fas fa-check"></i> Guardar fotografia
+      </button>
+      <button type="button" class="avatar-btn avatar-btn--undo" (click)="discardPhoto()" [disabled]="savingPhoto">
+        <i class="fas fa-times"></i> Descartar
+      </button>
+    </div>
+
+    <div class="avatar-actions" *ngIf="!selectedPhoto && hasPhoto">
+      <button type="button" class="avatar-btn avatar-btn--undo" (click)="removePhoto()">
+        <i class="fas fa-trash-alt"></i> Quitar fotografia
+      </button>
+    </div>
+
+    <p class="avatar-error" *ngIf="photoError">
+      <i class="fas fa-exclamation-circle"></i> {{ photoError }}
+    </p>
+    <p class="avatar-hint">JPG, PNG o WEBP. Maximo 2 MB.</p>
     <h1 class="user-name">{{ userProfile?.name || 'Usuario' }}</h1>
     <div class="user-role" *ngIf="userProfile?.role">
       <i class="fas fa-shield-alt"></i>

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListApuComponent } from './list-apu.component';
+import { testProviders } from 'src/testing/test-providers';
 
 describe('ListApuComponent', () => {
   let component: ListApuComponent;
@@ -8,9 +9,9 @@ describe('ListApuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListApuComponent]
-    })
-    .compileComponents();
+      imports: [ListApuComponent],
+      providers: [...testProviders],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ListApuComponent);
     component = fixture.componentInstance;

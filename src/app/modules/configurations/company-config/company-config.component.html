@@ -28,10 +28,10 @@
       <div class="card-body-custom">
         <div class="logo-section">
           <div class="logo-preview">
-            <img 
-              [src]="urlImageLogo ? urlImageLogo : 'https://cotizaconstructorstorage.blob.core.windows.net/logos/8cbe1a7d-e127-48a0-81d6-19150f45234c.png'" 
-              alt="Logo de la empresa"
-            />
+            <img [src]="logoSrc" alt="Logo de la empresa" />
+            <span class="logo-pending-badge" *ngIf="hasPendingLogo">
+              <i class="fas fa-clock"></i> Sin guardar
+            </span>
           </div>
           <div class="logo-upload">
             <div class="form-group-modern">
@@ -55,8 +55,16 @@
               </div>
               <small class="helper-text">
                 <i class="fas fa-info-circle"></i>
-                Formatos: PNG, JPG, JPEG. Tamaño recomendado: 200x100px
+                Formatos: PNG, JPG, JPEG. Máximo 2 MB. Tamaño recomendado: 200x100px
               </small>
+              <div class="logo-pending" *ngIf="hasPendingLogo">
+                <span class="logo-pending__text">
+                  <i class="fas fa-image"></i> {{ selectedFile?.name }}
+                </span>
+                <button type="button" class="logo-pending__undo" (click)="clearSelectedLogo()">
+                  <i class="fas fa-times"></i> Descartar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -225,6 +233,145 @@
         </div>
       </div>
     </div>
+
+    <app-form-section
+      title="Datos tributarios"
+      why="Lo que la DIAN exige de ti como emisor. No hacen falta para cotizar; complétalos antes de empezar a facturar."
+      icon="fa-file-invoice-dollar"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showTax">
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="personType" class="label-modern"><i class="fas fa-user-tag"></i> Tipo de persona</label>
+              <select cSelect formControlName="personType" class="input-modern">
+                <option value="">Sin especificar</option>
+                <option value="1">Persona jurídica</option>
+                <option value="2">Persona natural</option>
+              </select>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-address-card"></i> Tipo de documento</label>
+              <app-reference-select
+                catalog="documentType"
+                label="Tipo de documento"
+                [(value)]="ref.documentType"
+                [(selectedName)]="refName.documentType">
+              </app-reference-select>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="verificationDigit" class="label-modern"><i class="fas fa-check-double"></i> Dígito de verificación</label>
+              <input cFormControl formControlName="verificationDigit" class="input-modern" placeholder="Ej: 1" maxlength="1" />
+              <small class="helper-text"><i class="fas fa-info-circle"></i> El dígito después del guion en el NIT</small>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="registrationName" class="label-modern"><i class="fas fa-building"></i> Razón social (según RUT)</label>
+              <input cFormControl formControlName="registrationName" class="input-modern" placeholder="Nombre exacto registrado en el RUT" maxlength="450" />
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="taxLevelCode" class="label-modern"><i class="fas fa-balance-scale"></i> Responsabilidades fiscales</label>
+              <input cFormControl formControlName="taxLevelCode" class="input-modern" placeholder="Ej: O-13;O-15" maxlength="60" />
+              <small class="helper-text"><i class="fas fa-info-circle"></i> Códigos del RUT separados por ;</small>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-percent"></i> Tributo</label>
+              <app-reference-select
+                catalog="taxScheme"
+                label="Tributo"
+                [(value)]="ref.taxSchemeId"
+                [(selectedName)]="refName.taxSchemeId">
+              </app-reference-select>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="economicActivityCode" class="label-modern"><i class="fas fa-industry"></i> Actividad económica (CIIU)</label>
+              <input cFormControl formControlName="economicActivityCode" class="input-modern" placeholder="Ej: 4290" maxlength="10" />
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="economicActivityName" class="label-modern"><i class="fas fa-briefcase"></i> Descripción de la actividad</label>
+              <input cFormControl formControlName="economicActivityName" class="input-modern" placeholder="Ej: Construcción de otras obras de ingeniería civil" maxlength="200" />
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="commercialRegistration" class="label-modern"><i class="fas fa-stamp"></i> Matrícula mercantil</label>
+              <input cFormControl formControlName="commercialRegistration" class="input-modern" placeholder="Número de matrícula" maxlength="50" />
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </app-form-section>
+
+    <app-form-section
+      title="Ubicación"
+      why="Municipio y departamento con sus códigos oficiales."
+      icon="fa-map-marked-alt"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showLocation">
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-map"></i> Departamento</label>
+              <app-reference-select
+                catalog="department"
+                label="Departamento"
+                [(value)]="ref.departmentCode"
+                [(selectedName)]="refName.departmentCode">
+              </app-reference-select>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-city"></i> Ciudad / Municipio</label>
+              <app-reference-select
+                catalog="city"
+                label="Municipio"
+                [(value)]="ref.cityCode"
+                [(selectedName)]="refName.cityCode"
+                [parentCode]="ref.departmentCode"
+                [requiresParent]="true"
+                parentLabel="el departamento">
+              </app-reference-select>
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="postalZone" class="label-modern"><i class="fas fa-mail-bulk"></i> Código postal</label>
+              <input cFormControl formControlName="postalZone" class="input-modern" placeholder="Ej: 050001" maxlength="10" />
+            </div>
+          </c-col>
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-globe-americas"></i> País</label>
+              <app-reference-select
+                catalog="country"
+                label="País"
+                [(value)]="ref.countryCode"
+                [(selectedName)]="refName.countryCode"
+                [showCode]="false">
+              </app-reference-select>
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </app-form-section>
 
     <!-- Botones de acción -->
     <div class="form-actions">

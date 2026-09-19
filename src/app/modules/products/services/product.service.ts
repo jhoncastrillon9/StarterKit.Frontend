@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environment';
-import { Product, ProductPagedResponse } from '../models/product.model';
+import { Product, ProductFilterRequest, ProductPagedResponse } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,22 @@ export class ProductService {
     }
 
     return this.http.get(`${this.apiUrl}/api/Product/paged`, { headers, params, observe: 'response' }).pipe(
+      map((response: HttpResponse<any>) => {
+        if (response.status === 401) {
+          this.router.navigate(['/login']);
+        }
+        return response.body;
+      })
+    );
+  }
+
+  /**
+   * Listado con filtros por columna, busqueda global y orden. Sustituye a getPaged
+   * en la tabla; getPaged se mantiene por si algun otro punto lo sigue usando.
+   */
+  getFiltered(filter: ProductFilterRequest): Observable<ProductPagedResponse> {
+    const headers = this.getHeaders();
+    return this.http.post(`${this.apiUrl}/api/Product/filter`, filter, { headers, observe: 'response' }).pipe(
       map((response: HttpResponse<any>) => {
         if (response.status === 401) {
           this.router.navigate(['/login']);

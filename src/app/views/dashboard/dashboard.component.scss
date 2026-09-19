@@ -124,6 +124,10 @@ $transition: all 0.3s ease;
       display: flex;
       align-items: center;
       gap: 10px;
+      // El de IA es un <button> (abre el chat) y el otro un <a>: igualamos el reset.
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
       padding: 0.85rem 1.75rem;
       background: $white;
       color: $primary-color;

@@ -1,0 +1,198 @@
+<div class="fe">
+
+  <header class="fe-head">
+    <div>
+      <h1>Facturación electrónica</h1>
+      <p class="fe-head__sub">
+        El trámite ante la DIAN, paso a paso. La mayoría de los pasos no se hacen aquí:
+        se hacen en el portal de la DIAN o en el MUISCA. Esta pantalla te dice cuál toca.
+      </p>
+    </div>
+    <div class="fe-head__badge" *ngIf="setup() as s">
+      <span class="fe-chip" [class.fe-chip--pro]="s.environment === 1">{{ s.environmentName }}</span>
+    </div>
+  </header>
+
+  <p class="fe-msg" *ngIf="message()">{{ message() }}</p>
+  <p class="fe-error" *ngIf="error()">{{ error() }}</p>
+  <p class="fe-loading" *ngIf="loading()">Cargando…</p>
+
+  <ng-container *ngIf="setup() as s">
+
+    <!-- Por qué todavía no se emite -->
+    <div class="fe-blocked" *ngIf="!s.canIssue">
+      <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+      <div>
+        <b>Todavía no se puede emitir ante la DIAN</b>
+        <p>{{ s.blockedReason }}</p>
+        <p class="fe-blocked__note">
+          Mientras tanto, todo lo demás sí funciona: los documentos se generan completos,
+          con su identificador, su XML firmado y su código QR, y se guardan aquí. Lo único
+          que falta es el último paso.
+        </p>
+      </div>
+    </div>
+
+    <div class="fe-ok" *ngIf="s.canIssue">
+      <i class="fas fa-circle-check" aria-hidden="true"></i>
+      <span>Todo listo para emitir ante la DIAN.</span>
+    </div>
+
+    <!-- ============================ Los pasos ============================ -->
+    <section class="fe-section">
+      <div class="fe-section__head">
+        <h2>El trámite</h2>
+        <span class="fe-progress-text">{{ pasosHechos() }} de {{ totalPasos() }}</span>
+      </div>
+
+      <ol class="fe-steps">
+        <li *ngFor="let paso of s.steps; let i = index"
+            class="fe-step"
+            [class.fe-step--done]="paso.status === 'Hecho'"
+            [class.fe-step--doing]="paso.status === 'EnCurso'"
+            [class.fe-step--open]="openStep() === paso.key">
+
+          <button type="button" class="fe-step__head" (click)="toggleStep(paso.key)"
+                  [attr.aria-expanded]="openStep() === paso.key">
+            <span class="fe-step__icon"><i class="fas" [ngClass]="iconoDe(paso.status)" aria-hidden="true"></i></span>
+            <span class="fe-step__title">
+              {{ paso.title }}
+              <span class="fe-step__where">{{ paso.where }}</span>
+            </span>
+            <span class="fe-step__chevron" aria-hidden="true">
+              <i class="fas" [ngClass]="openStep() === paso.key ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </span>
+          </button>
+
+          <div class="fe-step__body" *ngIf="openStep() === paso.key">
+            <p class="fe-step__what">{{ paso.what }}</p>
+            <p class="fe-step__why"><b>Por qué:</b> {{ paso.why }}</p>
+
+            <a *ngIf="paso.link" class="fe-link" [href]="paso.link" target="_blank" rel="noopener">
+              Abrir el portal de la DIAN <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+
+            <!-- Datos que se guardan aquí -->
+            <div class="fe-fields" *ngIf="paso.key === 'modo'">
+              <label class="fe-field">Identificador del software
+                <input [(ngModel)]="form.softwareId" placeholder="Lo da la DIAN" maxlength="100" />
+              </label>
+              <label class="fe-field">PIN del software
+                <input [(ngModel)]="form.softwarePin" placeholder="Lo da la DIAN" maxlength="100" />
+                <small>Entra en el cálculo del identificador de las notas crédito y débito.</small>
+              </label>
+              <label class="fe-field">Identificador del set de pruebas
+                <input [(ngModel)]="form.testSetId" placeholder="Opcional" maxlength="100" />
+              </label>
+              <button type="button" class="fe-btn fe-btn--primary" (click)="save()" [disabled]="saving()">
+                Guardar
+              </button>
+            </div>
+
+            <div class="fe-fields" *ngIf="paso.key === 'produccion'">
+              <label class="fe-field">Ambiente
+                <select [(ngModel)]="form.environment">
+                  <option [ngValue]="2">Habilitación (pruebas)</option>
+                  <option [ngValue]="1">Producción</option>
+                </select>
+                <small>
+                  El ambiente entra en el cálculo del identificador del documento: no es una
+                  preferencia, cambia el documento.
+                </small>
+              </label>
+              <button type="button" class="fe-btn fe-btn--primary" (click)="save()" [disabled]="saving()">
+                Guardar
+              </button>
+            </div>
+
+            <div class="fe-fields" *ngIf="paso.key === 'pruebas'">
+              <div class="fe-testset">
+                <div class="fe-testset__bar">
+                  <span [style.width.%]="s.testSetProgress"></span>
+                </div>
+                <span class="fe-testset__pct">{{ s.testSetProgress }}%</span>
+              </div>
+              <ul class="fe-testset__list">
+                <li *ngFor="let t of s.testSet" [class.done]="t.isComplete">
+                  <i class="fas" [ngClass]="t.isComplete ? 'fa-circle-check' : 'fa-circle'" aria-hidden="true"></i>
+                  {{ t.label }}: <b>{{ t.accepted }}</b> de {{ t.required }}
+                </li>
+              </ul>
+              <p class="fe-hint" *ngIf="s.testSetMissing">{{ s.testSetMissing }}</p>
+              <p class="fe-hint">
+                Los documentos del set se generan desde cada factura y desde cada nota, marcando
+                la casilla «cuenta para el set de pruebas».
+              </p>
+            </div>
+
+            <button type="button" class="fe-btn fe-btn--ghost" *ngIf="paso.manualCheck"
+                    (click)="markStep(paso.key)">
+              <i class="fas" [ngClass]="paso.status === 'Hecho' ? 'fa-rotate-left' : 'fa-check'" aria-hidden="true"></i>
+              {{ paso.status === 'Hecho' ? 'Marcar como pendiente' : 'Ya lo hice' }}
+            </button>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== Certificado ===================== -->
+    <section class="fe-section">
+      <h2>Certificado de firma</h2>
+
+      <div class="fe-cert" [class.fe-cert--sim]="s.certificateStatus !== 'Cargado'">
+        <div class="fe-cert__state">
+          <i class="fas" [ngClass]="s.certificateStatus === 'Cargado' ? 'fa-shield-halved' : 'fa-shield'"
+             aria-hidden="true"></i>
+          <div>
+            <b *ngIf="s.certificateStatus === 'Cargado'">Certificado cargado</b>
+            <b *ngIf="s.certificateStatus !== 'Cargado'">Trabajando con certificado simulado</b>
+            <p *ngIf="s.certificateStatus !== 'Cargado'">
+              La aplicación genera un certificado propio para poder firmar los documentos y que
+              puedas verlos completos. <b>La DIAN no lo acepta</b>: valida la cadena de confianza
+              contra las entidades acreditadas por el ONAC. En cuanto tengas el certificado real,
+              lo único que cambia es con qué se firma.
+            </p>
+            <p *ngIf="s.certificateExpiresAt">Caduca el {{ fecha(s.certificateExpiresAt) }}.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Notas ===================== -->
+    <section class="fe-section">
+      <div class="fe-section__head">
+        <h2>Notas crédito y débito</h2>
+      </div>
+
+      <p class="fe-hint">
+        Una factura emitida no se edita ni se borra. Lo único que la corrige es una nota, y se
+        crea desde la propia factura.
+      </p>
+
+      <ul class="fe-notes" *ngIf="notes().length">
+        <li *ngFor="let n of notes()" class="fe-note">
+          <span class="fe-note__type" [class.debit]="n.noteType === 2">{{ n.noteTypeName }}</span>
+          <div class="fe-note__body">
+            <b>{{ n.fullNumber || 'Borrador' }}</b>
+            <span>{{ n.reasonDescription }}</span>
+            <small>
+              Corrige {{ n.referencedNumber || 'una factura' }}
+              <ng-container *ngIf="n.customerName"> · {{ n.customerName }}</ng-container>
+            </small>
+          </div>
+          <span class="fe-note__amount">{{ n.total | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+          <span class="fe-note__status" [class.emitida]="n.status === 'Emitida'">{{ n.status }}</span>
+          <button type="button" class="fe-icon-btn" *ngIf="n.status === 'Emitida'"
+                  (click)="descargarXml(n)" title="Descargar el XML">
+            <i class="fas fa-file-code" aria-hidden="true"></i>
+          </button>
+        </li>
+      </ul>
+
+      <div class="fe-empty" *ngIf="!notes().length">
+        <p>Todavía no hay notas. Se crean desde una factura emitida, con el botón «Corregir».</p>
+      </div>
+    </section>
+
+  </ng-container>
+</div>

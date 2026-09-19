@@ -1,0 +1,175 @@
+<div class="cd">
+
+  <header class="cd-head">
+    <div>
+      <h1>Documentos de la empresa</h1>
+      <p class="cd-head__sub">
+        Cámara de comercio, RUT, pólizas y todo lo que te piden los clientes, en un solo sitio.
+      </p>
+    </div>
+    <div class="cd-head__actions">
+      <button type="button" class="cd-btn" (click)="loadShipments()">
+        {{ showHistory ? 'Ocultar envíos' : 'Ver envíos' }}
+      </button>
+      <button type="button" class="cd-btn cd-btn--primary" (click)="showUpload = true; message = ''">
+        <i class="fas fa-plus" aria-hidden="true"></i> Subir documento
+      </button>
+    </div>
+  </header>
+
+  <p class="cd-msg" *ngIf="message">{{ message }}</p>
+  <p class="cd-error" *ngIf="error">{{ error }}</p>
+  <p class="cd-loading" *ngIf="loading">Cargando…</p>
+
+  <!-- Barra de selección: aparece solo cuando hay algo marcado -->
+  <div class="cd-selbar" *ngIf="selected.size > 0">
+    <span><b>{{ selected.size }}</b> {{ selected.size === 1 ? 'documento marcado' : 'documentos marcados' }}</span>
+    <span class="cd-selbar__spacer"></span>
+    <button type="button" class="cd-btn cd-btn--ghost" (click)="selected.clear()">Quitar selección</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="showSend = true; message = ''">
+      Enviar a un cliente
+    </button>
+  </div>
+
+  <!-- Lista -->
+  <ul class="cd-list" *ngIf="!loading && documents.length">
+    <li *ngFor="let d of documents" class="cd-item"
+        [class.cd-item--selected]="isSelected(d.companyDocumentId)"
+        [class.cd-item--expired]="d.isExpired">
+      <label class="cd-item__check">
+        <input type="checkbox" [checked]="isSelected(d.companyDocumentId)"
+               (change)="toggle(d.companyDocumentId)"
+               [attr.aria-label]="'Marcar ' + d.name" />
+      </label>
+
+      <i class="fas cd-item__icon" [ngClass]="icono(d)" aria-hidden="true"></i>
+
+      <div class="cd-item__body">
+        <span class="cd-item__name">{{ d.name }}</span>
+        <span class="cd-item__meta">
+          <span *ngIf="d.category" class="cd-tag">{{ d.category }}</span>
+          {{ peso(d.sizeBytes) }} · subido el {{ fecha(d.createdAt) }}
+        </span>
+        <span class="cd-item__desc" *ngIf="d.description">{{ d.description }}</span>
+      </div>
+
+      <span class="cd-expiry" *ngIf="d.expiresAt"
+            [class.cd-expiry--bad]="d.isExpired"
+            [class.cd-expiry--warn]="!d.isExpired && (d.daysToExpiry ?? 999) <= 30">
+        {{ caducidad(d) }}
+      </span>
+
+      <div class="cd-item__actions">
+        <a [href]="d.fileUrl" target="_blank" rel="noopener" class="cd-icon-btn" title="Abrir">
+          <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </a>
+        <button type="button" class="cd-icon-btn cd-icon-btn--danger" (click)="remove(d)" title="Eliminar">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <!-- Estado vacío: una invitación, no un cartel -->
+  <div class="cd-empty" *ngIf="!loading && !documents.length">
+    <i class="fas fa-folder-open" aria-hidden="true"></i>
+    <h2>Todavía no has subido documentos</h2>
+    <p>
+      Sube una vez la cámara de comercio y el RUT, y mándalos a cualquier cliente en dos clics
+      en lugar de buscarlos en el correo.
+    </p>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="showUpload = true">Subir el primero</button>
+  </div>
+
+  <!-- Historial -->
+  <section class="cd-history" *ngIf="showHistory">
+    <h2>Envíos</h2>
+    <p class="cd-history__empty" *ngIf="!shipments.length">Todavía no has enviado documentos.</p>
+    <ul *ngIf="shipments.length">
+      <li *ngFor="let s of shipments">
+        <span class="cd-history__date">{{ fecha(s.sentAt) }}</span>
+        <div>
+          <span class="cd-history__to">{{ s.customerName || s.toEmails }}</span>
+          <span class="cd-history__docs">{{ s.documentNames }}</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<!-- ===================== Subir ===================== -->
+<div class="cd-backdrop" *ngIf="showUpload" (click)="showUpload = false"></div>
+<aside class="cd-modal" *ngIf="showUpload" role="dialog" aria-label="Subir documento">
+  <h2>Subir documento</h2>
+
+  <label class="cd-field">Archivo
+    <input type="file" (change)="onFile($event)"
+           accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
+    <small>PDF, imagen, Word o Excel. Máximo 10 MB.</small>
+  </label>
+
+  <label class="cd-field">Nombre
+    <input type="text" [(ngModel)]="upload.name" placeholder="Ej: Cámara de Comercio 2026" maxlength="200" />
+  </label>
+
+  <label class="cd-field">Tipo
+    <select [(ngModel)]="upload.category">
+      <option value="">Sin clasificar</option>
+      <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+    </select>
+  </label>
+
+  <label class="cd-field">Vence el
+    <input type="date" [(ngModel)]="upload.expiresAt" />
+    <small>Déjalo vacío si el documento no caduca.</small>
+  </label>
+
+  <label class="cd-field">Nota
+    <input type="text" [(ngModel)]="upload.description" maxlength="500" />
+  </label>
+
+  <div class="cd-modal__actions">
+    <button type="button" class="cd-btn cd-btn--ghost" (click)="showUpload = false">Cancelar</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="doUpload()" [disabled]="saving">Guardar</button>
+  </div>
+</aside>
+
+<!-- ===================== Enviar ===================== -->
+<div class="cd-backdrop" *ngIf="showSend" (click)="showSend = false"></div>
+<aside class="cd-modal" *ngIf="showSend" role="dialog" aria-label="Enviar documentos">
+  <h2>Enviar documentos</h2>
+
+  <p class="cd-modal__lead">Se enviarán solo estos:</p>
+  <ul class="cd-chosen">
+    <li *ngFor="let d of selectedDocs">
+      <i class="fas" [ngClass]="icono(d)" aria-hidden="true"></i> {{ d.name }}
+    </li>
+  </ul>
+
+  <p class="cd-warn" *ngIf="selectedExpired.length">
+    <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+    {{ selectedExpired.length === 1 ? 'Un documento está vencido' : selectedExpired.length + ' documentos están vencidos' }}.
+    Revísalo antes de mandarlo.
+  </p>
+
+  <label class="cd-field">Cliente
+    <select [(ngModel)]="send.customerId">
+      <option [ngValue]="null">Sin cliente (escribo el correo)</option>
+      <option *ngFor="let c of customers" [ngValue]="c.customerId">{{ c.customerName }}</option>
+    </select>
+    <small>Si eliges cliente y no escribes correos, se usan los suyos.</small>
+  </label>
+
+  <label class="cd-field">Correos
+    <input type="text" [(ngModel)]="send.emails" placeholder="correo1@ejemplo.com; correo2@ejemplo.com" />
+  </label>
+
+  <label class="cd-field">Mensaje
+    <input type="text" [(ngModel)]="send.message" placeholder="Opcional" maxlength="1000" />
+  </label>
+
+  <div class="cd-modal__actions">
+    <button type="button" class="cd-btn cd-btn--ghost" (click)="showSend = false">Cancelar</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="doSend()" [disabled]="saving">Enviar</button>
+  </div>
+</aside>

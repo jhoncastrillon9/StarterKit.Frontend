@@ -6,6 +6,11 @@ import { BudgetTemplateService } from '../services/budgetTemplate.service';
 import { BudgetTemplate } from '../models/budgetTemplate.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import {
+  DocumentTemplateConfiguration,
+  DocumentTemplateConfigurationService,
+  DocumentType,
+} from '../services/documentTemplateConfiguration.service';
 
 @Component({
   selector: 'app-budget-config',
@@ -22,6 +27,56 @@ export class BudgetConfigComponent implements OnInit {
   urlImageLogo: string = '';
   selectedOption: number = 0;
   budgetTemplates: BudgetTemplate[] = [];
+
+  // ---------- Apariencia del documento ----------
+
+  /**
+   * Tipo de documento que se esta configurando. Cada uno guarda su propia
+   * apariencia: una empresa puede querer la cotizacion con su color y la factura
+   * sobria.
+   */
+  docType: DocumentType = 'Budget';
+
+  readonly docTypes: { value: DocumentType; label: string }[] = [
+    { value: 'Budget', label: 'Cotizaciones' },
+    { value: 'Invoice', label: 'Facturas' },
+  ];
+
+  docConfig: DocumentTemplateConfiguration | null = null;
+  savingDocConfig = false;
+
+  /** Tamanos de texto que el generador sabe aplicar. */
+  readonly fontSizes = [9, 10, 11, 12, 13, 14];
+
+  setDocType(type: DocumentType): void {
+    if (this.docType === type) return;
+    this.docType = type;
+    this.loadDocConfig();
+  }
+
+  private loadDocConfig(): void {
+    this.docConfigService.get(this.docType).subscribe({
+      next: cfg => { this.docConfig = cfg; },
+      error: () => { this.handleError('Error al cargar la apariencia del documento', this.loadConfigError); }
+    });
+  }
+
+  saveDocConfig(): void {
+    if (!this.docConfig) return;
+    this.savingDocConfig = true;
+    this.docConfigService.save(this.docConfig).subscribe({
+      next: cfg => {
+        this.docConfig = cfg;
+        this.savingDocConfig = false;
+        this.showModal(false, 'La apariencia del documento se guardo correctamente.', this.successTitle);
+      },
+      error: (err: any) => {
+        this.savingDocConfig = false;
+        const msg = err?.error?.error || err?.error?.message || 'No se pudo guardar la apariencia del documento.';
+        this.showModal(true, msg);
+      }
+    });
+  }
 
   // Variables para textos reutilizados
   private readonly successMessage: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
@@ -40,6 +95,7 @@ export class BudgetConfigComponent implements OnInit {
     private route: ActivatedRoute,
     private budgetConfigService: BudgetConfigurationService,
     private budgetTemplateService: BudgetTemplateService,
+    private docConfigService: DocumentTemplateConfigurationService,
     private spinner: NgxSpinnerService
   ) {
     this.companyForm = this.fb.group({
@@ -70,6 +126,7 @@ export class BudgetConfigComponent implements OnInit {
     }
 
     this.loadTemplates();
+    this.loadDocConfig();
   }
 
   async loadTemplates() {

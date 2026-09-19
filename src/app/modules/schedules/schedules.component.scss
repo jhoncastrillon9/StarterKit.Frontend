@@ -1,0 +1,246 @@
+/* Cronogramas de obra.
+   La línea de tiempo es lo que hace entendible un cronograma de un vistazo: es
+   donde se gasta el diseño. La tabla de debajo es para editar, y desaparece al
+   imprimir. Paleta de la aplicación. */
+
+$sc-ink: #1f1b2e;
+$sc-muted: #6f6987;
+$sc-line: #ece9f3;
+$sc-primary: #6d28d9;
+$sc-done: #15703f;
+$sc-doing: #1d4ed8;
+
+.sc { padding-block: 4px 40px; color: $sc-ink; }
+
+.print-only { display: none; }
+
+.sc-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 18px;
+
+  h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
+  &__sub { margin: 4px 0 0; font-size: 13.5px; color: $sc-muted; max-width: 60ch; }
+}
+
+.sc-msg, .sc-error {
+  margin: 0 0 14px; padding: 10px 14px; border-radius: 10px; font-size: 13.5px;
+}
+.sc-msg { background: #f3f0ff; color: #5b21b6; }
+.sc-error { background: #fef2f2; color: #b91c1c; }
+.sc-loading { color: $sc-muted; font-size: 13.5px; }
+
+/* --- Listado --- */
+.sc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+
+.sc-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 15px 17px; cursor: pointer;
+  background: #fff; border: 1px solid $sc-line; border-radius: 12px;
+
+  &:hover { border-color: #ddd6fe; background: #fcfbff; }
+
+  &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  &__name { font-weight: 700; font-size: 14.5px; }
+  &__meta { font-size: 12.5px; color: $sc-muted; }
+
+  &__progress { display: flex; align-items: center; gap: 9px; flex-shrink: 0; width: 150px; }
+  &__bar {
+    flex: 1; height: 7px; border-radius: 999px; background: #f1eff6; overflow: hidden;
+    span { display: block; height: 100%; background: $sc-primary; border-radius: 999px; }
+  }
+  &__pct { font-size: 12.5px; color: $sc-muted; font-variant-numeric: tabular-nums; width: 36px; text-align: right; }
+}
+
+.sc-empty {
+  text-align: center; padding: 54px 20px;
+  background: #fff; border: 1px solid $sc-line; border-radius: 14px;
+
+  i { font-size: 34px; color: #cdc6e0; }
+  h2 { margin: 14px 0 6px; font-size: 16px; font-weight: 800; }
+  p { margin: 0 auto 18px; max-width: 50ch; font-size: 13.5px; color: $sc-muted; line-height: 1.55; }
+}
+
+/* --- Detalle --- */
+.sc-detail__head {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 16px;
+  &__spacer, .sc-detail__spacer { flex: 1 1 auto; }
+}
+
+.sc-title {
+  margin-bottom: 18px;
+
+  &__input {
+    width: 100%; border: none; border-bottom: 1px solid transparent;
+    padding: 2px 0; font-size: 20px; font-weight: 800; color: $sc-ink;
+    font-family: inherit; background: transparent;
+
+    &:hover { border-bottom-color: $sc-line; }
+    &:focus { outline: none; border-bottom-color: $sc-primary; }
+  }
+  &__print { margin: 0; font-size: 20px; font-weight: 800; }
+  &__meta { margin: 5px 0 0; font-size: 13px; color: $sc-muted; }
+}
+
+/* --- Línea de tiempo --- */
+.sc-gantt {
+  padding: 18px 20px; margin-bottom: 18px;
+  background: #fff; border: 1px solid $sc-line; border-radius: 12px;
+
+  &__phase {
+    margin: 14px 0 7px; font-size: 12px; font-weight: 800; color: $sc-primary;
+    &:first-child { margin-top: 0; }
+  }
+
+  &__row {
+    display: grid; grid-template-columns: minmax(120px, 190px) 1fr minmax(96px, auto);
+    align-items: center; gap: 12px; padding: 4px 0;
+  }
+
+  &__name {
+    font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  &__track {
+    position: relative; height: 18px; border-radius: 5px; background: #f7f6fb;
+  }
+
+  &__bar {
+    position: absolute; top: 2px; bottom: 2px;
+    border-radius: 4px; background: #cdc2ef; overflow: hidden;
+
+    &[data-status="EnCurso"]   { background: #bfdbfe; }
+    &[data-status="Terminada"] { background: #bbf7d0; }
+  }
+
+  &__fill {
+    display: block; height: 100%; background: $sc-primary; opacity: .85;
+    [data-status="EnCurso"] & { background: $sc-doing; }
+    [data-status="Terminada"] & { background: $sc-done; }
+  }
+
+  &__dates {
+    font-size: 11.5px; color: $sc-muted; font-variant-numeric: tabular-nums; text-align: right;
+  }
+
+  &__empty { margin: 0; font-size: 13.5px; color: $sc-muted; }
+}
+
+/* --- Tabla editable --- */
+.sc-table-wrap {
+  background: #fff; border: 1px solid $sc-line; border-radius: 12px;
+  padding: 6px 6px 14px; overflow-x: auto;
+}
+
+.sc-table {
+  width: 100%; border-collapse: collapse; min-width: 820px;
+
+  th {
+    text-align: left; padding: 10px 8px;
+    font-size: 11px; font-weight: 800; color: $sc-muted;
+    border-bottom: 1px solid $sc-line;
+  }
+  td { padding: 4px 6px; border-bottom: 1px solid #f7f6fb; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  input, select {
+    width: 100%; height: 34px; padding: 0 9px;
+    border: 1px solid transparent; border-radius: 7px; background: transparent;
+    font-size: 13px; color: $sc-ink; font-family: inherit;
+
+    &:hover { border-color: $sc-line; background: #fff; }
+    &:focus { outline: none; border-color: $sc-primary; background: #fff; }
+  }
+}
+
+.sc-num { text-align: right; font-variant-numeric: tabular-nums; }
+.sc-add { margin: 10px 0 0 8px; }
+
+.sc-notes {
+  display: block; margin-top: 16px; font-size: 12.5px; color: $sc-muted;
+
+  textarea {
+    display: block; width: 100%; margin-top: 5px; padding: 10px 12px;
+    border: 1px solid #e5e2ee; border-radius: 10px; background: #fff;
+    font-size: 13.5px; color: $sc-ink; font-family: inherit; resize: vertical;
+
+    &:focus-visible { outline: 2px solid rgba(109,40,217,.45); outline-offset: 1px; }
+  }
+}
+
+/* --- Botones --- */
+.sc-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 16px;
+  border: 1px solid $sc-line; border-radius: 10px;
+  background: #fff; color: $sc-ink;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+
+  &:hover { background: #f7f6fb; }
+  &:disabled { opacity: .55; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid rgba(109,40,217,.5); outline-offset: 2px; }
+
+  &--primary { background: $sc-primary; color: #fff; border-color: transparent;
+               &:hover { background: #5b21b6; } }
+  &--ghost { color: $sc-muted; &:hover { color: $sc-ink; } }
+}
+
+.sc-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px;
+  border: none; background: none; color: $sc-muted; cursor: pointer;
+
+  &:hover { background: #fef2f2; color: #b91c1c; }
+}
+
+/* --- Modal --- */
+.sc-backdrop { position: fixed; inset: 0; background: rgba(31,27,46,.34); z-index: 1040; }
+
+.sc-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 1050; width: min(450px, calc(100% - 32px));
+  max-height: calc(100vh - 48px); overflow-y: auto;
+  padding: 24px 26px 22px;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 20px 52px rgba(31,27,46,.22);
+
+  h2 { margin: 0 0 16px; font-size: 17px; font-weight: 800; }
+  &__actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 18px; }
+}
+
+.sc-field {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-bottom: 14px; font-size: 12.5px; color: $sc-muted;
+
+  input, select {
+    height: 40px; padding: 0 12px;
+    border: 1px solid #e5e2ee; border-radius: 9px; background: #fff;
+    font-size: 14px; color: $sc-ink; font-family: inherit;
+
+    &:focus-visible { outline: 2px solid rgba(109,40,217,.45); outline-offset: 1px; border-color: $sc-primary; }
+  }
+  small { color: $sc-muted; font-size: 11.5px; }
+}
+
+.sc-draft {
+  margin: 0; padding: 11px 13px;
+  background: #fffbf5; border: 1px solid #fed7aa; border-radius: 10px;
+  color: #92400e; font-size: 12.5px; line-height: 1.5;
+}
+
+/* --- Impresión: queda el cronograma, se va la herramienta --- */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block; }
+
+  .sc { padding: 0; }
+  .sc-gantt { border: none; padding: 0; }
+  .sc-gantt__bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+
+@media (max-width: 720px) {
+  .sc-head { align-items: flex-start; }
+  .sc-card { flex-wrap: wrap; }
+  .sc-card__progress { width: 100%; }
+  .sc-gantt__row { grid-template-columns: 1fr; gap: 3px; }
+  .sc-gantt__dates { text-align: left; }
+}

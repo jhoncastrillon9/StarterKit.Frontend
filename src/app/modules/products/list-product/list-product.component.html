@@ -1,6 +1,7 @@
 <!-- Listado de productos rediseñado (lazy) -->
 <div class="product-list-container">
   <app-data-table
+    #dt
     [columns]="tableColumns"
     [value]="products"
     [loading]="loading"
@@ -18,6 +19,10 @@
     (searchChange)="onSearchChange($event)"
     (lazyLoad)="onPageChange($event)">
 
+    <button dt-actions type="button" class="btn-ai" (click)="agregarProductosConIA()"
+      pTooltip="Crear productos del catalogo con el asistente de IA" tooltipPosition="bottom">
+      <i class="pi pi-sparkles"></i><span>Agregar Productos con IA</span>
+    </button>
     <a dt-actions [routerLink]="'/products/add'" class="btn-new">
       <i class="fas fa-plus"></i><span>Nuevo Producto</span>
     </a>

@@ -24,11 +24,13 @@ export class ListcustomerComponent implements OnInit {
   customers: CustomerModel[] = [];
   isModalError: boolean = false;
 
+  // Filtro por columna ademas de la busqueda global, igual que en cotizaciones.
+  // El listado es client-side, asi que la tabla los aplica sin ir al backend.
   tableColumns: DataTableColumn[] = [
-    { field: 'customId', header: 'NIT', sortable: true, width: '150px' },
-    { field: 'customerName', header: 'Nombre', sortable: true },
-    { field: 'email', header: 'Email', sortable: true },
-    { field: 'address', header: 'Dirección', sortable: true },
+    { field: 'customId', header: 'NIT', sortable: true, width: '150px', filter: { type: 'text', placeholder: 'NIT' } },
+    { field: 'customerName', header: 'Nombre', sortable: true, filter: { type: 'text', placeholder: 'Nombre' } },
+    { field: 'email', header: 'Email', sortable: true, filter: { type: 'text', placeholder: 'Email' } },
+    { field: 'address', header: 'Dirección', sortable: true, filter: { type: 'text', placeholder: 'Direccion' } },
     { field: 'acciones', header: 'Acciones', align: 'right', width: '120px' },
   ];
 

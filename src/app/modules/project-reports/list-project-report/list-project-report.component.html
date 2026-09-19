@@ -1,12 +1,107 @@
-<!-- Listado de informes de obra rediseñado -->
+<!-- Informes de obra -->
 <div class="project-report-list-container">
+
+  <!-- Cabecera: lo que el constructor necesita saber y hacer, en una linea -->
+  <div class="pr-head">
+    <div class="pr-head__title">
+      <h1>Informes de obra</h1>
+      <p class="pr-head__meta">
+        {{ projectReports.length }} {{ projectReports.length === 1 ? 'informe' : 'informes' }}
+        · {{ obras.length }} {{ obras.length === 1 ? 'obra' : 'obras' }}
+      </p>
+    </div>
+
+    <div class="pr-head__tools">
+      <div class="pr-search" *ngIf="viewMode === 'obras'">
+        <span class="pr-search__icon" aria-hidden="true">⌕</span>
+        <input type="text" [ngModel]="obrasSearch" (ngModelChange)="onObrasSearch($event)"
+               placeholder="Buscar obra, cliente o informe" aria-label="Buscar informes" />
+      </div>
+
+      <div class="pr-toggle" role="group" aria-label="Forma de ver los informes">
+        <button type="button" [class.is-active]="viewMode === 'obras'"
+                [attr.aria-pressed]="viewMode === 'obras'" (click)="setViewMode('obras')">Por obra</button>
+        <button type="button" [class.is-active]="viewMode === 'listado'"
+                [attr.aria-pressed]="viewMode === 'listado'" (click)="setViewMode('listado')">Listado</button>
+      </div>
+
+      <a [routerLink]="'/projectreports/add'" class="pr-new">
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo informe</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===================== Vista por obra ===================== -->
+  <ng-container *ngIf="viewMode === 'obras'">
+
+    <div class="pr-empty" *ngIf="!loading && obras.length === 0">
+      <i class="fas fa-camera-retro" aria-hidden="true"></i>
+      <h2>{{ obrasSearch ? 'Ningun informe coincide con la busqueda' : 'Todavia no hay informes de obra' }}</h2>
+      <p *ngIf="!obrasSearch">
+        Un informe con fotos es la forma mas rapida de mostrarle al cliente como va su obra.
+      </p>
+      <a *ngIf="!obrasSearch" [routerLink]="'/projectreports/add'" class="pr-new">
+        <i class="fas fa-plus" aria-hidden="true"></i><span>Crear el primero</span>
+      </a>
+    </div>
+
+    <article class="pr-obra" *ngFor="let obra of obras">
+      <header class="pr-obra__head">
+        <div class="pr-obra__id">
+          <h2 class="pr-obra__name">{{ obra.obra }}</h2>
+          <p class="pr-obra__client">{{ obra.cliente }}</p>
+        </div>
+        <span class="pr-obra__budget" *ngIf="obra.budgetInternalCode">
+          Cotizacion {{ obra.budgetInternalCode }}
+        </span>
+      </header>
+
+      <div class="pr-report" *ngFor="let report of obra.informes">
+        <time class="pr-report__date" [attr.datetime]="report.date">
+          <span class="pr-report__day">{{ report.date | date:'dd' }}</span>
+          <span class="pr-report__month">{{ report.date | date:'MMM' }}</span>
+        </time>
+
+        <div class="pr-report__body">
+          <h3 class="pr-report__name">{{ nombreInforme(report, obra) }}</h3>
+          <p class="pr-report__note" *ngIf="report.note">{{ report.note | truncate:90 }}</p>
+        </div>
+
+        <!-- La tira de fotos: es lo que hace valioso un informe -->
+        <div class="pr-photos">
+          <img *ngFor="let foto of fotos(report)" [src]="foto" alt="" loading="lazy" />
+          <span class="pr-photos__more" *ngIf="fotosRestantes(report) > 0">+{{ fotosRestantes(report) }}</span>
+          <span class="pr-photos__none" *ngIf="fotos(report).length === 0">Sin fotos</span>
+        </div>
+
+        <div class="pr-report__actions">
+          <button type="button" class="pr-act" (click)="downloadProjectReport(report)">
+            <i class="fas fa-download" aria-hidden="true"></i><span>PDF</span>
+          </button>
+          <button type="button" class="pr-act" (click)="sendEmailProjectReportWithComfirm(report)">
+            <i class="fas fa-paper-plane" aria-hidden="true"></i><span>Enviar</span>
+          </button>
+          <a class="pr-act pr-act--icon" [routerLink]="['/projectreports/add', report.projectReportId]"
+             pTooltip="Editar" tooltipPosition="top" aria-label="Editar informe">
+            <i class="fas fa-pen" aria-hidden="true"></i>
+          </a>
+          <button type="button" class="pr-act pr-act--icon pr-act--danger"
+                  (click)="deleteProjectReportWithComfirm(report)"
+                  pTooltip="Eliminar" tooltipPosition="top" aria-label="Eliminar informe">
+            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+  </ng-container>
+
+  <!-- ===================== Vista de listado ===================== -->
+  <div [hidden]="viewMode !== 'listado'">
   <app-data-table
     [columns]="tableColumns"
     [value]="projectReports"
     [loading]="loading"
     rowKey="projectReportId"
-    title="Informes de Obra"
-    headerIcon="fas fa-clipboard-list"
     [subtitle]="projectReports.length + ' informes'"
     [kpis]="kpis"
     searchPlaceholder="Buscar por nombre, cliente, cotización..."
@@ -16,10 +111,6 @@
     sortField="projectReportId"
     [sortOrder]="-1"
     currentPageReportTemplate="{first} al {last} de {totalRecords} informes">
-
-    <a dt-actions [routerLink]="'/projectreports/add'" class="btn-new">
-      <i class="fas fa-plus"></i><span>Nuevo Informe</span>
-    </a>
 
     <ng-template dtColumn="projectReportId" let-report>
       <span class="code-value">{{ report.projectReportId }}</span>
@@ -68,7 +159,9 @@
       <a [routerLink]="'/projectreports/add'" class="btn-create-first"><i class="fas fa-plus"></i> Crear Informe</a>
     </div>
   </app-data-table>
+  </div>
 </div>
+
 
 <!-- Modal de confirmación -->
 <app-confirmation-modal
