@@ -39,6 +39,15 @@ function getUserToken(): string | null {
   return localStorage.getItem('token');
 }
 
+/** Un dato que el agente tocó durante su respuesta. */
+export interface DataChange {
+  /** budget, customer, product, projectReport, schedule... */
+  entity: string;
+  /** Null cuando cambió algo que no se puede señalar con un id. */
+  id: number | null;
+  kind: 'Created' | 'Updated' | 'Deleted';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -52,6 +61,19 @@ export class ChatbotSignalRService {
   // Connection status
   private connectionStatusSubject = new BehaviorSubject<ConnectionStatus>('disconnected');
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
+
+  /**
+   * Lo que el agente acaba de cambiar en la base.
+   *
+   * Existe porque el usuario puede estar mirando el listado de cotizaciones y
+   * pedirle al chat que cambie una: el dato cambia y la pantalla se queda
+   * enseñando el total viejo. Lo peor no es el número desactualizado, es que el
+   * usuario cree que la orden no funcionó y la repite.
+   *
+   * Cada pantalla decide qué hacer con el aviso: refrescar una fila, añadirla o
+   * ignorarlo si no le toca.
+   */
+  public dataChanged$ = new Subject<DataChange[]>();
 
   // Reconnection configuration
   private readonly maxRetryAttempts = 10;
@@ -219,6 +241,10 @@ export class ChatbotSignalRService {
     });
 
     // History cleared event
+    this.hubConnection.on('DataChanged', (cambios: DataChange[]) => {
+      if (Array.isArray(cambios) && cambios.length) this.dataChanged$.next(cambios);
+    });
+
     this.hubConnection.on('HistoryCleared', (conversationId: string) => {
       this.messagesSubject.next([]);
     });

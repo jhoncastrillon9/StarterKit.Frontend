@@ -3,7 +3,8 @@ import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@a
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { RefreshTokenInterceptor } from './auth/refresh-token.interceptor';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { cilAddressBook, cilSpeedometer, cilPuzzle } from '@coreui/icons';
 
@@ -94,7 +95,10 @@ import { CustomSharedModule } from './shared/shared.module';
     },
     IconSetService,
     Title,
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withInterceptorsFromDi()),
+    // Renueva la sesion sola cuando el token de acceso caduca. Sin esto, el
+    // usuario se cae en mitad de lo que estuviera haciendo.
+    { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptor, multi: true }
   ]
 })
 export class AppModule {}

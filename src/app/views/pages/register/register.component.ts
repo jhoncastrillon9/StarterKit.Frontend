@@ -1,4 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
+import { inject } from '@angular/core';
+import { TokenStorageService } from 'src/app/auth/token-storage.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -11,6 +13,7 @@ import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-m
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
+  private readonly tokenStorage = inject(TokenStorageService);
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;  
   messageModal: string = "Estamos teniendo algunos inconvenientes. Por favor, inténtalo de nuevo más tarde. Si necesitas agregar un usuario a una empresa existente, contacta con nuestro equipo de soporte.";
@@ -44,6 +47,8 @@ export class RegisterComponent {
           const tokenData = JSON.parse(atob(token.split('.')[1]));                     
           localStorage.setItem('tokenData', JSON.stringify(tokenData));
           localStorage.setItem('token', token);
+          // El refresco y la caducidad, para que la sesion se renueve sola.
+          this.tokenStorage.save(response as any);
           this.spinner.hide();          
           this.router.navigate(['/configurations/companyConfig']);
         },

@@ -18,6 +18,9 @@ import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChatbotSignalRService } from 'src/app/shared/services/chatbot-signalr.service';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 import { InvoiceService } from 'src/app/modules/invoices/services/invoice.service';
@@ -218,8 +221,21 @@ export class ListBudgetComponent implements OnInit {
   }
 
 
+  private readonly chatSignalR = inject(ChatbotSignalRService);
+  private readonly destroyRef = inject(DestroyRef);
+
   ngOnInit() {
     this.loadBudgets();
+
+    // Si el usuario le pide al chat que cambie o cree una cotización mientras
+    // tiene este listado delante, el dato cambia en la base y la pantalla se
+    // queda enseñando el total viejo. Lo peor no es el número desactualizado:
+    // es que el usuario cree que la orden no funcionó y la repite.
+    this.chatSignalR.dataChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(cambios => {
+        if (cambios.some(c => c.entity === 'budget')) this.loadBudgets();
+      });
     
     // Verificar si debe iniciar grabación IA automáticamente
     this.route.queryParams.subscribe(params => {

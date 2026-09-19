@@ -1,4 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
+import { inject } from '@angular/core';
+import { TokenStorageService } from 'src/app/auth/token-storage.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'; // Asegúrate de importar FormGroup y Validators desde '@angular/forms'
 import { AuthService } from '../../../auth/auth.service';
 import { Router } from '@angular/router';
@@ -11,6 +13,7 @@ import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-m
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  private readonly tokenStorage = inject(TokenStorageService);
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
   loginForm: FormGroup;
@@ -41,6 +44,8 @@ export class LoginComponent {
           // Almacena el token y los datos del usuario en el almacenamiento local          
           localStorage.setItem('tokenData', JSON.stringify(tokenData));
           localStorage.setItem('token', token);
+          // El refresco y la caducidad, para que la sesion se renueve sola.
+          this.tokenStorage.save(response as any);
           this.spinner.hide();
           // Realiza redirección o acciones adicionales si es necesario
           this.router.navigate(['/']);
