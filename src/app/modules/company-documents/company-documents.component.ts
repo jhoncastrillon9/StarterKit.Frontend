@@ -68,6 +68,15 @@ export class CompanyDocumentsComponent implements OnInit {
   saving = false;
 
   upload = { name: '', category: '', description: '', expiresAt: '', file: null as File | null };
+
+  /**
+   * Al elegir "Otro" hay que decir cuál. Sin eso, en la lista de envío aparecen
+   * tres documentos llamados "Otro" y no hay forma de saber cuál se le está
+   * mandando al cliente.
+   */
+  get needsName(): boolean {
+    return this.upload.category === 'Otro' && !this.upload.name.trim();
+  }
   send = { customerId: null as number | null, emails: '', message: '' };
 
   /** Sugerencias, no una lista cerrada: cada obra pide papeles distintos. */
@@ -97,6 +106,16 @@ export class CompanyDocumentsComponent implements OnInit {
       next: d => { this.documents = d; this.loading = false; },
       error: () => { this.loading = false; this.error = 'No se pudieron cargar los documentos.'; },
     });
+  }
+
+  /**
+   * Al elegir cliente se traen sus correos, como al reenviar una cotización.
+   * Escribirlos a mano cada vez es donde se cuela el correo equivocado.
+   */
+  onCustomerChange(): void {
+    const cliente = this.customers.find(c => c.customerId === this.send.customerId);
+    // No se pisa lo que el usuario ya escribió: puede haberlo puesto a mano a propósito.
+    if (cliente?.email && !this.send.emails.trim()) this.send.emails = cliente.email;
   }
 
   loadCustomers(): void {
@@ -181,6 +200,40 @@ export class CompanyDocumentsComponent implements OnInit {
     });
   }
 
+  /** Lo que se va a mandar y a quién, para que se pueda leer antes de mandarlo. */
+  confirming = false;
+
+  get sendSummary(): { docs: string[]; emails: string[] } {
+    const emails = this.send.emails.split(/[;,]/).map(e => e.trim()).filter(Boolean);
+    const cliente = this.customers.find(c => c.customerId === this.send.customerId);
+
+    return {
+      docs: this.selectedDocs.map(d => d.name),
+      emails: emails.length ? emails : (cliente?.email ? [cliente.email] : []),
+    };
+  }
+
+  /**
+   * Primer paso: enseñar qué se manda y a quién.
+   *
+   * Estos papeles llevan datos de la empresa, y una vez enviados no se pueden
+   * recoger. Un botón que manda sin preguntar convierte un clic de más en un
+   * correo que no debía salir.
+   */
+  askConfirm(): void {
+    if (this.selected.size === 0) {
+      this.message = 'Marca los documentos que quieres enviar.';
+      return;
+    }
+
+    if (this.sendSummary.emails.length === 0) {
+      this.message = 'Falta a qué correo mandarlo: elige un cliente o escribe un correo.';
+      return;
+    }
+
+    this.confirming = true;
+  }
+
   doSend(): void {
     if (this.selected.size === 0) {
       this.message = 'Marca los documentos que quieres enviar.';
@@ -189,6 +242,7 @@ export class CompanyDocumentsComponent implements OnInit {
     const emails = this.send.emails
       .split(/[;,]/).map(e => e.trim()).filter(Boolean);
 
+    this.confirming = false;
     this.saving = true;
     this.http.post<Shipment>(`${this.apiUrl}/send`, {
       documentIds: [...this.selected],

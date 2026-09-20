@@ -36,6 +36,8 @@ export interface ElectronicInvoicingSetup {
   habilitationStatus: string;
   habilitatedAt?: string | null;
   steps: SetupStep[];
+  currentStep: number;
+  totalSteps: number;
   testSet: TestSetItem[];
   testSetProgress: number;
   testSetMissing?: string | null;

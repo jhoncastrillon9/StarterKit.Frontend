@@ -61,20 +61,25 @@ export class BudgetConfigComponent implements OnInit {
     });
   }
 
-  saveDocConfig(): void {
-    if (!this.docConfig) return;
-    this.savingDocConfig = true;
-    this.docConfigService.save(this.docConfig).subscribe({
-      next: cfg => {
-        this.docConfig = cfg;
-        this.savingDocConfig = false;
-        this.showModal(false, 'La apariencia del documento se guardo correctamente.', this.successTitle);
-      },
-      error: (err: any) => {
-        this.savingDocConfig = false;
-        const msg = err?.error?.error || err?.error?.message || 'No se pudo guardar la apariencia del documento.';
-        this.showModal(true, msg);
-      }
+  /**
+   * Guarda la apariencia. Ya no tiene boton propio: lo llama el unico Guardar
+   * de la pantalla.
+   *
+   * Antes habia DOS botones de guardar en el mismo formulario, y el que uno se
+   * encontraba primero al bajar -"Guardar apariencia"- no guardaba la plantilla
+   * recien elegida, pero respondia "guardado correctamente". El usuario elegia
+   * plantilla, guardaba, veia el mensaje de exito, refrescaba y seguia la
+   * anterior. Reproducido en el navegador: pulsando el de abajo guarda; pulsando
+   * el de arriba no, y avisa de que si.
+   */
+  private saveDocConfigSilently(): Promise<void> {
+    if (!this.docConfig) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      this.docConfigService.save(this.docConfig!).subscribe({
+        next: cfg => { this.docConfig = cfg; resolve(); },
+        error: (err: any) => reject(err),
+      });
     });
   }
 
@@ -144,7 +149,11 @@ export class BudgetConfigComponent implements OnInit {
     if (this.companyForm.valid) {
       try {
         this.spinner.show();
+        // Las dos cosas en el mismo guardado: la plantilla y la apariencia. Que
+        // fueran dos botones es lo que hacia creer que se habia guardado algo
+        // que no.
         await this.budgetConfigService.updateBudgetConfigByUser(this.companyForm.value).toPromise();
+        await this.saveDocConfigSilently();
         await this.ngOnInit();  // Refresca la información
         this.showModal(false, this.successMessage, this.successTitle);
       } catch (error) {

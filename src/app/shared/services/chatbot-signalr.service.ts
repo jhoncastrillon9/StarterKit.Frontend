@@ -203,7 +203,12 @@ export class ChatbotSignalRService {
         id: response?.message?.id || response?.id,
         sender: this.mapRoleToSender(response?.message?.role || response?.role || 'assistant'),
         content: processed.content,
-        fileResponse: processed.fileResponse,
+        // El archivo llega en su propio campo. Antes se intentaba adivinar
+        // leyendo el texto -o el mensaje entero era el JSON, o llevaba un enlace
+        // dentro- y dejo de encontrarse en cuanto el prompt le pidio al modelo,
+        // con razon, que no escribiera enlaces de 300 caracteres en la
+        // conversacion. El texto se sigue mirando como respaldo.
+        fileResponse: this.firstFile(response) ?? processed.fileResponse,
         timestamp: response?.message?.timestamp || response?.timestamp || new Date().toISOString(),
         isStreaming: response?.message?.isStreaming || false
       };
@@ -241,6 +246,21 @@ export class ChatbotSignalRService {
     });
 
     // History cleared event
+    // Los archivos llegan en su propio evento, no dentro del texto. El modelo
+    // escribe una frase para el usuario y el objeto con la URL se queda por el
+    // camino; esperar a encontrarlo en el texto es lo que rompio el boton de
+    // descarga.
+    this.hubConnection.on('ReceiveFiles', (archivos: ChatFileResponse[]) => {
+      if (!Array.isArray(archivos) || !archivos.length) return;
+
+      const actuales = this.messagesSubject.value;
+      const ultimo = [...actuales].reverse().find(m => m.sender !== 'user');
+      if (!ultimo) return;
+
+      this.messagesSubject.next(actuales.map(m =>
+        m === ultimo ? { ...m, fileResponse: archivos[0] } : m));
+    });
+
     this.hubConnection.on('DataChanged', (cambios: DataChange[]) => {
       if (Array.isArray(cambios) && cambios.length) this.dataChanged$.next(cambios);
     });
@@ -344,6 +364,18 @@ export class ChatbotSignalRService {
   /**
    * Parse content to check if it's a file download response (JSON format)
    */
+  /**
+   * El archivo que el backend adjunta a la respuesta, fuera del texto.
+   *
+   * De momento se pinta uno: la tarjeta de descarga es de uno. Si algun dia una
+   * respuesta trae varios, hay que pintar una tarjeta por archivo en vez de
+   * quedarse con el primero en silencio.
+   */
+  private firstFile(response: any): ChatFileResponse | undefined {
+    const archivos = response?.files ?? response?.Files;
+    return Array.isArray(archivos) && archivos.length ? archivos[0] as ChatFileResponse : undefined;
+  }
+
   private parseJsonFileResponse(content: string): ChatFileResponse | null {
     if (!content) return null;
 

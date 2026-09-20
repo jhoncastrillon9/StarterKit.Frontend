@@ -108,15 +108,21 @@
     <small>PDF, imagen, Word o Excel. Máximo 10 MB.</small>
   </label>
 
-  <label class="cd-field">Nombre
-    <input type="text" [(ngModel)]="upload.name" placeholder="Ej: Cámara de Comercio 2026" maxlength="200" />
-  </label>
-
   <label class="cd-field">Tipo
     <select [(ngModel)]="upload.category">
       <option value="">Sin clasificar</option>
       <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
     </select>
+  </label>
+
+  <label class="cd-field" [class.cd-field--required]="needsName">
+    Nombre
+    <input type="text" [(ngModel)]="upload.name"
+           [placeholder]="upload.category === 'Otro' ? '¿Cuál documento es?' : 'Ej: Cámara de Comercio 2026'"
+           maxlength="200" />
+    <small *ngIf="upload.category === 'Otro'">
+      Con «Otro» el nombre hace falta: es lo único que lo distingue cuando se lo mandes a un cliente.
+    </small>
   </label>
 
   <label class="cd-field">Vence el
@@ -130,7 +136,8 @@
 
   <div class="cd-modal__actions">
     <button type="button" class="cd-btn cd-btn--ghost" (click)="showUpload = false">Cancelar</button>
-    <button type="button" class="cd-btn cd-btn--primary" (click)="doUpload()" [disabled]="saving">Guardar</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="doUpload()"
+            [disabled]="saving || needsName">Guardar</button>
   </div>
 </aside>
 
@@ -153,7 +160,7 @@
   </p>
 
   <label class="cd-field">Cliente
-    <select [(ngModel)]="send.customerId">
+    <select [(ngModel)]="send.customerId" (ngModelChange)="onCustomerChange()">
       <option [ngValue]="null">Sin cliente (escribo el correo)</option>
       <option *ngFor="let c of customers" [ngValue]="c.customerId">{{ c.customerName }}</option>
     </select>
@@ -170,6 +177,36 @@
 
   <div class="cd-modal__actions">
     <button type="button" class="cd-btn cd-btn--ghost" (click)="showSend = false">Cancelar</button>
-    <button type="button" class="cd-btn cd-btn--primary" (click)="doSend()" [disabled]="saving">Enviar</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="askConfirm()" [disabled]="saving">Enviar</button>
+  </div>
+</aside>
+
+<!-- ============ Confirmar antes de mandar ============
+     Estos papeles llevan datos de la empresa y, una vez enviados, no se pueden
+     recoger. Se dice qué sale y a quién, y se espera un sí. -->
+<div class="cd-backdrop" *ngIf="confirming" (click)="confirming = false"></div>
+<aside class="cd-modal cd-modal--confirm" *ngIf="confirming" role="dialog" aria-label="Confirmar envío">
+  <h2>¿Mando esto?</h2>
+
+  <p class="cd-confirm__label">Documentos</p>
+  <ul class="cd-chosen">
+    <li *ngFor="let d of sendSummary.docs"><i class="fas fa-file" aria-hidden="true"></i> {{ d }}</li>
+  </ul>
+
+  <p class="cd-confirm__label">A</p>
+  <ul class="cd-chosen">
+    <li *ngFor="let e of sendSummary.emails"><i class="fas fa-envelope" aria-hidden="true"></i> {{ e }}</li>
+  </ul>
+
+  <p class="cd-warn" *ngIf="selectedExpired.length">
+    <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+    Hay {{ selectedExpired.length }} documento(s) vencido(s) entre lo que vas a mandar.
+  </p>
+
+  <div class="cd-modal__actions">
+    <button type="button" class="cd-btn cd-btn--ghost" (click)="confirming = false">No, volver</button>
+    <button type="button" class="cd-btn cd-btn--primary" (click)="doSend()" [disabled]="saving">
+      Sí, enviar
+    </button>
   </div>
 </aside>

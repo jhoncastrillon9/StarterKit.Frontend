@@ -23,7 +23,7 @@ import { ReferenceDataService, ReferenceItem } from '../../services/reference-da
   imports: [CommonModule, FormsModule],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="ref-select" [class.ref-select--open]="open()">
+    <div class="ref-select" [class.ref-select--open]="open()" [class.ref-select--up]="openUpward()">
       <div class="ref-select__field"
            role="combobox"
            [attr.aria-expanded]="open()"
@@ -129,8 +129,28 @@ export class ReferenceSelectComponent {
     return this.requiresParent() && !this.parentCode();
   }
 
+  /**
+   * Si el desplegable se abre hacia arriba.
+   *
+   * Se abría siempre hacia abajo, y en el último campo de un formulario largo
+   * eso lo deja debajo del pie de página: el usuario ve el desplegable abierto
+   * y no puede leer ni pulsar nada. No es cuestión de z-index —subirlo solo lo
+   * pinta encima del pie, medio fuera de la pantalla—: es que no cabe.
+   */
+  openUpward = signal(false);
+
   toggle(): void {
     const next = !this.open();
+
+    if (next) {
+      const caja = this.host.nativeElement.getBoundingClientRect();
+      const debajo = window.innerHeight - caja.bottom;
+
+      // El panel mide como mucho 320 px entre buscador y lista. Si debajo no
+      // caben, y arriba sí, se abre hacia arriba.
+      this.openUpward.set(debajo < 320 && caja.top > debajo);
+    }
+
     this.open.set(next);
     if (next && !this.needsParent()) this.load();
   }

@@ -121,3 +121,16 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Hacia arriba cuando no cabe debajo. En el último campo de un formulario largo
+   el panel quedaba tapado por el pie de página: el usuario lo veía abierto y no
+   podía pulsar nada. Subir el z-index no lo arregla —lo pinta encima del pie,
+   pero medio fuera de la pantalla—: el problema es que no cabe. */
+.ref-select--up .ref-select__panel {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+/* Por encima del pie y de las tarjetas, para los casos en que sí cabe pero algo
+   se pinta delante. */
+.ref-select__panel { z-index: 1060; }

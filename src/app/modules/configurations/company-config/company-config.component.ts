@@ -119,7 +119,9 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
 
       // Datos del emisor para facturacion electronica (DIAN). Opcionales: la FE
       // no esta activa. Ver CompanyDTO en el backend para la referencia al anexo.
-      personType: [''],
+      // Por defecto jurídica: una empresa que factura suele serlo, y dejarlo
+      // vacío obligaba a elegir algo que casi siempre es lo mismo.
+      personType: ['1'],
       documentType: [''],
       verificationDigit: [''],
       registrationName: [''],
@@ -150,7 +152,7 @@ export class CompanyConfigComponent implements OnInit, OnDestroy {
             document: company.document || '',
             telephones: company.telephones || '',
             urlWeb: company.urlWeb || '',
-            personType: company.personType || '',
+            personType: company.personType || '1',
             documentType: company.documentType || '',
             verificationDigit: company.verificationDigit || '',
             registrationName: company.registrationName || '',

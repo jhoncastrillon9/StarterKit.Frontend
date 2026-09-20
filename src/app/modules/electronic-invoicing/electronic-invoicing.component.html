@@ -41,9 +41,24 @@
     <!-- ============================ Los pasos ============================ -->
     <section class="fe-section">
       <div class="fe-section__head">
-        <h2>El trámite</h2>
-        <span class="fe-progress-text">{{ pasosHechos() }} de {{ totalPasos() }}</span>
+        <h2>Lo que falta</h2>
+        <span class="fe-progress-text">Paso {{ s.currentStep }} de {{ s.totalSteps }}</span>
       </div>
+
+      <!-- Dónde va, de un vistazo. Una lista de seis pasos sin decir en cuál
+           estás obliga a leerlos todos para saberlo. -->
+      <ol class="fe-track" [attr.aria-label]="'Paso ' + s.currentStep + ' de ' + s.totalSteps">
+        <li *ngFor="let paso of s.steps; let i = index"
+            class="fe-track__item"
+            [class.done]="paso.status === 'Hecho'"
+            [class.now]="paso.status === 'EnCurso'"
+            [title]="paso.title">
+          <span class="fe-track__dot">
+            <i class="fas fa-check" *ngIf="paso.status === 'Hecho'" aria-hidden="true"></i>
+            <ng-container *ngIf="paso.status !== 'Hecho'">{{ i + 1 }}</ng-container>
+          </span>
+        </li>
+      </ol>
 
       <ol class="fe-steps">
         <li *ngFor="let paso of s.steps; let i = index"
@@ -68,12 +83,15 @@
             <p class="fe-step__what">{{ paso.what }}</p>
             <p class="fe-step__why"><b>Por qué:</b> {{ paso.why }}</p>
 
-            <a *ngIf="paso.link" class="fe-link" [href]="paso.link" target="_blank" rel="noopener">
-              Abrir el portal de la DIAN <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            <!-- Los pasos que se resuelven en otra pantalla llevan a ella
+                 directamente: decir "ve a configuración de empresa" y dejar que
+                 el usuario la busque es medio trabajo. -->
+            <a *ngIf="paso.link" class="fe-link" [href]="paso.link">
+              Ir a {{ paso.where }} <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
 
             <!-- Datos que se guardan aquí -->
-            <div class="fe-fields" *ngIf="paso.key === 'modo'">
+            <div class="fe-fields" *ngIf="paso.key === 'software'">
               <label class="fe-field">Identificador del software
                 <input [(ngModel)]="form.softwareId" placeholder="Lo da la DIAN" maxlength="100" />
               </label>
@@ -125,11 +143,9 @@
               </p>
             </div>
 
-            <button type="button" class="fe-btn fe-btn--ghost" *ngIf="paso.manualCheck"
-                    (click)="markStep(paso.key)">
-              <i class="fas" [ngClass]="paso.status === 'Hecho' ? 'fa-rotate-left' : 'fa-check'" aria-hidden="true"></i>
-              {{ paso.status === 'Hecho' ? 'Marcar como pendiente' : 'Ya lo hice' }}
-            </button>
+            <!-- Sin botón de "ya lo hice": cada paso se comprueba mirando los
+                 datos. Un paso que el usuario marca a mano es un paso que puede
+                 mentir, y eso en un trámite ante la DIAN se paga caro. -->
           </div>
         </li>
       </ol>

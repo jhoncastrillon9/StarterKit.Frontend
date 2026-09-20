@@ -178,3 +178,18 @@ $cd-bad: #b91c1c;
   .cd-item__body { flex-basis: 100%; order: 3; }
   .cd-expiry { order: 4; }
 }
+
+/* Confirmación antes de mandar. Estos papeles llevan datos de la empresa y una
+   vez enviados no se pueden recoger. */
+.cd-modal--confirm h2 { margin-bottom: 14px; }
+
+.cd-confirm__label {
+  margin: 14px 0 6px;
+  font-size: 11.5px; font-weight: 700; color: #6f6987;
+  &:first-of-type { margin-top: 4px; }
+}
+
+.cd-field--required input {
+  border-color: #fed7aa;
+  background: #fffbf5;
+}

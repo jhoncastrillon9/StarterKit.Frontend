@@ -116,20 +116,40 @@
 
           <!-- NIT o CC -->
           <c-col xs="12" sm="6" md="6">
-            <div class="form-group-modern">
-              <label cLabel for="document" class="label-modern">
-                <i class="fas fa-id-card"></i>
-                NIT o CC
-                <span class="required-star">*</span>
-              </label>
-              <input
-                cFormControl
-                formControlName="document"
-                class="input-modern"
-                placeholder="Ej: 900123456-7"
-                maxlength="50"
-              />
+            <!-- El digito de verificacion va pegado al NIT porque es parte del
+                 mismo numero: en el RUT se escribe 900123456-7. Separarlo en otra
+                 tarjeta obligaba a buscarlo, y es un solo digito. -->
+            <div class="form-group-modern doc-group">
+              <div class="doc-group__main">
+                <label cLabel for="document" class="label-modern">
+                  <i class="fas fa-id-card"></i>
+                  NIT o CC
+                  <span class="required-star">*</span>
+                </label>
+                <input
+                  cFormControl
+                  formControlName="document"
+                  class="input-modern"
+                  placeholder="Ej: 900123456"
+                  maxlength="50"
+                />
+              </div>
+              <div class="doc-group__dv">
+                <label cLabel for="verificationDigit" class="label-modern">DV</label>
+                <input
+                  cFormControl
+                  formControlName="verificationDigit"
+                  class="input-modern"
+                  placeholder="7"
+                  maxlength="2"
+                  inputmode="numeric"
+                />
+              </div>
             </div>
+            <small class="helper-text">
+              <i class="fas fa-info-circle"></i>
+              El DV es el dígito después del guion. Solo lo lleva el NIT.
+            </small>
           </c-col>
         </div>
       </div>
@@ -247,10 +267,13 @@
             <div class="form-group-modern">
               <label cLabel for="personType" class="label-modern"><i class="fas fa-user-tag"></i> Tipo de persona</label>
               <select cSelect formControlName="personType" class="input-modern">
-                <option value="">Sin especificar</option>
                 <option value="1">Persona jurídica</option>
                 <option value="2">Persona natural</option>
               </select>
+              <small class="helper-text">
+                <i class="fas fa-info-circle"></i>
+                Una empresa es jurídica; un constructor que factura a su nombre, natural.
+              </small>
             </div>
           </c-col>
           <c-col xs="12" sm="6" md="6">
@@ -262,13 +285,6 @@
                 [(value)]="ref.documentType"
                 [(selectedName)]="refName.documentType">
               </app-reference-select>
-            </div>
-          </c-col>
-          <c-col xs="12" sm="6" md="6">
-            <div class="form-group-modern">
-              <label cLabel for="verificationDigit" class="label-modern"><i class="fas fa-check-double"></i> Dígito de verificación</label>
-              <input cFormControl formControlName="verificationDigit" class="input-modern" placeholder="Ej: 1" maxlength="1" />
-              <small class="helper-text"><i class="fas fa-info-circle"></i> El dígito después del guion en el NIT</small>
             </div>
           </c-col>
           <c-col xs="12" sm="6" md="6">

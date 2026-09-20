@@ -188,9 +188,13 @@ export class SchedulesComponent implements OnInit {
     }, { headers: this.headers() }).subscribe({
       next: s => {
         this.saving = false;
-        this.current = s;
         this.schedules = this.schedules.map(x => x.scheduleId === s.scheduleId ? s : x);
-        this.message = 'Cronograma guardado.';
+
+        // Guardar y volver al listado. Quedarse en el detalle después de guardar
+        // deja al usuario sin saber si terminó: el sitio donde se ve que quedó
+        // guardado es la lista.
+        this.current = null;
+        this.message = `«${s.name}» guardado.`;
       },
       error: e => {
         this.saving = false;
@@ -210,15 +214,85 @@ export class SchedulesComponent implements OnInit {
     });
   }
 
-  /** Imprimir da un PDF sin depender de que el servidor lo genere. */
+  /**
+   * El PDF lo genera el servidor.
+   *
+   * Antes esto llamaba a window.print(), y la impresión del navegador produce
+   * una captura de la pantalla: con el menú lateral, los bordes de los botones
+   * y sin el logo de la empresa. Un cronograma es justo un documento que se le
+   * manda al cliente, así que tiene que parecer suyo.
+   */
+  downloading = false;
+
   print(): void {
-    window.print();
+    if (!this.current) return;
+    this.downloading = true;
+    this.message = '';
+
+    this.http.get(`${this.apiUrl}/${this.current.scheduleId}/pdf`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${localStorage.getItem('token')}` }),
+      responseType: 'blob',
+    }).subscribe({
+      next: blob => {
+        this.downloading = false;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Cronograma-${(this.current?.name || 'obra').replace(/[^\w\s-]/g, '')}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.downloading = false;
+        this.message = 'No se pudo generar el PDF.';
+      },
+    });
   }
 
   // ------------------------------------------------------------ Presentación
 
   fecha(v?: string | null): string {
     return v ? new Date(v).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }) : '—';
+  }
+
+  /** Día del mes, para el bloque de fecha de la tarjeta. */
+  dia(v?: string | null): string {
+    return v ? new Date(v).getDate().toString().padStart(2, '0') : '--';
+  }
+
+  /** Mes abreviado, en minúscula, para acompañar al día. */
+  mes(v?: string | null): string {
+    return v ? new Date(v).toLocaleDateString('es-CO', { month: 'short' }).replace('.', '') : '';
+  }
+
+  /** Cuántas actividades están terminadas. */
+  terminadas(): number {
+    return this.current?.tasks.filter(t => t.status === 'Terminada').length ?? 0;
+  }
+
+  /**
+   * Estado del cronograma entero, deducido del avance y las fechas. No se
+   * guarda: un estado guardado puede contradecir a las actividades.
+   */
+  estadoDe(s: Schedule): 'pendiente' | 'curso' | 'fin' | 'tarde' {
+    if (s.progressPercent >= 100) return 'fin';
+    if (new Date(s.endDate) < new Date()) return 'tarde';
+    if (s.progressPercent > 0) return 'curso';
+    return 'pendiente';
+  }
+
+  etiquetaEstado(s: Schedule): string {
+    return { pendiente: 'Sin empezar', curso: 'En curso', fin: 'Terminado', tarde: 'Atrasado' }[this.estadoDe(s)];
+  }
+
+  /**
+   * Marcar una actividad como terminada pone su avance al 100, y volver a
+   * pendiente lo baja a 0. Tener el estado en «Terminada» y el avance en 40 es
+   * una contradicción que el usuario tendría que arreglar a mano.
+   */
+  onStatusChange(t: ScheduleTask): void {
+    if (t.status === 'Terminada') t.progressPercent = 100;
+    else if (t.status === 'Pendiente') t.progressPercent = 0;
   }
 
   fechaLarga(v?: string | null): string {

@@ -488,3 +488,23 @@ $transition: all 0.3s ease;
 
   i { margin-top: 2px; }
 }
+
+/* El NIT y su dígito de verificación son el mismo número: en el RUT se escribe
+   900123456-7. Van juntos, con el DV estrecho porque es un solo dígito. */
+.doc-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+
+  &__main { flex: 1; min-width: 0; }
+  &__dv   { flex: 0 0 70px; }
+}
+
+/* El desplegable de país se abría por debajo del pie de página. El problema no
+   era el z-index del desplegable: era que su contenedor recortaba lo que se
+   sale. */
+.form-group-modern { overflow: visible; }
+
+app-reference-select .ref-select__panel {
+  z-index: 1060;
+}

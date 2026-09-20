@@ -205,11 +205,9 @@
           </c-col>
         </div>
 
-        <div class="doc-actions">
-          <button type="button" class="btn-modern btn-save" (click)="saveDocConfig()" [disabled]="savingDocConfig">
-            <i class="fas fa-save"></i> Guardar apariencia
-          </button>
-        </div>
+        <!-- Sin boton propio: lo guarda el unico Guardar de abajo. Tener dos
+             botones en el mismo formulario hacia que el usuario guardara la
+             apariencia creyendo que guardaba la plantilla. -->
       </div>
     </div>
 
@@ -223,7 +221,7 @@
       </a>
       <button type="submit" class="btn-modern btn-save">
         <i class="fas fa-save"></i>
-        Guardar Configuración
+        Guardar todo
       </button>
     </div>
   </form>
