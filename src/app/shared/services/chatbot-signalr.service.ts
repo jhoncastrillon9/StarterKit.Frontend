@@ -3,6 +3,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } fro
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../../environment';
 import { ChatAttachment } from './chat-attachment.service';
+import { ChatbotUiService } from './chatbot-ui.service';
 
 export interface ChatMessage {
   id?: string;
@@ -38,6 +39,15 @@ function getUserToken(): string | null {
   return localStorage.getItem('token');
 }
 
+/** Un dato que el agente tocó durante su respuesta. */
+export interface DataChange {
+  /** budget, customer, product, projectReport, schedule... */
+  entity: string;
+  /** Null cuando cambió algo que no se puede señalar con un id. */
+  id: number | null;
+  kind: 'Created' | 'Updated' | 'Deleted';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -52,6 +62,19 @@ export class ChatbotSignalRService {
   private connectionStatusSubject = new BehaviorSubject<ConnectionStatus>('disconnected');
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
 
+  /**
+   * Lo que el agente acaba de cambiar en la base.
+   *
+   * Existe porque el usuario puede estar mirando el listado de cotizaciones y
+   * pedirle al chat que cambie una: el dato cambia y la pantalla se queda
+   * enseñando el total viejo. Lo peor no es el número desactualizado, es que el
+   * usuario cree que la orden no funcionó y la repite.
+   *
+   * Cada pantalla decide qué hacer con el aviso: refrescar una fila, añadirla o
+   * ignorarlo si no le toca.
+   */
+  public dataChanged$ = new Subject<DataChange[]>();
+
   // Reconnection configuration
   private readonly maxRetryAttempts = 10;
   private readonly baseDelayMs = 1000;
@@ -62,7 +85,7 @@ export class ChatbotSignalRService {
 
   private currentStreamingMessageId: string | null = null;
 
-  constructor() {
+  constructor(private chatUi: ChatbotUiService) {
     this.startConnection();
   }
 
@@ -180,7 +203,12 @@ export class ChatbotSignalRService {
         id: response?.message?.id || response?.id,
         sender: this.mapRoleToSender(response?.message?.role || response?.role || 'assistant'),
         content: processed.content,
-        fileResponse: processed.fileResponse,
+        // El archivo llega en su propio campo. Antes se intentaba adivinar
+        // leyendo el texto -o el mensaje entero era el JSON, o llevaba un enlace
+        // dentro- y dejo de encontrarse en cuanto el prompt le pidio al modelo,
+        // con razon, que no escribiera enlaces de 300 caracteres en la
+        // conversacion. El texto se sigue mirando como respaldo.
+        fileResponse: this.firstFile(response) ?? processed.fileResponse,
         timestamp: response?.message?.timestamp || response?.timestamp || new Date().toISOString(),
         isStreaming: response?.message?.isStreaming || false
       };
@@ -218,6 +246,25 @@ export class ChatbotSignalRService {
     });
 
     // History cleared event
+    // Los archivos llegan en su propio evento, no dentro del texto. El modelo
+    // escribe una frase para el usuario y el objeto con la URL se queda por el
+    // camino; esperar a encontrarlo en el texto es lo que rompio el boton de
+    // descarga.
+    this.hubConnection.on('ReceiveFiles', (archivos: ChatFileResponse[]) => {
+      if (!Array.isArray(archivos) || !archivos.length) return;
+
+      const actuales = this.messagesSubject.value;
+      const ultimo = [...actuales].reverse().find(m => m.sender !== 'user');
+      if (!ultimo) return;
+
+      this.messagesSubject.next(actuales.map(m =>
+        m === ultimo ? { ...m, fileResponse: archivos[0] } : m));
+    });
+
+    this.hubConnection.on('DataChanged', (cambios: DataChange[]) => {
+      if (Array.isArray(cambios) && cambios.length) this.dataChanged$.next(cambios);
+    });
+
     this.hubConnection.on('HistoryCleared', (conversationId: string) => {
       this.messagesSubject.next([]);
     });
@@ -317,6 +364,18 @@ export class ChatbotSignalRService {
   /**
    * Parse content to check if it's a file download response (JSON format)
    */
+  /**
+   * El archivo que el backend adjunta a la respuesta, fuera del texto.
+   *
+   * De momento se pinta uno: la tarjeta de descarga es de uno. Si algun dia una
+   * respuesta trae varios, hay que pintar una tarjeta por archivo en vez de
+   * quedarse con el primero en silencio.
+   */
+  private firstFile(response: any): ChatFileResponse | undefined {
+    const archivos = response?.files ?? response?.Files;
+    return Array.isArray(archivos) && archivos.length ? archivos[0] as ChatFileResponse : undefined;
+  }
+
   private parseJsonFileResponse(content: string): ChatFileResponse | null {
     if (!content) return null;
 
@@ -518,9 +577,20 @@ export class ChatbotSignalRService {
     }
 
     if (this.hubConnection && this.isConnected()) {
+      // El contexto (cotizacion abierta, catalogo de productos...) viaja con
+      // cada mensaje para que el agente no tenga que deducirlo del texto.
+      const ctx = this.chatUi.context;
       const chatRequest = {
         Message: message,
-        AttachmentIds: attachments.map(a => a.attachmentId)
+        AttachmentIds: attachments.map(a => a.attachmentId),
+        Context: ctx
+          ? {
+              Scope: ctx.scope,
+              BudgetId: ctx.budgetId ?? null,
+              InternalCode: ctx.internalCode ?? null,
+              Label: ctx.label ?? null
+            }
+          : null
       };
 
       const userMessage: ChatMessage = {

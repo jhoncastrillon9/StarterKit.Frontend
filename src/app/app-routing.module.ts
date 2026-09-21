@@ -6,6 +6,7 @@ import { Page500Component } from './views/pages/page500/page500.component';
 import { LoginComponent } from './views/pages/login/login.component';
 import { RegisterComponent } from './views/pages/register/register.component';
 import {AuthGuard} from './auth.guard'
+import { SuperAdminGuard } from './modules/platform-admin/super-admin.guard';
 import { RecoveryPasswordComponent } from './views/pages/recovery-password/recovery-password.component';
 import { LoginCodeComponent } from './views/pages/login-code/login-code.component';
 import { ChangePasswordComponent } from './views/pages/change-password/change-password.component';
@@ -23,6 +24,45 @@ const routes: Routes = [
       title: 'Inicio'
     },
     children: [
+      {
+        path: 'schedules',
+        loadComponent: () =>
+          import('./modules/schedules/schedules.component').then(m => m.SchedulesComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Cronogramas' }
+      },
+      {
+        path: 'companydocuments',
+        loadComponent: () =>
+          import('./modules/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Documentos' }
+      },
+      {
+        path: 'electronicinvoicing',
+        loadComponent: () =>
+          import('./modules/electronic-invoicing/electronic-invoicing.component')
+            .then(m => m.ElectronicInvoicingComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Facturación electrónica' }
+      },
+      {
+        path: 'subscription',
+        loadComponent: () =>
+          import('./modules/subscription/my-subscription.component').then(m => m.MySubscriptionComponent),
+        canActivate: [AuthGuard],
+        data: { title: 'Mi suscripción' }
+      },
+      {
+        // Panel de plataforma. El guard es comodidad: quien protege de verdad es
+        // el backend, que exige rol de SuperAdmin en el controlador y otra vez
+        // dentro del servicio.
+        path: 'platform',
+        loadComponent: () =>
+          import('./modules/platform-admin/platform-admin.component').then(m => m.PlatformAdminComponent),
+        canActivate: [AuthGuard, SuperAdminGuard],
+        data: { title: 'Plataforma' }
+      },
       {
         path: 'dashboard',
         loadChildren: () =>

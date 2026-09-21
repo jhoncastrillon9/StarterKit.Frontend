@@ -1,39 +1,53 @@
-<!-- Modal de confirmación -->
+<!--
+  Modal de aviso y confirmación, usado por 18 pantallas.
+
+  Antes pintaba SIEMPRE un check verde, incluso cuando el título era de error, y
+  los iconos eran de Bootstrap Icons, una fuente que esta aplicación no carga: se
+  veían como cuadrados vacíos. Se usa FontAwesome, que sí está cargada, y el icono
+  refleja de qué se está avisando.
+-->
 <c-modal [visible]="visible" [alignment]="alignmentModal">
-  <div class="modal-dialog modal-dialog-centered"> <!-- Clase para centrar el modal verticalmente -->
-    <div class="modal-content text-center" style="border: none;"> <!-- Contenido centrado y sin bordes -->
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rm-content">
 
-      <!-- Título con icono centrado y botón de cerrar -->
-      <div class="modal-header justify-content-center" style="border-bottom: none; position: relative;"> <!-- Sin línea separadora -->
-        <h5 cModalTitle>
-          <i class="bi bi-check-circle" style="color: green; margin-right: 10px;"></i> <!-- Ícono antes del título -->
-          <span *ngIf="!isModalError" class="cui-primary" style="color: #6610f2; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">{{title}}</span>    
-          <span *ngIf="isModalError" class="cui-primary" style="color: #f21054; font-size: 2.5rem; font-weight: 500; font-family: Yanone Kaffeesatz;">{{title}}</span>               
-        </h5>
-        <!-- Botón de cierre 'X' en la esquina superior derecha -->
-        <button (click)="closeModal()" cButtonClose style="position: absolute; top: 10px; right: 10px;">
-          <i class="bi bi-x"></i> <!-- Ícono de cerrar -->
-        </button>
+      <button type="button" class="rm-close" (click)="closeModal()" aria-label="Cerrar">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+      </button>
+
+      <div class="modal-body rm-body">
+        <!-- El icono dice de un vistazo si esto es un logro, un problema o una pregunta -->
+        <div class="rm-icon"
+             [class.rm-icon--ok]="!isModalError && !isConfirmation"
+             [class.rm-icon--error]="isModalError"
+             [class.rm-icon--ask]="isConfirmation && !isModalError">
+          <i class="fas"
+             [class.fa-circle-check]="!isModalError && !isConfirmation"
+             [class.fa-circle-exclamation]="isModalError"
+             [class.fa-circle-question]="isConfirmation && !isModalError"
+             aria-hidden="true"></i>
+        </div>
+
+        <h2 class="rm-title" [class.rm-title--error]="isModalError">{{ title }}</h2>
+
+        <p class="rm-message">{{ messageModal }}</p>
       </div>
 
-      <!-- Mensaje centrado -->
-      <div class="modal-body">
-        <p style="color: #202021; font-size: 1rem; font-weight: 600;">{{messageModal}}</p>
-      </div>
-
-      <!-- Botones centrados -->
-      <div class="modal-footer justify-content-center" style="border-top: none;"> <!-- Sin línea separadora -->
-        <!-- Si es una confirmación, mostramos los botones "SI" y "Cancelar" -->
+      <div class="modal-footer rm-footer">
         <ng-container *ngIf="isConfirmation; else defaultFooter">
-          <button (click)="confirm()" cButton color="danger" style="color: white;" class="btn-md">{{titleButtonComfimationYes}}</button>
-          <button (click)="closeModal()" cButton color="primary" style="color: white;" class="btn-md">Cancelar</button>
+          <!-- En una confirmación el rojo sí significa algo: la acción destructiva -->
+          <button type="button" class="rm-btn rm-btn--ghost" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="rm-btn rm-btn--danger" (click)="confirm()">
+            {{ titleButtonComfimationYes || 'Confirmar' }}
+          </button>
         </ng-container>
-        <!-- Footer por defecto (solo botón "Salir") -->
+
         <ng-template #defaultFooter>
-          <button *ngIf="!isModalError" (click)="closeModal()" cButton color="primary" style="color: white;" class="btn-md">Salir</button>
-          <button *ngIf="isModalError" (click)="closeModal()" cButton color="danger" style="color: white;" class="btn-md">Salir</button>
+          <!-- Cerrar un aviso no es destructivo: el boton no va en rojo aunque el
+               aviso sea de error. El rojo se reserva para lo que borra algo. -->
+          <button type="button" class="rm-btn rm-btn--primary" (click)="closeModal()">Entendido</button>
         </ng-template>
       </div>
+
     </div>
   </div>
 </c-modal>

@@ -18,6 +18,8 @@ import { DataTableComponent } from 'src/app/shared/ui/data-table/data-table.comp
 import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-table-column.directive';
 import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.component';
 
+import { CorrectInvoiceModalComponent } from '../electronic-invoicing/correct-invoice-modal.component';
+
 @NgModule({
   declarations: [
     ListInvoiceComponent,
@@ -25,6 +27,7 @@ import { StatusPillComponent } from 'src/app/shared/ui/status-pill/status-pill.c
     InvoiceResolutionComponent
   ],
   imports: [
+    CorrectInvoiceModalComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,

@@ -1,39 +1,5 @@
 <div class="history-list-container">
 
-  <!-- Panel de filtros (server-side) -->
-  <div class="dc-filters">
-    <div class="dc-filters__head">
-      <i class="fas fa-filter"></i>
-      <span>Filtros de búsqueda</span>
-    </div>
-    <div class="dc-filters__grid">
-      <div class="dc-field">
-        <label><i class="fas fa-hashtag"></i> Código interno</label>
-        <input type="number" [(ngModel)]="internalCodeFilter" placeholder="Ej: 1234" />
-      </div>
-      <div class="dc-field">
-        <label><i class="fas fa-clipboard-list"></i> Descripción del cambio</label>
-        <input type="text" [(ngModel)]="logCambioFilter" placeholder="Buscar en log de cambios..." />
-      </div>
-      <div class="dc-field">
-        <label><i class="far fa-calendar-alt"></i> Desde</label>
-        <input type="date" [(ngModel)]="fromDateFilter" />
-      </div>
-      <div class="dc-field">
-        <label><i class="far fa-calendar-alt"></i> Hasta</label>
-        <input type="date" [(ngModel)]="toDateFilter" />
-      </div>
-      <div class="dc-filters__actions">
-        <button class="dc-btn dc-btn--primary" (click)="applyFilters()" [disabled]="loading">
-          <i class="fas fa-search"></i> Buscar
-        </button>
-        <button class="dc-btn dc-btn--ghost" (click)="clear()" [disabled]="loading">
-          <i class="fas fa-eraser"></i> Limpiar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Tabla reutilizable en modo lazy (paginación backend) -->
   <app-data-table
     #dt
@@ -43,11 +9,15 @@
     rowKey="budgetHistoryId"
     title="Historial de Cotizaciones"
     [subtitle]="totalRecords + ' registros'"
-    [showSearch]="false"
+    headerIcon="fas fa-history"
+    [kpis]="kpis"
+    searchPlaceholder="Buscar por obra, cambio, estado o codigo..."
     [lazy]="true"
     [totalRecords]="totalRecords"
     [rows]="filterRequest.pageSize"
     [rowsPerPageOptions]="[10, 25, 50, 100]"
+    currentPageReportTemplate="{first} - {last} de {totalRecords} registros"
+    (searchChange)="onSearchChange($event)"
     (lazyLoad)="loadHistory($event)">
 
     <!-- Código -->

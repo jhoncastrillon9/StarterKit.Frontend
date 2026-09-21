@@ -400,7 +400,7 @@
                       formControlName="description"
                       placeholder="Describe el ítem…"
                       maxlength="500"
-                      rows="1"
+                      rows="3"
                       class="nc-input nc-input--desc"
                       [ngClass]="{
                         'is-invalid':
@@ -545,13 +545,12 @@
             </button>
             <button
               type="button"
-              class="nc-add-btn nc-add-btn--ia nc-mic-btn"
-              [class.recording]="isRecording"
-              (click)="toggleRecording()"
-              [title]="isRecording ? 'Toca para detener' : 'Agregar detalles con IA'"
+              class="nc-add-btn nc-add-btn--ia"
+              (click)="agregarDesdeIA()"
+              title="Agregar items a esta cotizacion con el asistente de IA"
             >
-              <i class="pi pi-microphone"></i>
-              <span>{{ isRecording ? 'Grabando…' : 'Agregar desde IA' }}</span>
+              <i class="pi pi-sparkles"></i>
+              <span>Agregar desde IA</span>
             </button>
           </div>
         </section>

@@ -1,0 +1,268 @@
+<div class="sc">
+
+  <!-- ===================== Listado ===================== -->
+  <ng-container *ngIf="!current">
+    <header class="sc-head">
+      <div>
+        <h1>Cronogramas de obra</h1>
+        <p class="sc-head__sub">
+          Un cronograma por obra, propuesto desde la cotización y ajustado por ti.
+        </p>
+      </div>
+      <button type="button" class="sc-btn sc-btn--primary" (click)="showCreate = true; message = ''">
+        <i class="fas fa-plus" aria-hidden="true"></i> Nuevo cronograma
+      </button>
+    </header>
+
+    <p class="sc-msg" *ngIf="message">{{ message }}</p>
+    <p class="sc-error" *ngIf="error">{{ error }}</p>
+    <p class="sc-loading" *ngIf="loading">Cargando…</p>
+
+    <ul class="sc-list" *ngIf="!loading && schedules.length">
+      <li *ngFor="let s of schedules" class="sc-card" (click)="open(s)">
+        <div class="sc-card__dates" [attr.aria-label]="'Del ' + fechaLarga(s.startDate)">
+          <span class="sc-card__day">{{ dia(s.startDate) }}</span>
+          <span class="sc-card__month">{{ mes(s.startDate) }}</span>
+        </div>
+
+        <div class="sc-card__body">
+          <span class="sc-card__name">{{ s.name }}</span>
+          <span class="sc-card__meta">
+            <i class="fas fa-user" aria-hidden="true"></i> {{ s.customerName || 'Sin cliente' }}
+          </span>
+          <span class="sc-card__meta">
+            <i class="fas fa-list-check" aria-hidden="true"></i> {{ s.tasks.length }} actividades
+            <span class="sc-dot">·</span>
+            <i class="fas fa-calendar-days" aria-hidden="true"></i> {{ s.totalDays }} días
+            <span class="sc-dot">·</span>
+            hasta el {{ fechaLarga(s.endDate) }}
+          </span>
+        </div>
+
+        <div class="sc-card__right">
+          <span class="sc-state" [ngClass]="'sc-state--' + estadoDe(s)">{{ etiquetaEstado(s) }}</span>
+          <div class="sc-card__progress" [attr.aria-label]="'Avance ' + s.progressPercent + '%'">
+            <div class="sc-card__bar"><span [style.width.%]="s.progressPercent"></span></div>
+            <span class="sc-card__pct">{{ s.progressPercent }}%</span>
+          </div>
+        </div>
+
+        <button type="button" class="sc-icon-btn" (click)="remove(s); $event.stopPropagation()" title="Eliminar">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="sc-empty" *ngIf="!loading && !schedules.length">
+      <i class="fas fa-calendar-days" aria-hidden="true"></i>
+      <h2>Todavía no hay cronogramas</h2>
+      <p>
+        Genera uno desde una cotización: la aplicación propone las actividades a partir de
+        los capítulos y tú ajustas fechas y responsables.
+      </p>
+      <button type="button" class="sc-btn sc-btn--primary" (click)="showCreate = true">Crear el primero</button>
+    </div>
+  </ng-container>
+
+  <!-- ===================== Detalle ===================== -->
+  <section class="sc-detail" *ngIf="current">
+
+    <header class="sc-detail__head">
+      <button type="button" class="sc-btn sc-btn--ghost" (click)="close()">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Volver
+      </button>
+      <span class="sc-detail__spacer"></span>
+      <button type="button" class="sc-btn" (click)="print()" [disabled]="downloading">
+        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+        {{ downloading ? 'Generando…' : 'Descargar PDF' }}
+      </button>
+      <button type="button" class="sc-btn sc-btn--primary" (click)="save()" [disabled]="saving">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        {{ saving ? 'Guardando…' : 'Guardar y volver' }}
+      </button>
+    </header>
+
+    <p class="sc-msg" *ngIf="message">{{ message }}</p>
+
+    <div class="sc-title">
+      <input class="sc-title__input" [(ngModel)]="current.name" maxlength="200" aria-label="Nombre de la obra" />
+      <p class="sc-title__meta">
+        {{ current.customerName || 'Sin cliente' }}
+        <span class="sc-dot">·</span> del {{ fechaLarga(current.startDate) }} al {{ fechaLarga(current.endDate) }}
+      </p>
+    </div>
+
+    <!-- Las cifras de un vistazo -->
+    <div class="sc-stats">
+      <div class="sc-stat">
+        <span class="sc-stat__label">Actividades</span>
+        <b class="sc-stat__value">{{ current.tasks.length }}</b>
+      </div>
+      <div class="sc-stat">
+        <span class="sc-stat__label">Duración</span>
+        <b class="sc-stat__value">{{ current.totalDays }} <small>días</small></b>
+      </div>
+      <div class="sc-stat">
+        <span class="sc-stat__label">Terminadas</span>
+        <b class="sc-stat__value">{{ terminadas() }} <small>de {{ current.tasks.length }}</small></b>
+      </div>
+      <div class="sc-stat sc-stat--accent">
+        <span class="sc-stat__label">Avance</span>
+        <b class="sc-stat__value">{{ current.progressPercent }}%</b>
+        <div class="sc-stat__bar"><span [style.width.%]="current.progressPercent"></span></div>
+      </div>
+    </div>
+
+    <!-- Línea de tiempo -->
+    <div class="sc-gantt">
+      <div class="sc-gantt__legend">
+        <span><i class="sc-chip sc-chip--pend"></i> Pendiente</span>
+        <span><i class="sc-chip sc-chip--curso"></i> En curso</span>
+        <span><i class="sc-chip sc-chip--fin"></i> Terminada</span>
+      </div>
+
+      <ng-container *ngFor="let fase of phases()">
+        <p class="sc-gantt__phase">{{ fase }}</p>
+        <div class="sc-gantt__row" *ngFor="let t of tasksOf(fase)">
+          <span class="sc-gantt__name" [title]="t.name">{{ t.name || 'Sin nombre' }}</span>
+          <div class="sc-gantt__track">
+            <span class="sc-gantt__bar"
+                  [attr.data-status]="t.status"
+                  [style.left.%]="barOffset(t)"
+                  [style.width.%]="barWidth(t)">
+              <span class="sc-gantt__fill" [style.width.%]="t.progressPercent"></span>
+            </span>
+          </div>
+          <span class="sc-gantt__dates">{{ fecha(t.startDate) }} – {{ fecha(t.endDate) }}</span>
+        </div>
+      </ng-container>
+
+      <p class="sc-gantt__empty" *ngIf="!current.tasks.length">
+        Todavía no hay actividades. Agrega la primera abajo.
+      </p>
+    </div>
+
+    <!-- ===================== Actividades ===================== -->
+    <div class="sc-tasks">
+      <div class="sc-tasks__head">
+        <h2>Actividades</h2>
+        <button type="button" class="sc-btn sc-btn--soft" (click)="addTask()">
+          <i class="fas fa-plus" aria-hidden="true"></i> Agregar actividad
+        </button>
+      </div>
+
+      <div class="sc-task" *ngFor="let t of current.tasks; let i = index"
+           [class.sc-task--done]="t.status === 'Terminada'">
+
+        <div class="sc-task__num">{{ i + 1 }}</div>
+
+        <div class="sc-task__fields">
+          <label class="sc-f sc-f--wide">
+            <span>Qué se hace</span>
+            <input [(ngModel)]="t.name" placeholder="Ej: Enchape de muros" maxlength="300" />
+          </label>
+
+          <label class="sc-f">
+            <span>Fase</span>
+            <input [(ngModel)]="t.phase" placeholder="Ej: Acabados" maxlength="200" list="fases" />
+          </label>
+
+          <label class="sc-f sc-f--sm">
+            <span>Inicio</span>
+            <input type="date" [(ngModel)]="t.startDate" />
+          </label>
+
+          <label class="sc-f sc-f--xs">
+            <span>Días</span>
+            <input type="number" min="1" [(ngModel)]="t.durationDays" />
+          </label>
+
+          <label class="sc-f">
+            <span>Responsable</span>
+            <input [(ngModel)]="t.responsible" placeholder="Quién lo hace" maxlength="150" />
+          </label>
+
+          <label class="sc-f sc-f--sm">
+            <span>Estado</span>
+            <select [(ngModel)]="t.status" (ngModelChange)="onStatusChange(t)">
+              <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+            </select>
+          </label>
+
+          <label class="sc-f sc-f--xs">
+            <span>Avance</span>
+            <div class="sc-pct">
+              <input type="number" min="0" max="100" [(ngModel)]="t.progressPercent" />
+              <span>%</span>
+            </div>
+          </label>
+        </div>
+
+        <button type="button" class="sc-icon-btn sc-task__del" (click)="removeTask(i)" title="Quitar actividad">
+          <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <datalist id="fases">
+        <option *ngFor="let f of phases()" [value]="f"></option>
+      </datalist>
+
+      <div class="sc-tasks__empty" *ngIf="!current.tasks.length">
+        <p>Sin actividades todavía.</p>
+        <button type="button" class="sc-btn sc-btn--primary" (click)="addTask()">Agregar la primera</button>
+      </div>
+    </div>
+
+    <label class="sc-notes">Observaciones
+      <textarea [(ngModel)]="current.notes" rows="2" maxlength="1000"
+                placeholder="Lo que quieras que aparezca en el PDF"></textarea>
+    </label>
+
+    <div class="sc-detail__foot">
+      <button type="button" class="sc-btn sc-btn--ghost" (click)="close()">Descartar cambios</button>
+      <button type="button" class="sc-btn sc-btn--primary" (click)="save()" [disabled]="saving">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        {{ saving ? 'Guardando…' : 'Guardar y volver' }}
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== Crear ===================== -->
+<div class="sc-backdrop" *ngIf="showCreate" (click)="showCreate = false"></div>
+<aside class="sc-modal" *ngIf="showCreate" role="dialog" aria-label="Nuevo cronograma">
+  <h2>Nuevo cronograma</h2>
+
+  <label class="sc-field">Cotización de origen
+    <select [(ngModel)]="create.budgetId">
+      <option [ngValue]="null">Sin cotización (lo armo a mano)</option>
+      <option *ngFor="let b of budgets" [ngValue]="b.budgetId">{{ b.internalCode }} — {{ b.budgetName }}</option>
+    </select>
+    <small>Si eliges una, se proponen las actividades a partir de sus capítulos.</small>
+  </label>
+
+  <label class="sc-field">Nombre
+    <input [(ngModel)]="create.name" placeholder="Se toma de la cotización si lo dejas vacío" maxlength="200" />
+  </label>
+
+  <div class="sc-row">
+    <label class="sc-field">Fecha de inicio
+      <input type="date" [(ngModel)]="create.startDate" />
+    </label>
+
+    <label class="sc-field">Duración (días)
+      <input type="number" min="1" max="720" [(ngModel)]="create.totalDays" />
+    </label>
+  </div>
+  <small class="sc-help">La duración se reparte entre las actividades según el valor de cada partida.</small>
+
+  <p class="sc-draft">
+    Lo que se genera es un <b>borrador</b>: la aplicación no sabe cuánta cuadrilla tienes
+    ni qué trabajos se pueden solapar. Ajusta lo que haga falta antes de enviarlo.
+  </p>
+
+  <div class="sc-modal__actions">
+    <button type="button" class="sc-btn sc-btn--ghost" (click)="showCreate = false">Cancelar</button>
+    <button type="button" class="sc-btn sc-btn--primary" (click)="doCreate()" [disabled]="saving">Crear</button>
+  </div>
+</aside>

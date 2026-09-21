@@ -1,3 +1,4 @@
+import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { BudgetModel } from '../models/budget.Model';
 import { SendBudgetPdfRequest } from '../models/sendBudgetRequest';
@@ -7,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { cilPencil, cilXCircle, cilZoom, cilCloudDownload, cilNoteAdd, cilMoney, cilCopy, cilContact, cibMailchimp, cibMailRu, cibMinutemailer, cilMicrophone } from '@coreui/icons';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { MessageService } from 'primeng/api';
-import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { Table, TableModule } from 'primeng/table';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { EmailSelectorModalComponent, EmailSelectionResult } from 'src/app/shared/components/email-selector-modal/email-selector-modal.component';
@@ -18,6 +18,9 @@ import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChatbotSignalRService } from 'src/app/shared/services/chatbot-signalr.service';
 import { DataTableColumn } from 'src/app/shared/ui/data-table/data-table.types';
 import { ChipOption } from 'src/app/shared/ui/filter-chips/filter-chips.component';
 import { InvoiceService } from 'src/app/modules/invoices/services/invoice.service';
@@ -204,14 +207,9 @@ export class ListBudgetComponent implements OnInit {
   };
 
 
-  // Propiedades para grabación de audio con IA
-  isRecording: boolean = false;
-  mediaRecorder: MediaRecorder | null = null;
-  audioChunks: Blob[] = [];
-  aiProcessingStatus: string = ''; // Estado del procesamiento de IA
-  isProcessingAI: boolean = false; // Indica si está procesando con IA
 
-  constructor(private budgetService: BudgetService,
+  constructor(private chatUi: ChatbotUiService,
+    private budgetService: BudgetService,
     private invoiceService: InvoiceService,
     public iconSet: IconSetService,
     private router: Router,
@@ -223,16 +221,27 @@ export class ListBudgetComponent implements OnInit {
   }
 
 
+  private readonly chatSignalR = inject(ChatbotSignalRService);
+  private readonly destroyRef = inject(DestroyRef);
+
   ngOnInit() {
     this.loadBudgets();
+
+    // Si el usuario le pide al chat que cambie o cree una cotización mientras
+    // tiene este listado delante, el dato cambia en la base y la pantalla se
+    // queda enseñando el total viejo. Lo peor no es el número desactualizado:
+    // es que el usuario cree que la orden no funcionó y la repite.
+    this.chatSignalR.dataChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(cambios => {
+        if (cambios.some(c => c.entity === 'budget')) this.loadBudgets();
+      });
     
     // Verificar si debe iniciar grabación IA automáticamente
     this.route.queryParams.subscribe(params => {
+      // Compatibilidad con enlaces antiguos ?startAI=true: abren el chat.
       if (params['startAI'] === 'true') {
-        // Esperar un poco para que el componente esté listo
-        setTimeout(() => {
-          this.toggleRecordingAI();
-        }, 500);
+        setTimeout(() => this.crearConIA(), 500);
       }
     });
   }
@@ -1162,158 +1171,12 @@ export class ListBudgetComponent implements OnInit {
     return budget ? `${budget.internalCode} - ${budget.budgetName}` : '';
   }
 
-  // Métodos para grabación de audio con IA
-  async toggleRecordingAI() {
-    if (this.isRecording) {
-      this.stopRecordingAI();
-    } else {
-      await this.startRecordingAI();
-    }
-  }
-
-  async startRecordingAI() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      // Priorizar mp4/m4a que es más compatible con el backend
-      let mimeType = 'audio/mp4';
-      if (!MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/webm;codecs=opus';
-      }
-      
-      this.mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-      });
-      
-      this.audioChunks = [];
-      
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          this.audioChunks.push(event.data);
-        }
-      };
-
-      this.mediaRecorder.onstop = () => {
-        this.processRecordingAI();
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      this.mediaRecorder.onerror = (event) => {
-        console.error('Error en grabación:', event);
-        this.isRecording = false;
-        this.isProcessingAI = false;
-        this.aiProcessingStatus = '';
-        this.handleError('Grabación', 'Error durante la grabación de audio.');
-      };
-
-      this.mediaRecorder.start();
-      this.isRecording = true;
-      this.isProcessingAI = true;
-      this.aiProcessingStatus = '🎤 Escuchando...';
-    } catch (error) {
-      console.error('Error al iniciar la grabación:', error);
-      this.isProcessingAI = false;
-      this.aiProcessingStatus = '';
-      this.handleError('Grabación', 'No se pudo acceder al micrófono. Verifica los permisos.');
-    }
-  }
-
-  stopRecordingAI() {
-    if (this.mediaRecorder && this.isRecording) {
-      this.mediaRecorder.stop();
-      this.isRecording = false;
-    }
-  }
-
-  async processRecordingAI() {
-    if (this.audioChunks.length === 0) {
-      this.isProcessingAI = false;
-      this.aiProcessingStatus = '';
-      this.handleError('Grabación', 'No se pudo grabar audio.');
-      return;
-    }
-
-    this.aiProcessingStatus = '🔄 Procesando Audio...';
-
-    // Unir los fragmentos grabados
-    const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
-
-    // Convertir a WAV PCM 16kHz, 16bit, mono
-    try {
-      const wavBlob = await convertBlobToWavPcm16kMono(audioBlob);
-      await this.sendAudioToGenerateBudget(wavBlob, 'wav');
-    } catch (error) {
-      console.error('Error al convertir audio a WAV:', error);
-      this.isProcessingAI = false;
-      this.aiProcessingStatus = '';
-      this.handleError('Conversión de Audio', 'No se pudo convertir el audio a formato WAV PCM 16kHz, 16bit, mono.');
-    }
-  }
-
-  async sendAudioToGenerateBudget(audioBlob: Blob, fileExtension: string) {
-    this.spinner.show();
-    this.loading = true;
-    
-    try {
-      const formData = new FormData();
-      formData.append('audioFile', audioBlob, `recording.${fileExtension}`);
-
-      // Paso 1: Convertir audio a texto
-      this.aiProcessingStatus = '🔊 Convirtiendo audio a texto...';
-      
-      this.budgetService.audioToText(formData).subscribe({
-        next: (audioResponse: any) => {
-          // audioResponse tiene { text: string, fileName: string }
-          const transcribedText = audioResponse?.text;
-          
-          if (!transcribedText || transcribedText.trim() === '') {
-            this.spinner.hide();
-            this.loading = false;
-            this.isProcessingAI = false;
-            this.aiProcessingStatus = '';
-            this.handleError('Audio no reconocido', 'No se pudo entender el audio. Por favor, habla más claro y fuerte e inténtalo de nuevo.');
-            return;
-          }
-
-          // Paso 2: Generar cotización con IA usando el texto transcrito
-          this.aiProcessingStatus = '🧠 Creando Cotización con IA...';
-          
-          this.budgetService.generateByAI(transcribedText).subscribe({
-            next: (budgetResponse: any) => {
-              this.spinner.hide();
-              this.loading = false;
-              this.isProcessingAI = false;
-              this.aiProcessingStatus = '';
-              this.loadBudgets(); // Recargar listado de cotizaciones
-              this.showModal(false, '¡La cotización ha sido creada exitosamente con IA!', '¡Cotización Creada!');
-            },
-            error: (error: any) => {
-              this.spinner.hide();
-              this.loading = false;
-              this.isProcessingAI = false;
-              this.aiProcessingStatus = '';
-              console.error('Error al generar cotización con IA:', error);
-              this.handleError('Error al crear cotización', 'No se pudo generar la cotización con IA. Por favor, intenta de nuevo.');
-            }
-          });
-        },
-        error: (error: any) => {
-          this.spinner.hide();
-          this.loading = false;
-          this.isProcessingAI = false;
-          this.aiProcessingStatus = '';
-          console.error('Error al convertir audio a texto:', error);
-          this.handleError('Audio no reconocido', 'No se pudo entender el audio. Por favor, habla más claro y fuerte e inténtalo de nuevo.');
-        }
-      });
-    } catch (error) {
-      this.spinner.hide();
-      this.loading = false;
-      this.isProcessingAI = false;
-      this.aiProcessingStatus = '';
-      console.error('Error al enviar audio:', error);
-      this.handleError('Envío de Audio', 'Error al enviar el audio al servidor.');
-    }
+  /** Abre el chat de IA del layout para crear la cotizacion conversando. */
+  crearConIA(): void {
+    this.chatUi.open({
+      context: { scope: 'budgets' },
+      prefill: 'Quiero crear una cotizacion nueva. '
+    });
   }
 
 }

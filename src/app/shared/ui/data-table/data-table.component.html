@@ -29,7 +29,7 @@
       [rowsPerPageOptions]="rowsPerPageOptions()" [globalFilterFields]="globalFilterFields()"
       [sortField]="sortField()" [sortOrder]="sortOrder()" [rowHover]="true"
       [dataKey]="rowKey()" [lazy]="lazy()" [totalRecords]="totalRecords()"
-      (onPage)="onPage($event)" (firstChange)="first.set($event)"
+      (onPage)="onPage($event)" (firstChange)="first.set($event)" (onSort)="onSortChange($event)"
       [currentPageReportTemplate]="currentPageReportTemplate()"
       styleClass="dc-datatable" [tableStyle]="{ 'min-width': '60rem' }">
 

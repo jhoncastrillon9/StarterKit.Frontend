@@ -1,0 +1,110 @@
+/* Modal de aviso y confirmación. Lo usan 18 pantallas, así que los estilos van
+   aquí y no en línea: antes el tamaño de título (2.5rem) y los colores estaban
+   incrustados en el HTML y no había forma de ajustarlos sin tocar la plantilla. */
+
+.rm-content {
+  position: relative;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(31, 27, 46, .18);
+  overflow: hidden;
+}
+
+.rm-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #9a93ad;
+  font-size: 15px;
+  cursor: pointer;
+
+  &:hover { background: #f3f1f8; color: #1f1b2e; }
+  &:focus-visible { outline: 2px solid rgba(109, 40, 217, .5); outline-offset: 1px; }
+}
+
+.rm-body {
+  padding: 34px 30px 8px;
+  text-align: center;
+}
+
+.rm-icon {
+  font-size: 46px;
+  line-height: 1;
+  margin-bottom: 14px;
+
+  &--ok    { color: #15703f; }
+  &--error { color: #dc2626; }
+  &--ask   { color: #b45309; }
+}
+
+.rm-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #1f1b2e;
+  text-wrap: balance;
+
+  &--error { color: #b91c1c; }
+}
+
+.rm-message {
+  margin: 0 auto;
+  max-width: 46ch;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #56506b;
+}
+
+.rm-footer {
+  justify-content: center;
+  gap: 10px;
+  border-top: none;
+  padding: 18px 30px 26px;
+}
+
+.rm-btn {
+  min-width: 118px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid rgba(109, 40, 217, .55); outline-offset: 2px; }
+
+  &--primary {
+    background: #6d28d9;
+    color: #fff;
+    &:hover { background: #5b21b6; }
+  }
+
+  &--ghost {
+    background: #fff;
+    color: #56506b;
+    border-color: #e5e2ee;
+    &:hover { background: #f7f6fb; }
+  }
+
+  &--danger {
+    background: #dc2626;
+    color: #fff;
+    &:hover { background: #b91c1c; }
+  }
+}
+
+@media (max-width: 420px) {
+  .rm-body { padding: 28px 20px 8px; }
+  .rm-footer { padding: 16px 20px 22px; flex-direction: column-reverse; }
+  .rm-btn { width: 100%; }
+}

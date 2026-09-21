@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { ChatbotUiService } from 'src/app/shared/services/chatbot-ui.service';
+import { Component, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetService } from '../services/budget.service';
@@ -14,7 +15,6 @@ import { ProductService } from '../../products/services/product.service';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
 import { color } from 'html2canvas/dist/types/css/types/color';
 import Fuse from 'fuse.js';
-import { convertBlobToWavPcm16kMono } from 'src/app/shared/audio-utils';
 import { BUDGET_ESTADOS } from '../../../shared/constants';
 import { STATUS_COLORS } from 'src/app/shared/ui/status-pill/status-pill.component';
 import * as _ from 'lodash';
@@ -26,7 +26,7 @@ import * as _ from 'lodash';
   styleUrls: ['./add-update-budget.component.scss']
 })
 
-export class AddUpdateBudgetComponent implements OnInit {
+export class AddUpdateBudgetComponent implements OnInit, OnDestroy {
   @ViewChild('confirmationModal') confirmationModal!: ConfirmationModalComponent;
   isModalError: boolean = false;
   private readonly errorTitle: string = "¡Ups! ocurrió un error.";
@@ -94,9 +94,6 @@ export class AddUpdateBudgetComponent implements OnInit {
   }
 
   // Propiedades para grabación de audio
-  isRecording: boolean = false;
-  mediaRecorder: MediaRecorder | null = null;
-  audioChunks: Blob[] = [];
 
   equivalencias: { [key: string]: string[] } = {
     adobe: ['muro', 'ladrillo', 'bloque'],
@@ -130,6 +127,7 @@ export class AddUpdateBudgetComponent implements OnInit {
   clienteSearch = '';
 
   constructor(
+    private chatUi: ChatbotUiService,
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
@@ -173,6 +171,17 @@ export class AddUpdateBudgetComponent implements OnInit {
         this.budgetService.getById(this.budgetId).subscribe((budget: any) => {
           this.internalCode = budget.internalCode;
           this.budgetForm.patchValue(budget);
+
+          // El chat pasa a saber en que cotizacion esta el usuario aunque no haya
+          // pulsado "Agregar desde IA": antes solo se enteraba al abrirlo desde el
+          // boton, asi que si el usuario cambiaba de cotizacion y volvia al chat,
+          // el agente seguia pensando en la anterior.
+          this.chatUi.setContext({
+            scope: 'budget',
+            budgetId: Number(this.budgetId),
+            internalCode: Number(budget.internalCode),
+            label: budget.budgetName || undefined,
+          });
 
           // Agrega el código aquí para cargar los detalles del presupuesto
           if (budget && budget.budgetDetailsDto) {
@@ -762,130 +771,29 @@ export class AddUpdateBudgetComponent implements OnInit {
     // Implementación del método showNotify si es necesario
   }
 
-  // Métodos para grabación de audio
-  async toggleRecording() {
-    if (this.isRecording) {
-      this.stopRecording();
-    } else {
-      await this.startRecording();
-    }
+  ngOnDestroy(): void {
+    // Al salir de la cotizacion, el chat deja de estar en su contexto: si no, el
+    // agente seguiria agregandole items desde cualquier otra pantalla.
+    this.chatUi.clearContext();
   }
 
-  async startRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      // Priorizar mp4/m4a que es más compatible con el backend
-      let mimeType = 'audio/mp4';
-      if (!MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/webm;codecs=opus';
-      }
-      
-      this.mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-      });
-      
-      this.audioChunks = [];
-      
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          this.audioChunks.push(event.data);
-        }
-      };
-
-      this.mediaRecorder.onstop = () => {
-        this.processRecording();
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      this.mediaRecorder.onerror = (event) => {
-        console.error('Error en grabación:', event);
-        this.isRecording = false;
-        this.handleError('Grabación', 'Error durante la grabación de audio.');
-      };
-
-      this.mediaRecorder.start();
-      this.isRecording = true;
-    } catch (error) {
-      console.error('Error al iniciar la grabación:', error);
-      this.handleError('Grabación', 'No se pudo acceder al micrófono. Verifica los permisos.');
-    }
-  }
-
-  stopRecording() {
-    if (this.mediaRecorder && this.isRecording) {
-      this.mediaRecorder.stop();
-      this.isRecording = false;
-    }
-  }
-
-  async processRecording() {
-    if (this.audioChunks.length === 0) {
-      this.handleError('Grabación', 'No se pudo grabar audio.');
-      return;
-    }
-
-    // Unir los fragmentos grabados
-    const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
-
-    // Convertir a WAV PCM 16kHz, 16bit, mono
-    try {
-      const wavBlob = await convertBlobToWavPcm16kMono(audioBlob);
-      await this.sendAudioToBackend(wavBlob, 'wav');
-    } catch (error) {
-      console.error('Error al convertir audio a WAV:', error);
-      this.handleError('Conversión de Audio', 'No se pudo convertir el audio a formato WAV PCM 16kHz, 16bit, mono.');
-    }
-  }
-
-  async sendAudioToBackend(audioBlob: Blob, fileExtension: string) {
-    this.spinner.show();
-    
-    try {
-      const formData = new FormData();
-      formData.append('audioFile', audioBlob, `recording.${fileExtension}`);
-
-      // Llamar al servicio para enviar el audio
-      this.budgetService.sendAudioToDetails(formData).subscribe({
-        next: (response: any) => {
-          this.spinner.hide();
-          this.addDetailsFromAudio(response);
-          this.showModalDefault(false, 'Detalles agregados correctamente desde el audio.', 'Éxito');
-        },
-        error: (error: any) => {
-          this.spinner.hide();
-          console.error('Error al procesar audio:', error);
-          this.handleError('Procesamiento de Audio', 'No se pudo procesar el audio. Intenta de nuevo.');
-        }
-      });
-    } catch (error) {
-      this.spinner.hide();
-      console.error('Error al enviar audio:', error);
-      this.handleError('Envío de Audio', 'Error al enviar el audio al servidor.');
-    }
-  }
-
-  addDetailsFromAudio(details: any[]) {
-    if (!details || details.length === 0) {
-      return;
-    }
-
-    details.forEach(detail => {
-      const budgetDetailGroup = this.fb.group({
-        budgetDetailId: [detail.budgetDetailId || 0],
-        budgetId: [detail.budgetId || 0],
-        description: [detail.description || '', [Validators.required]],
-        unitMeasurement: [detail.unitMeasurement || 'Und'],
-        quantity: [detail.quantity || 0, [Validators.required, Validators.pattern(/^\d+$/)]],
-        price: [detail.price || 0, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-        subtotal: [detail.total || 0],
-        isTitle: [false],
-      });
-      
-      this.budgetDetails.push(budgetDetailGroup);
+  /**
+   * Abre el chat de IA ya existente pasandole la cotizacion en curso, para que
+   * el agente agregue ITEMS a esta cotizacion (no productos al catalogo).
+   */
+  agregarDesdeIA(): void {
+    const id = this.budgetId ? Number(this.budgetId) : undefined;
+    this.chatUi.open({
+      context: {
+        scope: 'budget',
+        budgetId: Number.isFinite(id) ? id : undefined,
+        internalCode: this.internalCode ? Number(this.internalCode) : undefined,
+        label: this.budgetForm.get('budgetName')?.value || undefined
+      },
+      prefill: id
+        ? 'Agrega estos items a la cotizacion: '
+        : 'Quiero preparar los items de esta cotizacion: '
     });
-
-    this.updateAmount();
   }
 
   // Métodos para drag and drop

@@ -1,0 +1,99 @@
+<div class="ms">
+
+  <p class="ms-loading" *ngIf="loading">Cargando…</p>
+  <p class="ms-error" *ngIf="error">{{ error }}</p>
+
+  <ng-container *ngIf="!loading && data">
+
+    <!-- El titular es la conclusión, no el dato: lo que preocupa es hasta cuándo se puede trabajar -->
+    <section class="ms-hero" [attr.data-tone]="tone">
+      <h1>{{ headline }}</h1>
+      <p class="ms-hero__sub" *ngIf="sub">
+        {{ sub.planName }} · {{ cop(sub.amountCop) }} cada {{ sub.billingMonths === 1 ? 'mes' : sub.billingMonths + ' meses' }}
+        · válido hasta el {{ fecha(sub.endDate) }}
+      </p>
+    </section>
+
+    <section class="ms-card" *ngIf="data.paymentInstructions">
+      <h2>Cómo pagar</h2>
+      <p class="ms-card__lead">
+        El pago se hace por transferencia. En cuanto nos llegue el comprobante, activamos tu cuenta.
+      </p>
+
+      <dl class="ms-bank">
+        <div *ngIf="data.paymentInstructions.bankName">
+          <dt>Banco</dt><dd>{{ data.paymentInstructions.bankName }}</dd>
+        </div>
+        <div *ngIf="data.paymentInstructions.accountType">
+          <dt>Tipo de cuenta</dt><dd>{{ data.paymentInstructions.accountType }}</dd>
+        </div>
+        <div *ngIf="data.paymentInstructions.accountNumber">
+          <dt>Número de cuenta</dt>
+          <dd class="ms-bank__copy">
+            <span class="ms-mono">{{ data.paymentInstructions.accountNumber }}</span>
+            <button type="button" (click)="copy(data.paymentInstructions.accountNumber, 'cuenta')">Copiar</button>
+          </dd>
+        </div>
+        <div *ngIf="data.paymentInstructions.accountHolder">
+          <dt>A nombre de</dt><dd>{{ data.paymentInstructions.accountHolder }}</dd>
+        </div>
+        <div *ngIf="data.paymentInstructions.holderDocument">
+          <dt>NIT / CC</dt><dd class="ms-mono">{{ data.paymentInstructions.holderDocument }}</dd>
+        </div>
+        <div>
+          <dt>Valor a transferir</dt>
+          <dd class="ms-mono">{{ cop(sub?.amountCop) }}</dd>
+        </div>
+      </dl>
+
+      <p class="ms-copied" *ngIf="copied">Copiado el número de {{ copied }}.</p>
+
+      <p class="ms-card__note" *ngIf="data.paymentInstructions.notes">
+        {{ data.paymentInstructions.notes }}
+      </p>
+
+      <div class="ms-contact">
+        <a *ngIf="data.paymentInstructions.contactWhatsapp"
+           [href]="'https://wa.me/' + data.paymentInstructions.contactWhatsapp"
+           target="_blank" rel="noopener" class="ms-btn ms-btn--primary">
+          Enviar comprobante por WhatsApp
+        </a>
+        <a *ngIf="data.paymentInstructions.contactEmail"
+           [href]="'mailto:' + data.paymentInstructions.contactEmail"
+           class="ms-btn">Escribir a soporte</a>
+      </div>
+
+      <p class="ms-card__missing"
+         *ngIf="!data.paymentInstructions.accountNumber && !data.paymentInstructions.contactWhatsapp">
+        Todavía no hay una cuenta configurada para recibir pagos. Escríbenos y te indicamos cómo pagar.
+      </p>
+    </section>
+
+    <section class="ms-card" *ngIf="data.payments.length">
+      <h2>Tus pagos</h2>
+      <table class="ms-table">
+        <thead>
+          <tr><th>Fecha</th><th class="ms-num">Valor</th><th>Método</th><th>Referencia</th><th class="ms-num">Meses</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of data.payments">
+            <td>{{ fecha(p.paidAt) }}</td>
+            <td class="ms-num">{{ cop(p.amountCop) }}</td>
+            <td>{{ p.method }}</td>
+            <td>{{ p.reference || '—' }}</td>
+            <td class="ms-num">{{ p.coversMonths }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="ms-total">Total pagado: <b>{{ cop(sub?.totalPaidCop) }}</b></p>
+    </section>
+
+    <section class="ms-card" *ngIf="!data.payments.length">
+      <h2>Tus pagos</h2>
+      <p class="ms-card__lead">
+        Todavía no hay pagos registrados. Cuando hagas el primero y nos mandes el comprobante,
+        aparecerá aquí.
+      </p>
+    </section>
+  </ng-container>
+</div>

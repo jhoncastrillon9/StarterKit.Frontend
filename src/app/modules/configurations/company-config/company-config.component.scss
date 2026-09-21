@@ -420,3 +420,91 @@ $transition: all 0.3s ease;
     padding: 1rem;
   }
 }
+
+/* La vista previa cambia al elegir el archivo, antes de guardar: hay que dejar
+   claro que todavia no esta persistido y ofrecer marcha atras. */
+.logo-preview { position: relative; }
+
+.logo-pending-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.logo-pending {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+
+  &__text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #4b5563;
+    word-break: break-all;
+  }
+
+  &__undo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #b91c1c;
+    cursor: pointer;
+
+    &:hover { background: #fef2f2; border-color: #fecaca; }
+  }
+}
+
+/* Aviso de por que existen los datos tributarios: no hacen falta para cotizar. */
+.section-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f3f0ff;
+  border: 1px solid #ddd6fe;
+  color: #5b21b6;
+  font-size: 13px;
+  line-height: 1.45;
+
+  i { margin-top: 2px; }
+}
+
+/* El NIT y su dígito de verificación son el mismo número: en el RUT se escribe
+   900123456-7. Van juntos, con el DV estrecho porque es un solo dígito. */
+.doc-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+
+  &__main { flex: 1; min-width: 0; }
+  &__dv   { flex: 0 0 70px; }
+}
+
+/* El desplegable de país se abría por debajo del pie de página. El problema no
+   era el z-index del desplegable: era que su contenedor recortaba lo que se
+   sale. */
+.form-group-modern { overflow: visible; }
+
+app-reference-select .ref-select__panel {
+  z-index: 1060;
+}

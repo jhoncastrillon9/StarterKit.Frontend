@@ -426,3 +426,20 @@ $transition: all 0.3s ease;
     padding: 1rem;
   }
 }
+/* Aviso de por que existe la seccion tributaria: el usuario no tiene por que
+   saber que estos campos son para la DIAN y no para cotizar. */
+.section-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f3f0ff;
+  border: 1px solid #ddd6fe;
+  color: #5b21b6;
+  font-size: 13px;
+  line-height: 1.45;
+
+  i { margin-top: 2px; }
+}

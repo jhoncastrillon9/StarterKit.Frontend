@@ -18,6 +18,15 @@ $muted: #7c7691;
   &:hover { background: $primary-dark; color: #fff; }
 }
 
+/* Boton de IA: secundario frente a "Nuevo Producto", que sigue siendo la accion principal. */
+.btn-ai {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 16px; border-radius: 10px;
+  background: #f3f0ff; color: #5b21b6; font-weight: 800; font-size: 13px;
+  border: 1px solid #ddd6fe; cursor: pointer; transition: background .15s ease;
+  &:hover { background: #ede9fe; }
+}
+
 .code-value { font-family: 'Nunito', system-ui, sans-serif; font-weight: 800; color: $primary; font-variant-numeric: tabular-nums; }
 .product-name { font-weight: 700; color: #1f1b2e; }
 .product-description { color: #6f6987; font-size: 13px; }

@@ -207,6 +207,60 @@
     </div>
 
     <!-- Botones de acción -->
+    <app-form-section
+      title="Datos para facturación"
+      why="Hace falta para emitir facturas electrónicas. La unidad estándar se deduce sola de la unidad de medida."
+      icon="fa-file-invoice-dollar"
+      [optional]="true"
+      [collapsible]="true"
+      [(open)]="showTax">
+      <div class="card-body-custom">
+        <div class="row g-4">
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="taxRate" class="label-modern"><i class="fas fa-percent"></i> Tarifa de IVA</label>
+              <select cFormControl cSelect formControlName="taxRate" class="input-modern select-modern">
+                <option [ngValue]="null">Usar la del documento</option>
+                <option [ngValue]="0">0 %</option>
+                <option [ngValue]="5">5 %</option>
+                <option [ngValue]="19">19 %</option>
+              </select>
+            </div>
+          </c-col>
+
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel class="label-modern"><i class="fas fa-ban"></i> Excluido o exento de IVA</label>
+              <div class="check-row">
+                <input type="checkbox" id="isTaxExempt" formControlName="isTaxExempt" />
+                <label for="isTaxExempt">Este producto no causa IVA</label>
+              </div>
+            </div>
+          </c-col>
+
+          <c-col xs="12" sm="6" md="4">
+            <div class="form-group-modern">
+              <label cLabel for="standardItemSchemeId" class="label-modern"><i class="fas fa-barcode"></i> Estándar del código</label>
+              <select cFormControl cSelect formControlName="standardItemSchemeId" class="input-modern select-modern">
+                <option value="">Sin especificar</option>
+                <option value="001">UNSPSC</option>
+                <option value="010">GTIN</option>
+                <option value="999">Estándar propio</option>
+              </select>
+            </div>
+          </c-col>
+
+          <c-col xs="12" sm="6" md="6">
+            <div class="form-group-modern">
+              <label cLabel for="standardItemCode" class="label-modern"><i class="fas fa-hashtag"></i> Código estándar del artículo</label>
+              <input cFormControl formControlName="standardItemCode" class="input-modern"
+                     placeholder="Código en el estándar elegido" maxlength="50" />
+            </div>
+          </c-col>
+        </div>
+      </div>
+    </app-form-section>
+
     <div class="form-actions">
       <a
         class="btn-modern btn-back"

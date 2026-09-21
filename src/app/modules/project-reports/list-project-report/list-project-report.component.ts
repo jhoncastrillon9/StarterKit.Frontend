@@ -34,6 +34,15 @@ import { DataTableColumnDirective } from 'src/app/shared/ui/data-table/data-tabl
 import { ClientAvatarComponent } from 'src/app/shared/ui/client-avatar/client-avatar.component';
 import { DataTableColumn, KpiDef } from 'src/app/shared/ui/data-table/data-table.types';
 
+/** Una obra con todos sus informes, ordenados del mas reciente al mas antiguo. */
+interface ObraConInformes {
+  budgetId: number;
+  budgetInternalCode: number;
+  obra: string;
+  cliente: string;
+  informes: ProjectReportModel[];
+}
+
 @Component({
   selector: 'app-list-project-report',
   standalone: true,
@@ -55,18 +64,115 @@ export class ListProjectReportComponent {
     loading: boolean = true;
     projectReports: ProjectReportModel[] = [];
 
+    /**
+     * Vista activa. 'obras' agrupa los informes por la obra a la que pertenecen,
+     * que es como piensa un constructor; 'listado' conserva la tabla de siempre
+     * para quien busque un registro concreto.
+     */
+    viewMode: 'obras' | 'listado' = 'obras';
+
+    /** Texto del buscador de la vista por obra. */
+    obrasSearch = '';
+
+    setViewMode(mode: 'obras' | 'listado'): void {
+      this.viewMode = mode;
+    }
+
+    /**
+     * Informes agrupados por obra y ordenados por el mas reciente. Se recalcula
+     * solo al cambiar los datos o la busqueda, no en cada ciclo de deteccion.
+     */
+    obras: ObraConInformes[] = [];
+
+    private recalcObras(): void {
+      const term = this.obrasSearch.trim().toLowerCase();
+
+      const visibles = term
+        ? this.projectReports.filter(r =>
+            [r.projectReportName, r.budgetDTO?.budgetName, r.customerDto?.customerName,
+             String(r.budgetInternalCode), r.note]
+              .some(v => (v || '').toString().toLowerCase().includes(term)))
+        : this.projectReports;
+
+      const porObra = new Map<number, ObraConInformes>();
+
+      for (const r of visibles) {
+        const key = r.budgetId || 0;
+        let grupo = porObra.get(key);
+        if (!grupo) {
+          grupo = {
+            budgetId: key,
+            budgetInternalCode: r.budgetInternalCode,
+            obra: r.budgetDTO?.budgetName || 'Sin obra asociada',
+            cliente: r.customerDto?.customerName || 'Sin cliente',
+            informes: [],
+          };
+          porObra.set(key, grupo);
+        }
+        grupo.informes.push(r);
+      }
+
+      for (const g of porObra.values()) {
+        g.informes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      }
+
+      this.obras = [...porObra.values()].sort((a, b) =>
+        new Date(b.informes[0]?.date ?? 0).getTime() - new Date(a.informes[0]?.date ?? 0).getTime());
+    }
+
+    onObrasSearch(value: string): void {
+      this.obrasSearch = value;
+      this.recalcObras();
+    }
+
+    /**
+     * Nombre del informe sin el codigo de cotizacion que suelen llevar delante
+     * ("555 - La casita"): ese codigo ya esta en la cabecera del grupo, asi que
+     * repetirlo en cada fila solo mete ruido. Si al quitarlo no queda nada util,
+     * se deja el nombre tal cual.
+     */
+    nombreInforme(report: ProjectReportModel, obra: ObraConInformes): string {
+      const nombre = (report.projectReportName || '').trim();
+      const codigo = String(obra.budgetInternalCode ?? '');
+      if (!codigo) return nombre;
+
+      const sinCodigo = nombre.replace(new RegExp('^' + codigo + '\s*[-–]\s*'), '').trim();
+      return sinCodigo.length > 0 ? sinCodigo : nombre;
+    }
+
+    /** Hasta tres fotos del informe, que es lo que se ve en la tira. */
+    fotos(report: ProjectReportModel): string[] {
+      return (report.projectReportDetailsDTO || [])
+        .map(d => d.urlImage)
+        .filter((u): u is string => !!u)
+        .slice(0, 3);
+    }
+
+    /** Fotos que no caben en la tira; 0 si caben todas. */
+    fotosRestantes(report: ProjectReportModel): number {
+      const total = (report.projectReportDetailsDTO || []).filter(d => !!d.urlImage).length;
+      return Math.max(0, total - 3);
+    }
+
     tableColumns: DataTableColumn[] = [
-      { field: 'projectReportId', header: 'Cod', sortable: true, width: '90px' },
-      { field: 'date', header: 'Fecha', sortable: true, width: '130px' },
-      { field: 'projectReportName', header: 'Nombre', sortable: true },
-      { field: 'budgetInternalCode', header: 'Cod Cotización', sortable: true, width: '150px' },
-      { field: 'budgetDTO.budgetName', header: 'Cotización', sortable: true },
-      { field: 'customerDto.customerName', header: 'Cliente', sortable: true },
+      { field: 'projectReportId', header: 'Cod', sortable: true, width: '90px', filter: { type: 'text', placeholder: 'Codigo' } },
+      { field: 'date', header: 'Fecha', sortable: true, width: '130px', filter: { type: 'dateRange' } },
+      { field: 'projectReportName', header: 'Nombre', sortable: true, filter: { type: 'text', placeholder: 'Nombre' } },
+      { field: 'budgetInternalCode', header: 'Cod Cotización', sortable: true, width: '150px', filter: { type: 'text', placeholder: 'Cotizacion' } },
+      { field: 'budgetDTO.budgetName', header: 'Cotización', sortable: true, filter: { type: 'text', placeholder: 'Obra' } },
+      { field: 'customerDto.customerName', header: 'Cliente', sortable: true, filter: { type: 'text', placeholder: 'Cliente' } },
       { field: 'acciones', header: 'Acciones', align: 'right', width: '180px' },
     ];
 
     get kpis(): KpiDef[] {
-      return [{ key: 'total', label: 'Total informes', value: this.projectReports.length, dotColor: '#6d28d9' }];
+      const obras = new Set(this.projectReports.map(r => r.budgetId)).size;
+      const fotos = this.projectReports.reduce(
+        (acc, r) => acc + (r.projectReportDetailsDTO || []).filter(d => !!d.urlImage).length, 0);
+      return [
+        { key: 'total', label: 'Informes', value: this.projectReports.length, dotColor: '#6d28d9' },
+        { key: 'obras', label: 'Obras', value: obras, dotColor: '#1d4ed8' },
+        { key: 'fotos', label: 'Fotos', value: fotos, dotColor: '#15703f' },
+      ];
     }
 
       public projectReportToDelete: ProjectReportModel | null = null;
@@ -110,6 +216,7 @@ export class ListProjectReportComponent {
 
       this.projectReportService.get().subscribe(projectReports => {
         this.projectReports = projectReports;
+        this.recalcObras();
         this.spinner.hide();
         this.loading = false;
       },(error)=>{

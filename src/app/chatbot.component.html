@@ -45,6 +45,15 @@
     </div>
   </div>
 
+  <!-- Contexto de trabajo: le dice al usuario sobre que esta operando el agente -->
+  <div class="context-banner" *ngIf="contextLabel">
+    <i class="pi pi-bookmark-fill"></i>
+    <span class="context-text">{{ contextLabel }}</span>
+    <button class="context-clear" (click)="clearContext()" title="Quitar contexto" aria-label="Quitar contexto">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
   <!-- Connection banner -->
   <div class="connection-banner" *ngIf="connectionStatus === 'disconnected' || connectionStatus === 'reconnecting'">
     <span *ngIf="connectionStatus === 'reconnecting'">
@@ -189,22 +198,43 @@
               title="Adjuntar archivo">
         <i class="pi pi-paperclip"></i>
       </button>
+      <button class="mic-btn"
+              *ngIf="micSupported"
+              (click)="toggleMic()"
+              [class.listening]="micState === 'listening'"
+              [class.processing]="micState === 'processing'"
+              [disabled]="micState === 'processing' || isBotTyping"
+              [attr.aria-label]="micTitle"
+              [attr.aria-pressed]="micState === 'listening'"
+              [title]="micTitle">
+        <i class="pi pi-spin pi-spinner" *ngIf="micState === 'processing'"></i>
+        <i class="pi pi-stop-circle" *ngIf="micState === 'listening'"></i>
+        <i class="pi pi-microphone" *ngIf="micState !== 'listening' && micState !== 'processing'"></i>
+      </button>
       <input
         type="text"
         [(ngModel)]="message"
         (keyup.enter)="sendMessage()"
-        placeholder="Escribe un mensaje..."
+        [placeholder]="inputPlaceholder"
         [disabled]="isBotTyping"
         #messageInput />
       <button
         class="send-btn"
         (click)="sendMessage()"
         [disabled]="!canSend"
-        [class.active]="canSend">
-        <i class="pi pi-send"></i>
+        [class.active]="canSend"
+        [attr.aria-label]="'Enviar mensaje'"
+        title="Enviar mensaje">
+        <i class="pi pi-arrow-right"></i>
       </button>
     </div>
-    <span class="powered-by">Powered by AI</span>
+
+    <div class="mic-feedback" *ngIf="micHint" [class.error]="micState === 'error' || micState === 'denied'">
+      <i class="pi pi-info-circle"></i>
+      <span>{{ micHint }}</span>
+    </div>
+
+    <span class="powered-by">Tu asistente experto en construccion</span>
   </div>
 </div>
 

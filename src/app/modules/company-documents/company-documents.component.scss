@@ -1,0 +1,195 @@
+/* Documentos de la empresa. La selección es el centro de la pantalla: todo lo
+   demás existe para poder elegir bien qué se manda. Paleta de la aplicación. */
+
+$cd-ink: #1f1b2e;
+$cd-muted: #6f6987;
+$cd-line: #ece9f3;
+$cd-primary: #6d28d9;
+$cd-warn: #b45309;
+$cd-bad: #b91c1c;
+
+.cd { padding-block: 4px 40px; color: $cd-ink; }
+
+.cd-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 18px;
+
+  h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
+  &__sub { margin: 4px 0 0; font-size: 13.5px; color: $cd-muted; max-width: 62ch; }
+  &__actions { display: flex; flex-wrap: wrap; gap: 9px; }
+}
+
+.cd-msg, .cd-error, .cd-loading {
+  margin: 0 0 14px; padding: 10px 14px; border-radius: 10px; font-size: 13.5px;
+}
+.cd-msg { background: #f3f0ff; color: #5b21b6; }
+.cd-error { background: #fef2f2; color: $cd-bad; }
+.cd-loading { padding: 0; color: $cd-muted; }
+
+/* Barra de selección: solo aparece cuando hay algo marcado */
+.cd-selbar {
+  position: sticky; top: 0; z-index: 3;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  padding: 11px 15px; margin-bottom: 12px;
+  background: #f3f0ff; border: 1px solid #ddd6fe; border-radius: 11px;
+  font-size: 13.5px; color: #5b21b6;
+
+  b { font-weight: 800; }
+  &__spacer { flex: 1 1 auto; }
+}
+
+/* --- Lista --- */
+.cd-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+.cd-item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 15px;
+  background: #fff; border: 1px solid $cd-line; border-radius: 12px;
+
+  &--selected { border-color: #c4b5fd; background: #fcfbff; }
+  &--expired  { border-color: #fecaca; }
+
+  &__check input { width: 17px; height: 17px; accent-color: $cd-primary; cursor: pointer; }
+  &__icon { font-size: 20px; color: $cd-muted; width: 22px; text-align: center; }
+
+  &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  &__name { font-weight: 700; font-size: 14px; }
+  &__meta { font-size: 12.5px; color: $cd-muted; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  &__desc { font-size: 12.5px; color: $cd-muted; }
+
+  &__actions { display: flex; gap: 5px; flex-shrink: 0; }
+}
+
+.cd-tag {
+  padding: 2px 8px; border-radius: 999px;
+  background: #f3f1f8; color: $cd-muted; font-size: 11.5px; font-weight: 700;
+}
+
+.cd-expiry {
+  flex-shrink: 0; font-size: 12.5px; color: $cd-muted;
+  &--warn { color: $cd-warn; font-weight: 700; }
+  &--bad  { color: $cd-bad;  font-weight: 700; }
+}
+
+.cd-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid $cd-line; background: #fff; color: $cd-muted;
+  cursor: pointer; text-decoration: none; font-size: 13px;
+
+  &:hover { background: #f7f6fb; color: $cd-ink; }
+  &--danger:hover { background: #fef2f2; color: $cd-bad; border-color: #fecaca; }
+}
+
+/* --- Botones --- */
+.cd-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 16px;
+  border: 1px solid $cd-line; border-radius: 10px;
+  background: #fff; color: $cd-ink;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+
+  &:hover { background: #f7f6fb; }
+  &:disabled { opacity: .55; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid rgba(109,40,217,.5); outline-offset: 2px; }
+
+  &--primary { background: $cd-primary; color: #fff; border-color: transparent;
+               &:hover { background: #5b21b6; } }
+  &--ghost { color: $cd-muted; &:hover { color: $cd-ink; } }
+}
+
+/* --- Vacío --- */
+.cd-empty {
+  text-align: center; padding: 54px 20px;
+  background: #fff; border: 1px solid $cd-line; border-radius: 14px;
+
+  i { font-size: 34px; color: #cdc6e0; }
+  h2 { margin: 14px 0 6px; font-size: 16px; font-weight: 800; }
+  p { margin: 0 auto 18px; max-width: 48ch; font-size: 13.5px; color: $cd-muted; line-height: 1.55; }
+}
+
+/* --- Historial --- */
+.cd-history {
+  margin-top: 26px; padding: 20px 22px;
+  background: #fff; border: 1px solid $cd-line; border-radius: 14px;
+
+  h2 { margin: 0 0 12px; font-size: 15px; font-weight: 800; }
+  &__empty { margin: 0; font-size: 13.5px; color: $cd-muted; }
+
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  li { display: flex; gap: 14px; padding-bottom: 9px; border-bottom: 1px solid #f5f3fa;
+       &:last-child { border-bottom: none; padding-bottom: 0; } }
+
+  &__date { flex-shrink: 0; font-size: 12.5px; color: $cd-muted; font-variant-numeric: tabular-nums; }
+  &__to { display: block; font-size: 13.5px; font-weight: 700; }
+  &__docs { display: block; font-size: 12.5px; color: $cd-muted; }
+}
+
+/* --- Modal --- */
+.cd-backdrop { position: fixed; inset: 0; background: rgba(31,27,46,.34); z-index: 1040; }
+
+.cd-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 1050; width: min(460px, calc(100% - 32px));
+  max-height: calc(100vh - 48px); overflow-y: auto;
+  padding: 24px 26px 22px;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 20px 52px rgba(31,27,46,.22);
+
+  h2 { margin: 0 0 16px; font-size: 17px; font-weight: 800; }
+  &__lead { margin: 0 0 8px; font-size: 13.5px; color: $cd-muted; }
+  &__actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+}
+
+.cd-field {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-bottom: 14px; font-size: 12.5px; color: $cd-muted;
+
+  input, select {
+    height: 40px; padding: 0 12px;
+    border: 1px solid #e5e2ee; border-radius: 9px; background: #fff;
+    font-size: 14px; color: $cd-ink; font-family: inherit;
+
+    &:focus-visible { outline: 2px solid rgba(109,40,217,.45); outline-offset: 1px; border-color: $cd-primary; }
+  }
+  input[type="file"] { height: auto; padding: 9px 12px; }
+  small { color: $cd-muted; font-size: 11.5px; }
+}
+
+.cd-chosen {
+  list-style: none; margin: 0 0 14px; padding: 11px 13px;
+  background: #faf9fc; border: 1px solid $cd-line; border-radius: 10px;
+  display: grid; gap: 6px;
+
+  li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+  i { color: $cd-muted; }
+}
+
+.cd-warn {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin: 0 0 14px; padding: 10px 13px;
+  background: #fffbf5; border: 1px solid #fed7aa; border-radius: 10px;
+  color: $cd-warn; font-size: 13px; line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .cd-head { align-items: flex-start; }
+  .cd-item { flex-wrap: wrap; }
+  .cd-item__body { flex-basis: 100%; order: 3; }
+  .cd-expiry { order: 4; }
+}
+
+/* Confirmación antes de mandar. Estos papeles llevan datos de la empresa y una
+   vez enviados no se pueden recoger. */
+.cd-modal--confirm h2 { margin-bottom: 14px; }
+
+.cd-confirm__label {
+  margin: 14px 0 6px;
+  font-size: 11.5px; font-weight: 700; color: #6f6987;
+  &:first-of-type { margin-top: 4px; }
+}
+
+.cd-field--required input {
+  border-color: #fed7aa;
+  background: #fffbf5;
+}

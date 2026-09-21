@@ -6,6 +6,11 @@ import { BudgetTemplateService } from '../services/budgetTemplate.service';
 import { BudgetTemplate } from '../models/budgetTemplate.Model';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ConfirmationModalComponent } from 'src/app/shared/components/reusable-modal/reusable-modal.component';
+import {
+  DocumentTemplateConfiguration,
+  DocumentTemplateConfigurationService,
+  DocumentType,
+} from '../services/documentTemplateConfiguration.service';
 
 @Component({
   selector: 'app-budget-config',
@@ -22,6 +27,61 @@ export class BudgetConfigComponent implements OnInit {
   urlImageLogo: string = '';
   selectedOption: number = 0;
   budgetTemplates: BudgetTemplate[] = [];
+
+  // ---------- Apariencia del documento ----------
+
+  /**
+   * Tipo de documento que se esta configurando. Cada uno guarda su propia
+   * apariencia: una empresa puede querer la cotizacion con su color y la factura
+   * sobria.
+   */
+  docType: DocumentType = 'Budget';
+
+  readonly docTypes: { value: DocumentType; label: string }[] = [
+    { value: 'Budget', label: 'Cotizaciones' },
+    { value: 'Invoice', label: 'Facturas' },
+  ];
+
+  docConfig: DocumentTemplateConfiguration | null = null;
+  savingDocConfig = false;
+
+  /** Tamanos de texto que el generador sabe aplicar. */
+  readonly fontSizes = [9, 10, 11, 12, 13, 14];
+
+  setDocType(type: DocumentType): void {
+    if (this.docType === type) return;
+    this.docType = type;
+    this.loadDocConfig();
+  }
+
+  private loadDocConfig(): void {
+    this.docConfigService.get(this.docType).subscribe({
+      next: cfg => { this.docConfig = cfg; },
+      error: () => { this.handleError('Error al cargar la apariencia del documento', this.loadConfigError); }
+    });
+  }
+
+  /**
+   * Guarda la apariencia. Ya no tiene boton propio: lo llama el unico Guardar
+   * de la pantalla.
+   *
+   * Antes habia DOS botones de guardar en el mismo formulario, y el que uno se
+   * encontraba primero al bajar -"Guardar apariencia"- no guardaba la plantilla
+   * recien elegida, pero respondia "guardado correctamente". El usuario elegia
+   * plantilla, guardaba, veia el mensaje de exito, refrescaba y seguia la
+   * anterior. Reproducido en el navegador: pulsando el de abajo guarda; pulsando
+   * el de arriba no, y avisa de que si.
+   */
+  private saveDocConfigSilently(): Promise<void> {
+    if (!this.docConfig) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      this.docConfigService.save(this.docConfig!).subscribe({
+        next: cfg => { this.docConfig = cfg; resolve(); },
+        error: (err: any) => reject(err),
+      });
+    });
+  }
 
   // Variables para textos reutilizados
   private readonly successMessage: string = "¡Los formatos de tus cotizaciones han sido actualizados correctamente!";
@@ -40,6 +100,7 @@ export class BudgetConfigComponent implements OnInit {
     private route: ActivatedRoute,
     private budgetConfigService: BudgetConfigurationService,
     private budgetTemplateService: BudgetTemplateService,
+    private docConfigService: DocumentTemplateConfigurationService,
     private spinner: NgxSpinnerService
   ) {
     this.companyForm = this.fb.group({
@@ -70,6 +131,7 @@ export class BudgetConfigComponent implements OnInit {
     }
 
     this.loadTemplates();
+    this.loadDocConfig();
   }
 
   async loadTemplates() {
@@ -87,7 +149,11 @@ export class BudgetConfigComponent implements OnInit {
     if (this.companyForm.valid) {
       try {
         this.spinner.show();
+        // Las dos cosas en el mismo guardado: la plantilla y la apariencia. Que
+        // fueran dos botones es lo que hacia creer que se habia guardado algo
+        // que no.
         await this.budgetConfigService.updateBudgetConfigByUser(this.companyForm.value).toPromise();
+        await this.saveDocConfigSilently();
         await this.ngOnInit();  // Refresca la información
         this.showModal(false, this.successMessage, this.successTitle);
       } catch (error) {
